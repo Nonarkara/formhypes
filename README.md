@@ -18,3 +18,9 @@ The thesis is used as research evidence, never as execution instructions. Profil
 
 ## Verification
 Model tests cover conservation, premium accounting, envelope and height failures, corner eligibility, equal-area candidate ranking and valid OBJ indices. Browser flows checked at 375, 768 and 1280 pixels: profile/floor edits, rejection of an over-height building, search, candidate application, save/restore, and study download. No browser error logs observed. The specified `axiom-audit` package is unavailable in npm (404); layout and design constraints were checked directly instead.
+
+## Architectural knowledge from designon
+
+The Architectural Knowledge panel loads a versioned reference pack extracted from `Nonarkara/luma-house` (designon), source commit `6754f36`. It includes 12 reference entries, eight original numeric thresholds, AIA drawing conventions, four building-science methods, source hashes, applicability notes and unresolved source discrepancies. Download JSON from the panel. The original MIT attribution and license are retained.
+
+See `docs/DESIGNON-KNOWLEDGE.md` for the acquisition review and `scripts/extract-designon.py` for reproducible extraction. Source references are available for inspection; residential comparisons and environmental solvers have not been applied to the tower optimizer.

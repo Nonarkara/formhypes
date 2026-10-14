@@ -1,0 +1,354 @@
+{
+  "schemaVersion": 1,
+  "title": "designon architectural knowledge",
+  "extractedOn": "2026-10-14",
+  "status": "source-extracted reference knowledge; no current compliance verification",
+  "source": {
+    "product": "designon",
+    "domain": "https://designon.nonarkara.org",
+    "repository": "https://github.com/Nonarkara/luma-house",
+    "commit": "6754f369dc8cfd79bd642e5e0dd8751f7a867b4a",
+    "files": [
+      {
+        "path": "src/codes/standards.ts",
+        "sha256": "a71830ab77030e64462cc0f2c4cad3ba212c62d7588a68109f7f4e41684fc02f",
+        "url": "https://github.com/Nonarkara/luma-house/blob/6754f369dc8cfd79bd642e5e0dd8751f7a867b4a/src/codes/standards.ts"
+      },
+      {
+        "path": "src/codes/checkPlan.ts",
+        "sha256": "ae8367e4c5cd15af12c2ca00ada31299cbce9f1e9e3f7064cd313182e88dc2b4",
+        "url": "https://github.com/Nonarkara/luma-house/blob/6754f369dc8cfd79bd642e5e0dd8751f7a867b4a/src/codes/checkPlan.ts"
+      },
+      {
+        "path": "src/study/geometry.ts",
+        "sha256": "e531cbe13425744e9a5b17ec4439194bb6f65214b77779b07eb9829d8e9217ab",
+        "url": "https://github.com/Nonarkara/luma-house/blob/6754f369dc8cfd79bd642e5e0dd8751f7a867b4a/src/study/geometry.ts"
+      },
+      {
+        "path": "src/study/graphics.ts",
+        "sha256": "4c8602f39e3d53c651f5b19ee085493672cd509fba86e1e138ba3832cca4676f",
+        "url": "https://github.com/Nonarkara/luma-house/blob/6754f369dc8cfd79bd642e5e0dd8751f7a867b4a/src/study/graphics.ts"
+      },
+      {
+        "path": "src/study/DrawingAnnotations.tsx",
+        "sha256": "18039c190293eeab96b046652fa80f39699a63cef04f7447313261ef00c1892a",
+        "url": "https://github.com/Nonarkara/luma-house/blob/6754f369dc8cfd79bd642e5e0dd8751f7a867b4a/src/study/DrawingAnnotations.tsx"
+      },
+      {
+        "path": "src/study/StudySheet.tsx",
+        "sha256": "72f915dcd56dae2120601bc85faff8d0891430f8d60803b7877ae649ace0b864",
+        "url": "https://github.com/Nonarkara/luma-house/blob/6754f369dc8cfd79bd642e5e0dd8751f7a867b4a/src/study/StudySheet.tsx"
+      },
+      {
+        "path": "src/analysis/daylight.ts",
+        "sha256": "3b3441f4892b2aa98724ce69af0f777cb5b454c3228c4409da40c9cad45b96ed",
+        "url": "https://github.com/Nonarkara/luma-house/blob/6754f369dc8cfd79bd642e5e0dd8751f7a867b4a/src/analysis/daylight.ts"
+      },
+      {
+        "path": "src/analysis/windFlow.ts",
+        "sha256": "7ca2101dee69efb4017d27d64c79569d300908387f7296905117c7856399a477",
+        "url": "https://github.com/Nonarkara/luma-house/blob/6754f369dc8cfd79bd642e5e0dd8751f7a867b4a/src/analysis/windFlow.ts"
+      },
+      {
+        "path": "src/analysis/heatFlow.ts",
+        "sha256": "667b00dc2efecc9b7b706b4d92564ef924896f5c6426cd2b49b0a4df1ad1cd9c",
+        "url": "https://github.com/Nonarkara/luma-house/blob/6754f369dc8cfd79bd642e5e0dd8751f7a867b4a/src/analysis/heatFlow.ts"
+      },
+      {
+        "path": "src/analysis/egress.ts",
+        "sha256": "2726c7038a04d608131ab0040902076d2476fd8d66a8d46a0963b60291061b42",
+        "url": "https://github.com/Nonarkara/luma-house/blob/6754f369dc8cfd79bd642e5e0dd8751f7a867b4a/src/analysis/egress.ts"
+      },
+      {
+        "path": "docs/ARCHITECTURAL-GRAPHICS-REVIEW.md",
+        "sha256": "b992389a517c8ea26330fb4ca66b651be25a5096acad1b364460c83fcfe2b045",
+        "url": "https://github.com/Nonarkara/luma-house/blob/6754f369dc8cfd79bd642e5e0dd8751f7a867b4a/docs/ARCHITECTURAL-GRAPHICS-REVIEW.md"
+      },
+      {
+        "path": "docs/BUILDING_SCIENCE_USABILITY_AUDIT.md",
+        "sha256": "1314ba222ff70b4bbce51ac834314bb3b1a2bc69d7d9d318b62bc4d430d2ef18",
+        "url": "https://github.com/Nonarkara/luma-house/blob/6754f369dc8cfd79bd642e5e0dd8751f7a867b4a/docs/BUILDING_SCIENCE_USABILITY_AUDIT.md"
+      }
+    ]
+  },
+  "references": [
+    {
+      "id": "IRC-2021-R304.1",
+      "ref": "2021 IRC R304.1",
+      "name": "2021 International Residential Code — Minimum Habitable Room Area",
+      "body": "IRC",
+      "scope": "US reference example; adopted edition and project applicability unverified"
+    },
+    {
+      "id": "IRC-2021-R304.2",
+      "ref": "2021 IRC R304.2",
+      "name": "2021 International Residential Code — Minimum Room Width",
+      "body": "IRC",
+      "scope": "US reference example; adopted edition and project applicability unverified"
+    },
+    {
+      "id": "IRC-2021-R305.1",
+      "ref": "2021 IRC R305.1",
+      "name": "2021 International Residential Code — Minimum Ceiling Height",
+      "body": "IRC",
+      "scope": "US reference example; adopted edition and project applicability unverified"
+    },
+    {
+      "id": "MODEL-EGRESS",
+      "ref": "MODEL · ROUTE",
+      "name": "Modeled door-graph route to outdoors — geometry only",
+      "body": "MODEL",
+      "scope": "internal geometry model"
+    },
+    {
+      "id": "MODEL-ENVELOPE",
+      "ref": "MODEL · ENVELOPE",
+      "name": "Modeled envelope inputs — not a code rating",
+      "body": "MODEL",
+      "scope": "internal geometry model"
+    },
+    {
+      "id": "MODEL-VENTILATION",
+      "ref": "MODEL · AIR PATH",
+      "name": "Modeled operable-air path — geometry only",
+      "body": "MODEL",
+      "scope": "internal geometry model"
+    },
+    {
+      "id": "IBC-1010.1.1",
+      "ref": "IBC 1010.1.1",
+      "name": "International Building Code — Door Size",
+      "body": "IBC",
+      "scope": "US reference example; adopted edition and project applicability unverified"
+    },
+    {
+      "id": "ASHRAE-62.2-WHOLE-DWELLING",
+      "ref": "ASHRAE 62.2",
+      "name": "ASHRAE 62.2 — Residential Ventilation (inputs incomplete)",
+      "body": "ASHRAE",
+      "scope": "US reference example; adopted edition and project applicability unverified"
+    },
+    {
+      "id": "ASHRAE-62.2-KITCHEN",
+      "ref": "ASHRAE 62.2",
+      "name": "ASHRAE 62.2 — Local Kitchen Exhaust",
+      "body": "ASHRAE",
+      "scope": "US reference example; adopted edition and project applicability unverified"
+    },
+    {
+      "id": "ASHRAE-62.2-BATHROOM",
+      "ref": "ASHRAE 62.2",
+      "name": "ASHRAE 62.2 — Local Bathroom Exhaust",
+      "body": "ASHRAE",
+      "scope": "US reference example; adopted edition and project applicability unverified"
+    },
+    {
+      "id": "ADA-404.2.3",
+      "ref": "ADA 404.2.3",
+      "name": "ADA — Accessible Door Clear Width",
+      "body": "ADA",
+      "scope": "US reference example; adopted edition and project applicability unverified"
+    },
+    {
+      "id": "ADA-304.3",
+      "ref": "ADA 304.3",
+      "name": "ADA — Turning Space",
+      "body": "ADA",
+      "scope": "US reference example; adopted edition and project applicability unverified"
+    }
+  ],
+  "thresholds": [
+    {
+      "key": "minHabitableAreaM2",
+      "storedValue": 6.5,
+      "unit": "m²",
+      "referenceId": "IRC-2021-R304.1",
+      "scope": "Residential habitable room area",
+      "officeOptimizerEnforced": false
+    },
+    {
+      "key": "minHabitableDimensionM",
+      "storedValue": 2.13,
+      "unit": "m",
+      "referenceId": "IRC-2021-R304.2",
+      "scope": "Residential minimum room width, kitchens excepted",
+      "officeOptimizerEnforced": false
+    },
+    {
+      "key": "minCeilingHeightM",
+      "storedValue": 2.13,
+      "unit": "m",
+      "referenceId": "IRC-2021-R305.1",
+      "scope": "Residential habitable-space ceiling",
+      "officeOptimizerEnforced": false
+    },
+    {
+      "key": "minDoorClearWidthM",
+      "storedValue": 0.81,
+      "unit": "m",
+      "referenceId": "ADA-404.2.3",
+      "scope": "Stored door-width comparison; source does not establish modeled width as clear opening",
+      "officeOptimizerEnforced": false
+    },
+    {
+      "key": "minDoorHeightM",
+      "storedValue": 2.03,
+      "unit": "m",
+      "referenceId": "IBC-1010.1.1",
+      "scope": "Door-height reference, edition not recorded",
+      "officeOptimizerEnforced": false
+    },
+    {
+      "key": "adaTurningDiameterM",
+      "storedValue": 1.5,
+      "unit": "m",
+      "referenceId": "ADA-304.3",
+      "scope": "Circular turning reference; no fixture or T-turn analysis",
+      "officeOptimizerEnforced": false
+    },
+    {
+      "key": "kitchenExhaustLs",
+      "storedValue": 50.0,
+      "unit": "L/s",
+      "referenceId": "ASHRAE-62.2-KITCHEN",
+      "scope": "Residential intermittent range-hood exhaust",
+      "officeOptimizerEnforced": false
+    },
+    {
+      "key": "bathroomExhaustLs",
+      "storedValue": 25.0,
+      "unit": "L/s",
+      "referenceId": "ASHRAE-62.2-BATHROOM",
+      "scope": "Residential intermittent bathroom exhaust",
+      "officeOptimizerEnforced": false
+    }
+  ],
+  "graphics": {
+    "book": {
+      "title": "Architectural Graphic Standards, Student Edition, Eleventh Edition",
+      "organization": "American Institute of Architects",
+      "editor": "Bruce Bassler",
+      "publisher": "Wiley",
+      "year": 2008,
+      "reviewedPrintedPages": [
+        "445–446",
+        "514–518"
+      ],
+      "scope": "Historical drawing conventions; not current building-code authority"
+    },
+    "physicalScaleEquation": "paper millimetres = model metres × 1000 / scale denominator",
+    "scales": [
+      50,
+      100,
+      200,
+      500,
+      1000,
+      2000,
+      5000,
+      10000
+    ],
+    "lineWeightsMm": {
+      "dimensionsAndFurniture": 0.18,
+      "referenceAndDimensionTicks": 0.35
+    },
+    "wallThicknessAssumptionM": 0.15,
+    "floorThicknessAssumptionM": 0.1,
+    "planCutRule": "1.2 m above finished floor, or half room height if shorter",
+    "rules": [
+      "Solid cut faces; lighter furniture and glazing.",
+      "Distinguish physical objects from reference symbols.",
+      "Centreline dimensions are not finished clearances.",
+      "Parallel axonometric camera; north-up top-down plan.",
+      "Door arcs are indicative when hinge and swing direction are absent.",
+      "Separate view cuts from full physical geometry and shadow casters.",
+      "Subtract the union of overlapping openings from wall solids.",
+      "Identify sheet, revision, project, location, date/time and scale.",
+      "Keep dimensional vector drawings at physical print scale; disable flex shrinking.",
+      "Compare June and December 21 at the same scale, location, civil hour and year.",
+      "Label solar footprints as walls-only projections; retain explicit exclusions."
+    ],
+    "sources": [
+      "docs/ARCHITECTURAL-GRAPHICS-REVIEW.md",
+      "src/study/geometry.ts",
+      "src/study/DrawingAnnotations.tsx",
+      "src/study/graphics.ts"
+    ]
+  },
+  "models": [
+    {
+      "id": "daylight",
+      "title": "Daylight reach",
+      "equation": "min(room depth, window head height × 1.5 × (visible transmittance / 0.70))",
+      "confidence": "reference heuristic",
+      "source": "src/analysis/daylight.ts",
+      "limits": "12 × 12 plan samples. The transmittance factor is an implementation heuristic. No lux, glare, sDA or annual daylight validation.",
+      "transfer": "Requires actual window geometry, workplanes and obstructions before office evaluation."
+    },
+    {
+      "id": "air",
+      "title": "Connected airflow",
+      "equation": "Q = Cd × Aeq × wind speed × √|ΔCp|; Aeq = 1 / √Σ(1/Ai²)",
+      "confidence": "concept model",
+      "source": "src/analysis/windFlow.ts",
+      "limits": "Uses fixed aperture areas and representative pressure coefficients. Interior open-door paths connect exterior pressure faces. No CFD or high-rise pressure validation.",
+      "transfer": "Reuse connectivity and explicit assumptions; replace wind pressure, opening areas and stack effects for a tower."
+    },
+    {
+      "id": "heat",
+      "title": "Envelope heat",
+      "equation": "Conduction = U × area × temperature difference; solar gain = irradiance × glass area × SHGC × incidence",
+      "confidence": "steady-state scenario",
+      "source": "src/analysis/heatFlow.ts",
+      "limits": "Walls, doors and windows only. Excludes roof, floor, infiltration, bridges, internal loads and hourly weather.",
+      "transfer": "Requires per-face glazing fractions, assembly inputs and orientation before energy comparison."
+    },
+    {
+      "id": "escape",
+      "title": "Route connectivity",
+      "equation": "Continuous room → door → room graph ending at an exterior door",
+      "confidence": "geometry only",
+      "source": "src/analysis/egress.ts",
+      "limits": "Centerline route approximation. Does not establish legal travel distance, widths, stairs, fire compartments or occupant load.",
+      "transfer": "Extend the graph across floors and protected stairs before any high-rise egress evaluation."
+    }
+  ],
+  "provenanceFindings": [
+    {
+      "id": "door-width-rounding",
+      "note": "Stored minimum door width is 0.81 m; its source comment describes 815 mm. Preserve the stored value for provenance; verify and resolve before enforcement."
+    },
+    {
+      "id": "turning-rounding",
+      "note": "Stored turning diameter is 1.5 m while its comment also says 60 in. Exact inch conversion is 1.524 m. This pack does not adjudicate the applicable standard."
+    },
+    {
+      "id": "ceiling-exceptions",
+      "note": "A single residential ceiling value does not encode all room types, exceptions or office applicability."
+    },
+    {
+      "id": "legacy-air-score",
+      "note": "src/analysis/ventilation.ts contains an opening-count score; the audited Value Lens uses windFlow.ts with a pressure-connected graph. Do not promote the older score as airflow performance."
+    },
+    {
+      "id": "unsupported-rules",
+      "note": "No commercial office rent standard, high-rise core-sizing rule, office occupant-load pack or rentable-area measurement standard was found in the reviewed standards library."
+    }
+  ],
+  "officeTransfer": {
+    "enforcedReferenceThresholds": [],
+    "ready": [
+      "Drawing hierarchy and dimensional units",
+      "Versioned source and applicability metadata",
+      "Explicit scenario equations and confidence labels"
+    ],
+    "requiresOfficeAdaptation": [
+      "Room/window geometry and useful occupied daylight",
+      "Protected routes and stairs across floors",
+      "Commercial ventilation and high-rise wind pressures",
+      "Assembly-based hourly energy model",
+      "Adopted jurisdiction, occupancy and editions",
+      "Professional rentable-area measurement convention"
+    ]
+  },
+  "credit": "Non Arkaraprasertkul / Axiom X Co., Ltd. designon code and documentation are MIT-licensed. Book references are credited descriptions, not reproduced book assets."
+}
