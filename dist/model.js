@@ -1,0 +1,30 @@
+export const families={box:'Rectilinear',chamfer:'Chamfered',cross:'Cruciform',octagon:'Octagonal',star:'Eight-point'};
+export const defaults={family:'cross',span:48,aspect:1,floors:48,height:4.1,taper:0.82,twist:0,core:14,common:12,rent:650,premium:30,occupancy:92,reserve:18,frontage:6,site:68,maxHeight:260,skin:'diagrid'};
+export function profile(s,t=0){
+ let p;
+ if(s.family==='cross') p=[[-.2,-.5],[.2,-.5],[.2,-.2],[.5,-.2],[.5,.2],[.2,.2],[.2,.5],[-.2,.5],[-.2,.2],[-.5,.2],[-.5,-.2],[-.2,-.2]];
+ else if(s.family==='chamfer') p=[[-.3,-.5],[.3,-.5],[.5,-.3],[.5,.3],[.3,.5],[-.3,.5],[-.5,.3],[-.5,-.3]];
+ else if(s.family==='octagon') p=Array.from({length:8},(_,i)=>{let a=Math.PI/8+i*Math.PI/4;return [Math.cos(a)*.5,Math.sin(a)*.5]});
+ else if(s.family==='star') p=Array.from({length:16},(_,i)=>{let a=Math.PI/8+i*Math.PI/8;let r=i%2?.34:.5;return [Math.cos(a)*r,Math.sin(a)*r]});
+ else p=[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
+ const scale=1+(s.taper-1)*t,ang=s.twist*Math.PI/180*t,c=Math.cos(ang),d=Math.sin(ang);
+ return p.map(([x,y])=>{x*=s.span*Math.sqrt(s.aspect)*scale;y*=s.span/Math.sqrt(s.aspect)*scale;return [x*c-y*d,x*d+y*c]});
+}
+export function area(p){return Math.abs(p.reduce((sum,v,i)=>{let w=p[(i+1)%p.length];return sum+v[0]*w[1]-w[0]*v[1]},0))/2}
+export function perimeter(p){return p.reduce((sum,v,i)=>sum+Math.hypot(v[0]-p[(i+1)%p.length][0],v[1]-p[(i+1)%p.length][1]),0)}
+export function inside(p,v){let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){let a=p[i],b=p[j];if((a[1]>v[1])!==(b[1]>v[1])&&v[0]<(b[0]-a[0])*(v[1]-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
+function intersects(a,b,c,d){const cross=(p,q,r)=>(q[0]-p[0])*(r[1]-p[1])-(q[1]-p[1])*(r[0]-p[0]);return cross(a,b,c)*cross(a,b,d)<0&&cross(c,d,a)*cross(c,d,b)<0}
+function coreBoundaryHit(p,core){let c=core/2,r=[[-c,-c],[c,-c],[c,c],[-c,c]];return p.some((v,i)=>r.some((w,j)=>intersects(v,p[(i+1)%p.length],w,r[(j+1)%4])))}
+function coreHit(p,core){const c=core/2;return coreBoundaryHit(p,core)||p.some(([x,y])=>Math.abs(x)<c&&Math.abs(y)<c)||[[-c,-c],[c,-c],[c,c],[-c,c]].some(v=>inside(p,v))}
+export function cornerZones(p,s){let out=[];for(let i=0;i<p.length;i++){let v=p[i],prev=p[(i+p.length-1)%p.length],next=p[(i+1)%p.length],u=[prev[0]-v[0],prev[1]-v[1]],w=[next[0]-v[0],next[1]-v[1]],lu=Math.hypot(...u),lw=Math.hypot(...w);if(lu<2*s.frontage+.01||lw<2*s.frontage+.01)continue;u=u.map(x=>x/lu);w=w.map(x=>x/lw);const cross=u[0]*w[1]-u[1]*w[0],angle=Math.acos(Math.max(-1,Math.min(1,u[0]*w[0]+u[1]*w[1])));if(cross>=0||angle>145*Math.PI/180)continue;const l=s.frontage,z=[v,[v[0]+u[0]*l,v[1]+u[1]*l],[v[0]+(u[0]+w[0])*l,v[1]+(u[1]+w[1])*l],[v[0]+w[0]*l,v[1]+w[1]*l]];if(coreHit(z,s.core))continue;const centroid=z.reduce((a,v)=>[a[0]+v[0]/4,a[1]+v[1]/4],[0,0]);if(!inside(p,z[2])||!inside(p,centroid))continue;out.push(z)}return out}
+function triangleArea(a,b,c){const u=b.map((v,i)=>v-a[i]),v=c.map((n,i)=>n-a[i]);return Math.hypot(u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0])/2}
+export function evaluate(s){let gross=0,facade=0,cornerArea=0,corners=0,coreFits=true,envelopeFits=true;const coreArea=s.core**2;const c=s.core/2;for(let f=0;f<s.floors;f++){let t=f/s.floors,p=profile(s,t),q=profile(s,(f+1)/s.floors),zones=cornerZones(p,s);gross+=area(p);for(let i=0;i<p.length;i++){let j=(i+1)%p.length,a=[...p[i],f*s.height],b=[...p[j],f*s.height],c=[...q[j],(f+1)*s.height],d=[...q[i],(f+1)*s.height];facade+=triangleArea(a,b,c)+triangleArea(a,c,d)}cornerArea+=zones.reduce((a,z)=>a+area(z),0);corners+=zones.length;if(coreBoundaryHit(p,s.core)||![[-c,-c],[c,-c],[c,c],[-c,c]].every(v=>inside(p,v)))coreFits=false;if(p.some(v=>Math.abs(v[0])>s.site/2+.00001||Math.abs(v[1])>s.site/2+.00001))envelopeFits=false;}
+ // Check roof too; it is not an extra rentable floor.
+ if(coreBoundaryHit(profile(s,1),s.core)||![[-c,-c],[c,-c],[c,c],[-c,c]].every(v=>inside(profile(s,1),v)))coreFits=false;
+ if(profile(s,1).some(v=>Math.abs(v[0])>s.site/2+.00001||Math.abs(v[1])>s.site/2+.00001))envelopeFits=false;
+ const core=coreArea*s.floors,common=gross*s.common/100,rentable=Math.max(0,gross-core-common);cornerArea=Math.min(cornerArea,rentable);const rent=(rentable+cornerArea*s.premium/100)*s.rent*s.occupancy/100,facadeCost=facade*s.reserve,contribution=rent-facadeCost;
+ const reasons=[];if(!coreFits)reasons.push('Core extends beyond a floor plate');if(!envelopeFits)reasons.push('Tower exceeds site envelope');if(s.floors*s.height>s.maxHeight)reasons.push('Tower exceeds height limit');if(rentable<=0)reasons.push('No area remains for offices');
+ return {gross,core,common,rentable,cornerArea,corners,facade,rent,facadeCost,contribution,efficiency:rentable/gross*100,height:s.floors*s.height,valid:reasons.length===0,reasons};
+}
+export function search(s,objective='contribution'){const target=evaluate(s).gross,results=[];for(const family of Object.keys(families))for(const taper of [1,.9,.8,.7])for(const twist of [0,30,60,90]){let candidate={...s,family,taper,twist};candidate.span*=Math.sqrt(target/evaluate(candidate).gross);const metrics=evaluate(candidate);results.push({state:candidate,metrics})}const feasible=results.filter(x=>x.metrics.valid);feasible.sort((a,b)=>{let delta=objective==='facade'?a.metrics.facade-b.metrics.facade:b.metrics[objective]-a.metrics[objective];return Math.abs(delta)>1e-6?delta:a.state.twist-b.state.twist});return {results:feasible,examined:results.length,rejected:results.length-feasible.length,target}}
+export function meshOBJ(s){let lines=['# FORM / YIELD conceptual massing; units: metres'],p=profile(s,0),n=p.length;for(let f=0;f<=s.floors;f++)for(const [x,y] of profile(s,f/s.floors))lines.push(`v ${x.toFixed(5)} ${(f*s.height).toFixed(5)} ${y.toFixed(5)}`);lines.push('f '+Array.from({length:n},(_,i)=>n-i).join(' '));for(let f=0;f<s.floors;f++)for(let i=0;i<n;i++){let j=(i+1)%n;lines.push(`f ${f*n+i+1} ${f*n+j+1} ${(f+1)*n+j+1} ${(f+1)*n+i+1}`)}lines.push('f '+Array.from({length:n},(_,i)=>s.floors*n+i+1).join(' '));return lines.join('\n')}
