@@ -1,4 +1,4 @@
-import {mountConsole} from './console.js?v=2dc3cae4b1';
+import {mountConsole} from './console.js?v=d21f851a94';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=83bfd6e335';
