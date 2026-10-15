@@ -1,10 +1,412 @@
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-:root{--paper:#e9eae7;--panel:#f5f5f2;--ink:#191c1b;--muted:#585e5b;--line:#c6cbc6;--accent:#f59e0b;--dark:#111416;--dim:#a2aca9;--s:12px;--m:16px;--l:30px}
-*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:'Source Sans 3',Arial,sans-serif;font-size:var(--m)}button,input,select{font:inherit}button,select{min-height:44px}button{border:1px solid var(--line);background:transparent;color:inherit;padding:8px 14px;cursor:pointer;transition:background .16s ease-out,transform .16s ease-out}button:hover{background:var(--line)}button:active{transform:scale(.97)}button:disabled{cursor:not-allowed;opacity:.5}button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible,canvas:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.primary{background:var(--accent);border-color:var(--accent);color:var(--ink);font-weight:600}.primary:hover{background:#eab046}header{min-height:72px;padding:12px 28px;border-bottom:2px solid var(--ink);display:flex;align-items:center;gap:28px}header p{margin:0;color:var(--muted)}header button{margin-left:auto;border:0}.brand{font-family:'Josefin Sans',Arial,sans-serif;font-size:var(--l);font-weight:700;color:var(--ink);text-decoration:none;white-space:nowrap;letter-spacing:-1px}.brand span{color:var(--accent);margin:0 5px}main{max-width:1800px;margin:auto;padding:0 28px}.titlebar{display:flex;align-items:center;justify-content:space-between;padding:25px 0 23px;gap:16px}.eyebrow{font-size:var(--s);text-transform:uppercase;letter-spacing:.12em;margin:0 0 6px;color:var(--muted)}h1{font-family:'Josefin Sans',Arial,sans-serif;font-size:var(--l);font-weight:600;margin:0;line-height:1.2}h2,h3{font-size:var(--m);font-weight:600;margin:0}p{margin:0 0 12px;line-height:1.4}.actions{display:flex;gap:8px}.studio{display:grid;grid-template-columns:245px minmax(300px,1fr) 270px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);background:var(--panel)}.controls{padding:18px 20px;border-right:1px solid var(--line)}.railheading{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.data,dd,output{font-family:'JetBrains Mono',monospace;font-size:var(--s);font-variant-numeric:tabular-nums}.railheading>.data{color:var(--muted)}label{display:block;font-size:var(--s);font-weight:600}select{width:100%;border:1px solid var(--line);padding:8px 28px 8px 10px;background:var(--panel);color:var(--ink);font-size:var(--s)}.controls>select{margin:5px 0 16px}.control{margin:15px 0}.controlhead{display:flex;justify-content:space-between;gap:10px;align-items:baseline}.controlhead output{white-space:nowrap}input[type=range]{width:100%;height:28px;accent-color:var(--accent);margin:3px 0 0;cursor:pointer}input[type=number]{width:80px;min-height:44px;border:1px solid var(--line);background:var(--panel);padding:6px;font-family:'JetBrains Mono',monospace;font-size:var(--s);color:var(--ink)}details{border-top:1px solid var(--line);margin-top:12px;padding:8px 0}summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;font-size:var(--s);font-weight:600}summary::after{content:'+'}details[open] summary::after{content:'−'}.note{font-size:var(--s);color:var(--muted);line-height:1.45}.source{margin:12px 0 0}.viewport{position:relative;background:var(--dark);color:var(--paper);overflow:hidden;min-height:660px;isolation:isolate}#tower{width:100%;height:100%;position:absolute;inset:0;touch-action:none;cursor:grab}#tower:active{cursor:grabbing}.viewhead,.viewfoot{position:absolute;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:var(--s);z-index:1;pointer-events:none}.viewhead{top:19px}.viewhead>div{display:flex;align-items:center;gap:8px}.square{display:inline-block;width:6px;height:6px;background:var(--accent)}.viewfoot{bottom:18px;color:var(--dim)}.viewtools{position:absolute;bottom:50px;left:20px;display:flex;gap:4px;z-index:2}.viewtools button{background:var(--dark);border-color:#414a4d;padding:6px 12px;font-size:var(--s);color:var(--paper)}.viewtools button:hover,.viewtools button[aria-pressed=true]{color:var(--accent);border-color:var(--accent)}.model-stamp{position:absolute;bottom:115px;left:22px;color:#5b6366;line-height:1;font-family:'Josefin Sans',Arial,sans-serif;font-size:var(--l);pointer-events:none}.model-stamp span{color:var(--dim)}.results{padding:18px 20px;border-left:1px solid var(--line)}.primarymetric{border-bottom:2px solid var(--ink);padding:12px 0 16px}.primarymetric p{font-size:var(--s);margin:0;color:var(--muted)}.primarymetric strong{font-family:'Josefin Sans',Arial,sans-serif;display:block;font-size:var(--l);margin:8px 0;line-height:1.1}.primarymetric #delta{color:var(--muted)}.metrics{margin:10px 0}.metrics>div{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}dt{font-size:var(--s);color:var(--muted)}dd{margin:0;text-align:right}#feasibility{font-size:var(--s);padding:10px 0 16px;line-height:1.4}.valid::before{content:'✓ ';font-weight:700}.invalid{border-left:3px solid var(--accent);padding-left:8px!important}.planhead{display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--ink);padding-top:16px}.planhead h2{font-size:var(--s)}#plan{width:100%;height:200px;display:block}.legend{display:flex;gap:12px;font-size:var(--s);flex-wrap:wrap}.legend i{display:inline-block;width:9px;height:9px;margin-right:4px}.corner{background:var(--accent)}.core{background:var(--muted)}#floorStats{margin:10px 0 0}.explore{padding:28px 0;border-bottom:2px solid var(--ink)}.explorehead{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.explorehead h2{font-family:'Josefin Sans',Arial,sans-serif;font-size:var(--l);margin-bottom:5px}.explorehead p{font-size:var(--s);color:var(--muted);margin:0}.searchcontrols{display:flex;gap:8px;flex-shrink:0}.searchcontrols select{width:220px}.searchcontrols button{font-size:var(--s);white-space:nowrap}.empty{display:flex;align-items:center;gap:28px;padding:18px 22px;background:var(--panel)}.empty>.data{font-size:var(--l)}.empty p{margin:0;font-size:var(--s);color:var(--muted)}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;text-align:left;white-space:nowrap}th{font-size:var(--s);color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:2px solid var(--ink)}td{font-size:var(--s);padding:10px 12px;border-bottom:1px solid var(--line)}td.numeric{font-family:'JetBrains Mono',monospace}tbody tr:first-child{background:var(--panel)}td button{font-size:var(--s)}.searchsummary{margin:12px 0 0;font-size:var(--s);color:var(--muted)}.studies{display:flex;gap:32px;padding:24px 0;border-bottom:1px solid var(--line)}.studies>div:first-child{flex:0 0 220px}.studies p{font-size:var(--s);color:var(--muted);margin:4px 0}.studies #savedStudies{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.saved{display:flex;border:1px solid var(--line);background:var(--panel)}.saved button{border:0;font-size:var(--s)}.saved button+button{border-left:1px solid var(--line)}footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0;font-size:var(--s);color:var(--muted)}footer button{font-size:var(--s);border:0}dialog{background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:32px;max-width:680px;width:calc(100% - 32px);max-height:85dvh;overflow:auto}dialog::backdrop{background:#111416b8}dialog h2{font-family:'Josefin Sans',Arial,sans-serif;font-size:var(--l);line-height:1.15;margin-bottom:22px}dialog h3{margin:24px 0 8px}dialog p{font-size:var(--m);line-height:1.5}.close{position:sticky;top:0;float:right;font-size:var(--m);background:var(--panel)}.exportoptions{display:grid;gap:12px;margin:24px 0}.exportoptions button{text-align:left}#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:12px 20px;font-size:var(--s);z-index:10;max-width:90%;pointer-events:none}#toast:empty{display:none}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-@media(min-width:1550px){.studio{grid-template-columns:270px 1fr 290px}.viewport{min-height:760px}}
-@media(max-width:1100px){header{padding:12px 18px;gap:18px}.edition{display:none}main{padding:0 18px}.studio{grid-template-columns:220px 1fr}.results{grid-column:1/-1;border-left:0;border-top:2px solid var(--ink);display:grid;grid-template-columns:1fr 1fr;gap:0 32px}.results>.railheading,.results>.note{grid-column:1}.primarymetric{grid-column:1;grid-row:3}.metrics{grid-column:1;grid-row:4/8}.planhead{grid-column:2;grid-row:1;border-top:0;padding:0}.results>#floor{grid-column:2;grid-row:2}.results>#plan{grid-column:2;grid-row:3/6;height:250px}.legend{grid-column:2;grid-row:6}#floorStats{grid-column:2;grid-row:7}#feasibility{grid-column:1;grid-row:8}.viewport{min-height:680px}.explorehead{align-items:flex-start;flex-direction:column}.explorehead h2{font-size:var(--m)}}
-@media(max-width:650px){header{padding:12px;gap:12px;min-height:64px}.brand{font-size:var(--m);letter-spacing:0}header p{font-size:var(--s)}header button{font-size:var(--s);padding:6px;white-space:nowrap}main{padding:0 12px}.titlebar{padding:20px 0;display:block}h1{font-size:var(--l)}.actions{margin-top:16px}.actions button{font-size:var(--s)}.studio{display:flex;flex-direction:column}.viewport{order:0;min-height:520px}.controls{order:1;border-right:0;border-top:2px solid var(--ink);padding:18px}.results{order:2;display:block;padding:18px}.controls #geometryControls{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}.controls .control{margin:12px 0}.results>#plan{height:240px}.planhead{border-top:2px solid var(--ink);padding-top:16px;margin-top:8px}.primarymetric strong{font-size:var(--l)}.searchcontrols{width:100%;flex-direction:column}.searchcontrols select{width:100%}.empty{padding:16px;gap:18px}.studies{display:block}.studies>div:first-child{margin-bottom:12px}footer{flex-wrap:wrap;justify-content:flex-start}footer span:first-child{width:100%}footer button{padding-left:0}.viewhead,.viewfoot{left:16px;right:16px}dialog{padding:22px}.model-stamp{left:16px;bottom:110px}}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap');
 
-.knowledgebutton{width:100%;font-size:var(--s);text-align:left;margin-top:8px}.knowledgeDownloads{display:flex;flex-wrap:wrap;gap:12px}.knowledgeDownloads a{display:inline-flex;align-items:center;min-height:44px;color:var(--ink);font-size:var(--s)}#knowledgeContent h3{margin-top:24px}#knowledgeContent td{white-space:normal;vertical-align:top}#knowledgeContent .note{font-size:var(--s)}#knowledgeContent table{white-space:normal}#knowledgeContent a{color:var(--ink);display:inline-block;min-height:44px;padding:10px 0}#knowledgeContent ul{padding-left:20px}#knowledgeContent li{margin:8px 0;line-height:1.4}
-#knowledgeContent table{table-layout:fixed}#knowledgeContent td,#knowledgeContent th,#knowledgeContent a{overflow-wrap:anywhere}#knowledgeContent td,#knowledgeContent th{padding:10px 8px}
+/* FormHypes — a drafting sheet, not a dashboard.
+   The rule that governs this file: a container is the size of the thing it
+   holds. Type is set small on purpose, because the drawing is the content and
+   everything around it is margin. Borders are 1px hairlines used to separate,
+   never to enclose — an outlined box says "this is a thing" when most of what
+   it would enclose is just the gap between two things. */
+:root{
+ --paper:#e9eae7;--panel:#f2f2ef;--ink:#191c1b;--muted:#585e5b;--faint:#8b918d;--line:#c6cbc6;
+ --accent:#f59e0b;--dark:#111416;--dim:#a2aca9;
+ --s:12px;--m:15px;
+ --sans:'IBM Plex Sans','IBM Plex Sans Thai','Noto Sans SC',Arial,sans-serif;
+ --mono:'IBM Plex Mono',ui-monospace,monospace;
+ /* Measured, not guessed: app.js writes the real header + masthead height
+    into this custom property, because the masthead wraps differently in Thai
+    and in Chinese and a hard-coded number overflows the viewport in both. */
+ --chrome:102px;
+}
+html[lang^="th"] body{--sans:'IBM Plex Sans Thai','IBM Plex Sans',Arial,sans-serif}
+html[lang^="zh"] body{--sans:'Noto Sans SC','IBM Plex Sans',Arial,sans-serif}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:var(--m);line-height:1.45;-webkit-font-smoothing:antialiased}
+
+/* ── controls ────────────────────────────────────────────────────────────
+   28px on a pointer device, 40px on a coarse one. A 44px hit target on a mouse
+   is 16px of empty box, and the empty box is what this file is trying to get
+   rid of. */
+button,input,select{font:inherit}
+button,select{min-height:28px;font-size:var(--s);color:inherit}
+button{border:1px solid var(--line);background:transparent;padding:4px 10px;cursor:pointer;
+ display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+ transition:border-color .14s ease-out,background .14s ease-out,color .14s ease-out}
+button:hover{border-color:var(--ink);background:var(--panel)}
+button:active{transform:translateY(.5px)}
+button:disabled{cursor:not-allowed;opacity:.45}
+.ic{font-family:var(--mono);font-size:12px;line-height:1;color:var(--faint);transition:color .14s ease-out}
+button:hover .ic{color:var(--ink)}
+button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+button[aria-pressed="true"] .ic{color:var(--paper)}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible,canvas:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-weight:600;margin:0}
+h1{font-size:20px;line-height:1.25;letter-spacing:-.01em}
+.masthead h1{margin-top:-1px}
+p{margin:0 0 10px}
+a{color:inherit}
+
+/* ── header · one line, one rule ──────────────────────────────────────── */
+header{height:46px;padding:0 20px;border-bottom:1px solid var(--ink);display:flex;align-items:center;gap:20px;position:sticky;top:0;z-index:20;background:var(--paper)}
+/* The wordmark is the one place more than one colour is allowed, and it is a
+   hierarchy, not a logo: FORM and HYPES are the name and split so the eye
+   halves it; SHDT is a smaller subordinate credit in the red of the thesis it
+   draws on, and reads second. Never the reverse. */
+.brand{font-weight:800;font-size:16px;text-decoration:none;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.brand .b-form{color:var(--ink)}
+.brand .b-hypes{color:var(--accent)}
+.brand .b-cred{margin-left:10px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:none;color:var(--muted)}
+.brand .b-cred i{font-style:normal;font-weight:800;color:#de2910;letter-spacing:.1em}
+.tabs{display:flex;gap:16px}
+.tabs button{border:0;padding:2px 0;min-height:auto;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);background:none}
+.tabs button:hover{color:var(--ink);background:none}
+.tabs button.on{color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
+.langs{display:flex;gap:12px;margin-left:auto}
+.langs button{border:0;padding:2px 0;min-height:auto;font-family:var(--mono);font-size:11px;color:var(--faint);background:none}
+.langs button:hover{color:var(--ink);background:none}
+.langs button[aria-pressed="true"]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent);background:none}
+.actions{display:flex;gap:6px;padding-left:20px;border-left:1px solid var(--line)}
+
+main{max-width:1840px;margin:auto;padding:0 20px}
+.tabpane{display:none}
+.tabpane.on{display:block}
+
+/* ── masthead · one line, the credit sits on it from the start ────────── */
+/* A three-column grid rather than a flex row. In a flex row the eyebrow and the
+   h1 were being collapsed to zero width — they stayed in the DOM and in the
+   accessibility tree with no layout box at all, which reads as a paint bug
+   and is nearly impossible to spot from the markup. Grid tracks do that by
+   construction. */
+.masthead{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:baseline;
+          column-gap:16px;padding:12px 0 11px;border-bottom:1px solid var(--line)}
+.masthead .eyebrow{grid-column:1}
+.masthead h1{grid-column:2;margin-top:-1px}
+.masthead .mastnote{grid-column:3;justify-self:end}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.12em;margin:0;color:var(--muted)}
+.mastnote{font-size:11.5px;color:var(--muted);margin:0;max-width:62ch;line-height:1.4}
+
+/* ── studio · three columns of equal height, rules between ────────────── */
+.studio{display:grid;grid-template-columns:244px minmax(0,1fr) 336px;border-bottom:2px solid var(--ink)}
+.controls{padding:14px 16px 18px;border-right:1px solid var(--line);overflow-y:auto;max-height:calc(100vh - var(--chrome))}
+.results{padding:14px 16px 18px;border-left:1px solid var(--line);overflow-y:auto;max-height:calc(100vh - var(--chrome))}
+.railhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.railhead h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+.data,dd,output,.viewhead,.viewfoot,.titleblock,.planhead output{font-family:var(--mono);font-size:11px}
+.note{color:var(--muted);font-size:11px;margin:0 0 8px;line-height:1.42}
+.note.source{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);color:var(--faint)}
+.ctl{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:12px 0 4px}
+select{width:100%;padding:4px 6px;border:0;border-bottom:1px solid var(--ink);border-radius:0;background:transparent;color:var(--ink);margin-bottom:8px;
+ appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);
+ background-position:calc(100% - 9px) 50%,calc(100% - 5px) 50%;background-size:4px 4px;background-repeat:no-repeat}
+select:focus{outline-offset:0}
+details{border-top:1px solid var(--line);margin-top:11px;padding-top:2px}
+summary{cursor:pointer;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;padding:7px 0;color:var(--muted);list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:'+ ';font-family:var(--mono);color:var(--faint)}
+details[open]>summary::before{content:'– '}
+.control{margin:8px 0}
+.controlhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.controlhead label{font-size:11px}
+input[type=range]{width:100%;height:16px;accent-color:var(--accent);margin:2px 0 8px}
+.textlink{border:0;padding:7px 0 7px;margin-top:9px;font-size:11px;color:var(--ink);width:100%;justify-content:space-between;border-top:1px solid var(--line)}
+.textlink:hover{background:none;color:var(--muted)}
+.textlink .ic{color:var(--faint)}
+
+/* ── viewport · the one place a fill earns its keep ───────────────────── */
+.viewport{position:relative;background:var(--dark);min-height:calc(100vh - var(--chrome));overflow:hidden}
+.viewhead{position:absolute;top:12px;left:18px;right:18px;display:flex;justify-content:space-between;color:var(--dim);z-index:2;pointer-events:none}
+.vh-left{display:flex;align-items:center;gap:8px}
+.square{display:inline-block;width:6px;height:6px;background:var(--accent)}
+/* The canvas is out of flow on purpose: writing its backing store must never be
+   able to resize its own container, or resize → draw → resize never settles. */
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+/* The ruler owns the right-hand gutter. Controls live on the opposite edge so a
+   dimension line never runs through a button — the one thing a drawing sheet
+   cannot have. Left edge is free of the tower at every width we support. */
+.viewtools{position:absolute;top:36px;left:18px;display:flex;flex-direction:column;gap:4px;z-index:2;align-items:flex-start}
+.viewtools button{background:#1b2124e6;border-color:#333d42;color:var(--dim);padding:3px 8px}
+.viewtools button:hover{background:#2b3438;border-color:#5c686e;color:#fff}
+.viewtools button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.viewtools button[aria-pressed="true"] .ic{color:var(--ink)}
+.viewfoot{position:absolute;bottom:30px;left:18px;right:18px;display:flex;justify-content:space-between;color:#7d8783;pointer-events:none}
+.mobileonly{display:none}
+/* A title block is where a drawing declares what it is and is not. A real one is
+   a fixed grid of cells that never reflows — so this one holds its band and
+   truncates, rather than wrapping out through the bottom of the sheet. */
+.titleblock{position:absolute;bottom:0;left:0;right:0;height:22px;border-top:1px solid #2c3438;display:flex;align-items:center;gap:14px;padding:0 18px;color:#7d8783;font-size:10px;letter-spacing:.02em;white-space:nowrap;overflow:hidden}
+/* The title block repeats the wordmark on the dark sheet, so the two name
+   colours become the light ground and the amber. The hierarchy is identical. */
+.tb-sheet{letter-spacing:.14em;flex:none}
+.tb-sheet .b-form{font-style:normal;color:var(--paper)}
+.tb-sheet .b-hypes{font-style:normal;color:var(--accent)}
+.tb-sheet .b-cred{margin-left:9px;font-size:9px;font-style:normal;font-weight:600;letter-spacing:.06em;text-transform:none;color:#7d8783}
+.tb-sheet .b-cred i{font-style:normal;font-weight:800;color:#de2910;letter-spacing:.1em}
+.tb-notice{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.tb-ref{flex:none;margin-left:auto;padding-left:14px}
+
+/* ── schedule · a column of figures, set tight ────────────────────────── */
+.primarymetric{border-bottom:2px solid var(--ink);padding:6px 0 10px;margin:0 0 10px}
+.primarymetric p{margin:0;font-size:10.5px;color:var(--muted)}
+.primarymetric strong{font-size:24px;font-family:var(--mono);display:block;line-height:1.15;letter-spacing:-.02em}
+.primarymetric #delta{font-size:11px;color:var(--muted);margin-top:4px}
+.metrics{margin:0}
+.metrics>div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:2.5px 0;border-bottom:1px solid #d9ddd8}
+.metrics dt{font-size:11px;color:var(--muted);line-height:1.3}
+.metrics dd{margin:0;text-align:right;white-space:nowrap}
+/* Derived rows sit apart from the chosen assumptions above them: these follow
+   from geometry, the others are inputs the reader can change. */
+.metrics .derived{border-bottom:1px dotted var(--line)}
+.metrics .derived dt{color:var(--ink)}
+.metrics .derived dd{color:var(--ink)}
+.metrics .tag{font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-left:5px}
+#feasibility{font-size:11px;padding:6px 0 6px 10px;border-left:2px solid var(--ink);margin:10px 0}
+#feasibility.valid{border-left-color:#6b8f5e}
+#feasibility.invalid{border-left-color:var(--accent);background:#fdf3e0}
+
+#premiumPanel{border-top:1px solid var(--line);padding-top:9px;margin:4px 0 12px}
+.panhel,.panelh{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px;font-weight:400}
+.bar{display:grid;grid-template-columns:1fr auto;gap:3px;font-size:11px;margin-bottom:6px}
+.bar .track{grid-column:1/-1;height:4px;background:#d9ddd8}
+.bar .fill{height:100%;background:var(--ink)}
+.bar.neg .fill{background:var(--accent)}
+.bar span:last-child{font-family:var(--mono)}
+
+.planhead{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--ink);padding-top:9px;margin-top:6px}
+.planhead h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+.planhead label{font-size:11px;color:var(--muted)}
+#plan{width:100%;height:258px;display:block;margin:4px 0 2px}
+.legend{display:flex;gap:14px;font-size:10.5px;color:var(--muted)}
+.legend i{display:inline-block;width:9px;height:9px;margin-right:5px;border:1px solid var(--ink)}
+.legend i.corner{background:var(--accent)}
+.legend i.core{background:#8b918d}
+
+/* ── explore ──────────────────────────────────────────────────────────── */
+.explore{padding:26px 0;border-bottom:2px solid var(--ink)}
+.explorehead{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:16px;flex-wrap:wrap}
+.explorehead h2{font-size:17px;letter-spacing:-.01em}
+.explorehead p{margin:5px 0 0;color:var(--muted);font-size:11.5px}
+.searchcontrols{display:flex;gap:10px;align-items:center}
+.searchcontrols select{width:auto;margin:0;min-width:230px}
+.empty{border:1px dashed var(--line);padding:20px;display:flex;gap:16px;align-items:center;color:var(--muted);font-size:11.5px;position:relative;overflow:hidden}
+.empty p{margin:0}
+.empty .data{font-size:20px;color:var(--accent);font-family:var(--mono)}
+.empty::after{content:'';position:absolute;left:0;bottom:0;height:2px;width:var(--done,0%);background:var(--accent);transition:width .12s linear}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:11.5px}
+th{text-align:left;border-bottom:1px solid var(--ink);padding:6px 8px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;font-size:10px;color:var(--muted)}
+td{padding:6px 8px;border-bottom:1px solid #d9ddd8}
+td.numeric{font-family:var(--mono);text-align:right;white-space:nowrap}
+tbody tr:hover{background:var(--panel)}
+.searchsummary{font-size:11px;color:var(--muted);margin-top:10px}
+.win{background:#fdf3e0}
+
+.studies{padding:22px 0;display:grid;grid-template-columns:244px 1fr;gap:24px}
+.studies h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+.studies p{margin:5px 0 0;color:var(--muted);font-size:11px}
+#savedStudies{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start}
+
+/* ── research · long-form, single measure ─────────────────────────────── */
+.researchhead{padding:30px 0 26px;border-bottom:2px solid var(--ink)}
+.researchhead h1{max-width:24ch;font-size:34px;margin:8px 0 16px;letter-spacing:-.02em}
+.lede{font-size:18px;line-height:1.5;max-width:62ch}
+.credit{font-size:11.5px;color:var(--muted);max-width:78ch;border-left:2px solid var(--accent);padding-left:13px;margin-top:18px;line-height:1.5}
+/* The article is a centred reading column. Figures are not — a plate of
+   numbers or a row of photographs wants the width of the page, so they opt out
+   by centring themselves at a wider measure. Doing it with explicit widths and
+   auto margins, rather than a percentage margin plus a transform, because a
+   percentage margin resolves against the parent and silently breaks the moment
+   the parent is not full-bleed. */
+#rBody{max-width:none}
+#rBody section{max-width:1420px;margin:0 auto}
+#rBody h2{max-width:820px}
+#rBody h2,#rBody p,#rBody pre,#rBody .note,#rBody .verdict,#rBody .srcnote{margin-left:auto;margin-right:auto}
+.figs,.plates{max-width:1180px;margin-left:auto;margin-right:auto}
+.photos{max-width:1420px;margin-left:auto;margin-right:auto}
+#rBody section{padding:26px 0;border-bottom:1px solid var(--line)}
+#rBody h2{font-size:19px;margin-bottom:12px;letter-spacing:-.01em}
+#rBody p{max-width:76ch;line-height:1.62}
+#rBody pre{background:var(--dark);color:#c9d3d0;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:11.5px;line-height:1.65;border-left:2px solid var(--accent);margin:0 0 14px}
+#rBody .note{border-left:2px solid var(--line);padding-left:13px;max-width:76ch}
+#rBody .note.credit{border-left-color:var(--accent)}
+#rBody .pull{font-size:15px;line-height:1.5;max-width:60ch;color:var(--ink);border-top:2px solid var(--ink);border-bottom:1px solid var(--line);padding:14px 0;margin:0 0 16px}
+.rtable{margin:0 0 16px;max-width:none}
+.rtable td{vertical-align:top}
+.rtable td:first-child{width:24%;font-weight:600}
+.rtable td:nth-child(2){width:58%}
+.rtable td:last-child{width:18%}
+.rtable .ctl-tag{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink);background:var(--accent);padding:2px 6px;white-space:nowrap;display:inline-block}
+.verdict{font-size:12px;padding:11px 13px;background:var(--panel);border-left:2px solid var(--ink);margin:0 0 16px;line-height:1.5}
+.srcnote{font-size:11px;color:var(--muted);padding:20px 0;border-top:2px solid var(--ink);margin-top:8px;max-width:78ch;line-height:1.5}
+/* Figures, read as a plate schedule rather than a card wall. */
+.figs{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--line);border:1px solid var(--ink);margin:0 auto 18px}
+@media(max-width:1180px){.figs{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:760px){.figs{grid-template-columns:repeat(2,1fr)}}
+.figs div{background:var(--panel);padding:10px 11px}
+.figs dt,.figs .k{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+.figs .v{font-family:var(--mono);font-size:17px;letter-spacing:-.01em}
+.figs .v.up{color:var(--ink)}
+.figs .s{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+/* The comparison plate: two plans, one gross floor area. */
+.plates{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--ink);margin:0 auto 16px}
+.plates figure{margin:0;background:var(--panel);padding:12px}
+.plates svg{display:block;width:100%;height:190px}
+.plates figcaption{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.4}
+.plates figcaption b{color:var(--ink);font-weight:600}
+/* Six systems across, like the strip it replaces, so the chronology reads left
+   to right. Each cell is one isometric over one plan — the volume tells you
+   where the structure sits, the plan tells you what it costs you. */
+.cores{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--line);border:1px solid var(--ink);margin:0 auto 14px;max-width:1180px}
+.coreCell{background:var(--panel);padding:9px 8px 10px}
+.coreCell figure{margin:0}
+.coreCell svg{display:block;width:100%;height:auto}
+.coreCell figcaption{display:block;font-size:10.5px;line-height:1.35}
+.coreCell figcaption b{display:block;font-size:11px;font-weight:600;color:var(--ink)}
+.coreCell .addr{display:block;font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:2px}
+.coreCell .bld{display:block;color:var(--muted);margin-top:2px}
+.coreCell .say{display:block;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--line)}
+@media(max-width:1180px){.cores{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.cores{grid-template-columns:repeat(2,1fr)}}
+/* Photograph plates — the people, not the renders. */
+.photos{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin:0 auto 18px}
+@media(max-width:1180px){.photos{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.photos{grid-template-columns:repeat(2,1fr)}}
+.photos figure{margin:0}
+/* A fixed pixel height was the wrong contract: at the single-column breakpoint a
+   600px-wide box letterboxed into 190px sliced the photographs through the
+   faces. A 3:2 box keeps the full height of every frame in this set — the
+   narrowest is 16:9 — so only the sides ever crop, and no one loses a head. */
+.photos img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;filter:grayscale(1) contrast(1.06)}
+.photos figcaption{font-size:11px;color:var(--muted);margin-top:7px;line-height:1.45}
+/* Three plates, one scale. Each cell is plan on the left, schedule on the
+   right — so the eye can travel across the plans and down the columns. */
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--ink);margin:0 auto 14px;max-width:1180px}
+.trioCell{background:var(--panel);padding:12px}
+.trioFig{margin:0}
+.trioFig svg{display:block;width:100%;height:196px}
+.trioFig figcaption{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4;min-height:74px}
+.trioFig figcaption b{color:var(--ink);font-weight:600}
+.figs.trioFigs{grid-template-columns:1fr 1fr;margin:10px 0 0;border:1px solid var(--line);border-top:1px solid var(--line);background:var(--line)}
+.figs.trioFigs div{padding:7px 9px}
+.figs.trioFigs .v{font-size:12.5px}
+@media(max-width:1180px){.trio{grid-template-columns:1fr}}
+@media(max-width:1180px){.trioFig figcaption{min-height:0}}
+@media(max-width:760px){.trioFig svg{height:170px}}
+
+#rBody footer,#research>footer{display:flex;justify-content:space-between;padding:18px 0;font-size:11px;color:var(--muted)}
+
+/* ── dialogs ──────────────────────────────────────────────────────────── */
+dialog{border:1px solid var(--ink);border-top:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:22px;max-width:min(680px,92vw);max-height:86vh;overflow:auto}
+dialog::backdrop{background:#0d1112cc}
+dialog .close{position:absolute;top:8px;right:8px;border:0;font-size:16px;padding:2px 8px;min-height:auto;color:var(--muted)}
+dialog h2{margin-bottom:10px;font-size:19px}
+dialog h3{margin:18px 0 6px;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:400}
+dialog p{font-size:12px;line-height:1.6}
+dialog ul{padding-left:18px;font-size:12px}
+dialog li{margin:6px 0;line-height:1.5}
+.exportoptions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+#knowledgeContent table{table-layout:auto}
+#knowledgeContent td,#knowledgeContent th{padding:6px 7px}
+.knowledgeDownloads{display:flex;flex-wrap:wrap;gap:12px;font-size:11.5px;margin-top:14px}
+.knowledgeDownloads a{display:inline-flex;align-items:center;min-height:28px;border-bottom:1px solid var(--ink);text-decoration:none}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:9px 16px;font-size:11.5px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;max-width:90vw}
+#toast.on{opacity:1}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ── breakpoints · the landscape laptop is the design, not a compromise ── */
+@media(min-width:1700px){
+  :root{--chrome:112px}
+  .studio{grid-template-columns:268px minmax(0,1fr) 372px}
+  .studies{grid-template-columns:268px 1fr}
+  h1{font-size:22px}
+}
+@media(max-width:1240px){
+  :root{--chrome:118px}
+  main{padding:0 16px}
+  .studio{grid-template-columns:224px minmax(0,1fr) 300px}
+  .masthead{grid-template-columns:auto minmax(0,1fr)}
+  .masthead h1{grid-column:2}
+  .masthead .mastnote{grid-column:1/-1;grid-row:2;justify-self:start;max-width:none}
+  .researchhead h1{font-size:28px}
+  .lede{font-size:17px}
+}
+@media(max-width:1024px){
+  header{height:auto;flex-wrap:wrap;padding:8px 14px;gap:12px}
+  .actions{padding-left:12px}
+  .studio{grid-template-columns:1fr}
+  .controls,.results{border:0;max-height:none;overflow:visible;border-top:2px solid var(--ink)}
+  .viewport{min-height:66vh;order:-1}
+  .controls #geometryControls{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}
+  .plates{grid-template-columns:1fr}
+  .studies{grid-template-columns:1fr}
+  .rtable td:first-child,.rtable td:nth-child(2),.rtable td:last-child{width:auto;display:block;border:0}
+  .rtable td:first-child{border-bottom:1px solid var(--ink);padding-bottom:3px}
+  .rtable tr{display:block;padding:10px 0;border-bottom:1px solid var(--line)}
+}
+/* Below this the console stops being a console. Rather than pretend, it says so. */
+@media(max-width:760px){
+  main{padding:0 12px}
+  .brand{font-size:14px}
+  .tabs button,.langs button{font-size:10px}
+  .actions button span:not(.ic){display:none}
+  .masthead{padding:10px 0}
+  h1{font-size:17px}
+  .viewport{min-height:56vh}
+  .mobileonly{display:block;position:absolute;bottom:56px;left:14px;right:14px;font-size:10.5px;color:#7d8783;z-index:2}
+  .results>#plan{height:230px}
+  .researchhead h1{font-size:22px}
+  .lede{font-size:15px}
+  .photos{grid-template-columns:1fr}
+  .searchcontrols{width:100%}
+  .searchcontrols select{width:100%;min-width:0}
+  .searchcontrols button{flex:1}
+  dialog{padding:18px 15px}
+}
+@media(pointer:coarse){button,select{min-height:38px}.viewtools button{min-height:34px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{
+  header,.masthead,.controls,.viewtools,.explore,.studies,.toast{display:none}
+  body{background:#fff}
+  .viewport{background:#fff;min-height:auto}
+  .studio{grid-template-columns:1fr}
+}
+/* Human scale — the section and the glazing schedule. The section is the only
+   place on the sheet that draws at 1:1, because it is the only place where a
+   person is the unit of measure. */
+.human{margin-top:14px;padding-top:12px;border-top:2px solid var(--ink)}
+.human svg{display:block;width:100%;height:auto}
+.glaze{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line)}
+.glazeRow{display:grid;grid-template-columns:64px 1fr 38px;gap:8px;align-items:baseline;background:var(--panel);padding:5px 8px}
+.glazeRow .gz{font-family:var(--mono);font-size:10.5px;color:var(--ink)}
+.glazeRow .gc{font-size:10.5px}
+.glazeRow .gc.vision{color:var(--muted)}
+.glazeRow .gc.solar{color:var(--ink)}
+.glazeRow .gc.dark{color:var(--accent)}
+.glazeRow .gv{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:right}
+.human .note{margin-top:8px}
+
+/* ── dedication ─────────────────────────────────────────────────────────
+   A colophon plate, not a footnote. Sharp 1px rule all round, 2px amber on
+   the left so it reads as state rather than decoration, and the only red on
+   the site that is not SHDT's own name — which is the point of the block. */
+.dedication{
+  max-width:820px;margin-top:22px;padding:18px 20px 16px;
+  border:1px solid var(--line);border-left:2px solid var(--accent);
+  background:var(--panel);
+}
+.dedication h2{
+  margin:0 0 10px;font-size:15px;letter-spacing:-.01em;color:var(--ink);
+}
+.dedication h2:first-child{color:var(--ink)}
+.ded-body{margin:0 0 12px;font-size:13.5px;line-height:1.6;max-width:66ch;color:var(--ink)}
+.ded-cred{
+  margin:0 0 10px;padding-top:10px;border-top:1px solid var(--line);
+  font-size:11.5px;line-height:1.62;max-width:72ch;color:var(--muted);
+  font-family:var(--mono);
+}
+.ded-src{margin:0;font-size:10.5px;line-height:1.55;max-width:72ch;color:var(--faint)}
+.ded-src a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)}
+.ded-src a:hover{border-bottom-color:var(--ink)}
+@media (max-width:760px){
+  .dedication{padding:15px 15px 13px}
+  .ded-cred,.ded-src{font-family:var(--sans)}
+}

@@ -1,9 +1,11 @@
 {
-  "name": "form-yield",
+  "name": "formhypes",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
+    "release": "node scripts/release-id.mjs",
+    "deploy": "npm run release && npm test && wrangler pages deploy dist --project-name=shdt --branch=main --commit-dirty=true",
     "dev": "python3 -m http.server 8765 --directory dist"
   }
 }

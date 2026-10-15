@@ -1,27 +1,200 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#111416"><title>FORM / YIELD — Architectural Intelligence</title><meta name="description" content="Explore the relationship between skyscraper form, office floor plans and rental potential. A parametric studio inspired by Shouheng Chen's MIT thesis."><link rel="stylesheet" href="style.css"></head>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111416">
+<title>FormHypes — Architectural intelligence</title>
+<meta name="description" content="A parametric skyscraper studio built on the embedded design knowledge of Shouheng Chen's MIT thesis (2006), extended with the value model its author left open. English, Thai, Chinese.">
+<link rel="stylesheet" href="style.css?v=92acce2a99">
+</head>
 <body>
-<header><a href="#studio" class="brand" aria-label="Form Yield studio">FORM<span>/</span>YIELD</a><p>Architectural intelligence <span class="edition">/ Concept studio 2026</span></p><button id="methodBtn">The 2006 idea ↗</button></header>
-<main id="studio">
-<section class="titlebar"><div><p class="eyebrow">Geometry has consequences.</p><h1>Design the form. Read its value.</h1></div><div class="actions"><button id="reset">Reset</button><button id="save">Save study</button><button id="export" class="primary">Export ↗</button></div></section>
-<div class="studio">
-<aside class="controls" aria-label="Design parameters"><div class="railheading"><h2>Design rules</h2><span class="data">01</span></div>
-<label for="family">Floor profile</label><select id="family"><option value="box">Rectilinear / 4 corners</option><option value="chamfer">Chamfered / 8 vertices</option><option value="cross" selected>Cruciform / 8 outer corners</option><option value="octagon">Octagonal / 8 vertices</option><option value="star">Eight-point / 8 tips</option></select>
-<div id="geometryControls"></div>
-<details><summary>Site & core constraints</summary><div id="constraintControls"></div></details>
-<details><summary>Rent assumptions <span class="data">USD</span></summary><p class="note">Illustrative inputs. Set these to your own project evidence.</p><div id="rentControls"></div></details>
-<label for="skin">Associative façade</label><select id="skin"><option value="diagrid">Diagrid / 8-floor rhythm</option><option value="vertical">Vertical mullions</option><option value="floor">Floor ribbons</option></select>
-<button id="knowledgeBtn" class="knowledgebutton">Architectural knowledge ↗</button><p class="note source">Rule-based geometry, computed locally. No remote AI or paid APIs.</p></aside>
-<section class="viewport" aria-label="Interactive three-dimensional tower"><div class="viewhead"><div><span class="square"></span><span id="modelName">Cruciform</span></div><span id="heightLabel" class="data"></span></div><canvas id="tower" tabindex="0" role="img" aria-label="Tower massing. Drag to orbit, use arrow keys to rotate and plus or minus to zoom."></canvas><div class="viewtools"><button id="homeView" aria-label="Reset camera">⌂ View</button><button id="zoomIn" aria-label="Zoom in">+</button><button id="zoomOut" aria-label="Zoom out">−</button><button id="wire" aria-pressed="false">Wireframe</button></div><div class="viewfoot"><span>Drag to orbit / ± to zoom</span><span class="data">X / Y / Z · metres</span></div><div class="model-stamp">FORM<br><span>AS CAPITAL.</span></div></section>
-<aside class="results" aria-label="Computed performance"><div class="railheading"><h2>Form performance</h2><span class="data">02</span></div><p class="note">Scenario estimate · recalculated on edit</p><div class="primarymetric"><p>Annual contribution</p><strong id="contribution"></strong><p id="delta"></p></div><dl class="metrics"><div><dt>Annual gross rent</dt><dd id="annualRent"></dd></div><div><dt>Rentable area</dt><dd id="rentable"></dd></div><div><dt>Net / gross efficiency</dt><dd id="efficiency"></dd></div><div><dt>Corner-office potential</dt><dd id="corners"></dd></div><div><dt>Premium office area</dt><dd id="cornerArea"></dd></div><div><dt>Envelope reserve / year</dt><dd id="facadeCost"></dd></div></dl><div id="feasibility" role="status"></div>
-<div class="planhead"><h2>Inside the form</h2><label for="floor">Floor <output id="floorValue">24</output></label></div><input id="floor" type="range" min="1" max="48" value="24" aria-label="Selected floor"><svg id="plan" viewBox="0 0 240 230" role="img" aria-label="Selected floor plan with core and qualifying corner offices"></svg><div class="legend"><span><i class="corner"></i>Corner potential</span><span><i class="core"></i>Fixed core</span></div><p class="note" id="floorStats"></p></aside>
-</div>
-<section class="explore" aria-labelledby="exploreTitle"><div class="explorehead"><div><h2 id="exploreTitle">Find the form that earns its footprint.</h2><p>80 alternatives. Equal gross floor area. Your site, core and rent assumptions.</p></div><div class="searchcontrols"><label for="objective" class="sr-only">Search objective</label><select id="objective"><option value="contribution">Maximize annual contribution</option><option value="corners">Maximize corner offices</option><option value="rent">Maximize annual gross rent</option><option value="facade">Minimize façade area</option></select><button id="search" class="primary">Explore alternatives ↗</button></div></div><div id="searchResults"><div class="empty"><span class="data">∑ 80</span><p>More corners create opportunity. More perimeter has a cost.<br>Search the tradeoff, then bring a candidate back to the drawing.</p></div></div></section>
-<section class="studies"><div><h2>Study shelf</h2><p>Save a form before changing the rules.</p></div><div id="savedStudies"></div></section>
-<footer><span>From embedded design knowledge to measurable form.</span><button id="methodFooter">Shouheng Chen / MIT / 2006 ↗</button><span>Concept prototype · v1.0</span></footer>
+
+<!-- One rule under one line. No boxes: everything here is type separated by
+     hairlines, so the drawing below gets the screen. -->
+<header>
+  <a href="#studio" class="brand" title="FormHypes — inspired by SHDT, Shouheng Chen's 2006 MIT thesis" aria-label="FormHypes — inspired by SHDT, Shouheng Chen's 2006 MIT thesis"><span class="b-form">Form</span><span class="b-hypes">Hypes</span><span class="b-cred">inspired by <i>SHDT</i></span></a>
+  <nav class="tabs" aria-label="Sections">
+    <button type="button" data-tab="studio" aria-selected="true" class="on" data-i18n="nav.studio">Studio</button>
+    <button type="button" data-tab="research" aria-selected="false" data-i18n="nav.research">Research</button>
+  </nav>
+  <div class="langs" role="group" aria-label="Language"></div>
+  <div class="actions">
+    <button type="button" id="reset" title="Reset"><span class="ic">↺</span><span data-i18n="reset">Reset</span></button>
+    <button type="button" id="save" title="Save this study"><span class="ic">＋</span><span data-i18n="save">Save</span></button>
+    <button type="button" id="export" title="Export geometry and data"><span class="ic">↓</span><span data-i18n="export">Export</span></button>
+  </div>
+</header>
+
+<main>
+
+<!-- ── STUDIO ─────────────────────────────────────────────────────────── -->
+<section id="studio" class="tabpane on">
+
+  <div class="masthead">
+    <p class="eyebrow" data-i18n="eyebrow">Geometry has consequences.</p>
+    <h1 data-i18n="title">Design the form. Read its value.</h1>
+    <p class="mastnote" data-i18n="mast.note">A prototype by Nonarkara, built on the embedded design knowledge of Shouheng Chen's 2006 MIT thesis and carried twenty years further.</p>
+  </div>
+
+  <div class="studio">
+
+    <!-- 01 · RULES -->
+    <aside class="controls" aria-label="Design parameters">
+      <div class="railhead"><h2 data-i18n="rail.design">Design rules</h2><span class="data">01</span></div>
+
+      <label for="regime" class="ctl" data-i18n="c.regime">Why the building exists</label>
+      <select id="regime"></select>
+      <p class="note" id="regimeNote"></p>
+
+      <label for="family" class="ctl" data-i18n="c.family">Floor profile</label>
+      <select id="family"></select>
+      <div id="geometryControls"></div>
+
+      <label for="program" class="ctl" data-i18n="c.program">Level program</label>
+      <select id="program"></select>
+      <p class="note" id="programNote"></p>
+
+      <label for="skin" class="ctl" data-i18n="c.skin">Façade family</label>
+      <select id="skin"></select>
+      <p class="note" id="skinNote"></p>
+
+      <label for="system" class="ctl" data-i18n="c.system">Structure</label>
+      <select id="system"></select>
+      <p class="note" id="systemNote"></p>
+
+      <details><summary data-i18n="c.constraints">Site &amp; core constraints</summary><div id="constraintControls"></div></details>
+      <details><summary><span data-i18n="c.rent">Rent assumptions</span> <span class="data" data-i18n="c.USD">USD</span></summary><p class="note" data-i18n="c.note">Illustrative inputs.</p><div id="rentControls"></div></details>
+
+      <button type="button" id="knowledgeBtn" class="textlink"><span data-i18n="k.button">Architectural knowledge</span><span class="ic">↗</span></button>
+      <p class="note source" data-i18n="c.source">Rule-based geometry, computed locally.</p>
+    </aside>
+
+    <!-- 02 · DRAWING. The dark field is the one place a fill earns its keep:
+            it is the sheet the tower is drawn on. -->
+    <section class="viewport" aria-label="Interactive three-dimensional tower">
+      <div class="viewhead">
+        <div class="vh-left"><span class="square"></span><span id="modelName"></span></div>
+        <span id="heightLabel" class="data"></span>
+      </div>
+      <canvas id="tower" tabindex="0" role="img" aria-label="Tower massing with a height dimension and a level datum. Drag to orbit, use arrow keys to rotate and plus or minus to zoom."></canvas>
+
+      <div class="viewtools" role="group" aria-label="View">
+        <button type="button" id="homeView" title="Reset camera"><span class="ic">⌂</span><span data-i18n="v.home">View</span></button>
+        <button type="button" id="zoomIn" aria-label="Zoom in"><span class="ic">＋</span></button>
+        <button type="button" id="zoomOut" aria-label="Zoom out"><span class="ic">−</span></button>
+        <button type="button" id="wire" aria-pressed="false" data-i18n="v.wire">Wire</button>
+      </div>
+
+      <div class="viewfoot">
+        <span data-i18n="v.drag">Drag to orbit · ± to zoom</span>
+        <span class="data" data-i18n="v.units">metres</span>
+      </div>
+      <p class="mobileonly note" data-i18n="v.narrow">Built for a landscape laptop. On a narrow screen this console is cramped — rotate the device.</p>
+
+      <!-- A title block is not decoration: it is where the drawing says what
+           it is and what it is not. -->
+      <div class="titleblock">
+        <span class="tb-sheet"><i class="b-form">Form</i><i class="b-hypes">Hypes</i><em class="b-cred">inspired by <i>SHDT</i></em></span>
+        <span class="tb-notice" data-i18n="tb.notice">Concept prototype — not for construction</span>
+        <span class="data tb-ref" id="tbRef"></span>
+      </div>
+    </section>
+
+    <!-- 03 · SCHEDULE -->
+    <aside class="results" aria-label="Computed performance">
+      <div class="railhead"><h2 data-i18n="rail.performance">Form performance</h2><span class="data">02</span></div>
+      <p class="note" data-i18n="m.scenario">Scenario estimate</p>
+
+      <div class="primarymetric">
+        <p id="contributionLabel" data-i18n="m.contribution">Annual contribution</p>
+        <strong id="contribution"></strong>
+        <p id="delta"></p>
+      </div>
+
+      <dl class="metrics">
+        <div><dt data-i18n="m.rent">Annual gross rent</dt><dd id="annualRent"></dd></div>
+        <div><dt data-i18n="m.gross">Gross floor area</dt><dd id="grossArea"></dd></div>
+        <div><dt data-i18n="m.rentable">Rentable area</dt><dd id="rentable"></dd></div>
+        <div><dt data-i18n="m.efficiency">Net / gross efficiency</dt><dd id="efficiency"></dd></div>
+        <div><dt data-i18n="m.corners">Corner offices</dt><dd id="corners"></dd></div>
+        <div><dt data-i18n="m.cornerArea">Premium office area</dt><dd id="cornerArea"></dd></div>
+        <div><dt data-i18n="m.distinct">Form distinctiveness</dt><dd id="distinct"></dd></div>
+        <div><dt data-i18n="m.clear">Clear height</dt><dd id="clearHeight"></dd></div>
+        <div><dt data-i18n="m.depth">Deepest daylight</dt><dd id="daylight"></dd></div>
+        <div class="derived"><dt data-i18n="m.skyReach">Sky reach <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="skyReach"></dd></div>
+        <div class="derived"><dt data-i18n="m.daylit">Plate within sky reach <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="daylit"></dd></div>
+        <div class="derived"><dt data-i18n="m.envelope">Envelope surface, integrated <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="facadeArea"></dd></div>
+        <div class="derived"><dt data-i18n="m.volume">Enclosed volume <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="volume"></dd></div>
+        <div class="derived"><dt data-i18n="m.frameRate">Frame cost vs reference plate <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="frameRate"></dd></div>
+        <div><dt data-i18n="m.voids">Levels surrendered to services</dt><dd id="voidLevels"></dd></div>
+        <div><dt data-i18n="m.headroom">Height allowance unused</dt><dd id="headroom"></dd></div>
+        <div><dt data-i18n="m.yield">Contribution / m² / year</dt><dd id="yield"></dd></div>
+        <div><dt data-i18n="m.facadeCost">Envelope reserve / year</dt><dd id="facadeCost"></dd></div>
+        <div><dt data-i18n="m.structureCost">Structure reserve / year</dt><dd id="structureCost"></dd></div>
+      </dl>
+
+      <div id="feasibility" role="status"></div>
+
+      <div id="premiumPanel">
+        <h3 class="panelh" data-i18n="rail.rent">Where the rent comes from</h3>
+        <div id="premiumBars"></div>
+      </div>
+
+      <div class="planhead">
+        <h2 data-i18n="rail.inside">Inside the form</h2>
+        <label for="floor"><span data-i18n="p.floor">Level</span> <output id="floorValue">24</output></label>
+      </div>
+      <input id="floor" type="range" min="1" max="48" value="24" aria-label="Selected level">
+      <svg id="plan" viewBox="0 0 240 258" role="img" aria-label="Level plan with core, qualifying corner offices, a north arrow, an overall dimension and a graphic scale"></svg>
+      <div class="legend">
+        <span><i class="corner"></i><span data-i18n="p.legendCorner">Corner potential</span></span>
+        <span><i class="core"></i><span data-i18n="p.legendCore">Fixed core</span></span>
+      </div>
+      <p class="note" id="floorStats"></p>
+      <p class="note source" data-i18n="p.cap"></p>
+
+      <!-- 03b · HUMAN SCALE. What the floor area is like, not what it is worth. -->
+      <div id="human"></div>
+    </aside>
+  </div>
+
+  <section class="explore" aria-labelledby="exploreTitle">
+    <div class="explorehead">
+      <div><h2 id="exploreTitle" data-i18n="rail.explore">Find the form that earns its footprint.</h2><p data-i18n="rail.exploreSub">Every alternative is resized to your gross floor area.</p></div>
+      <div class="searchcontrols">
+        <label for="objective" class="sr-only" data-i18n="s.objective">Search objective</label>
+        <select id="objective"></select>
+        <button type="button" id="search"><span class="ic">→</span><span data-i18n="s.run">Explore</span></button>
+      </div>
+    </div>
+    <div id="searchResults"></div>
+  </section>
+
+  <section class="studies">
+    <div><h2 data-i18n="rail.studies">Study shelf</h2><p data-i18n="rail.studiesSub">Save a form before changing the rules.</p></div>
+    <div id="savedStudies"></div>
+  </section>
+</section>
+
+<!-- ── RESEARCH ───────────────────────────────────────────────────────── -->
+<section id="research" class="tabpane">
+  <div class="researchhead">
+    <p class="eyebrow">MIT · SMArchS · 2006</p>
+    <h1 data-i18n="r.ledeHead">Twenty years of an unfinished idea.</h1>
+    <p class="lede" id="rLede"></p>
+    <p class="credit" id="rCredit"></p>
+    <div id="dedication" class="dedication"></div>
+  </div>
+  <article id="rBody"></article>
+  <footer><span data-i18n="d.footer">From embedded design knowledge to measurable form.</span><span class="data" data-i18n="d.version">Concept prototype</span></footer>
+</section>
+
 </main>
-<dialog id="method"><button class="close" aria-label="Close methodology">×</button><p class="eyebrow">2006 → 2026</p><h2>Twenty years ahead.<br>Still an unfinished idea.</h2><p>Shouheng Chen’s <em>Embedding Methods for Massing and Detail Design in Computer Generated Design of Skyscrapers</em> (MIT, June 2006) embeds design conventions into reusable rules. Profiles, transition levels, scaling and rotation generate massing; relationships between neighboring points generate façade components.</p><p>This studio extends that approach with interior and value proxies. Chen explicitly identifies interior programs and structural and ecological performance as future work in chapter 6. The financial model here is a new extension; it is not a finding of the thesis.</p><h3>What is computed</h3><p>Every slab uses a transformed polygon. Gross area is its polygon area; the fixed square core and a percentage allowance for circulation/services are deducted to get rentable area. The selected floor highlights candidate corner offices.</p><p>A corner qualifies when it is convex, its angle is ≤145°, both adjoining edges are at least twice the chosen frontage, and its inward parallelogram fits without touching the core. This spacing keeps adjacent corner zones apart. These are possible office footprints, not a finished tenancy plan.</p><p><strong>Annual rent</strong> = (rentable area + corner area × premium) × base annual rent × occupancy.<br><strong>Annual contribution</strong> = annual rent − façade area × annual envelope reserve.</p><p>Façade area sums triangulated faces between successive profiles, including taper and twist. It excludes structural cost and glazing detail. Contribution excludes operating costs, financing, tax and capital costs. It is neither net operating income nor a valuation.</p><h3>How alternatives are compared</h3><p>Search tests 5 profiles × 4 roof scales (1.0, 0.9, 0.8, 0.7) × 4 twists (0°, 30°, 60°, 90°). Each is resized to the current gross floor area, keeping floors, core, aspect and commercial assumptions fixed. Equal gross area with fixed floors, core and allowance also fixes rentable area; the value differences come from corner premiums and façade area. Candidates outside the envelope, above the height limit or with a core outside the floor plate are rejected. This is a bounded search, not a global optimum.</p><h3>Where architecture still needs judgment</h3><p>No structural, egress, accessibility, wind, daylight, thermal or local planning-code solver is included. The core is a conceptual allowance; an engineer and architect must size it. Diagrids illustrate associative detail and do not prove structural performance. All financial inputs are illustrative user-editable assumptions, not live market data. Study saves stay in this browser.</p><p class="note">Source sections: abstract; chapter 4, “Computational Approaches”; chapter 5, “Experiments”; chapter 6, “Conclusion and Future Work.” Credit: Shouheng Chen, SMArchS, MIT, 2006; thesis advisor Takehiko Nagakura. No affiliation or endorsement is implied.</p></dialog>
-<dialog id="exportDialog"><button class="close" aria-label="Close export">×</button><h2>Take the study with you.</h2><p>Metres, explicit assumptions, editable geometry.</p><div class="exportoptions"><button id="exportObj">Download massing (.obj)</button><button id="exportJson">Download study (.json)</button><button id="exportCsv">Download comparison (.csv)</button></div><p class="note">OBJ contains the conceptual outer shell, not an interior BIM model. JSON preserves the rules and metrics. CSV exports the current candidate search.</p></dialog>
-<dialog id="knowledgeDialog"><button class="close" aria-label="Close architectural knowledge">×</button><h2>Architectural knowledge.</h2><p>Drawing conventions, reference standards and model methods acquired from designon.</p><div id="knowledgeContent" role="status"></div><p class="knowledgeDownloads"><a href="knowledge/designon-knowledge.json" download>Download knowledge (.json) ↗</a><a href="knowledge/DESIGNON-LICENSE.txt">Source license ↗</a></p></dialog>
-<div id="toast" role="status" aria-live="polite"></div><script type="module" src="app.js"></script>
+
+<dialog id="method"><button class="close" data-i18n="d.close">×</button><p class="eyebrow">2006 → 2026</p><h2>Twenty years ahead.<br>Still an unfinished idea.</h2><div id="methodBody"></div></dialog>
+<dialog id="exportDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="d.exportTitle">Take the study with you.</h2><p data-i18n="d.exportSub">Metres, explicit assumptions, editable geometry.</p><div class="exportoptions"><button type="button" id="exportObj"><span class="ic">◈</span>OBJ</button><button type="button" id="exportJson"><span class="ic">{ }</span>JSON</button><button type="button" id="exportCsv"><span class="ic">▤</span>CSV</button></div><p class="note" data-i18n="d.exportNote">OBJ contains the conceptual outer shell.</p><p class="note source" data-i18n="d.exportCredit"></p></dialog>
+<dialog id="knowledgeDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="k.button">Architectural knowledge</h2><div id="knowledgeContent" role="status"></div><p class="knowledgeDownloads"><a href="knowledge/designon-knowledge.json?v=38eb5f372c" download data-i18n="k.download">Download</a><a href="knowledge/DESIGNON-LICENSE.txt?v=1950c131d0" data-i18n="k.license">License</a></p></dialog>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="app.js?v=2174483b01"></script>
 </body></html>

@@ -4,7 +4,7 @@ Source: `/Users/nonarkara/Projects/space`, repository `Nonarkara/luma-house`, cl
 
 ## Acquired knowledge
 
-| Layer | What was extracted | Use in FORM / YIELD |
+| Layer | What was extracted | Use in FormHypes |
 |---|---|---|
 | Drawing conventions | AIA Architectural Graphic Standards, Student Edition, 11th ed. (2008), reviewed printed pp. 445–446 and 514–518; solid cuts, line weights, centreline dimensions, parallel views, scale and sheet identification | Available as drawing guidance in the knowledge panel. Physical print conventions require a future sheet exporter. |
 | Reference standards | Twelve catalogue entries: IRC, IBC, ADA, ASHRAE and three internal MODEL labels | Preserved as source references with scope; no imported residential threshold is enforced by the office optimizer. |

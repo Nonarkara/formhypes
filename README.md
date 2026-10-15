@@ -1,4 +1,4 @@
-# FORM / YIELD
+# FormHypes
 
 A browser-local parametric skyscraper studio inspired by Shouheng Chen's MIT SMArchS thesis (2006), **Embedding Methods for Massing and Detail Design in Computer Generated Design of Skyscrapers**.
 
