@@ -4,13 +4,13 @@ By Dr Non · depa + Axiom · inspired by Shouheng Chen (陈寿恒)
 
 Study status: protocol and working prototype; no participant, leasing or willingness-to-pay results collected.
 
-Sell a better early decision.
+A paid comparison is still a hypothesis.
 
 Commercial hypotheses · no sales or adoption results claimed
 
 The plausible first product is a concept-comparison service for architects and development teams. Give a team a fixed brief, make several forms comparable, and show what changes in usable area, envelope and the stated income scenario. The paid deliverable could be a documented shortlist with editable geometry and assumptions. This is a business hypothesis.
 
-“Best form” needs a context. A corner-rich plan may lose usable area around a large core. A compact envelope may cost less to maintain. A skyline gesture may need a client’s willingness to pay, while a neighbour may ask for less shadow. Show the alternatives and the reason for the choice; a single score cannot settle every stakeholder’s question.
+“Best form” needs a context. A corner-rich plan may lose usable area around a large core. A compact envelope may cost less to maintain. A skyline gesture may need a client’s willingness to pay, while a neighbour may ask for less shadow. Show the alternatives and the reason for the choice; a single score cannot settle every stakeholder’s question. Landlord yield and the other reasons to build are FormHypes scenarios from 2026. They are not chapters of Chen’s thesis, which embedded how a tower is made.
 
 Start with a paid, bounded feasibility comparison. If teams reuse it and the evidence supports it, test a practice subscription or a professional integration. Pricing, procurement costs and the size of the market remain unmeasured. A credible probability of commercial success needs pilot data; this instrument does not invent a percentage.
 
@@ -44,11 +44,11 @@ From embedded design knowledge to situated value.
 
 Proposed paper · research protocol, not published findings
 
-Proposed abstract. This paper is Non’s twentieth-anniversary gift to Shouheng Chen (Xiaohei). The 2006 thesis stays his. Non extends it with the city, construction cost, the income scenario and the ecology of envelope and shadow. A form has to name its country, neighbourhood, plot and floor-area ratio before a contribution figure means anything. Shenzhen is one place among the pilot cases, stated with published building figures, not offered as proof. This is not a property-technology pitch. (Shouheng Chen, 2006) (Non Arkaraprasertkul, 2007) (Non Arkaraprasertkul, 2008) (Non Arkaraprasertkul, 2016)
+Proposed abstract. Chen’s 2006 MIT thesis embedded how a tower is made. Early CAD forced the architect to repeat the work; the expertise was not in the tool. He took massing and detail conventions from practice — HKIFC, Petronas, Cira and Hearst, curtain wall and diagrid — and encoded them. Profile Finding and Point Finding reconstruct a known tower, then transform it. FormHypes is Dr Non’s later instrument, a twentieth-anniversary gift to Shouheng Chen (Xiaohei), and it asks a different question: when does form create inspectable value, and for whom? Value here is not one score. The 2006 thesis did not solve rent, NOI or structure. Studio’s figures are 2026 scenarios that Non owns. They are not Chen’s results. This chapter is a research protocol, not a published finding and not his PDF. (Shouheng Chen, 2006) (Non Arkaraprasertkul, 2007) (Non Arkaraprasertkul, 2008) (Non Arkaraprasertkul, 2016)
 
-Methods and results so far. The present contribution is a working browser prototype and a reproducible calculation path. Its conservation tests check area accounting; its geometric studies expose the assumptions behind corners, envelopes and shadows. Shenzhen is entered as Ping An Finance Center’s published storeys, height and gross area, read beside this model’s plot, floor-area ratio and annual reserves. The proposed timed tasks, market validation and stakeholder research have not been run. A paper must distinguish those computed outputs from observations collected later.
+Method. The working evidence is a browser prototype on one geometry path. Conservation tests check area accounting. Equal-area comparison holds gross floor area and changes the plan: fix the area, change the form, read what moved. That is Chen’s chapter 5 ritual in this instrument. Corners, envelope and shadow stay assumptions you can inspect. Shenzhen enters as the published storeys, height and gross area of one pilot building, read beside this model’s plot and floor-area ratio. It is context, not proof. Timed tasks, held-out leasing checks and stakeholder studies have not been run. Computed scenarios stay separate from observations collected later. The prototype does not certify structure, carbon or ecology. (Shouheng Chen, 2006)
 
-The publishable argument would depend on the evaluation: whether reusable knowledge makes decisions faster and clearer, where its financial predictions fail, and whose values survive the optimisation. Archive the code revision, input files, source locators, consent process and anonymised evidence where rights permit. State who built and evaluated the system. Inspiration credits are not a substitute for research authorship agreed by the people involved.
+What would make the argument publishable is the evaluation still ahead: whether reusable rules make an early decision clearer, where the income scenario fails once location and lease terms are controlled, and whose values remain visible. Archive the code revision, inputs, consent and the limits Chen already named — work behind the skin, structural and ecological performance, and a test in live practice. State who built the system and who evaluated it. An inspiration credit is not research authorship. The next step is that evidence, not a sales claim.
 
 Paper section | What belongs in it
 

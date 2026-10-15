@@ -29,8 +29,8 @@ const en={
  'rail.performance':'Form performance',
  'rail.rent':'Where the rent comes from',
  'rail.inside':'Inside the form',
- 'rail.explore':'Find the form that earns its footprint.',
- 'rail.exploreSub':'Every alternative is resized to your gross floor area. Same size. Different form.',
+ 'rail.explore':'Explore alternatives. Keep the area fixed.',
+ 'rail.exploreSub':'Change the form and read what moved. Every candidate is resized to the same gross floor area. Contribution is a 2026 scenario, not a result from the 2006 thesis.',
  'rail.studies':'Study shelf',
  'rail.studiesSub':'Save a form before changing the rules.',
  'index':'01','index2':'02',
@@ -326,7 +326,7 @@ const en={
  'r.political.note':"Primary references and reading scope are linked in the four-page reader. This section’s synthesis is FormHypes, 2026.",
 
  'r.regime.h':'17 · Four reasons to build',
- 'r.regime.b':"Chen’s 2006 system asked the architect to choose a building. Dr Non’s system also asks why. The reason is a control, and it changes which form wins. Landlord yield ranks annual contribution; city competition also rewards height and silhouette. Both use the same corrected rent accounting. A taller, stranger answer may earn more or less under the stated scenario; the result is computed, not prescribed. The city-competition reading came from towers commissioned as an answer to the last one completed: height became a scoreboard and each finished building helped set the next brief.",
+ 'r.regime.b':"Chen’s 2006 system asked the architect to choose a building. Dr Non’s system also asks why. The reason is a control, and it changes which form wins. Landlord yield ranks annual contribution; city competition also rewards height and silhouette. Both use the same corrected rent accounting. A taller, stranger answer may earn more or less under the stated scenario; the result is computed, not prescribed. The city-competition reading came from towers commissioned as an answer to the last one completed: height became a scoreboard and each finished building helped set the next brief. These four reasons are FormHypes scenarios from 2026. Chen’s thesis embedded how a tower is made; it did not define landlord yield.",
 
  'r.limits.h':'18 · What this is not',
  'r.limits.b':'Not structural engineering. Not wind, seismic, egress or fire. Not planning code. Not BOMA measurement. Not a valuation, not NOI, and not a development appraisal — contribution is gross rent less two annual reserves, and it excludes operating cost, tax, finance and capital recovery beyond those reserves. All monetary inputs are illustrative and in USD. Every premium is a rate on a named area, and every one of them is a number you can change. Corner zones are possible footprints, not a tenancy plan. The HKIFC level schedule is a reconstruction from Chen’s legible banded-subtraction logic, not a transcript — the printed array in the scanned PDF cannot be read reliably, and we did not invent digits to fill it.',
@@ -386,8 +386,8 @@ const th={
  'rail.performance':'ผลงานของรูปทรง',
  'rail.rent':'รายได้ค่าเช่ามาจากไหน',
  'rail.inside':'ภายในรูปทรง',
- 'rail.explore':'หารูปทรงที่คุ้มกับพื้นที่ของคุณ',
- 'rail.exploreSub':'ทุกทางเลือกถูกปรับขนาดให้พื้นที่รวมเท่ากัน เท่ากันทุกขนาด ต่างกันแค่รูปทรง',
+ 'rail.explore':'สำรวจทางเลือก โดยตรึงพื้นที่ไว้',
+ 'rail.exploreSub':'เปลี่ยนรูปทรง แล้วอ่านสิ่งที่เปลี่ยน ทุกแบบถูกปรับให้พื้นที่รวมเท่ากัน ผลตอบแทนเป็นสถานการณ์ปี 2026 ไม่ใช่ผลจากวิทยานิพนธ์ปี 2006',
  'rail.studies':'ชั้นเก็บงานศึกษา',
  'rail.studiesSub':'บันทึกรูปทรงไว้ก่อนเปลี่ยนกฎ',
  'index':'01','index2':'02',
@@ -682,7 +682,7 @@ const th={
  'r.political.note':"แหล่งต้นทางและขอบเขตการอ่านเชื่อมไว้ในคู่มือสี่หน้า บทสังเคราะห์นี้เป็นของ FormHypes ปี 2026",
 
  'r.regime.h':'17 · สี่เหตุผลในการสร้าง',
- 'r.regime.b':"ระบบปี 2006 ของ Chen ให้นักออกแบบเลือกอาคาร ระบบของ Dr Non ถามต่อว่าอาคารนั้นมีขึ้นเพื่ออะไร เหตุผลนี้เปลี่ยนผลการค้นหา เจ้าของที่มุ่งค่าเช่าจัดอันดับจากรายรับส่วนเพิ่มรายปี ส่วนการแข่งขันระหว่างเมืองให้น้ำหนักความสูงและรูปทรงด้วย ทั้งสองใช้การคิดค่าเช่าที่แก้ไขแล้วเหมือนกัน อาคารที่สูงและแตกต่างกว่าอาจให้รายรับมากหรือน้อยกว่าได้ตามสมมติฐาน ผลต้องมาจากการคำนวณ ไม่ใช่กำหนดไว้ล่วงหน้า แนวคิดการแข่งขันมาจากยุคที่อาคารใหม่ถูกสร้างเพื่อตอบอาคารที่เพิ่งเสร็จ ความสูงเป็นคะแนน และอาคารแต่ละหลังช่วยตั้งโจทย์ให้หลังถัดไป",
+ 'r.regime.b':"ระบบปี 2006 ของ Chen ให้นักออกแบบเลือกอาคาร ระบบของ Dr Non ถามต่อว่าอาคารนั้นมีขึ้นเพื่ออะไร เหตุผลนี้เปลี่ยนผลการค้นหา เจ้าของที่มุ่งค่าเช่าจัดอันดับจากรายรับส่วนเพิ่มรายปี ส่วนการแข่งขันระหว่างเมืองให้น้ำหนักความสูงและรูปทรงด้วย ทั้งสองใช้การคิดค่าเช่าที่แก้ไขแล้วเหมือนกัน อาคารที่สูงและแตกต่างกว่าอาจให้รายรับมากหรือน้อยกว่าได้ตามสมมติฐาน ผลต้องมาจากการคำนวณ ไม่ใช่กำหนดไว้ล่วงหน้า แนวคิดการแข่งขันมาจากยุคที่อาคารใหม่ถูกสร้างเพื่อตอบอาคารที่เพิ่งเสร็จ ความสูงเป็นคะแนน และอาคารแต่ละหลังช่วยตั้งโจทย์ให้หลังถัดไป เหตุผลสี่ข้อนี้เป็นสถานการณ์ของ FormHypes ปี 2026 วิทยานิพนธ์ของ Chen ฝังวิธีสร้างตึก และไม่ได้กำหนดผลตอบแทนของเจ้าของ",
 
  'r.limits.h':'18 · สิ่งที่นี่ไม่ใช่',
  'r.limits.b':'ไม่ใช่งานวิศวกรรมโครงสร้าง ไม่ใช่ลม แผ่นดินไหว ทางออกภัย หรืออัคคีภัย ไม่ใช่กฎเมือง ไม่ใช่มาตรฐาน BOMA ไม่ใช่การประเมินมูลค่า ไม่ใช่ NOI และไม่ใช่การวิเคราะห์โครงการ รายได้หลังหักเงินสำรองคือรายได้ค่าเช่ารวมหักเงินสำรองสองกองต่อปี และตัดออกค่าดำเนินงาน ภาษี การเงิน และการคืนทุนนอกเหนือจากเงินสำรองเหล่านั้น ตัวเลขเงินทั้งหมดเป็นภาพสมมติและอยู่ในสกุลดอลลาร์ พรีเมียมทุกตัวคืออัตราที่คิดกับพื้นที่ที่ระบุชัด และเปลี่ยนได้ทุกตัว โซนมุมคือพื้นที่ที่เป็นไปได้ ไม่ใช่ผังผู้เช่า ตารางชั้น HKIFC เป็นการสร้างขึ้นใหม่จากตรรกะการหักแบบช่วงที่อ่านได้ของ Chen ไม่ใช่คำถอดต้นฉบับ อาร์เรย์ที่พิมพ์ใน PDF อ่านไม่ออกอย่างน่าเชื่อถือ และเราไม่ได้แต่งตัวเลขขึ้นมาเติม',
@@ -742,8 +742,8 @@ const zh={
  'rail.performance':'形体表现',
  'rail.rent':'租金从哪里来',
  'rail.inside':'形体内部',
- 'rail.explore':'找出真正挣回基地的形体。',
- 'rail.exploreSub':'每个备选都被调整到与你相同的总面积。同样大小，不同形体。',
+ 'rail.explore':'探索备选方案，并保持面积不变。',
+ 'rail.exploreSub':'改变形体，再看什么变了。每个候选方案都被调整到相同的总楼面面积。贡献额是 2026 年的情景，不是 2006 年论文的结果。',
  'rail.studies':'研究架',
  'rail.studiesSub':'在改规则之前先把形体存下来。',
  'index':'01','index2':'02',
@@ -1038,7 +1038,7 @@ const zh={
  'r.political.note':"一手参考与阅读范围见四页导读。本节综合解释属于 FormHypes，2026 年。",
 
  'r.regime.h':'17 · 建造的四种理由',
- 'r.regime.b':"Chen 在 2006 年的系统让建筑师选择建筑。Dr Non 的系统进一步追问：为什么建它？这个理由成为控件，改变形体排序。业主收益按年度贡献排名，城市竞争还奖励高度与轮廓。两者采用同一套修正后的租金核算。更高、更独特的答案可能赚得更多，也可能更少，取决于公开的情景假设；结果由计算产生，而非预先规定。城市竞争的解读来自新塔楼回应上一栋竣工建筑的时代：高度成为记分牌，每栋成品又推动下一份任务书。",
+ 'r.regime.b':"Chen 在 2006 年的系统让建筑师选择建筑。Dr Non 的系统进一步追问：为什么建它？这个理由成为控件，改变形体排序。业主收益按年度贡献排名，城市竞争还奖励高度与轮廓。两者采用同一套修正后的租金核算。更高、更独特的答案可能赚得更多，也可能更少，取决于公开的情景假设；结果由计算产生，而非预先规定。城市竞争的解读来自新塔楼回应上一栋竣工建筑的时代：高度成为记分牌，每栋成品又推动下一份任务书。这四种理由是 FormHypes 在 2026 年的情景。陈的论文嵌入的是塔楼如何做成，并没有定义房东收益。",
 
  'r.limits.h':'18 · 它不是什么',
  'r.limits.b':'不是结构工程。不是风、地震、疏散或消防。不是规划规范。不是 BOMA 量测。不是估值，不是 NOI，也不是开发评估——贡献是租金总额减去两项年度储备，不含运营成本、税、融资，以及这两项储备之外的资本回收。所有货币输入均为示意，且以美元计。每一项溢价都是对某个指明面积计算的费率，每一项都可以改。转角区是可能的租户轮廓，不是租户方案。香港国际金融中心的楼层表是依据陈可读的区段扣减逻辑重建的，不是誊录——扫描版 PDF 中的数组无法可靠读取，我们没有为填满它而编造数字。',
@@ -1140,6 +1140,6 @@ export function translator(lang){
 Object.assign(en,{'r.timeline.b1':'The route from heavy walls to curtain walls links structure, daylight and the economics of office space. These are historical precedents, not evidence that one form guarantees a rent premium.','r.timeline.b3':'The Guaranty Building, Buffalo, 1894–96, was designed by Adler & Sullivan. Sullivan’s 1896 essay connects the standard office room with its structural bay and window opening.','r.timeline.b5':'Richardson’s Trinity Church was completed in Boston in 1877. It belongs to the masonry tradition, not a claim to have invented the skyscraper skeleton.','r.timeline.b6':'Boley, Hallidie and Lever House belong to the curtain-wall sequence. A. O. Smith’s inherited 1928 date conflicts with later field documentation dated 1930–31. The date is qualified; glass and aluminium facade framing should not be confused with the building’s primary steel structure.','r.timeline.note':'Primary records and reading limits are linked in the guided reader’s Sources & reading trail. Drawings are schematic, not measured elevations.'});
 Object.assign(th,{'r.timeline.b1':'เส้นทางจากผนังหนักสู่ผนังม่านเชื่อมโครงสร้าง แสง และเศรษฐศาสตร์สำนักงาน เป็นตัวอย่างประวัติศาสตร์ ไม่ใช่หลักฐานว่ารูปทรงแบบใดรับประกันส่วนเพิ่มค่าเช่า','r.timeline.b3':'Guaranty ที่บัฟฟาโล ค.ศ. 1894–96 ออกแบบโดย Adler & Sullivan บทความ Sullivan ปี 1896 เชื่อมห้องสำนักงานมาตรฐานกับช่วงโครงสร้างและช่องหน้าต่าง','r.timeline.b5':'Trinity Church ของ Richardson สร้างเสร็จที่บอสตันในปี 1877 อยู่ในสายงานผนังก่อรับน้ำหนัก ไม่ใช่การอ้างว่าคิดโครงตึกสูง','r.timeline.b6':'Boley, Hallidie และ Lever House อยู่ในเส้นทางผนังม่าน ส่วน A. O. Smith มีปี 1928 ในข้อมูลเดิม แต่เอกสารภาคสนามภายหลังระบุ 1930–31 จึงยังระบุอย่างมีเงื่อนไข กรอบอะลูมิเนียมของผนังกระจกไม่ใช่โครงสร้างเหล็กหลักของอาคาร','r.timeline.note':'แหล่งต้นทางและขอบเขตการอ่านเชื่อมอยู่ในรายการอ้างอิงของคู่มือ ภาพเป็นแผนภาพ ไม่ใช่รูปด้านที่วัดจริง'});
 Object.assign(zh,{'r.timeline.b1':'从厚墙到幕墙的发展联系结构、采光和办公空间经济。这些是历史先例，不能证明某种形态保证租金溢价。','r.timeline.b3':'Guaranty，布法罗，1894–96，由 Adler & Sullivan 设计。Sullivan 1896 年文章把标准办公室与结构开间、窗洞关联。','r.timeline.b5':'Richardson 的 Trinity Church 于 1877 年在波士顿落成，属于砌体传统，并非发明摩天楼骨架的主张。','r.timeline.b6':'Boley、Hallidie 和 Lever House 属于幕墙发展序列。A. O. Smith 沿用的 1928 年与后来实地记录 1930–31 年冲突，因此限定年代。玻璃立面的铝框不应与建筑主要钢结构混淆。','r.timeline.note':'一手记录与阅读范围见导读的参考文献。图解是示意，并非实测立面。'});
-Object.assign(en,{'regime.unknown':'Unknown regime “{name}”. Using Landlord yield. Allowed: yield, competition, civic, speculative. landlord means yield.'});
-Object.assign(th,{'regime.unknown':'ไม่รู้จักระบอบ “{name}” จึงใช้ผลตอบแทนของเจ้าของ ค่าที่รับได้: yield, competition, civic, speculative และ landlord หมายถึง yield'});
-Object.assign(zh,{'regime.unknown':'未知体制“{name}”，已改用房东收益。可用值为 yield、competition、civic、speculative；landlord 即 yield。'});
+Object.assign(en,{'regime.unknown':'Unknown regime “{name}”. Using Landlord yield. Allowed: yield, competition, civic, speculative. landlord means yield.','regime.frame':'FormHypes scenario, 2026. Not a claim in Chen’s 2006 thesis.'});
+Object.assign(th,{'regime.unknown':'ไม่รู้จักระบอบ “{name}” จึงใช้ผลตอบแทนของเจ้าของ ค่าที่รับได้: yield, competition, civic, speculative และ landlord หมายถึง yield','regime.frame':'สถานการณ์ของ FormHypes ปี 2026 ไม่ใช่ข้อสรุปในวิทยานิพนธ์ปี 2006 ของ Chen'});
+Object.assign(zh,{'regime.unknown':'未知体制“{name}”，已改用房东收益。可用值为 yield、competition、civic、speculative；landlord 即 yield。','regime.frame':'这是 2026 年 FormHypes 的情景，不是陈寿恒 2006 年论文中的结论。'});

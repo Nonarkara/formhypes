@@ -103,6 +103,7 @@ body.is-console [hidden]{display:none!important}
  .console-rail-nav{display:none}
  .console-nav{gap:16px}
  .console-nav button{min-height:44px;padding:0;display:inline-flex;align-items:center}
+ #console-tab-form{order:1}#console-tab-compare{order:2}#console-tab-brief{order:3}#console-tab-place{order:4}#console-tab-walk{order:5}#console-tab-facade{order:6}#console-tab-studies{order:7}
  body.is-console .studio[data-task="form"]{grid-template-rows:minmax(260px,1.45fr) minmax(168px,.62fr)}
  body.is-console .studio[data-task="form"]>.controls{display:flex;flex-direction:column}
  body.is-console .studio[data-task="form"]>.results{display:none}

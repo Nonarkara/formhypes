@@ -1,4 +1,4 @@
-import {TRACKS,RESEARCH_UI,RESEARCH_SOURCES,THESIS_EXCERPTS,HISTORY_PHOTO,PROTOCOL_FILES} from './research-tracks.js?v=1b4d3eca08';
+import {TRACKS,RESEARCH_UI,RESEARCH_SOURCES,THESIS_EXCERPTS,HISTORY_PHOTO,PROTOCOL_FILES} from './research-tracks.js?v=569054d191';
 import {renderReader as renderEarlierReader} from './reader.js?v=ad103beea3';
 import {defaults,evaluate,grossOf,profile,families,regimes} from './model.js?v=1653f45f3c';
 const N=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
@@ -158,7 +158,8 @@ export function renderReader(lang,options={}){
  if(!initialised){const s=readingSelection(location.search);selected=s.track;pages[selected]=s.page;initialised=true}
  const track=tracks[selected],index=pages[selected],page=track.pages[index];host.replaceChildren();
  const trail=document.getElementById('researchTrail');
- if(trail) trail.textContent=`${c.trail} · ${track.label} · ${page.tab}`;
+ const step=selected*3+index+1;
+ if(trail) trail.textContent=`${c.trail} · ${track.label} · ${page.tab} · ${step}/9`;
  const archive=document.getElementById('researchArchive');
  if(archive?.querySelector('summary')) archive.querySelector('summary').textContent=c.legacy;
  // The old six-page reader stays reachable in its own disclosure, with its

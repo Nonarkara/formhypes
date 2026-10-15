@@ -589,7 +589,7 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .research-tradeoff ol{display:flex;flex-wrap:wrap;gap:16px 32px;padding-left:22px;font-size:12px}
 @media(max-width:600px){.research-atlas>div{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 12px}.research-tradeoff svg{min-height:160px}}
 .research-path-short{display:none}
-@media(max-width:600px){.research-path-full{display:none}.research-path-short{display:inline}.research-paths button,.research-chapters button{min-height:44px}.research-paths button{max-width:none}}
+@media(max-width:600px){.research-path-full{display:none}.research-path-short{display:inline}.research-paths button,.research-chapters button,.research-try{min-height:44px}.research-paths button{max-width:none}}
 .research-history-photo{margin:24px 0;max-width:900px}
 .research-history-photo img{display:block;width:100%;height:auto}
 .research-history-photo figcaption{font-size:12px;margin-top:8px;line-height:1.6}
