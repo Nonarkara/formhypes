@@ -89,3 +89,23 @@ test('JSON study exports retain contextual assumptions and their stated limits',
  assert.match(dist('app.js'),/contextStudies:\{ground:getLocationStudy\(\),fengShui:getFengStudy\(\)\}/);
  assert.match(dist('location.js'),/not safety assessment/);assert.match(dist('play.js'),/invented-site design prompt/);
 });
+
+test('2026-10-15 audit: inherited names, stale search, unknown hashes and failed saves are guarded',()=>{
+ const app=dist('app.js');
+ assert.ok('constructor' in families&&!Object.hasOwn(families,'constructor'),'plain lookup would accept inherited keys');
+ assert.match(app,/Object\.hasOwn\(regimes,/);assert.match(app,/Object\.hasOwn\(objectives,/);
+ assert.match(app,/own\(regimes,x\.regime\)/);
+ assert.match(app,/function changed\(\)\{\n searchToken\+\+/);
+ assert.match(app,/showTab\(h==='research'\?h:'studio',false\)/);
+ assert.match(app,/if\(!persist\(\)\)\{studies\.pop\(\);toast\(tt\('s\.saveFail'\)\)/);
+ assert.match(app,/filter\(x=>x&&validState\(x\.state\)\)/);
+});
+
+test('shared links carry a preview card and the sheet obeys the no-gradient rule on phones',()=>{
+ const html=dist('index.html'),css=dist('style.css');
+ for(const tag of ['og:title','og:description','og:image','twitter:card'])assert.ok(html.includes(`"${tag}"`),tag);
+ assert.match(html,/<link rel="icon"/);
+ assert.ok(readFileSync(new URL('../dist/og.jpg',import.meta.url)).length>10000);
+ assert.ok(!/gradient\(/.test(css),'house style bans gradients');
+ assert.match(css,/@media\(max-width:560px\)\{\.titleblock \.b-cred\{display:none\}\}/);
+});

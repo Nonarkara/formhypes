@@ -149,6 +149,7 @@ const en={
  's.emptyStudies':'No saved studies yet. Save the current form to compare later.',
  's.restored':'Saved study restored.',
  's.saved':'Study saved in this browser.',
+ 's.saveFail':'Not saved: this browser blocks or has filled its storage.',
  's.full':'Study shelf is full (8). Remove a study or export this one.',
  's.reset':'Design rules reset. Saved studies are retained.',
 
@@ -490,6 +491,7 @@ const th={
  's.emptyStudies':'ยังไม่มีงานศึกษาที่บันทึกไว้ บันทึกรูปทรงปัจจุบันเพื่อเปรียบเทียบภายหลัง',
  's.restored':'เรียกงานศึกษาที่บันทึกไว้แล้ว',
  's.saved':'บันทึกงานศึกษาในเบราว์เซอร์นี้แล้ว',
+ 's.saveFail':'บันทึกไม่สำเร็จ: เบราว์เซอร์นี้ปิดกั้นหรือพื้นที่จัดเก็บเต็ม',
  's.full':'ชั้นเก็บเต็มแล้ว (8) ลบงานเก่าหรือส่งออกงานนี้',
  's.reset':'รีเซ็ตกฎการออกแบบแล้ว งานที่บันทึกไว้ยังอยู่',
 
@@ -830,6 +832,7 @@ const zh={
  's.emptyStudies':'还没有保存的研究。先保存当前形体以便日后比较。',
  's.restored':'已恢复保存的研究。',
  's.saved':'研究已保存在此浏览器。',
+ 's.saveFail':'未能保存：此浏览器禁止存储或存储空间已满。',
  's.full':'研究架已满（8）。删除一项，或把当前研究导出。',
  's.reset':'设计规则已重置。已保存的研究保留。',
 

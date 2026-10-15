@@ -96,8 +96,8 @@ main{max-width:1840px;margin:auto;padding:0 20px}
 .note.source{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);color:var(--faint)}
 .ctl{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:12px 0 4px}
 select{width:100%;padding:4px 6px;border:0;border-bottom:1px solid var(--ink);border-radius:0;background:transparent;color:var(--ink);margin-bottom:8px;
- appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);
- background-position:calc(100% - 9px) 50%,calc(100% - 5px) 50%;background-size:4px 4px;background-repeat:no-repeat}
+ appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 4'%3E%3Cpath d='M0 0h8L4 4z' fill='%23191c1b'/%3E%3C/svg%3E");
+ background-position:calc(100% - 5px) 50%;background-size:8px 4px;background-repeat:no-repeat}
 select:focus{outline-offset:0}
 details{border-top:1px solid var(--line);margin-top:11px;padding-top:2px}
 summary{cursor:pointer;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;padding:7px 0;color:var(--muted);list-style:none}
@@ -142,7 +142,9 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 .tb-sheet .b-cred{margin-left:9px;font-size:9px;font-style:normal;font-weight:600;letter-spacing:.06em;text-transform:none;color:#7d8783}
 .tb-sheet .b-cred i{font-style:normal;font-weight:800;color:#de2910;letter-spacing:.1em}
 .tb-notice{min-width:0;overflow:hidden;text-overflow:ellipsis}
-.tb-ref{flex:none;margin-left:auto;padding-left:14px}
+.tb-ref{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;margin-left:auto;padding-left:14px}
+/* On a phone the header already carries "inspired by SHDT"; the sheet keeps the reference. */
+@media(max-width:560px){.titleblock .b-cred{display:none}}
 
 /* ── schedule · a column of figures, set tight ────────────────────────── */
 .primarymetric{border-bottom:2px solid var(--ink);padding:6px 0 10px;margin:0 0 10px}

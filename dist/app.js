@@ -1,9 +1,9 @@
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=5cafb2724f';
-import{t,langs,langMeta,translator}from'./i18n.js?v=ed8c039212';
+import{t,langs,langMeta,translator}from'./i18n.js?v=b295c70f33';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=7942c638f9';
 
-import {renderLocation,getLocationStudy} from './location.js?v=9d6611d6ed';
+import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=a75307527e';
 import {renderReader} from './reader.js?v=7238b55653';
 
@@ -130,6 +130,7 @@ function sync(){
 /* ── toast ────────────────────────────────────────────────────────────── */
 function toast(msg){$('toast').textContent=msg;$('toast').classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('on'),4200)}
 function changed(){
+ searchToken++; // a search still running was computed for the old state; drop it
  alternatives=[];
  $('searchResults').innerHTML=`<div class="empty"><span class="data">${tt('s.sum')} ${searchPlan(state).examined}</span><p>${tt('s.changed')}</p></div>`;
  update();
@@ -415,7 +416,7 @@ function runSearch(){
  const progress=document.createElement('div');progress.className='empty';
  $('searchResults').replaceChildren(progress);
  // Results are shareable: the rules that produced them go in the query string.
- try{history.replaceState(null,'','?regime='+encodeURIComponent(state.regime)+'&objective='+encodeURIComponent(objective))}catch{}
+ try{history.replaceState(null,'','?regime='+encodeURIComponent(state.regime)+'&objective='+encodeURIComponent(objective)+location.hash)}catch{}
  const slice=()=>{
   if(token!==searchToken)return;
   const end=Math.min(i+BATCH,plan.list.length);
@@ -459,12 +460,14 @@ function finishSearch(results,plan,objective,elapsed){
 };
 
 /* ── studies ──────────────────────────────────────────────────────────── */
-function validState(x){return x&&families[x.family]&&levelPrograms[x.program]&&facadeFamilies[x.skin]&&systems[x.system]&&regimes[x.regime]
+// Own keys only: an inherited name such as 'constructor' would otherwise pass and turn every metric into NaN.
+const own=(o,k)=>typeof k==='string'&&Object.hasOwn(o,k);
+function validState(x){return x&&own(families,x.family)&&own(levelPrograms,x.program)&&own(facadeFamilies,x.skin)&&own(systems,x.system)&&own(regimes,x.regime)
  &&validSolar({...solarDefaults,...x})&&Object.keys(schema).every(k=>Number.isFinite(k==='orientation'?(x[k]??0):x[k])&&(k==='span'?x[k]>0&&x[k]<300:(x[k]??0)>=schema[k][1]&&(x[k]??0)<=schema[k][2]))}
 // The rebrand renamed both keys. Fall back to the old ones so a language
 // choice and a study shelf saved under the previous name survive it.
 const readStore=k=>{try{return localStorage.getItem(k)}catch{return null}};
-try{const data=JSON.parse(readStore('formHypesStudies')??readStore('formYieldStudies')??'[]');studies=Array.isArray(data)?data.filter(x=>validState(x.state)).slice(0,8):[]}catch{studies=[]}
+try{const data=JSON.parse(readStore('formHypesStudies')??readStore('formYieldStudies')??'[]');studies=Array.isArray(data)?data.filter(x=>x&&validState(x.state)).slice(0,8):[]}catch{studies=[]}
 function persist(){try{localStorage.setItem('formHypesStudies',JSON.stringify(studies));return true}catch{return false}}
 function renderStudies(){
  $('savedStudies').replaceChildren();
@@ -483,7 +486,8 @@ function renderStudies(){
 $('save').onclick=()=>{
  if(studies.length>=8){toast(tt('s.full'));return}
  studies.push({state:{...state},savedAt:new Date().toISOString()});
- const ok=persist();renderStudies();toast(tt('s.saved'));
+ if(!persist()){studies.pop();toast(tt('s.saveFail'));return}
+ renderStudies();toast(tt('s.saved'));
 };
 
 /* ── chrome height ─────────────────────────────────────────────────────────
@@ -1116,7 +1120,7 @@ document.querySelector('.tabs').addEventListener('click',e=>{
  const btn=e.target.closest('[data-tab]');
  if(btn)showTab(btn.dataset.tab);
 });
-addEventListener('hashchange',()=>showTab(location.hash.slice(1)||'studio',false));
+addEventListener('hashchange',()=>{const h=location.hash.slice(1);showTab(h==='research'?h:'studio',false)});
 // Delegated so the binding survives any later markup change in the rail.
 document.addEventListener('click',e=>{
  if(e.target.closest('#search'))runSearch();
@@ -1129,8 +1133,8 @@ try{const l=readStore('formHypesLang')??readStore('formYieldLang');if(langs.incl
 let deepRun=false;
 try{
  const q=new URLSearchParams(location.search);
- if(regimes[q.get('regime')])state.regime=q.get('regime');
- if(objectives[q.get('objective')])state.objective=q.get('objective');
+ if(Object.hasOwn(regimes,q.get('regime')??''))state.regime=q.get('regime');
+ if(Object.hasOwn(objectives,q.get('objective')??''))state.objective=q.get('objective');
  deepRun=q.get('run')==='1';
 }catch{}
 setLang(lang);
