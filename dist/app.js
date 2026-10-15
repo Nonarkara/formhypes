@@ -1,5 +1,5 @@
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=5cafb2724f';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=5d568dc702';
 import{t,langs,langMeta,translator}from'./i18n.js?v=8a8aea79a9';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=7942c638f9';
 
@@ -7,7 +7,7 @@ import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=a75307527e';
 import {renderReader} from './reader.js?v=7238b55653';
 
-import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=e78a192096';
+import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=76931110a7';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en');
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);

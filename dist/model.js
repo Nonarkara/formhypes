@@ -18,7 +18,7 @@
 import{polyArea,polyPerimeter,minkowski,planLibrary,loftTable,lateralArea,loftVolume,
  pointInPolygon,distToBoundary,daylitFraction,daylightReachFor,cotSky,skyAngleDeg,isConvex}from'./geometry.js?v=eb7a621ab9';
 
-import {solarDefaults,facadeExposure} from './solar.js?v=e78a192096';
+import {solarDefaults,facadeExposure} from './solar.js?v=76931110a7';
 export const families={box:'Rectilinear',chamfer:'Chamfered',cross:'Cruciform',octagon:'Octagonal',star:'Eight-point',rub:'Rub el Hizb',triangle:'Triangular',hexagon:'Hexagonal',oval:'Faceted oval',petal:'Four-petal',pinwheel:'Pinwheel'};
 // Re-exported so the controller has one import edge into the model rather than
 // two into the model and the kernel. There is no cycle either way, but one edge
