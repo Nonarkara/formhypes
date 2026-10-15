@@ -26,6 +26,7 @@ export const SECTIONS=[
  {kind:'head',key:'r.ch1.h',body:'r.ch1.b'},
  {kind:'head',key:'r.ch2.h',body:'r.ch2.b'},
  {kind:'head',key:'r.ch3.h',body:'r.ch3.b'},
+ {kind:'head',key:'r.timeline.h',body:['r.timeline.b1','r.timeline.b2','r.timeline.b3','r.timeline.b4','r.timeline.b5','r.timeline.b6'],then:{kind:'timeline'},note:'r.timeline.note'},
  {kind:'head',key:'r.ch4.h',body:'r.ch4.b'},
  {kind:'head',key:'r.ch5.h',body:'r.ch5.b'},
  {kind:'head',key:'r.ch6.h',body:'r.ch6.b'},
@@ -167,6 +168,42 @@ export const RESEARCH_T={
    say:{'en':'A core too slender to stand alone reaches out and locks the perimeter to itself.',
         'th':'แกนกลางที่เรียวจนยืนเองไม่ได้ จึงยื่นออกไปล็อกขอบตึกไว้กับตัวเอง',
         'zh':'纤细到无法独立站立的核心筒，伸出去把周边柱锁在自己身上。'}}
+ ],
+ /* The museum run. Seven dated stops between the first internal skeleton and
+    the first curtain-walled high-rise, then the core moves to the middle and
+    never moves again. Each node draws the one idea that made the next possible;
+    the drawings are schematic and to no common scale, because these buildings
+    are not being compared by size — they are being read as a sequence of
+    decisions. `kind` selects the diagram, never the argument. */
+ timeline:[
+  {year:'1884–85',bld:'Home Insurance Building',who:'William Le Baron Jenney',city:'Chicago',kind:'skeleton',
+   say:{'en':'The frame comes out of the wall and the wall is free. The lower storeys are still partly masonry bearing — this is a first step, not a finished argument.',
+        'th':'โครงออกจากกำแพง กำแพงจึงเป็นอิสระ แต่ชั้นล่างยังเป็นผนังก่ออิฐรับน้ำหนักบางส่วน นี่คือก้าวแรก ไม่ใช่ข้อสรุป',
+        'zh':'框架从墙里走出来，墙于是自由。但底层仍有部分砌体承重——这是第一步，不是一个完成的论证。'}},
+  {year:'1894–96',bld:'Guaranty Building',who:'D. S. Hopkins',city:'Buffalo',kind:'daylight',
+   say:{'en':'Two plate-glass windows a room, and rooms made square so tenants did not have to pay for dark corners. The rent argument, 111 years before the thesis.',
+        'th':'กระจกแผ่นใหญ่สองบานต่อห้อง และจัดห้องให้เป็นสี่เหลี่ยมจัตุรัส ผู้เช่าจึงไม่ต้องจ่ายค่าเช่ามุมมืด นี่คือข้อโต้แย้งเรื่องค่าเช่า ก่อนวิทยานิพนธ์ 111 ปี',
+        'zh':'每个房间两扇大玻璃窗，房间做成方形，租户就不必为暗角付租金。这是租金论证，比那篇论文早了一百一十一年。'}},
+  {year:'1896',bld:'The Tall Office Building Artistically Considered',who:'Louis H. Sullivan',city:'Philadelphia',kind:'essay',
+   say:{'en':'The room sets the structure. He says so plainly, then admits what the repetition costs: we make them look alike because they are all alike.',
+        'th':'ห้องกำหนดโครงสร้าง เขาพูดตรงๆ แล้วก็ยอมรับว่าความซ้ำต้องแลกอะไร เราทำให้มันดูเหมือนกัน เพราะมันเหมือนกันจริงๆ',
+        'zh':'房间决定结构。他说得很直白，然后承认重复的代价：我们让它们看起来一样，因为它们本来就一样。'}},
+  {year:'1909',bld:'Boley Clothing Building',who:'Louis Curtiss',city:'Kansas City',kind:'glass',
+   say:{'en':'Brick piers carry the building and the glass is hung outside them. The wall stops being a wall and becomes a skin.',
+        'th':'เสาอิฐรับน้ำหนักอาคาร กระจกถูกแขวนอยู่นอกเสา กำแพงจึงเลิกเป็นกำแพง กลายเป็นเปลือก',
+        'zh':'砖墩承重，玻璃挂在它们外面。墙不再是墙，变成了皮。'}},
+  {year:'1918',bld:'Halidie Building',who:'Willis Polk',city:'San Francisco',kind:'cantilever',
+   say:{'en':'Slabs cantilever clear of the columns, so the corner is glass. The first curtain wall, and the first time the corner stops being a penalty.',
+        'th':'พื้นยื่นออกจากเสา มุมจึงเป็นกระจก ผนังกระจกแรก และครั้งแรกที่มุมเลิกเป็นบทลงโทษ',
+        'zh':'楼板挑出柱子之外，于是转角成了玻璃。第一道幕墙，也是转角第一次不再是代价。'}},
+  {year:'1928',bld:'A. O. Smith Research Building',who:'Holabird & Root',city:'Milwaukee',kind:'frame',
+   say:{'en':'A full glass wall on an aluminium frame. No masonry to load, nothing to carry it — the frame is the structure and the glass is the weather.',
+        'th':'ผนังกระจกเต็มบนโครงอัลูมิเนียม ไม่มีอิฐให้รับน้ำหนัก ไม่มีอะไรมาแบกมัน โครงคือโครงสร้าง กระจกคือสภาพอากาศ',
+        'zh':'铝框上的一整面玻璃墙。没有砌体可供承载，也没有东西去承载它——框架就是结构，玻璃只是天气。'}},
+  {year:'1952',bld:'Lever House',who:'SOM with the UN Secretariat',city:'New York',kind:'core',
+   say:{'en':'Curtain wall all round, and the core pushed to the middle with the slabs cantilevered off it. From here the floor plate stops being a shape and starts being a floor.',
+        'th':'ผนังกระจกรอบทิ้ง แกนกลางถูกดันเข้าใจกลาง พื้นยื่นออกจากมัน จากนี้ผังชั้นเลิกเป็นรูปทรง แล้วกลายเป็นพื้น',
+        'zh':'四面临幕墙，核心筒被推到中间，楼板从它上面挑出。从此平面不再是形状，而是楼层。'}}
  ],
  /* The photographs. Filenames carry the dates; the captions carry only what
     the frames and those filenames support. */

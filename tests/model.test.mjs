@@ -778,3 +778,28 @@ test('the dedication names 陈寿恒 and is written in every language', () => {
   assert.ok(/saup\.szu\.edu\.cn\/info\/1022\/1671/.test(readDist('app.js')),
     'the Shenzhen University source is no longer linked');
 });
+
+test('the museum run is seven dated stops in order, each with its own drawing', async () => {
+  const {RESEARCH_T}=await import('../dist/research.js');
+  const T = RESEARCH_T.timeline;
+  assert.equal(T.length, 7);
+  // Chronological, and each stop says something the next one depends on.
+  assert.deepEqual(T.map(n => n.year), ['1884–85','1894–96','1896','1909','1918','1928','1952']);
+  // Two of the seven must not share a drawing: Boley is piers behind glass,
+  // A. O. Smith is no masonry at all, and collapsing them hides the difference.
+  assert.equal(new Set(T.map(n => n.kind)).size, 7, 'two stops share one schematic');
+  for (const n of T) {
+    assert.ok(n.bld && n.who && n.city, `${n.year}: building, architect and city required`);
+    for (const l of langs) {
+      assert.ok(n.say[l] && n.say[l].length >= (l === 'zh' ? 20 : 40),
+        `${n.year} say.${l} missing or too short`);
+      assert.ok(!/[A-Za-z]{3,}/.test(n.say.zh), `${n.year} zh annotation falls back to English`);
+    }
+  }
+  // The two corrections that are easy to get wrong have to survive editing.
+  assert.match(T[0].say.en, /still partly masonry|lower storeys are still partly masonry/i);
+  assert.match(T[2].say.en, /make them look alike because they are all alike/i);
+  // The plate has to be wired into the appendix render, or it is dead code.
+  assert.match(readDist('app.js'), /if\(blk\?\.kind==='timeline'\)s\.append\(timelinePlate\(\)\)/);
+  assert.match(readDist('app.js'), /if\(kind==='frame'\)/);
+});

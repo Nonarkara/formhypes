@@ -14,7 +14,7 @@ export const ARTIFACTS=[
  {src:'research/artifacts/chen-fig76-detail.png?v=37eed70e3b',figure:76,page:94,alt:'One tower from Chen’s original Figure 76, with generated massing and facade details.'}
 ];
 export const READER={
- en:{nav:['The thesis','The mechanism','The economics','The city'],previous:'Previous',next:'Next',page:'Page',source:'Sources & reading trail',newDiagram:'Explanatory diagram · FormHypes, 2026',original:'Original thesis excerpt · © Shouheng Chen, 2006',fig:'Fig.',p:'p.',open:'Open original MIT record',archive:'Extended studies, diagrams & photographs',archiveNote:'These longer studies are supplementary interpretations and live model experiments. Their monetary assumptions are scenarios; none establishes code compliance or market value.',
+ en:{nav:['The thesis','The mechanism','The economics','The city','Before the thesis'],previous:'Previous',next:'Next',page:'Page',source:'Sources & reading trail',newDiagram:'Explanatory diagram · FormHypes, 2026',original:'Original thesis excerpt · © Shouheng Chen, 2006',fig:'Fig.',p:'p.',open:'Open original MIT record',archive:'Extended studies, diagrams & photographs',archiveNote:'These longer studies are supplementary interpretations and live model experiments. Their monetary assumptions are scenarios; none establishes code compliance or market value.',
  pages:[
  {title:'2006: put the knowledge inside the tool.',stand:'Thesis findings · Chen, chapters 3–6',paras:[
  'Chen’s question was practical: can an architect encode the recurring decisions behind a skyscraper, then reuse them without drawing every component again? He studied HKIFC, Petronas, Cira and Hearst. Their massing rules and façade details became reusable procedures, rather than a collection of finished pictures. [chen]',
@@ -34,7 +34,7 @@ export const READER={
  'Local ground conditions add another test. Bangkok’s basin research identifies long-period amplification; a city label cannot specify a parcel’s soil profile or a tower’s capacity. Use the location desk for sources and a mechanics experiment, then commission site investigation and structural analysis. [ground] [peer]',
  'Culture is a design conversation, not a national taste score. Feng Shui offers a useful provocation about orientation and relationships, with different schools and practices. Our playground invents site arrangements; it does not certify auspiciousness. Ask local occupants and stakeholders which meanings the proposed form carries. [feng]'],diagram:'city',labels:['Owner · income','Occupant · comfort','Neighbour · access','City · infrastructure','Ground · site evidence','Community · meaning'],caption:'2006 → 2007 → 2008 → 2026: Chen’s computational methods; Dr Non’s MIT thesis; his Shanghai urbanism paper; this product by Dr Non at depa + Axiom. The synthesis belongs to FormHypes.'}
  ]},
- th:{nav:['วิทยานิพนธ์','กลไก','เศรษฐศาสตร์','เมือง'],previous:'ก่อนหน้า',next:'ถัดไป',page:'หน้า',source:'แหล่งอ้างอิงและเส้นทางการอ่าน',newDiagram:'แผนภาพอธิบาย · FormHypes, 2026',original:'ภาพจากวิทยานิพนธ์ต้นฉบับ · © Shouheng Chen, 2006',fig:'ภาพที่',p:'หน้า',open:'เปิดระเบียนต้นฉบับที่ MIT',archive:'บทศึกษาเพิ่มเติม แผนภาพ และภาพถ่าย',archiveNote:'บทศึกษาขนาดยาวเป็นการตีความและการทดลองกับโมเดล สมมติฐานทางการเงินเป็นสถานการณ์ทดลอง ไม่ยืนยันการผ่านกฎหมายหรือมูลค่าตลาด',
+ th:{nav:['วิทยานิพนธ์','กลไก','เศรษฐศาสตร์','เมือง','ก่อนวิทยานิพนธ์'],previous:'ก่อนหน้า',next:'ถัดไป',page:'หน้า',source:'แหล่งอ้างอิงและเส้นทางการอ่าน',newDiagram:'แผนภาพอธิบาย · FormHypes, 2026',original:'ภาพจากวิทยานิพนธ์ต้นฉบับ · © Shouheng Chen, 2006',fig:'ภาพที่',p:'หน้า',open:'เปิดระเบียนต้นฉบับที่ MIT',archive:'บทศึกษาเพิ่มเติม แผนภาพ และภาพถ่าย',archiveNote:'บทศึกษาขนาดยาวเป็นการตีความและการทดลองกับโมเดล สมมติฐานทางการเงินเป็นสถานการณ์ทดลอง ไม่ยืนยันการผ่านกฎหมายหรือมูลค่าตลาด',
  pages:[
  {title:'2006: ใส่ความรู้ไว้ในเครื่องมือ',stand:'ข้อค้นพบในวิทยานิพนธ์ · Chen บทที่ 3–6',paras:[
  'Chen ถามว่า สถาปนิกจะเข้ารหัสการตัดสินใจที่เกิดซ้ำในการออกแบบตึกสูง แล้วนำกลับมาใช้โดยไม่ต้องวาดทุกชิ้นใหม่ได้หรือไม่ เขาศึกษา HKIFC, Petronas, Cira และ Hearst แล้วแปลงกฎรูปทรงกับรายละเอียดเปลือกอาคารเป็นขั้นตอนที่ใช้ซ้ำได้ [chen]',
@@ -54,7 +54,7 @@ export const READER={
  'สภาพดินเป็นอีกการทดสอบ งานวิจัยแอ่งกรุงเทพฯ พบการขยายคลื่นคาบยาว แต่ชื่อเมืองไม่ได้บอกชั้นดินรายแปลงหรือกำลังรับแรงของตึก ใช้โต๊ะศึกษาทำเลอ่านหลักฐานและทดลองกลศาสตร์ ก่อนสำรวจดินและวิเคราะห์โครงสร้างจริง [ground] [peer]',
  'วัฒนธรรมเป็นบทสนทนา ไม่ใช่คะแนนรสนิยมประจำชาติ ฮวงจุ้ยชวนคิดเรื่องทิศและความสัมพันธ์ แต่มีหลายสำนักและหลายวิธี สนามทดลองของเราจัดฉากพื้นที่สมมติ ไม่รับรองความเป็นมงคล ต้องถามผู้ใช้งานและผู้เกี่ยวข้องในท้องถิ่นว่ารูปทรงนั้นสื่ออะไร [feng]'],diagram:'city',labels:['เจ้าของ · รายได้','ผู้ใช้ · ความสบาย','เพื่อนบ้าน · การเข้าถึง','เมือง · โครงสร้างพื้นฐาน','พื้นดิน · หลักฐาน','ชุมชน · ความหมาย'],caption:'2006 → 2007 → 2008 → 2026: วิธีคำนวณของ Chen วิทยานิพนธ์ MIT ของ ดร.นน บทความเซี่ยงไฮ้ และผลิตภัณฑ์นี้โดย ดร.นน ที่ depa + Axiom บทสังเคราะห์เป็นของ FormHypes'}
  ]},
- zh:{nav:['论文','机制','经济','城市'],previous:'上一页',next:'下一页',page:'页',source:'参考文献与阅读路径',newDiagram:'解释性图解 · FormHypes，2026',original:'论文原图节选 · © Shouheng Chen，2006',fig:'图',p:'页',open:'打开 MIT 原始记录',archive:'延伸研究、图解与照片',archiveNote:'长篇研究是补充解释与实时模型实验。货币假设属于情景，不构成规范合规或市场估值。',
+ zh:{nav:['论文','机制','经济','城市','论文之前'],previous:'上一页',next:'下一页',page:'页',source:'参考文献与阅读路径',newDiagram:'解释性图解 · FormHypes，2026',original:'论文原图节选 · © Shouheng Chen，2006',fig:'图',p:'页',open:'打开 MIT 原始记录',archive:'延伸研究、图解与照片',archiveNote:'长篇研究是补充解释与实时模型实验。货币假设属于情景，不构成规范合规或市场估值。',
  pages:[
  {title:'2006：把知识放进工具。',stand:'论文发现 · Chen 第三至六章',paras:[
  'Chen 的问题很实际：建筑师能否把摩天楼设计中反复出现的决策编码，以后不必逐件重画？他研究了 HKIFC、Petronas、Cira 和 Hearst，把体量规则与立面细节变成可复用的程序，而非一组完成图。[chen]',
@@ -75,3 +75,52 @@ export const READER={
  '文化是设计对话，不是全国口味评分。风水提示朝向与关系，也有不同流派和实践。试验场设置假想场地，不认证吉凶。应请当地使用者与利益相关者讨论拟议形态的意义。[feng]'],diagram:'city',labels:['业主 · 收入','使用者 · 舒适','邻居 · 通达','城市 · 基础设施','地基 · 场地证据','社区 · 意义'],caption:'2006 → 2007 → 2008 → 2026：Chen 的计算方法、Non 博士的 MIT 论文、上海城市研究，以及由 Non 博士在 depa + Axiom 创作的本产品。综合解释属于 FormHypes。'}
  ]}
 };
+
+/* Page five: the museum run. Attached after the literal so the array shape stays
+   untouched -- the reader takes its page count from pages.length, so this is the
+   only place a new page has to be declared. */
+const TIMELINE_PAGE={
+ en:{title:'Two centuries of arguing about a facade. Almost all of it was about rent.',stand:'Public-domain history · seven stops, 1884–1952',paras:[
+ 'Chicago, 1884–85. The Home Insurance Building puts an iron frame inside the walls and is usually called the first skeleton. It was not quite: the lower storeys still carry load in masonry, so the walls are not yet free and the windows are still smaller than tenants would like. A first step, dressed up as a conclusion.',
+ 'Buffalo, 1894–96. At the Guaranty Building every room gets two plate-glass windows, and the rooms are made square so that nobody pays rent for a dark corner. A daylight argument conducted entirely in money. Chen makes the same argument in 2006 about floor plates. It is 111 years old.',
+ 'Then the counter. The steel frame did not hand anyone a better daylit room, and Richardson never claimed the skeleton — his Trinity Church, finished in Chicago in 1877, is load-bearing masonry, and a very good one. Sullivan printed the admission in March 1896: we make them look alike because they are all alike.',
+ 'The glass run follows, and then the core settles into the middle and never moves again. Chen did not invent the question. He asked whether a computer could be given the answer.'
+ ],diagram:'timeline',labels:[
+ 'Home Insurance, Chicago, 1884–85 — frame inside the wall; masonry still carries the lower storeys',
+ 'Guaranty, Buffalo, 1894–96 — two windows a room; square rooms, no dark corners to pay for',
+ 'Sullivan, 1896 — the room sets the structure, and the admission about repetition',
+ 'Boley, Kansas City, 1909 — glass hung outside brick piers; the wall becomes a skin',
+ 'Halidie, San Francisco, 1918 — slabs cantilever clear of the columns; the corner can be glass',
+ 'A. O. Smith, Milwaukee, 1928 — a whole wall of glass on an aluminium frame',
+ 'Lever House, New York, 1952 — curtain wall all round, core in the middle, slabs cantilevered'
+ ],caption:'Dates and attributions are taken from the cited public sources. The seven glyphs are original schematic drawings, not measured elevations, and not to a common scale: these buildings are read as a sequence of decisions, not compared by size.'},
+ th:{title:'สองศตวรรษที่เถียงกันเรื่องเปลือกอาคาร และเกือบทั้งหมดเป็นเรื่องค่าเช่า',stand:'ประวัติศาสตร์สาธารณะ · เจ็ดหยุด ค.ศ. 1884–1952',paras:[
+ 'ชิคาโก ค.ศ. 1884–85 ตึก Home Insurance ยัดโครงเหล็กไว้ในกำแพง และมักถูกเรียกว่าเป็นโครงสร้างสกเลตันแท้ครั้งแรก แต่ก็ไม่ใช่ ชั้นล่างยังรับน้ำหนักด้วยอิฐ กำแพงจึงยังไม่เป็นอิสระ และหน้าต่างยังเล็กกว่าที่ผู้เช่าอยากได้ เป็นก้าวแรกที่แต่งกายมาเป็นข้อสรุป',
+ 'บัฟโฟ ค.ศ. 1894–96 ที่ตึก Guaranty ทุกห้องได้กระจกแผ่นใหญ่สองบาน และจัดห้องให้เป็นสี่เหลี่ยมจัตุรัส เพื่อไม่ให้ใครต้องจ่ายค่าเช่ามุมมืด นี่คือข้อโต้แย้งเรื่องแสงที่ดำเนินไปด้วยเงินทั้งหมด Chen พูดข้อเดียวกันนี้ในปี 2006 เรื่องผังชั้น มันอายุ 111 ปี',
+ 'แล้วก็ข้อโต้แย้ง โครงเหล็กไม่ได้มอบห้องที่สว่างกว่าให้ใครเลย และริชาร์ดสันก็ไม่เคยอ้างว่าคิดโครงสร้างสกเลตัน โบสถ์ Trinity Church ที่ชิคาโกของเขา สร้างเสร็จปี 1877 เป็นงานอิฐรับน้ำหนัก และเป็นงานที่งดงามมาก ส่วนซัลลิแวนตีพิมพ์คำยอมรับในเดือนมีนาคม 1896 ว่า เราทำให้มันดูเหมือนกันเพราะมันเหมือนกันจริงๆ',
+ 'จากนั้นก็คือการวิ่งของกระจก แล้วแกนกลางก็ลงไปอยู่กลางและไม่ขยับอีกเลย Chen ไม่ได้คิดคำถามนี้ขึ้นเอง เขาแค่ถามว่าคำตอบจะให้กับคอมพิวเตอร์ได้หรือเปล่า'
+ ],diagram:'timeline',labels:[
+ 'Home Insurance ชิคาโก 1884–85 — โครงอยู่ในกำแพง ชั้นล่างยังรับด้วยอิฐ',
+ 'Guaranty บัฟโฟ 1894–96 — ห้องละสองหน้าต่าง ห้องเป็นสี่เหลี่ยม มุมมืดไม่ต้องจ่ายค่าเช่า',
+ 'Sullivan 1896 — ห้องกำหนดโครงสร้าง และคำยอมรับเรื่องการทำซ้ำ',
+ 'Boley คานซาสซิตี้ 1909 — กระจกแขวนนอกเสาอิฐ กำแพงกลายเป็นเปลือก',
+ 'Halidie ซานฟรันซิสโก 1918 — พื้นยื่นพ้นเสา มุมจึงเป็นกระจกได้',
+ 'A. O. Smith มิลวอกกี 1928 — ผนังกระจกทั้งผนังบนโครงอัลูมิเนียม',
+ 'Lever House นิวยอร์ก 1952 — ผนังกระจกรอบ แกนกลางอยู่กลาง พื้นยื่นออกจากมัน'
+ ],caption:'วันที่และชื่อผู้ออกแบบมาจากแหล่งข้อมูลสาธารณะที่ระบุ ภาพทั้งเจ็ดเป็นภาพร่างเชิงแผนผังที่วาดขึ้นใหม่ ไม่ใช่การยกระดับจากการวัด และไม่ได้ใช้มาตราส่วนเดียวกัน อาคารเหล่านี้ถูกอ่านในฐานะลำดับของการตัดสินใจ ไม่ใช่การเปรียบเทียบกันด้วยขนาด'},
+ zh:{title:'关于立面的争论持续了两个世纪，而其中几乎全部都是关于租金。',stand:'公共领域史料 · 七个节点，1884–1952',paras:[
+ '芝加哥，1884–85。Home Insurance Building 把钢框架放进墙里，通常被称为第一座骨架结构。但并不完全是：底层仍有部分砌体承重，所以墙还没有自由，窗也仍比租户想要的窄。一步，被装扮成结论。',
+ '布法罗，1894–96。Guaranty Building 的每个房间都得到两扇大玻璃窗，房间做成方形，于是没有人要为暗角付租金。这是一个完全用钱讲完的采光论证。陈在 2006 年对楼板平面提出了同一个论证，它已经一百一十一岁了。',
+ '然后是反面的说法。钢框架并没有送给任何人一个更亮的房间，理查森也从未宣称自己发明了骨架——他那座 1877 年在芝加哥落成的 Trinity Church 本身就是砌体承重，而且是极好的一件。苏利文在 1896 年 3 月印下了那句承认：我们让它们看起来一样，因为它们本来就一样。',
+ '然后是玻璃的连跑，接着核心筒落进正中，从此再没挪动过。陈没有发明这个问题，他问的是：答案能不能交给计算机。'
+ ],diagram:'timeline',labels:[
+ 'Home Insurance，芝加哥，1884–85 — 框架在墙内；底层仍由砌体承重',
+ 'Guaranty，布法罗，1894–96 — 每室两窗；房间方形，不必为暗角付租金',
+ 'Sullivan，1896 — 房间决定结构，以及那句关于重复的承认',
+ 'Boley，堪萨斯城，1909 — 玻璃挂在砖墩外面，墙变成皮',
+ 'Halidie，旧金山，1918 — 楼板挑出柱子之外，转角于是可以是玻璃',
+ 'A. O. Smith，密尔沃基，1928 — 铝框上的整整一面玻璃墙',
+ 'Lever House，纽约，1952 — 四面临幕墙，核心筒居中，楼板挑出'
+ ],caption:'日期与署名取自所标注的公开来源。七个图符是重新绘制的示意图，并非实测立面，也不采用统一比例：这些建筑被当作一连串决策来阅读，而不是按体量互相比较。'}
+};
+for(const l of ['en','th','zh'])READER[l].pages.push(TIMELINE_PAGE[l]);

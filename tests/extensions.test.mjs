@@ -45,16 +45,31 @@ test('Feng Shui geometry is an angular relationship, not a rent multiplier',()=>
  near(angularGap(0,360),0);near(angularGap(355,5),10);near(angularGap(180,0),180);
  assert.match(dist('play.js'),/No effect on rent/);assert.doesNotMatch(dist('model.js'),/feng|suitability/i);
 });
-test('guided reader has four substantial, fully translated pages and every citation resolves',()=>{
+test('guided reader has five substantial, fully translated pages and every citation resolves',()=>{
  for(const lang of ['en','th','zh']){
-  assert.equal(READER[lang].pages.length,4);assert.equal(READER[lang].nav.length,4);
+  assert.equal(READER[lang].pages.length,5);assert.equal(READER[lang].nav.length,5);
   for(const p of READER[lang].pages){assert.ok(p.paras.length>=3);assert.ok(p.title&&p.caption&&p.labels.length>=4);
    for(const text of p.paras)for(const [,id]of text.matchAll(/\[([a-z]+)\]/g))assert.ok(SOURCES.some(s=>s.id===id),id);
   }
+  // The museum run is a real page, not a stub: seven dated stops in step with
+  // the nav, and it must say what the drawings are not.
+  const tl=READER[lang].pages.at(-1);
+  assert.equal(tl.diagram,'timeline');assert.equal(tl.labels.length,7);
+  // "these are schematic drawings, not measured elevations" has to be said in
+  // each language's own word -- asserting the English one against Thai and
+  // Chinese would push the copy back into Latin fallback.
+  assert.match(tl.caption,{en:/schematic/,th:/ภาพร่าง/,zh:/示意图/}[lang],lang+' caption must disclaim the scale');
   assert.deepEqual(Object.keys(LC[lang]),Object.keys(LC.en));assert.deepEqual(Object.keys(PLAY[lang]),Object.keys(PLAY.en));
   for(const f of Object.keys(families))assert.ok(t[lang]['f.'+f]);
  }
  assert.match(READER.en.pages[3].paras[0],/repository abstract/);
+ // Seven stops, in order, and the two corrections that matter are stated rather
+ // than assumed: Home Insurance was not a true skeleton, and Richardson did not
+ // invent one either.
+ assert.deepEqual(READER.en.pages.at(-1).labels.map(l=>/(1884|1894|1896|1909|1918|1928|1952)/.exec(l)[0]),
+  ['1884','1894','1896','1909','1918','1928','1952']);
+ assert.match(READER.en.pages.at(-1).paras[1],/111 years old/);
+ assert.match(READER.en.pages.at(-1).paras[2],/Trinity Church, finished in Chicago in 1877, is load-bearing masonry/);
  assert.ok(SOURCES.some(s=>s.author==='Non Arkaraprasertkul'&&s.year==='2007'));
 });
 test('all thesis excerpts exist with exact figure and page locators',()=>{

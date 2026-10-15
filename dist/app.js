@@ -1,11 +1,11 @@
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=5d568dc702';
-import{t,langs,langMeta,translator}from'./i18n.js?v=8a8aea79a9';
-import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=7942c638f9';
+import{t,langs,langMeta,translator}from'./i18n.js?v=16f0046827';
+import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=f6c0736b31';
 
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=a75307527e';
-import {renderReader} from './reader.js?v=7238b55653';
+import {renderReader} from './reader.js?v=e4af773b57';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=76931110a7';
 const $=id=>document.getElementById(id);
@@ -569,6 +569,7 @@ function renderResearch(){
    if(blk?.kind==='petronas')s.append(petronasPlate());
    if(blk?.kind==='trio')s.append(trioPlate());
    if(blk?.kind==='cores')s.append(coresPlate());
+   if(blk?.kind==='timeline')s.append(timelinePlate());
   }
   if(sec.then?.kind==='photos')s.append(photoPlate());
   if(sec.note)s.append(el('p','note',tt(sec.note)));
@@ -768,6 +769,113 @@ function svgEl(tag,attrs,text){
 
 /** His office, his house, his models. Filenames carry the dates; nothing here
  *  is captioned beyond what the frame and the filename actually support. */
+/* ── the museum run ──────────────────────────────────────────────────────
+   Seven dated stops, one row, chronological left to right because the order
+   is the argument. Each drawing shows only the one idea that made the next
+   possible: the frame coming out of the wall, the room made square for the
+   tenant, the glass hung outside the piers, the slab leaving the column, the
+   core arriving in the middle. Schematic throughout — these are not being
+   compared by size, they are being read as a sequence of decisions. */
+function timelinePlate(){
+ const wrap=el('div','tl');
+ const NODES=RESEARCH_T.timeline, AM='#f59e0b', GY='#b9bfbb', INK='#191c1b';
+ const ax=el('div','tl-axis');
+ const strip=el('div','tl-strip');
+
+ // One node. The diagram is drawn in a 150x96 box with the same conventions as
+ // the six-system strip: grey envelope, amber structure, hatching for bearing.
+ const draw=(kind,ns)=>{
+  const ln=(x1,y1,x2,y2,s,w)=>svgEl('line',{x1,y1,x2,y2,stroke:s||GY,'stroke-width':w||'.7'});
+  const rect=(x,y,w,h,f,s)=>svgEl('rect',{x,y,width:w,height:h,fill:f||'none',stroke:s||GY,'stroke-width':'.7'});
+  const hatch=(x,y,w,h,gap)=>{let d='';for(let i=-h;i<w;i+=gap||5)d+=`M${(x+i).toFixed(1)} ${y+h} L${(x+i+h).toFixed(1)} ${y} `;return svgEl('path',{d,stroke:GY,'stroke-width':'.5'})};
+  const add=n=>ns.appendChild(n);
+
+  if(kind==='skeleton'){                 // frame inside, masonry still holding on
+   add(rect(14,16,122,64));
+   add(hatch(14,16,16,64)); add(hatch(120,16,16,64));
+   let g='';
+   for(let i=1;i<5;i++)for(let j=1;j<3;j++)g+=`M${14+i*122/5} 16 V80 M14 ${16+j*64/3} H136 `;
+   add(svgEl('path',{d:g,fill:'none',stroke:AM,'stroke-width':'.8'}));
+   for(let i=1;i<5;i++)for(let j=1;j<3;j++)add(svgEl('rect',{x:14+i*122/5-1.6,y:16+j*64/3-1.6,width:3.2,height:3.2,fill:AM}));
+  }
+  if(kind==='daylight'){                 // a square room, two windows, one dark corner
+   add(rect(24,14,102,66));
+   add(rect(24,14,102,66,'none',INK));
+   add(svgEl('rect',{x:24,y:38,width:34,height:9,fill:'#eef2f4',stroke:INK,'stroke-width':'.7'}));
+   add(svgEl('rect',{x:70,y:38,width:34,height:9,fill:'#eef2f4',stroke:INK,'stroke-width':'.7'}));
+   add(hatch(112,14,14,14));             // the corner nobody would pay rent for
+   add(svgEl('path',{d:'M24 38 V47 M58 38 V47 M70 38 V47 M104 38 V47',stroke:'#e9eae7','stroke-width':'1.4'}));
+  }
+  if(kind==='essay'){                    // a printed page, in the year it was free to read
+   add(rect(34,10,82,74,'#f4f4f1'));
+   add(svgEl('path',{d:'M46 34 q0-12 12-12 q-8 2-8 7 q0 4 5 5 q-5 1-5 5 q0 4 4 6 q-8 0-8-11 Z',fill:AM}));
+   let t='';
+   for(let i=0;i<7;i++)t+=`M68 ${30+i*7} H${i===6?92:106} `;
+   add(svgEl('path',{d:t,stroke:GY,'stroke-width':'1.5'}));
+  }
+  if(kind==='glass'){                    // brick piers behind, glass hung outside them
+   add(hatch(26,10,20,74)); add(hatch(74,10,20,74)); add(hatch(112,10,20,74));
+   add(rect(26,10,20,74)); add(rect(74,10,20,74)); add(rect(112,10,20,74));
+   add(rect(14,10,122,74,'#eef2f4',AM));
+   let g='';
+   for(let i=1;i<4;i++)g+=`M${14+i*122/4} 10 V84 `;
+   for(let j=1;j<4;j++)g+=`M14 ${10+j*74/4} H136 `;
+   add(svgEl('path',{d:g,fill:'none',stroke:AM,'stroke-width':'.7'}));
+  }
+  if(kind==='frame'){                     // the whole wall is glass, and the frame IS the wall
+   add(rect(14,10,122,74,'#eef2f4',AM));
+   let g='';
+   for(let i=1;i<4;i++)g+=`M${14+i*122/4} 10 V84 `;
+   for(let j=1;j<4;j++)g+=`M14 ${10+j*74/4} H136 `;
+   add(svgEl('path',{d:g,fill:'none',stroke:AM,'stroke-width':'.7'}));
+   // the aluminium frame reads as a heavier edge, and there is no masonry
+   // anywhere in this cell -- that absence is the difference from 1909
+   add(svgEl('rect',{x:14,y:10,width:122,height:74,fill:'none',stroke:AM,'stroke-width':'2.2'}));
+  }
+  if(kind==='cantilever'){               // hexagonal columns; the slab runs past them
+   // Slab first, columns second. The other way round the slab fill covers the
+   // columns and the hexagon -- which is the whole point of this stop -- vanishes.
+   add(svgEl('rect',{x:30,y:16,width:90,height:64,fill:'#eef2f4',stroke:AM,'stroke-width':'1.3'}));
+   let t='';
+   for(let x=38;x<114;x+=15)t+=`M${x} 16 V80 `;
+   add(svgEl('path',{d:t,fill:'none',stroke:AM,'stroke-width':'.5'}));
+   let cols='';
+   for(const [x,y] of [[52,34],[98,34],[52,62],[98,62]])
+    cols+=`M${x} ${y-6} L${x+5} ${y-3} L${x+5} ${y+3} L${x} ${y+6} L${x-5} ${y+3} L${x-5} ${y-3} Z `;
+   add(svgEl('path',{d:cols,fill:'#eef2f4',stroke:'#191c1b','stroke-width':'1'}));
+  }
+  if(kind==='core'){                     // core in the middle, slabs cantilevered off it
+   add(rect(14,10,122,74,'#eef2f4',AM));
+   let g='';
+   for(let i=1;i<5;i++)g+=`M${14+i*122/5} 10 V84 `;
+   add(svgEl('path',{d:g,fill:'none',stroke:AM,'stroke-width':'.5'}));
+   add(rect(61,32,28,32,'#cfd4d0',INK));
+   add(hatch(61,32,28,32,4));
+   for(const d of ['M61 32 L14 10','M89 32 L136 10','M89 64 L136 84','M61 64 L14 84'])
+    add(svgEl('path',{d,fill:'none',stroke:INK,'stroke-width':'.9'}));
+  }
+ };
+
+ for(const n of NODES){
+  const cell=el('figure','tlCell');
+  const ns=svgEl('svg',{viewBox:'0 0 150 96'});
+  draw(n.kind,ns);
+  cell.appendChild(ns);
+  const cap=el('figcaption');
+  cap.append(el('span','tlYear',n.year));
+  cap.append(el('span','tlBld',n.bld));
+  cap.append(el('span','tlWho',n.city+' · '+n.who));
+  cap.append(el('span','tlSay',n.say[lang]));
+  cell.appendChild(cap);
+  strip.appendChild(cell);
+  ax.appendChild(el('span','tlTick'));
+ }
+ wrap.append(ax);
+ wrap.append(strip);
+ wrap.append(el('p','note source',tt('r.timeline.note')));
+ return wrap;
+}
+
 /** Six systems, six plans.
  *  The isometric is schematic and says only one thing: where the structure sits
  *  in the volume. The plan underneath says the other thing — how much of the

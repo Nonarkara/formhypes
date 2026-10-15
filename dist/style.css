@@ -475,3 +475,35 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 #dedicationDetails{padding:14px 0;border-top:1px solid var(--line);margin-top:10px}
 #dedicationDetails .dedication{margin-top:12px}.researchhead .lede{font-size:15px;max-width:84ch;line-height:1.55}.researchhead .credit{margin-top:8px;max-width:100ch}
 .period-plot{margin:12px 0;max-width:700px}.period-plot svg{display:block;width:100%;font:12px var(--sans);overflow:visible}.period-plot figcaption{font-size:12px}
+
+/* ── the museum run ──────────────────────────────────────────────────────
+   A single horizontal strip: the order left-to-right IS the argument, so it
+   scrolls rather than wraps. 1px separators, a 2px amber axis with a tick per
+   stop, sharp edges throughout. */
+.tl{margin:0 0 16px}
+.tl-axis{
+  display:flex;margin:0 0 -1px;padding-left:0;
+  border-bottom:2px solid var(--accent);
+}
+.tl-axis .tlTick{flex:1 0 188px;height:6px}
+.tl-strip{display:flex;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.tlCell{
+  flex:1 0 188px;margin:0;padding:12px 14px 14px;
+  border-right:1px solid var(--line);box-sizing:border-box;
+}
+.tlCell:first-child{border-left:1px solid var(--line)}
+.tlCell svg{width:100%;height:auto;display:block;margin-bottom:9px}
+.tlCell figcaption{display:block}
+.tlYear{
+  display:block;font-family:var(--mono);font-size:11px;font-weight:600;
+  color:var(--accent);letter-spacing:.04em;margin-bottom:3px;
+}
+.tlBld{
+  display:block;font-size:12.5px;font-weight:600;color:var(--ink);
+  line-height:1.3;margin-bottom:2px;
+}
+.tlWho{
+  display:block;font-size:10.5px;color:var(--faint);line-height:1.35;margin-bottom:7px;
+}
+.tlSay{display:block;font-size:11.5px;color:var(--muted);line-height:1.5}
+@media (max-width:900px){.tlCell{flex:0 0 176px}}
