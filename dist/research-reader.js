@@ -99,8 +99,8 @@ function table(data,caption){
  const wrap=N('div',undefined,'research-table-wrap'),t=N('table');wrap.tabIndex=0;wrap.setAttribute('role','region');wrap.setAttribute('aria-label',caption);t.append(N('caption',caption));const head=N('thead'),hr=N('tr');data.head.forEach(h=>{const th=N('th',h);th.scope='col';hr.append(th)});head.append(hr);t.append(head);const body=N('tbody');data.rows.forEach(row=>{const tr=N('tr');row.forEach((v,i)=>{const cell=N(i===0?'th':'td',v);if(i===0)cell.scope='row';tr.append(cell)});body.append(tr)});t.append(body);wrap.append(t);return wrap;
 }
 function artifact(item,lang){
- const c=RESEARCH_UI[lang],a=THESIS_EXCERPTS[item.id],fig=N('figure',undefined,'research-excerpt');
- const link=N('a');link.href=a.src;link.target='_blank';link.rel='noopener';const img=N('img');img.src=a.src;img.alt=item.caption;img.loading='lazy';img.width=a.width;img.height=a.height;link.append(img);
+ const c=RESEARCH_UI[lang],a=THESIS_EXCERPTS[item.id],fig=N('figure',undefined,'research-excerpt'+(a.width/a.height<.8?' research-excerpt-portrait':''));
+ const link=N('a');link.href=a.src;link.target='_blank';link.rel='noopener';const img=N('img');img.src=a.src;img.alt=item.caption;img.loading='lazy';img.width=a.width;img.height=a.height;img.style.width=Math.min(a.width,520*a.width/a.height)+'px';img.style.aspectRatio=a.width+' / '+a.height;link.append(img);
  const cap=N('figcaption');cap.append(N('p',`${c.original} · ${c.fig} ${a.figure} · ${c.page} ${a.page}`,'note'),N('p',item.caption));const source=N('a',c.open);source.href=RESEARCH_SOURCES[0].url;source.target='_blank';source.rel='noopener';cap.append(source);fig.append(link,cap);return fig;
 }
 function atlas(lang){

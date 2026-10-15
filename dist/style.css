@@ -587,3 +587,7 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .research-history-photo{margin:24px 0;max-width:900px}
 .research-history-photo img{display:block;width:100%;height:auto}
 .research-history-photo figcaption{font-size:12px;margin-top:8px;line-height:1.6}
+.research-excerpt>a{justify-self:start;max-width:100%}
+.research-excerpt-portrait{grid-template-columns:minmax(0,320px) minmax(0,1fr)}
+.research-excerpt figcaption{max-width:52ch}
+@media(max-width:600px){.research-excerpt-portrait{grid-template-columns:1fr}}
