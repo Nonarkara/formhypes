@@ -1,6 +1,6 @@
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=5cafb2724f';
-import{t,langs,langMeta,translator}from'./i18n.js?v=b295c70f33';
+import{t,langs,langMeta,translator}from'./i18n.js?v=8a8aea79a9';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=7942c638f9';
 
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
@@ -1038,15 +1038,15 @@ function renderMethod(){
  const ps=[
   'r.ch1.b','r.ch3.b','r.ch4.b','r.ch6.b'];
  for(const k of ps)host.append(el('p',null,tt(k)));
- host.append(el('h3',null,'Annual rent'));
- host.append(el('p',null,'(ordinary + corner × premium + identity + column-free + clear-height − obsolescence) × base rent × occupancy'));
- host.append(el('h3',null,'Annual contribution'));
- host.append(el('p',null,'annual rent − façade area × envelope reserve × façade factor × regime discipline − gross area × structure base × structure factor'));
- host.append(el('p',null,'Contribution excludes operating costs, financing, tax and capital recovery beyond those two reserves. It is neither NOI nor a valuation. All inputs are illustrative and in USD.'));
+ // Formulas mirror evaluate() in model.js; a test holds them to it.
+ host.append(el('h3',null,tt('m.rent')),el('p','data',tt('meth.rent')));
+ host.append(el('h3',null,tt('m.contribution')),el('p','data',tt('meth.contrib')));
+ host.append(el('p','note',tt('meth.limits')));
 }
 
 /* ── knowledge dialog ─────────────────────────────────────────────────── */
 function kn(tag,text){const n=document.createElement(tag);n.textContent=text;return n}
+$('methodBtn').onclick=()=>{renderMethod();$('method').showModal()};
 $('knowledgeBtn').onclick=async()=>{
  $('knowledgeDialog').showModal();
  const host=$('knowledgeContent');host.replaceChildren(kn('p',tt('k.loading')));

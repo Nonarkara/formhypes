@@ -109,3 +109,15 @@ test('shared links carry a preview card and the sheet obeys the no-gradient rule
  assert.ok(!/gradient\(/.test(css),'house style bans gradients');
  assert.match(css,/@media\(max-width:560px\)\{\.titleblock \.b-cred,\.titleblock \.tb-sheet\{display:none\}/);
 });
+
+test('the Method dialog publishes the rent equation the model actually computes, in every language',()=>{
+ for(const s of [defaults,{...defaults,family:Object.keys(families)[3],floors:30,twist:40}]){
+  const m=evaluate(s),p=m.premiums,base=s.rent*s.occupancy/100;
+  near(m.rent,m.rentable*base*(1+p.identity+p.columnFree+p.height-p.lowCeiling-p.depth)+m.cornerArea*base*p.corner,1e-6);
+  near(m.contribution,m.rent-m.facadeCost-m.structureCost,1e-6);
+ }
+ for(const l of ['en','th','zh'])for(const k of ['meth.title1','meth.title2','meth.rent','meth.contrib','meth.limits'])assert.ok(typeof t[l][k]==='string'&&t[l][k].length>3,`${l} ${k}`);
+ assert.match(dist('index.html'),/id="methodBtn"/);
+ assert.match(dist('app.js'),/\$\('methodBtn'\)\.onclick=\(\)=>\{renderMethod\(\);\$\('method'\)\.showModal\(\)\}/);
+ assert.ok(!dist('app.js').includes('obsolescence'),'stale formula text removed');
+});
