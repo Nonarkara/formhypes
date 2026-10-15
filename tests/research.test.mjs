@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {TRACKS,RESEARCH_UI,RESEARCH_SOURCES,THESIS_EXCERPTS,PROTOCOL_FILES,HISTORY_PHOTO} from '../dist/research-tracks.js';
-import {researchComparison,readingSelection,researchProtocol} from '../dist/research-reader.js';
+import {researchComparison,readingSelection,researchProtocol,entryTab,resolveRegimeQuery} from '../dist/research-reader.js';
 import {defaults,grossOf,evaluate} from '../dist/model.js';
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-5,`${a} != ${b}`);
 const text=(l)=>JSON.stringify(TRACKS[l]);
@@ -24,7 +24,7 @@ test('three research paths and all nine chapters have complete EN TH ZH structur
     for(const a of p.artifacts||[])assert.ok(THESIS_EXCERPTS[a.id]&&a.caption.length>(l==='zh'?15:30));
    }
   }
-  assert.doesNotMatch(text(l),/Xiaohei|egotist|asshole/i);
+  assert.doesNotMatch(text(l),/egotist|asshole|proptech|smart city/i);
   assert.match(RESEARCH_UI[l].by,/Dr Non/);assert.match(RESEARCH_UI[l].by,/depa \+ Axiom/);
   assert.match(RESEARCH_UI[l].contribution,/USD/);assert.equal(RESEARCH_UI[l].atlasLabels.length,11);assert.ok(HISTORY_PHOTO.caption[l]);
  }
@@ -50,6 +50,31 @@ test('equal-area research experiment preserves all non-family assumptions and ac
  const rows=researchComparison({...defaults,core:30,span:24});assert.ok(rows.some(r=>!r.metrics.valid),'failed model cases must remain available');
  const a=researchComparison(defaults),b=researchComparison({...defaults,rent:defaults.rent*2});
  assert.ok(b.every((r,i)=>r.metrics.contribution>a[i].metrics.contribution));
+});
+test('a research query opens Research even from a studio hash, and landlord is yield',()=>{
+ assert.equal(entryTab('?reading=value&chapter=paper','#studio'),'research');
+ assert.equal(entryTab('?reading=value&chapter=paper','#research'),'research');
+ assert.equal(entryTab('','#studio'),'studio');
+ assert.equal(entryTab('','#bogus'),'studio');
+ assert.equal(entryTab('?chapter=paper',''),'research');
+ assert.deepEqual(resolveRegimeQuery('landlord'),{regime:'yield',unknown:null});
+ assert.deepEqual(resolveRegimeQuery('yield'),{regime:'yield',unknown:null});
+ assert.deepEqual(resolveRegimeQuery('landlord-nope'),{regime:null,unknown:'landlord-nope'});
+ assert.deepEqual(resolveRegimeQuery('constructor'),{regime:null,unknown:'constructor'});
+ assert.deepEqual(resolveRegimeQuery(null),{regime:null,unknown:null});
+ const html=readFileSync(new URL('../dist/index.html',import.meta.url),'utf8');
+ assert.match(html,/id="researchArchive"/);assert.doesNotMatch(html,/dedicationDetails[^>]*open/);
+ assert.match(html,/href="#studio"/);assert.match(html,/href="#research"/);
+ assert.match(html,/id="phoneReadout"/);
+ assert.match(html,/id="placeContext"/);
+ assert.match(html,/id="placeCase"/);
+ assert.match(text('en'),/Xiaohei/);
+ assert.match(text('en'),/Shenzhen/);
+ assert.match(text('zh'),/小黑/);
+ assert.match(text('zh'),/深圳/);
+ assert.doesNotMatch(readFileSync(new URL('../dist/style.css',import.meta.url),'utf8'),/\.bar \.fill/);
+ assert.match(readFileSync(new URL('../dist/style.css',import.meta.url),'utf8'),/header \.langs button,header \.tabs a,header \.actions button\{min-width:44px;min-height:44px/);
+ assert.doesNotMatch(readFileSync(new URL('../dist/console.css',import.meta.url),'utf8'),/gradient\(|box-shadow|border-radius/);
 });
 test('reading links resolve validated chapter identities and reject inherited or unknown keys',()=>{
  assert.deepEqual(readingSelection('?reading=value&chapter=test'),{track:2,page:1});

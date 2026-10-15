@@ -95,3 +95,29 @@ body.is-console [hidden]{display:none!important}
 .console-flag{border-left:3px solid var(--accent);padding-left:6px;color:var(--ink);font-weight:600}
 .facade-desk details img{width:min(100%,489px);height:auto;max-height:none}
 @media(pointer:coarse){.console-nav button,.console-subnav button,.brief-tabs button,.console-rail-nav button,.console-field input,.console-field select{min-height:44px}}
+/* Phone: one tool row under a 44px header. The tower keeps the screen.
+   Base, then floors, then the live contribution on the sheet. */
+@media(max-width:600px){
+ .console-site{display:none}
+ .console-site:has(.console-flag){display:flex;padding:4px 0}
+ .console-rail-nav{display:none}
+ .console-nav{gap:16px}
+ .console-nav button{min-height:44px;padding:0;display:inline-flex;align-items:center}
+ body.is-console .studio[data-task="form"]{grid-template-rows:minmax(260px,1.45fr) minmax(168px,.62fr)}
+ body.is-console .studio[data-task="form"]>.controls{display:flex;flex-direction:column}
+ body.is-console .studio[data-task="form"]>.results{display:none}
+ body.is-console .studio[data-task="form"]>.controls>.railhead{display:none}
+ body.is-console .studio[data-task="form"]>.controls>*{order:2}
+ body.is-console .studio[data-task="form"]>.controls>#formAtlas{order:0;margin:0}
+ body.is-console .studio[data-task="form"]>.controls>#geometryControls{order:1;display:flex;flex-direction:column}
+ body.is-console #geometryControls .control:has(#floors){order:-1}
+ body.is-console #geometryControls input[type=range]{min-height:44px}
+ body.is-console .form-atlas{display:flex;overflow-x:auto;gap:8px;margin:0 0 4px;padding-bottom:2px}
+ body.is-console .form-atlas button{flex:0 0 64px;min-width:44px;min-height:64px}
+ body.is-console .titleblock{height:22px;flex-wrap:nowrap;padding:0 12px}
+ body.is-console .viewfoot{display:none}
+ .searchcontrols{flex-direction:column;align-items:stretch;width:100%;gap:8px}
+ .searchcontrols label{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;white-space:normal}
+ .searchcontrols select,.console-dock .searchcontrols select{width:100%;max-width:none;min-width:0;padding-right:28px}
+ .searchcontrols button{width:100%;min-height:44px}
+}

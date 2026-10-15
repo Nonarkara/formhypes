@@ -127,10 +127,10 @@ test('JSON study exports retain contextual assumptions and their stated limits',
 test('2026-10-15 audit: inherited names, stale search, unknown hashes and failed saves are guarded',()=>{
  const app=dist('app.js');
  assert.ok('constructor' in families&&!Object.hasOwn(families,'constructor'),'plain lookup would accept inherited keys');
- assert.match(app,/Object\.hasOwn\(regimes,/);assert.match(app,/Object\.hasOwn\(objectives,/);
+ assert.match(dist('research-reader.js'),/Object\.hasOwn\(regimes,/);assert.match(app,/Object\.hasOwn\(objectives,/);
  assert.match(app,/own\(regimes,x\.regime\)/);
  assert.match(app,/function changed\(\)\{\n searchToken\+\+/);
- assert.match(app,/showTab\(h==='research'\?h:'studio',false\)/);
+ assert.match(app,/showTab\(h==='research'\?h:'studio',false\)/);assert.match(app,/entryTab\(location\.search,location\.hash\)/);
  assert.match(app,/if\(!persist\(\)\)\{studies\.pop\(\);toast\(tt\('s\.saveFail'\)\)/);
  assert.match(app,/filter\(x=>x&&validState\(x\.state\)\)/);
 });

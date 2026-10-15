@@ -1,7 +1,7 @@
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
-import {profile,stack,grossOf} from './model.js?v=83bfd6e335';
-import {renderFacade} from './facade.js?v=4e43517af7';
+import {profile,stack,grossOf} from './model.js?v=1653f45f3c';
+import {renderFacade} from './facade.js?v=cbe61f90fa';
 export const CONSOLE_TEXT={
  en:{capacity:'Model gross / area allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:['Form','Brief','Place','Walk-in','Façade','Compare','Studies'],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
  th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:['รูปทรง','โจทย์','ที่ตั้ง','มุมมอง','เปลือก','เปรียบเทียบ','แบบที่เก็บ'],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
@@ -41,6 +41,7 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
  function syncSite(){const {lang}=getData(),c=CONSOLE_TEXT[lang],inputs=getBrief().inputs;land.name.textContent=c.land;far.name.textContent=c.far;cityName.textContent=c.city;const ledger=siteLedger(getData().state,inputs),fmt=n=>Math.round(n).toLocaleString(lang);capacity.textContent=fmt(ledger.gross)+' / '+fmt(ledger.allowance)+' m²';capacity.setAttribute('aria-label',c.capacity+': '+capacity.textContent);capacity.title=c.capacity;capacity.classList.toggle('console-flag',ledger.remaining<0);note.textContent=ledger.fits?c.assumption:c.crosses;note.classList.toggle('console-flag',!ledger.fits);for(const [f,v]of [[land.input,inputs.plot],[far.input,inputs.far]])if(document.activeElement!==f)f.value=String(v)}
  for(const [input,key]of [[land.input,'plot'],[far.input,'far']])input.onchange=()=>{if(!input.checkValidity()||!Number.isFinite(input.valueAsNumber)){input.reportValidity();input.value=String(getBrief().inputs[key]);return}if(setBrief({[key]:input.valueAsNumber}))onStudyChange();syncSite()};
  function render(){
+  if(typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches&&selected==='form')rail=0;
   const {lang,state,level}=getData(),c=CONSOLE_TEXT[lang];syncSite();nav.setAttribute('aria-label',c.tools);
   buttons.forEach((b,i)=>{b.textContent=c.work[i];b.setAttribute('aria-selected',String(selected===WORKSPACES[i]));b.tabIndex=selected===WORKSPACES[i]?0:-1});
   railButtons.forEach((b,i)=>{b.textContent=c.rail[i];b.setAttribute('aria-pressed',String(rail===i))});

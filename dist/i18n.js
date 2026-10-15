@@ -1084,6 +1084,46 @@ Object.assign(th,{"f.triangle": "สามเหลี่ยม / 3 มุม", 
 Object.assign(zh,{"f.triangle": "三角形 / 三个尖角", "f.hexagon": "六边形 / 六个面", "f.oval": "折面椭圆 / 24 面", "f.petal": "四瓣形 / 凹凸边缘", "f.pinwheel": "风车形 / 四叶", "mast.note": "由 Non 博士创作 · depa + Axiom · 二十周年，2006–2026"});
 
 en['sun.tokyo']='Tokyo';th['sun.tokyo']='โตเกียว';zh['sun.tokyo']='东京';
+en['sun.shenzhen']='Shenzhen';th['sun.shenzhen']='เซินเจิ้น';zh['sun.shenzhen']='深圳';
+Object.assign(en,{
+ 'place.label':'Place',
+ 'place.option':'{country} · {city} · {neighbourhood} · {building}',
+ 'place.optionNone':'{country} · {city} · no replaced building',
+ 'place.country.tokyo':'Japan',
+ 'place.facts':'{country} · {city} · {neighbourhood} · {building}. {floors} storeys, {height} m{gross}. Brief {plot} m², FAR {far}, allowance {allowance} m². Model {model} m².',
+ 'place.gross':', gross {area} m²',
+ 'place.caution':' Completed height is {height} m. The 660 m scheme is a different proposal.',
+ 'place.gift':'Shouheng Chen (Xiaohei) brought the thesis back to Shenzhen. This names the city. It does not value the tower.',
+ 'place.none':'{country} · {city}. No replaced building, so no neighbourhood. Brief {plot} m², FAR {far}, allowance {allowance} m². Model {model} m².',
+ 'place.econ':'Scenario, not a tender: contribution {contribution} = rent {rent} − envelope {envelope} − structure {structure}. Envelope charges {skin} m² of skin per year. Structure is {base} USD/m²/year × {mult}. Skin and shadow are the ecology counted here. No rating.',
+ 'place.source':'Building source'
+});
+Object.assign(th,{
+ 'place.label':'สถานที่',
+ 'place.option':'{country} · {city} · {neighbourhood} · {building}',
+ 'place.optionNone':'{country} · {city} · ไม่มีอาคารที่ถูกแทนที่',
+ 'place.country.tokyo':'ญี่ปุ่น',
+ 'place.facts':'{country} · {city} · {neighbourhood} · {building}. {floors} ชั้น สูง {height} ม.{gross} โจทย์ {plot} ตร.ม. อัตราส่วน {far} ให้สร้างได้ {allowance} ตร.ม. โมเดล {model} ตร.ม.',
+ 'place.gross':' พื้นที่รวม {area} ตร.ม.',
+ 'place.caution':' ความสูงที่สร้างเสร็จคือ {height} ม. แบบ 660 ม. เป็นข้อเสนอคนละชุด',
+ 'place.gift':'Shouheng Chen (Xiaohei) นำวิทยานิพนธ์กลับสู่เซินเจิ้น บรรทัดนี้ตั้งชื่อเมือง ไม่ได้ประเมินมูลค่าตึก',
+ 'place.none':'{country} · {city}. ยังไม่มีอาคารที่ถูกแทนที่ จึงไม่ระบุย่าน โจทย์ {plot} ตร.ม. อัตราส่วน {far} ให้สร้างได้ {allowance} ตร.ม. โมเดล {model} ตร.ม.',
+ 'place.econ':'เป็นสถานการณ์ ไม่ใช่ราคาประกวด: ผลตอบแทน {contribution} = ค่าเช่า {rent} − เปลือก {envelope} − โครงสร้าง {structure} เปลือกคิดจากผิว {skin} ตร.ม.ต่อปี โครงสร้างคือ {base} ดอลลาร์สหรัฐ/ตร.ม./ปี × {mult} เปลือกและเงาคือส่วนนิเวศที่นับได้ ไม่มีอันดับ',
+ 'place.source':'แหล่งข้อมูลอาคาร'
+});
+Object.assign(zh,{
+ 'place.label':'地点',
+ 'place.option':'地点 · {country} · {city} · {neighbourhood} · {building}',
+ 'place.optionNone':'{country} · {city} · 没有被替代的建筑',
+ 'place.country.tokyo':'日本',
+ 'place.facts':'{country} · {city} · {neighbourhood} · {building}。{floors} 层，{height} 米{gross}。任务书用地 {plot} 平方米，容积率 {far}，允许 {allowance} 平方米。模型 {model} 平方米。',
+ 'place.gross':'，总建筑面积 {area} 平方米',
+ 'place.caution':' 建成高度是 {height} 米。660 米是另一套设想。',
+ 'place.gift':'陈寿恒（小黑）把论文带回深圳。这里写下这座城市，并不为这座塔估价。',
+ 'place.none':'{country} · {city}。没有被替代的建筑，因此不写街区。任务书用地 {plot} 平方米，容积率 {far}，允许 {allowance} 平方米。模型 {model} 平方米。',
+ 'place.econ':'情景，不是招标价：贡献额 {contribution} = 租金 {rent} − 表皮 {envelope} − 结构 {structure}。表皮按每年 {skin} 平方米计。结构为每年 {base} 美元/平方米 × {mult}。表皮与阴影是这里数得清的生态，没有评级。',
+ 'place.source':'建筑来源'
+});
 Object.assign(en,{"g.prog.custom": "Custom uniform levels", "prog.custom.note": "Uniform occupied floors using the chosen floor-to-floor height. Services are included within each level; no extra refuge or mechanical bands are scheduled.", "prog.custom.src": "FormHypes project assumption", "c.height": "Custom floor-to-floor"});
 Object.assign(th,{"g.prog.custom": "ชั้นสม่ำเสมอที่กำหนดเอง", "prog.custom.note": "ชั้นใช้งานสม่ำเสมอตามความสูงที่กำหนด รวมงานระบบในแต่ละชั้น แต่ยังไม่กำหนดชั้นหลบภัยหรือชั้นเครื่องกลเพิ่มเติม", "prog.custom.src": "สมมติฐานโครงการ FormHypes", "c.height": "ความสูงชั้นที่กำหนดเอง"});
 Object.assign(zh,{"g.prog.custom": "自定义等高楼层", "prog.custom.note": "使用指定层高的等高使用楼层。每层预留设备空间，尚未另行安排避难层或设备空层。", "prog.custom.src": "FormHypes 项目假设", "c.height": "自定义层高"});
@@ -1100,3 +1140,6 @@ export function translator(lang){
 Object.assign(en,{'r.timeline.b1':'The route from heavy walls to curtain walls links structure, daylight and the economics of office space. These are historical precedents, not evidence that one form guarantees a rent premium.','r.timeline.b3':'The Guaranty Building, Buffalo, 1894–96, was designed by Adler & Sullivan. Sullivan’s 1896 essay connects the standard office room with its structural bay and window opening.','r.timeline.b5':'Richardson’s Trinity Church was completed in Boston in 1877. It belongs to the masonry tradition, not a claim to have invented the skyscraper skeleton.','r.timeline.b6':'Boley, Hallidie and Lever House belong to the curtain-wall sequence. A. O. Smith’s inherited 1928 date conflicts with later field documentation dated 1930–31. The date is qualified; glass and aluminium facade framing should not be confused with the building’s primary steel structure.','r.timeline.note':'Primary records and reading limits are linked in the guided reader’s Sources & reading trail. Drawings are schematic, not measured elevations.'});
 Object.assign(th,{'r.timeline.b1':'เส้นทางจากผนังหนักสู่ผนังม่านเชื่อมโครงสร้าง แสง และเศรษฐศาสตร์สำนักงาน เป็นตัวอย่างประวัติศาสตร์ ไม่ใช่หลักฐานว่ารูปทรงแบบใดรับประกันส่วนเพิ่มค่าเช่า','r.timeline.b3':'Guaranty ที่บัฟฟาโล ค.ศ. 1894–96 ออกแบบโดย Adler & Sullivan บทความ Sullivan ปี 1896 เชื่อมห้องสำนักงานมาตรฐานกับช่วงโครงสร้างและช่องหน้าต่าง','r.timeline.b5':'Trinity Church ของ Richardson สร้างเสร็จที่บอสตันในปี 1877 อยู่ในสายงานผนังก่อรับน้ำหนัก ไม่ใช่การอ้างว่าคิดโครงตึกสูง','r.timeline.b6':'Boley, Hallidie และ Lever House อยู่ในเส้นทางผนังม่าน ส่วน A. O. Smith มีปี 1928 ในข้อมูลเดิม แต่เอกสารภาคสนามภายหลังระบุ 1930–31 จึงยังระบุอย่างมีเงื่อนไข กรอบอะลูมิเนียมของผนังกระจกไม่ใช่โครงสร้างเหล็กหลักของอาคาร','r.timeline.note':'แหล่งต้นทางและขอบเขตการอ่านเชื่อมอยู่ในรายการอ้างอิงของคู่มือ ภาพเป็นแผนภาพ ไม่ใช่รูปด้านที่วัดจริง'});
 Object.assign(zh,{'r.timeline.b1':'从厚墙到幕墙的发展联系结构、采光和办公空间经济。这些是历史先例，不能证明某种形态保证租金溢价。','r.timeline.b3':'Guaranty，布法罗，1894–96，由 Adler & Sullivan 设计。Sullivan 1896 年文章把标准办公室与结构开间、窗洞关联。','r.timeline.b5':'Richardson 的 Trinity Church 于 1877 年在波士顿落成，属于砌体传统，并非发明摩天楼骨架的主张。','r.timeline.b6':'Boley、Hallidie 和 Lever House 属于幕墙发展序列。A. O. Smith 沿用的 1928 年与后来实地记录 1930–31 年冲突，因此限定年代。玻璃立面的铝框不应与建筑主要钢结构混淆。','r.timeline.note':'一手记录与阅读范围见导读的参考文献。图解是示意，并非实测立面。'});
+Object.assign(en,{'regime.unknown':'Unknown regime “{name}”. Using Landlord yield. Allowed: yield, competition, civic, speculative. landlord means yield.'});
+Object.assign(th,{'regime.unknown':'ไม่รู้จักระบอบ “{name}” จึงใช้ผลตอบแทนของเจ้าของ ค่าที่รับได้: yield, competition, civic, speculative และ landlord หมายถึง yield'});
+Object.assign(zh,{'regime.unknown':'未知体制“{name}”，已改用房东收益。可用值为 yield、competition、civic、speculative；landlord 即 yield。'});

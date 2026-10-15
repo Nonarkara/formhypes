@@ -1,7 +1,7 @@
 // SunCalc 2.1.0 (BSD-2-Clause), civil time at the selected pilot city.
 // Coordinates: east x, north y, up z. Bearings clockwise from north.
 import {getPosition} from './vendor/suncalc.js?v=65169cd1f5';
-export const cities={tokyo:{lat:35.6762,lon:139.6503,zone:'Asia/Tokyo'},bangkok:{lat:13.7563,lon:100.5018,zone:'Asia/Bangkok'},kl:{lat:3.139,lon:101.6869,zone:'Asia/Kuala_Lumpur'},jakarta:{lat:-6.2088,lon:106.8456,zone:'Asia/Jakarta'},hcmc:{lat:10.8231,lon:106.6297,zone:'Asia/Ho_Chi_Minh'}};
+export const cities={tokyo:{lat:35.6762,lon:139.6503,zone:'Asia/Tokyo'},bangkok:{lat:13.7563,lon:100.5018,zone:'Asia/Bangkok'},kl:{lat:3.139,lon:101.6869,zone:'Asia/Kuala_Lumpur'},jakarta:{lat:-6.2088,lon:106.8456,zone:'Asia/Jakarta'},hcmc:{lat:10.8231,lon:106.6297,zone:'Asia/Ho_Chi_Minh'},shenzhen:{lat:22.5431,lon:114.0579,zone:'Asia/Shanghai'}};
 export const solarDefaults={city:'bangkok',solarDate:'2026-06-21',solarTime:'12:00',orientation:0};
 const fmt=new Map();
 function wallTime(ms,zone){let f=fmt.get(zone);if(!f){f=new Intl.DateTimeFormat('en-GB',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});fmt.set(zone,f)}const p=Object.fromEntries(f.formatToParts(new Date(ms)).map(p=>[p.type,p.value]));return Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute,+p.second)}

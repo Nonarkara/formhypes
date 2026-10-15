@@ -15,18 +15,18 @@
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="720">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="style.css?v=d3192f8a8e">
-<link rel="stylesheet" href="console.css?v=2218e93045">
+<link rel="stylesheet" href="style.css?v=de5c5d3171">
+<link rel="stylesheet" href="console.css?v=680be24756">
 </head>
 <body>
 
 <!-- One rule under one line. No boxes: everything here is type separated by
      hairlines, so the drawing below gets the screen. -->
 <header>
-  <a href="#studio" class="brand" title="FormHypes — by Dr Non at depa + Axiom; inspired by his MIT classmate Shouheng Chen, 2006–2026" aria-label="FormHypes — by Dr Non at depa + Axiom; inspired by his MIT classmate Shouheng Chen, 2006–2026"><span class="b-form">Form</span><span class="b-hypes">Hypes</span><span class="b-cred">inspired by <i>SHDT</i></span></a>
+  <a href="#studio" class="brand" title="FormHypes — by Dr Non at depa + Axiom; inspired by his MIT classmate Shouheng Chen, 2006–2026" aria-label="FormHypes — by Dr Non at depa + Axiom; inspired by his MIT classmate Shouheng Chen, 2006–2026"><span class="b-form">Form</span><span class="b-hypes">Hypes</span> <span class="b-cred">inspired by <i>SHDT</i></span></a>
   <nav class="tabs" aria-label="Sections">
-    <button type="button" data-tab="studio" aria-selected="true" class="on" data-i18n="nav.studio">Studio</button>
-    <button type="button" data-tab="research" aria-selected="false" data-i18n="nav.research">Research</button>
+    <a href="#studio" data-tab="studio" aria-selected="true" class="on" data-i18n="nav.studio">Studio</a>
+    <a href="#research" data-tab="research" aria-selected="false" data-i18n="nav.research">Research</a>
   </nav>
   <div class="langs" role="group" aria-label="Language"></div>
   <div class="actions">
@@ -37,6 +37,15 @@
 </header>
 
 <main>
+
+<section id="placeContext" class="place-context" aria-labelledby="placeLabel">
+  <label id="placeLabel" for="placeCase">Place</label>
+  <select id="placeCase"></select>
+  <p id="placeFacts"></p>
+  <p id="placeGift" hidden></p>
+  <p id="placeEconomy"></p>
+  <p id="placeSourceLine" hidden><a id="placeSource" target="_blank" rel="noopener"></a></p>
+</section>
 
 <!-- ── STUDIO ─────────────────────────────────────────────────────────── -->
 <section id="studio" class="tabpane on">
@@ -55,6 +64,7 @@
 
       <label for="regime" class="ctl" data-i18n="c.regime">Why the building exists</label>
       <select id="regime"></select>
+      <p class="note" id="regimeAlias" hidden></p>
       <p class="note" id="regimeNote"></p>
 
       <label for="family" class="ctl" data-i18n="c.family">Floor profile</label>
@@ -104,6 +114,7 @@
         <span data-i18n="v.drag">Drag to orbit · ± to zoom</span>
         <span class="data" data-i18n="v.units">metres</span>
       </div>
+      <p id="phoneReadout" class="phone-readout"><span id="phoneContributionLabel"></span> <strong id="phoneContribution"></strong> <span id="phoneDelta"></span></p>
       <p class="mobileonly note" data-i18n="v.narrow">Built for a landscape laptop. On a narrow screen this console is cramped — rotate the device.</p>
 
       <!-- A title block is not decoration: it is where the drawing says what
@@ -206,11 +217,19 @@
     <h1 data-i18n="r.ledeHead">Twenty years of an unfinished idea.</h1>
     <p class="lede" id="rLede"></p>
     <p class="credit" id="rCredit"></p>
-
+    <p id="researchTrail" class="research-trail"></p>
   </div>
   <div id="reader"></div>
-  <details id="dedicationDetails" open><summary id="dedicationTitle">Dedication · MIT classmates, twenty years later</summary><div id="dedication" class="dedication"></div></details>
-  <details id="researchAppendix"><summary id="appendixTitle">Extended studies, diagrams &amp; photographs</summary><p class="note" id="appendixNote"></p><article id="rBody"></article></details>
+  <details id="researchArchive">
+    <summary id="archiveTitle">Earlier annotated studies · archive</summary>
+    <div id="dedication" class="dedication"></div>
+    <div id="legacyReader"></div>
+    <div id="researchAppendix">
+      <p id="appendixTitle" class="note"></p>
+      <p class="note" id="appendixNote"></p>
+      <article id="rBody"></article>
+    </div>
+  </details>
   <footer><span data-i18n="d.footer">From embedded design knowledge to measurable form.</span><span class="data" data-i18n="d.version">Concept prototype</span></footer>
 </section>
 
@@ -221,5 +240,5 @@
 <dialog id="knowledgeDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="k.button">Architectural knowledge</h2><div id="knowledgeContent" role="status"></div><p class="knowledgeDownloads"><a href="knowledge/designon-knowledge.json?v=38eb5f372c" download data-i18n="k.download">Download</a><a href="knowledge/DESIGNON-LICENSE.txt?v=1950c131d0" data-i18n="k.license">License</a></p></dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="app.js?v=6ee90b5f2f"></script>
+<script type="module" src="app.js?v=ac98b0674f"></script>
 </body></html>

@@ -7,7 +7,7 @@
 // hold a parameter Chen specifies, this panel says so on screen rather than
 // approximating it quietly.
 
-import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=83bfd6e335';
+import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=1653f45f3c';
 
 export const BRIEF_I18N={
 en:{
@@ -227,9 +227,8 @@ const CSS=`#briefDesk .br-desk{font:inherit;font-size:13px;line-height:1.45;colo
 #briefDesk .br-ledger thead th{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--line);padding-bottom:4px}
 #briefDesk .br-cur{color:var(--accent);font-weight:600}
 #briefDesk .br-flag{color:var(--accent);font-weight:600}
-#briefDesk .br-bar{height:7px;margin:0 0 9px;border:1px solid var(--line);background:var(--panel)}
-#briefDesk .br-bar i{display:block;height:100%;background:var(--accent)}
-#briefDesk .br-bar i.br-over{background:var(--ink)}
+#briefDesk .br-rule{display:block;width:min(100%,280px);height:16px;margin:0 0 9px;color:var(--ink)}
+#briefDesk .br-rule.over{color:var(--accent)}
 #briefDesk .br-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--line);margin:0 0 9px}
 #briefDesk .br-card{background:var(--panel);padding:9px 10px 10px}
 #briefDesk .br-card.br-on{background:var(--paper);border-left:3px solid var(--accent);padding-left:7px}
@@ -360,10 +359,14 @@ export function renderBrief({lang,state,changed,onInputs}){
   ledger(c['r.brief'],`${num(desk.gfa)} ${c['u.m2']}`),
   ledger(c['r.delivered'],`${num(r.gfa)} ${c['u.m2']}`));
  s2.append(t2.t);
- const bar=el('div',undefined,'br-bar'),fill=el('i');
- fill.style.width=`${Math.min(100,Number.isFinite(consumed)?consumed:0)}%`;
- if(consumed>100)fill.className='br-over';
- bar.append(fill);s2.append(bar);
+ const rule=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ rule.setAttribute('viewBox','0 0 160 16');rule.setAttribute('class','br-rule');rule.setAttribute('aria-hidden','true');
+ const share=permitted>0?Math.max(0,r.gfa)/Math.max(permitted,r.gfa):0;
+ const mark=(1+158*Math.max(0,Math.min(1,share))).toFixed(1);
+ let ticks='';for(let i=0;i<=10;i++){const tx=(1+158*i/10).toFixed(1);ticks+=`M${tx} ${i%5?8:4}V14`;}
+ if(over>0)rule.classList.add('over');
+ rule.innerHTML=`<path d="M1 11H159" fill="none" stroke="currentColor" stroke-width="1"/><path d="${ticks}" fill="none" stroke="currentColor" stroke-width="1"/><path d="M${mark} 1V15" fill="none" stroke="currentColor" stroke-width="1.6"/>`;
+ s2.append(rule);
  const t2b=table();
  t2b.b.append(
   ledger(c['r.consumed'],Number.isFinite(consumed)?`${num(consumed,1)}${c['u.pct']}`:'—'),
