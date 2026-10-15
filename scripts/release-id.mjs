@@ -19,6 +19,7 @@
 // on an unchanged tree rewrites identical bytes and reports identical ids.
 
 import {createHash} from 'node:crypto';
+import {researchProtocol} from '../dist/research-reader.js';
 import {readFile, writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
@@ -49,11 +50,14 @@ const SHARED = ['model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'ven
 const MEDIA = ['research/media/office-2023.jpg', 'research/media/house-2006.jpg',
   'research/media/lab-0506.jpg', 'research/media/lab-0507.jpg',
   'research/media/lab-0508.jpg', 'research/artifacts/chen-fig34.png',
-  'research/artifacts/chen-fig36.png', 'research/artifacts/chen-fig76-detail.png'];
+  'research/artifacts/chen-fig36.png', 'research/artifacts/chen-fig76-detail.png', 'research/artifacts/chen-fig38.png',
+  'research/artifacts/chen-fig40.png', 'research/artifacts/chen-fig49.png',
+  'research/protocol-en.txt','research/protocol-th.txt','research/protocol-zh.txt'];
 const DESKS=['brief.js','walk.js','context.js'];
-const IN_APP = ['./brief.js','./walk.js','./context.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
+const IN_APP = ['./research-reader.js','./brief.js','./walk.js','./context.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
 const IN_HTML = ['style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 
+for(const lang of ['en','th','zh'])await write(`research/protocol-${lang}.txt`,researchProtocol(lang));
 const ids = {};
 for (const f of [...SHARED, ...MEDIA]) ids[f] = sha(await read(f));
 
@@ -72,6 +76,11 @@ const content = stamp(await read('reader-content.js'), [...MEDIA, 'knowledge/des
 await write('reader-content.js', content);ids['reader-content.js']=sha(content);
 const reader = stamp(await read('reader.js'), ['./reader-content.js'], ids);
 await write('reader.js', reader);ids['reader.js']=sha(reader);
+
+const tracks=stamp(await read('research-tracks.js'), ['./reader-content.js',...MEDIA], ids);
+await write('research-tracks.js',tracks);ids['research-tracks.js']=sha(tracks);
+const guided=stamp(await read('research-reader.js'), ['./research-tracks.js','./reader.js','./model.js'], ids);
+await write('research-reader.js',guided);ids['research-reader.js']=sha(guided);
 
 // app.js is stamped against its imports, then hashed in its rewritten form so
 // index.html points at the bytes that actually ship.

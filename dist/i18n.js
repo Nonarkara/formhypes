@@ -203,8 +203,8 @@ const en={
 
  'r.ledeHead':'Twenty years of an unfinished idea.',
  'r.verdict':'{a} is +{p}% against {b} — {g} a year more, at the same floor area.',
- 'r.lede':"Four pages through the 2006 thesis, its mechanism, the economics of form and the city around it. Original figures are distinguished from new diagrams. FormHypes is a 2026 extension by Dr Non at depa + Axiom, inspired by his MIT classmate Shouheng Chen.",
- 'r.credit':"FormHypes is a product of Dr Non at depa + Axiom. His MIT classmate Shouheng Chen’s 2006 thesis inspired him to build this system twenty years later, for its 20th anniversary in 2026. Chen’s thesis and original ideas remain credited to him; the present system and its extensions are Dr Non’s work.",
+ 'r.lede':"Three reading paths: Shouheng’s 2006 thesis, Non’s 2026 system, and the research needed to test its commercial value.",
+ 'r.credit':"By Dr Non · depa + Axiom. Inspired by his MIT classmate Shouheng Chen. 2006–2026 · 20th anniversary.",
 
  'r.dedHead':'Dedicated to 陈寿恒 — Chen Shouheng.',
  'r.dedBody':"This instrument is inspired by Shouheng Chen’s work, and dedicated to him. Chen and Dr Non were classmates at MIT. Twenty years after Chen’s 2006 thesis, Dr Non at depa + Axiom built this system to carry the question forward. This marks its 20th anniversary, 2006–2026.",
@@ -560,8 +560,8 @@ const th={
 
  'r.ledeHead':'ความคิดที่ยังไม่จบ ครบยี่สิบปี',
  'r.verdict':'{a} ชนะ {b} อยู่ {p}% คือ {g} ต่อปี ที่พื้นที่รวมเท่ากัน',
- 'r.lede':"สี่หน้าพาอ่านวิทยานิพนธ์ปี 2006 กลไก เศรษฐศาสตร์รูปทรง และเมืองรอบอาคาร แยกภาพต้นฉบับกับแผนภาพใหม่ชัดเจน FormHypes เป็นส่วนต่อยอดปี 2026 โดย ดร.นน ที่ depa + Axiom ได้แรงบันดาลใจจาก Shouheng Chen เพื่อนร่วมรุ่น MIT",
- 'r.credit':"FormHypes เป็นผลงานของ Dr Non ที่ depa + Axiom โดยได้รับแรงบันดาลใจจากวิทยานิพนธ์ปี 2006 ของ Shouheng Chen เพื่อนร่วมรุ่นที่ MIT และพัฒนาระบบนี้ขึ้นยี่สิบปีต่อมา ในวาระครบรอบ 20 ปีในปี 2026 วิทยานิพนธ์และแนวคิดดั้งเดิมเป็นของ Chen ส่วนระบบปัจจุบันและส่วนต่อยอดเป็นผลงานของ Dr Non",
+ 'r.lede':"สามเส้นทางอ่าน: วิทยานิพนธ์ Shouheng ปี 2006 ระบบของนนปี 2026 และงานวิจัยที่จะทดสอบคุณค่าเชิงพาณิชย์",
+ 'r.credit':"ผลงาน Dr Non · depa + Axiom แรงบันดาลใจจาก Shouheng Chen เพื่อนร่วมรุ่น MIT ในวาระยี่สิบปี 2006–2026",
 
  'r.dedHead':'อุทิศแด่ 陈寿恒 — Chen Shouheng',
  'r.dedBody':"เครื่องมือนี้ได้รับแรงบันดาลใจจากผลงานของ Shouheng Chen และอุทิศแด่เขา Chen กับ Dr Non เป็นเพื่อนร่วมรุ่นที่ MIT ยี่สิบปีหลังวิทยานิพนธ์ปี 2006 ของ Chen ทาง Dr Non ที่ depa + Axiom ได้สร้างระบบนี้เพื่อสานต่อคำถามเดิม ในวาระครบรอบ 20 ปี ระหว่างปี 2006–2026",
@@ -916,8 +916,8 @@ const zh={
 
  'r.ledeHead':'一个还没做完的想法，已经二十年。',
  'r.verdict':'{a} 高于 {b} {p}%，即在相同面积下每年多 {g}。',
- 'r.lede':"四页读懂 2006 年论文、生成机制、形态经济与周边城市。原始图像与新图解明确区分。FormHypes 由 Non 博士在 depa + Axiom 于 2026 年扩展，灵感来自 MIT 同学 Shouheng Chen。",
- 'r.credit':"FormHypes 是 Dr Non 在 depa + Axiom 开发的作品。其灵感来自 MIT 同窗陈寿恒于 2006 年完成的论文。二十年后的 2026 年，Dr Non 开发了本系统，纪念这一想法的二十周年。论文与原始构想归陈寿恒；现有系统及其扩展是 Dr Non 的作品。",
+ 'r.lede':"三条阅读路径：陈寿恒的 2006 年论文、Non 的 2026 年系统，以及检验商业价值所需的研究。",
+ 'r.credit':"Dr Non · depa + Axiom 出品。灵感来自 MIT 同窗陈寿恒（Shouheng Chen）。2006–2026，二十年后再出发。",
 
  'r.dedHead':'献给 陈寿恒（Shouheng Chen）',
  'r.dedBody':"本工具受陈寿恒先生工作的启发，并谨以此献给他。陈寿恒与 Dr Non 是 MIT 同窗。距 2006 年论文二十年后，Dr Non 在 depa + Axiom 开发了本系统，继续探索当年的问题，纪念 2006–2026 二十周年。",

@@ -56,3 +56,9 @@ Three compact expandable desks now cover brief/FAR arithmetic and scheme compari
 The shadow desk projects an opaque triangulated shell across 32 loft bands. It separately reports ground overlap hours and incidence-weighted direct exposure intercepted at nine receiver-face points; receiver height matters. Invented neighbours, approximate site references and city-coordinate sun are explicitly identified. These are conceptual scenario calculations, not surveyed city data or a daylight/engineering assessment.
 
 Validation: 112 tests. Source corrections and verification limits are recorded in `docs/RESEARCH-EVIDENCE.md`.
+
+## 16 October 2026: three research paths
+
+Research now has three main tabs, each with three short chapters in English, Thai and Chinese: a complete argument-level reading of Chen's 2006 thesis; the 2026 system, friendship history and situated architectural questions; and a commercial research/paper proposal. Six original thesis excerpts carry exact figure/page locators. The running geometry engine draws an eleven-profile atlas. A live equal-GFA comparison and scatter plot read current Studio assumptions and report USD scenario outputs. Each locale has a downloadable research protocol. The earlier reader and full illustrated appendix remain accessible.
+
+Commercial success and engineering adequacy are research questions, not validated results. The protocol names the unperformed timed workflow, held-out market and stakeholder studies. Source scope and artifact provenance are recorded in `docs/RESEARCH-EVIDENCE.md`.

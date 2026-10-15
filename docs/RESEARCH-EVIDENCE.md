@@ -58,3 +58,29 @@ Museum audit: Trinity Church Boston's own record https://trinitychurchboston.org
 A. O. Smith dating remains unsettled: inherited chronology 1928 versus a later photographic field account by Eric Nordstrom / BLDG51 (2024) stating 1930 in text and 1931 in its title. The plate now says 1928–31? and the text cites that conflict. Aluminium facade framing is distinguished from the building's steel frame. The source list records this as later field documentation, not a contemporary building record.
 
 Mechanism checks: all three scheme ledgers reconcile delivered area with plate areas and floor counts. The applied model is the uniform tower component, not an implemented podium. Custom heights now use a real level-programme path. Perspective drawings are schematic; engineering connections, tenant programmes and structural/ecological performance remain partly addressed or unimplemented. The sixth research page explicitly leaves all three thesis gaps open.
+
+## Three research paths · 16 October 2026
+
+The new reader contains three main paths, each with three short chapters, fully authored in EN/TH/ZH. The earlier six-page reader and illustrated appendix remain accessible. Main paths distinguish Chen's thesis, the current FormHypes implementation, and a proposed commercial research protocol. Shouheng is the name throughout; no substitute nickname or private insult is published.
+
+Additional original excerpts, rendered at longest side 1500 px and visually inspected before cropping:
+
+| File | Original locator | Crop rectangle x1,y1,x2,y2 |
+|---|---|---|
+| chen-fig38.png | Figure 38, p. 47, transformation rules | 185,238,447,667 |
+| chen-fig40.png | Figure 40, p. 52, original interface screenshot only | 198,173,960,902 |
+| chen-fig49.png | Figure 49, p. 63, photographs of physical Petronas variants | 84,169,953,1198 |
+
+The chapter route covers introduction/background/cases/methods/experiments/conclusion and points to the code appendices. Chapter 5's selected-level generation time example (p. 91: about two versus ten hours) is explicitly Chen's implementation report, not a controlled user study or a FormHypes productivity result. Chapter 6.2's structural, ecological and interior limitations remain open. Figure 38's original independent X/Y and middle-profile controls are explicitly distinguished from the new system's simpler continuous taper/twist.
+
+The existing project photo of Non and Shouheng at the SHDT office in Shenzhen (caption dated October 2023 in the retained archive) is also included in the friendship chapter. No new event, dialogue or identification from appearance is invented. Personal history is attributed to Non's account.
+
+Primary sources rechecked online on 16 October 2026: both MIT repository records and the Footprint article page. Non's 2016 paper is cited via DOI 10.1080/1683478X.2016.1158227; the author-supplied manuscript/abstract summary supports the resident-agency discussion, with reading scope disclosed. RICS's official Whole Life Carbon Assessment page and second-edition September 2023 document establish a methodology reference; no implementation or compliance claim is made.
+
+New illustrations are labelled explanatory 2026 schematics. The eleven-profile atlas uses the actual profile function. The commercial experiment uses current Studio assumptions, changing only family and the span needed to hold actual slab-stack gross area constant. Envelope/contribution scatter axes and the accessible table show the same outputs in USD; failed model cases remain included. These are computed scenarios, not rent observations or appraisals.
+
+The commercial path includes hypotheses, buyers/deliverables, falsifiable evaluation criteria, counterbalanced timed tasks, held-out rental/cost checks and situated stakeholder research. The localized downloadable protocol contains the same proposal and references. No participant research, leasing evidence, willingness-to-pay study, sales result, success percentage or publication is fabricated. Inspiration credit and eventual research authorship are distinguished.
+
+Browser verification: all nine chapters in all three languages at 390 px; no document overflow and all three selected path labels visible. Keyboard Home/Arrow navigation preserves focus. Inline citation opens its source disclosure and focuses the reference. A Studio base-rent edit changes the Research comparison. Earlier-reader navigation leaves the three main paths intact; extended appendix still contains 18 SVGs and five photographs. No browser warning/error logs observed.
+
+Protocol delivery: files are generated from the same localized research content at release and served as versioned same-origin text files. The actual English download was verified through the in-app browser download event. An earlier data-URL attempt timed out and was replaced. No result claim depends on that earlier attempt.

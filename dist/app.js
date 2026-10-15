@@ -1,11 +1,11 @@
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=83bfd6e335';
-import{t,langs,langMeta,translator}from'./i18n.js?v=128aef9b56';
+import{t,langs,langMeta,translator}from'./i18n.js?v=3c6dc76a8b';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=b90562ebdd';
 
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=a75307527e';
-import {renderReader} from './reader.js?v=273c83572f';
+import {renderReader} from './research-reader.js?v=01e06e37c1';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
@@ -554,7 +554,7 @@ function renderResearch(){
  $('rLede').textContent=tt('r.lede');
  $('rCredit').textContent=tt('r.credit');
  renderDedication();
- renderReader(lang);
+ renderReader(lang,{state,onNavigate:desk=>{showTab('studio');const target=$(desk);if(!target)return;if(target.tagName==='DETAILS')target.open=true;target.scrollIntoView({block:'start'});if(!target.hasAttribute('tabindex'))target.tabIndex=-1;target.focus({preventScroll:true})}});
  const body=$('rBody');body.replaceChildren();
  for(const sec of SECTIONS){
   const s=el('section');

@@ -99,15 +99,15 @@ function paragraph(text){
   if(s&&part.startsWith('[')){const a=node('a','['+s.author+' '+s.year+']');a.href='#source-'+id;a.onclick=e=>{e.preventDefault();const details=document.getElementById('reader-sources');details.open=true;document.getElementById('source-'+id).scrollIntoView({block:'center'})};p.append(a)}else p.append(document.createTextNode(part));
  }return p;
 }
-export function renderReader(lang){
- const c=READER[lang],host=document.getElementById('reader');host.replaceChildren();
+export function renderReader(lang,host=document.getElementById('reader')){
+ const c=READER[lang];host.replaceChildren();
  document.getElementById('dedicationTitle').textContent={en:'Dedication · MIT classmates, twenty years later',th:'แด่เพื่อนร่วมรุ่น MIT · ยี่สิบปีต่อมา',zh:'献给 MIT 同学 · 二十年后'}[lang];
  document.getElementById('appendixTitle').textContent=c.archive;document.getElementById('appendixNote').textContent=c.archiveNote;
  const nav=node('nav',undefined,'reader-nav');nav.setAttribute('aria-label',c.page);
- c.nav.forEach((title,i)=>{const b=node('button',`${i+1} · ${title}`);b.type='button';b.setAttribute('aria-current',i===current?'page':'false');b.onclick=()=>{current=i;renderReader(lang);host.querySelector('h2').focus({preventScroll:true});host.scrollIntoView({block:'start'})};nav.append(b)});host.append(nav);
+ c.nav.forEach((title,i)=>{const b=node('button',`${i+1} · ${title}`);b.type='button';b.setAttribute('aria-current',i===current?'page':'false');b.onclick=()=>{current=i;renderReader(lang,host);host.querySelector('h2').focus({preventScroll:true});host.scrollIntoView({block:'start'})};nav.append(b)});host.append(nav);
  const page=c.pages[current],article=node('article',undefined,'reader-page');article.append(node('p',`${c.page} ${current+1} / ${c.pages.length} · ${page.stand}`,'note'));const h=node('h2',page.title);h.tabIndex=-1;article.append(h);
  page.paras.forEach((p,i)=>{article.append(paragraph(p));if(i===0){article.append(diagram(page.diagram,page.labels),node('p',c.newDiagram,'note'))}});
  if(page.artifact!==undefined){const a=ARTIFACTS[page.artifact],fig=node('figure',undefined,'thesis-artifact');const link=node('a');link.href=a.src;link.target='_blank';link.rel='noopener';const img=node('img');img.src=a.src;img.alt=page.caption;img.loading='lazy';img.width= a.figure===34?310:a.figure===36?267:430;img.height=a.figure===34?397:a.figure===36?543:697;link.append(img);fig.append(link,node('figcaption',`${c.original} · ${c.fig} ${a.figure}, ${c.p} ${a.page}. ${page.caption}`));const original=node('a',c.open);original.href=SOURCES[0].url;original.target='_blank';original.rel='noopener';fig.append(original);article.append(fig)}else article.append(node('p',page.caption,'reader-timeline'));
- const pager=node('div',undefined,'reader-pager');for(const[d,title]of [[-1,c.previous],[1,c.next]]){const b=node('button',title);b.type='button';b.disabled=current+d<0||current+d>c.pages.length-1;b.onclick=()=>{current+=d;renderReader(lang);host.querySelector('h2').focus({preventScroll:true});host.scrollIntoView({block:'start'})};pager.append(b)}article.append(pager);host.append(article);
+ const pager=node('div',undefined,'reader-pager');for(const[d,title]of [[-1,c.previous],[1,c.next]]){const b=node('button',title);b.type='button';b.disabled=current+d<0||current+d>c.pages.length-1;b.onclick=()=>{current+=d;renderReader(lang,host);host.querySelector('h2').focus({preventScroll:true});host.scrollIntoView({block:'start'})};pager.append(b)}article.append(pager);host.append(article);
  const details=node('details');details.id='reader-sources';details.append(node('summary',c.source));const list=node('ol');for(const s of SOURCES){const li=node('li');li.id='source-'+s.id;const a=node('a',`${s.author} (${s.year}). ${s.title}.`);a.href=s.url;a.target='_blank';a.rel='noopener';li.append(a,node('p',s.where,'note'));list.append(li)}details.append(list);host.append(details);
 }

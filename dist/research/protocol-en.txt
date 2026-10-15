@@ -1,0 +1,77 @@
+FormHypes · proposed research protocol · 16 October 2026
+
+By Dr Non · depa + Axiom · inspired by Shouheng Chen (陈寿恒)
+
+Study status: protocol and working prototype; no participant, leasing or willingness-to-pay results collected.
+
+Sell a better early decision.
+
+Commercial hypotheses · no sales or adoption results claimed
+
+The plausible first product is a concept-comparison service for architects and development teams. Give a team a fixed brief, make several forms comparable, and show what changes in usable area, envelope and the stated income scenario. The paid deliverable could be a documented shortlist with editable geometry and assumptions. This is a business hypothesis.
+
+“Best form” needs a context. A corner-rich plan may lose usable area around a large core. A compact envelope may cost less to maintain. A skyline gesture may need a client’s willingness to pay, while a neighbour may ask for less shadow. Show the alternatives and the reason for the choice; a single score cannot settle every stakeholder’s question.
+
+Start with a paid, bounded feasibility comparison. If teams reuse it and the evidence supports it, test a practice subscription or a professional integration. Pricing, procurement costs and the size of the market remain unmeasured. A credible probability of commercial success needs pilot data; this instrument does not invent a percentage.
+
+Potential buyer | Output worth testing | Evidence of value
+
+Architecture practice | Same-brief alternatives with model and assumption exports | Less preparation time with no loss of review quality
+
+Developer / asset team | A transparent shortlist and sensitivity record | A changed decision with independently checked costs and rents
+
+Public or institutional client | Trade-offs between private income and public effects | Stakeholders can understand and contest the assumptions
+
+Keep the area fixed. Change the form. Then test the claim.
+
+Reproducible scenario + proposed external evaluation
+
+The live table below runs three plan families against your current Studio assumptions. Each is resized to the same gross floor area. It reports corner share, envelope and annual contribution, including failed model constraints. Changing the Studio inputs changes these results. This is a reproducible model experiment, not a market finding.
+
+The first proposed study compares the same architectural task in a conventional workflow and FormHypes. Counterbalance the task order, record elapsed time and corrections, and ask independent architects to review anonymised outputs. Publish the brief, model version, participant criteria and evaluation rubric before collecting outcomes.
+
+A second study tests the income assumptions against permissioned, anonymised leasing and cost evidence. Keep a held-out set of buildings; account for location, age, quality and lease terms before associating form with rent. A third study uses site walks, stakeholder interviews and shadow scenarios to investigate iconicity and public effects. Report disagreement and uncertainty alongside any average result.
+
+Hypothesis | Measurement | What would weaken the claim?
+
+The tool saves useful design time | Time to reviewed alternatives; error and correction rates | Faster output with more errors or poorer review quality
+
+Form changes financial performance | Held-out rental/cost comparisons and sensitivity ranges | The apparent benefit disappears after contextual controls
+
+The comparison supports public discussion | Participant understanding, contested assumptions and access concerns | A convincing image hides harms or excludes affected people
+
+From embedded design knowledge to situated value.
+
+Proposed paper · research protocol, not published findings
+
+Proposed abstract. This study investigates whether a knowledge-based form-design instrument can improve early tall-building decisions while exposing financial, environmental and social trade-offs. It extends Chen’s 2006 massing-and-detail approach with shared geometry, equal-area comparisons and explicit scenario ledgers. It draws on Non’s work on built form and urban social change to frame the question of value. (Shouheng Chen, 2006) (Non Arkaraprasertkul, 2007) (Non Arkaraprasertkul, 2008) (Non Arkaraprasertkul, 2016)
+
+Methods and results so far. The present contribution is a working browser prototype and a reproducible calculation path. Its conservation tests check area accounting; its geometric studies expose the assumptions behind corners, envelopes and shadows. The proposed timed tasks, market validation and stakeholder research have not been run. A paper must distinguish those computed outputs from observations collected later.
+
+The publishable argument would depend on the evaluation: whether reusable knowledge makes decisions faster and clearer, where its financial predictions fail, and whose values survive the optimisation. Archive the code revision, input files, source locators, consent process and anonymised evidence where rights permit. State who built and evaluated the system. Inspiration credits are not a substitute for research authorship agreed by the people involved.
+
+Paper section | What belongs in it
+
+Introduction and related work | Chen’s computational methods; Non’s urban inquiry; contemporary design tools
+
+System and provenance | Geometry, data contracts, source reading scope and implementation boundaries
+
+Evaluation | Counterbalanced workflow tasks, held-out market checks, situated fieldwork
+
+Results | Computed scenarios now; measured findings only after the studies
+
+Discussion and limitations | Model sensitivity, selection effects, ground/engineering gaps and distribution of benefits
+
+Reproducibility and contributions | Versioned protocol, lawful data access, author roles and acknowledgements
+
+References for this page
+
+Shouheng Chen (2006). Embedding Methods for Massing and Detail Design in Computer Generated Design of Skyscrapers. https://dspace.mit.edu/entities/publication/9e8d7dfe-e1b3-47bb-92cb-f2b4c004b558
+
+Non Arkaraprasertkul (2007). Shanghai contemporary: the politics of built form. https://dspace.mit.edu/entities/publication/0d797dd1-178f-4010-bbb7-4e855ffd7edb
+
+Non Arkaraprasertkul (2008). Politicisation and the Rhetoric of Shanghai Urbanism. https://journals.open.tudelft.nl/footprint/article/view/676
+
+Non Arkaraprasertkul (2016). Gentrification from within: urban social change as anthropological process. https://doi.org/10.1080/1683478X.2016.1158227
+
+An unread source is not evidence. MIT 2007 and Footprint 2008 are read at abstract level; the 2016 work is read through its author abstract/manuscript summary. Chen’s cited chapters and image excerpts were checked against the supplied thesis.

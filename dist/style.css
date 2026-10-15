@@ -518,3 +518,72 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 #briefPanel>summary,#walkPanel>summary,#contextPanel>summary{min-height:28px;display:flex;align-items:center}
 @media(pointer:coarse){#briefPanel>summary,#walkPanel>summary,#contextPanel>summary{min-height:44px}}
 .cx-card:has(.cx-table){overflow-x:auto}
+
+/* Three research paths: a reading spread, with diagrams doing the explaining. */
+.research-paths{display:flex;gap:20px;border-bottom:3px solid var(--ink);padding:10px 0 0}
+.research-paths button{border:0;background:transparent;padding:8px 0;min-height:36px;white-space:normal;text-align:left;position:relative;font-weight:600;color:var(--muted)}
+.research-paths [aria-selected="true"]{color:var(--ink)}
+.research-paths [aria-selected="true"]:after{content:"";position:absolute;bottom:-3px;left:0;right:0;height:3px;background:var(--accent)}
+.research-path-intro{margin:14px 0 2px;max-width:76ch}
+.research-path-intro+.note{margin:0 0 12px}
+.research-chapters{display:flex;gap:16px;border-bottom:1px solid var(--line)}
+.research-chapters button{border:0;background:transparent;padding:6px 0;position:relative;color:var(--muted);min-height:32px}
+.research-chapters [aria-selected="true"]{color:var(--ink)}
+.research-chapters [aria-selected="true"]:after{content:"";position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--ink)}
+.research-reading{padding:18px 0 0}
+.research-reading>p{max-width:78ch;line-height:1.75;margin:14px 0}
+.research-reading>p:first-child{margin-top:0;line-height:1.5}
+.research-reading h2{font-size:22px;max-width:52ch;line-height:1.4;letter-spacing:-.015em;margin:8px 0 14px;scroll-margin-top:70px}
+.research-reading h3{font-size:15px;margin:24px 0 8px}
+.research-reading p a{font-size:12px;overflow-wrap:anywhere}
+.research-illustration{margin:20px 0;border-top:2px solid var(--ink);border-bottom:1px solid var(--line);padding:14px 0}
+.research-illustration svg{width:100%;max-height:260px;display:block;color:var(--ink);font:12px var(--mono)}
+.research-illustration figcaption>.note{margin:4px 0 10px}
+.research-illustration ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 32px;padding-left:22px;margin:8px 0;font-size:12px;line-height:1.6;max-width:920px}
+.research-excerpt{display:grid;grid-template-columns:minmax(0,2fr) minmax(200px,1fr);gap:24px;align-items:start;margin:28px 0;padding-top:18px;border-top:2px solid var(--ink)}
+.research-excerpt>a{display:flex;background:#fff;justify-content:center;padding:12px}
+.research-excerpt img{display:block;max-width:100%;width:auto;height:auto;max-height:520px;object-fit:contain}
+.research-excerpt figcaption{line-height:1.7}
+.research-excerpt figcaption .note{margin-top:0}
+.research-excerpt figcaption a{font-size:12px}
+.research-table-wrap{overflow-x:auto;max-width:100%;margin:20px 0;overscroll-behavior-x:contain}
+.research-table-wrap table{width:100%;border-collapse:collapse;font-size:12px;line-height:1.65;text-align:left;min-width:520px}
+.research-table-wrap caption{text-align:left;font-weight:600;padding:6px 0;border-bottom:2px solid var(--ink)}
+.research-table-wrap th,.research-table-wrap td{padding:10px 12px 10px 0;vertical-align:top;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.research-table-wrap thead th{font-weight:500;color:var(--muted)}
+.research-table-wrap tbody th{font-weight:500;min-width:120px;width:23%}
+.research-table-wrap th:last-child,.research-table-wrap td:last-child{padding-right:0}
+.research-try{margin:8px 0 20px}
+.research-status{border-left:3px solid var(--accent);padding-left:12px}
+.research-download{display:inline-block;margin:6px 0 20px}
+#research-sources,.research-legacy{border-top:1px solid var(--line);padding:14px 0}
+#research-sources li{margin:12px 0;line-height:1.65;scroll-margin-top:80px;overflow-wrap:anywhere}
+#research-sources>.note{max-width:90ch;line-height:1.65}
+.research-reading .reader-pager{margin-top:8px;padding-bottom:16px}
+#legacyReader{padding:12px 0}
+#legacyReader h2{scroll-margin-top:80px}
+@media(pointer:coarse){.research-paths button,.research-chapters button{min-height:44px}}
+@media(max-width:600px){
+ .research-paths{gap:14px;overflow-x:auto}.research-paths button{font-size:12px;flex:0 0 auto;max-width:190px;white-space:nowrap}
+ .research-chapters{gap:18px;overflow-x:auto}.research-chapters button{font-size:12px;white-space:nowrap;flex-shrink:0}
+ .research-reading{padding-top:14px}.research-reading h2{font-size:22px}
+ .research-illustration{padding:10px 0}.research-illustration svg{min-height:110px}
+ .research-illustration ol{gap:8px 25px}.research-excerpt{grid-template-columns:1fr;gap:12px}
+ .research-excerpt>a{padding:8px}.research-excerpt img{max-height:480px}
+ .research-excerpt figcaption p{margin:8px 0}.research-reading>p{line-height:1.8}
+}
+.research-atlas{margin:26px 0;border-top:2px solid var(--ink);padding-top:14px}
+.research-atlas>figcaption,.research-tradeoff>figcaption{font-weight:600}
+.research-atlas>div{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px 20px;margin:16px 0}
+.research-atlas figure{margin:0}.research-atlas svg{width:100%;display:block;max-height:110px}
+.research-atlas figure figcaption{font-size:12px;text-align:center;margin-top:6px}
+.research-atlas>.note{max-width:90ch;line-height:1.6}
+.research-tradeoff{margin:22px 0;padding-top:14px;border-top:2px solid var(--ink)}
+.research-tradeoff svg{width:100%;max-height:300px;display:block;font:12px var(--mono);color:var(--ink)}
+.research-tradeoff ol{display:flex;flex-wrap:wrap;gap:16px 32px;padding-left:22px;font-size:12px}
+@media(max-width:600px){.research-atlas>div{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 12px}.research-tradeoff svg{min-height:160px}}
+.research-path-short{display:none}
+@media(max-width:600px){.research-path-full{display:none}.research-path-short{display:inline}.research-paths button,.research-chapters button{min-height:44px}.research-paths button{max-width:none}}
+.research-history-photo{margin:24px 0;max-width:900px}
+.research-history-photo img{display:block;width:100%;height:auto}
+.research-history-photo figcaption{font-size:12px;margin-top:8px;line-height:1.6}
