@@ -14,7 +14,7 @@ export const ARTIFACTS=[
  {src:'research/artifacts/chen-fig76-detail.png?v=37eed70e3b',figure:76,page:94,alt:'One tower from Chen’s original Figure 76, with generated massing and facade details.'}
 ];
 export const READER={
- en:{nav:['The thesis','The mechanism','The economics','The city','Before the thesis'],previous:'Previous',next:'Next',page:'Page',source:'Sources & reading trail',newDiagram:'Explanatory diagram · FormHypes, 2026',original:'Original thesis excerpt · © Shouheng Chen, 2006',fig:'Fig.',p:'p.',open:'Open original MIT record',archive:'Extended studies, diagrams & photographs',archiveNote:'These longer studies are supplementary interpretations and live model experiments. Their monetary assumptions are scenarios; none establishes code compliance or market value.',
+ en:{nav:['The thesis','The mechanism','The economics','The city','Before the thesis','What he left open'],previous:'Previous',next:'Next',page:'Page',source:'Sources & reading trail',newDiagram:'Explanatory diagram · FormHypes, 2026',original:'Original thesis excerpt · © Shouheng Chen, 2006',fig:'Fig.',p:'p.',open:'Open original MIT record',archive:'Extended studies, diagrams & photographs',archiveNote:'These longer studies are supplementary interpretations and live model experiments. Their monetary assumptions are scenarios; none establishes code compliance or market value.',
  pages:[
  {title:'2006: put the knowledge inside the tool.',stand:'Thesis findings · Chen, chapters 3–6',paras:[
  'Chen’s question was practical: can an architect encode the recurring decisions behind a skyscraper, then reuse them without drawing every component again? He studied HKIFC, Petronas, Cira and Hearst. Their massing rules and façade details became reusable procedures, rather than a collection of finished pictures. [chen]',
@@ -34,7 +34,7 @@ export const READER={
  'Local ground conditions add another test. Bangkok’s basin research identifies long-period amplification; a city label cannot specify a parcel’s soil profile or a tower’s capacity. Use the location desk for sources and a mechanics experiment, then commission site investigation and structural analysis. [ground] [peer]',
  'Culture is a design conversation, not a national taste score. Feng Shui offers a useful provocation about orientation and relationships, with different schools and practices. Our playground invents site arrangements; it does not certify auspiciousness. Ask local occupants and stakeholders which meanings the proposed form carries. [feng]'],diagram:'city',labels:['Owner · income','Occupant · comfort','Neighbour · access','City · infrastructure','Ground · site evidence','Community · meaning'],caption:'2006 → 2007 → 2008 → 2026: Chen’s computational methods; Dr Non’s MIT thesis; his Shanghai urbanism paper; this product by Dr Non at depa + Axiom. The synthesis belongs to FormHypes.'}
  ]},
- th:{nav:['วิทยานิพนธ์','กลไก','เศรษฐศาสตร์','เมือง','ก่อนวิทยานิพนธ์'],previous:'ก่อนหน้า',next:'ถัดไป',page:'หน้า',source:'แหล่งอ้างอิงและเส้นทางการอ่าน',newDiagram:'แผนภาพอธิบาย · FormHypes, 2026',original:'ภาพจากวิทยานิพนธ์ต้นฉบับ · © Shouheng Chen, 2006',fig:'ภาพที่',p:'หน้า',open:'เปิดระเบียนต้นฉบับที่ MIT',archive:'บทศึกษาเพิ่มเติม แผนภาพ และภาพถ่าย',archiveNote:'บทศึกษาขนาดยาวเป็นการตีความและการทดลองกับโมเดล สมมติฐานทางการเงินเป็นสถานการณ์ทดลอง ไม่ยืนยันการผ่านกฎหมายหรือมูลค่าตลาด',
+ th:{nav:['วิทยานิพนธ์','กลไก','เศรษฐศาสตร์','เมือง','ก่อนวิทยานิพนธ์','สิ่งที่เขาทิ้งไว้'],previous:'ก่อนหน้า',next:'ถัดไป',page:'หน้า',source:'แหล่งอ้างอิงและเส้นทางการอ่าน',newDiagram:'แผนภาพอธิบาย · FormHypes, 2026',original:'ภาพจากวิทยานิพนธ์ต้นฉบับ · © Shouheng Chen, 2006',fig:'ภาพที่',p:'หน้า',open:'เปิดระเบียนต้นฉบับที่ MIT',archive:'บทศึกษาเพิ่มเติม แผนภาพ และภาพถ่าย',archiveNote:'บทศึกษาขนาดยาวเป็นการตีความและการทดลองกับโมเดล สมมติฐานทางการเงินเป็นสถานการณ์ทดลอง ไม่ยืนยันการผ่านกฎหมายหรือมูลค่าตลาด',
  pages:[
  {title:'2006: ใส่ความรู้ไว้ในเครื่องมือ',stand:'ข้อค้นพบในวิทยานิพนธ์ · Chen บทที่ 3–6',paras:[
  'Chen ถามว่า สถาปนิกจะเข้ารหัสการตัดสินใจที่เกิดซ้ำในการออกแบบตึกสูง แล้วนำกลับมาใช้โดยไม่ต้องวาดทุกชิ้นใหม่ได้หรือไม่ เขาศึกษา HKIFC, Petronas, Cira และ Hearst แล้วแปลงกฎรูปทรงกับรายละเอียดเปลือกอาคารเป็นขั้นตอนที่ใช้ซ้ำได้ [chen]',
@@ -54,7 +54,7 @@ export const READER={
  'สภาพดินเป็นอีกการทดสอบ งานวิจัยแอ่งกรุงเทพฯ พบการขยายคลื่นคาบยาว แต่ชื่อเมืองไม่ได้บอกชั้นดินรายแปลงหรือกำลังรับแรงของตึก ใช้โต๊ะศึกษาทำเลอ่านหลักฐานและทดลองกลศาสตร์ ก่อนสำรวจดินและวิเคราะห์โครงสร้างจริง [ground] [peer]',
  'วัฒนธรรมเป็นบทสนทนา ไม่ใช่คะแนนรสนิยมประจำชาติ ฮวงจุ้ยชวนคิดเรื่องทิศและความสัมพันธ์ แต่มีหลายสำนักและหลายวิธี สนามทดลองของเราจัดฉากพื้นที่สมมติ ไม่รับรองความเป็นมงคล ต้องถามผู้ใช้งานและผู้เกี่ยวข้องในท้องถิ่นว่ารูปทรงนั้นสื่ออะไร [feng]'],diagram:'city',labels:['เจ้าของ · รายได้','ผู้ใช้ · ความสบาย','เพื่อนบ้าน · การเข้าถึง','เมือง · โครงสร้างพื้นฐาน','พื้นดิน · หลักฐาน','ชุมชน · ความหมาย'],caption:'2006 → 2007 → 2008 → 2026: วิธีคำนวณของ Chen วิทยานิพนธ์ MIT ของ ดร.นน บทความเซี่ยงไฮ้ และผลิตภัณฑ์นี้โดย ดร.นน ที่ depa + Axiom บทสังเคราะห์เป็นของ FormHypes'}
  ]},
- zh:{nav:['论文','机制','经济','城市','论文之前'],previous:'上一页',next:'下一页',page:'页',source:'参考文献与阅读路径',newDiagram:'解释性图解 · FormHypes，2026',original:'论文原图节选 · © Shouheng Chen，2006',fig:'图',p:'页',open:'打开 MIT 原始记录',archive:'延伸研究、图解与照片',archiveNote:'长篇研究是补充解释与实时模型实验。货币假设属于情景，不构成规范合规或市场估值。',
+ zh:{nav:['论文','机制','经济','城市','论文之前','他留下的空白'],previous:'上一页',next:'下一页',page:'页',source:'参考文献与阅读路径',newDiagram:'解释性图解 · FormHypes，2026',original:'论文原图节选 · © Shouheng Chen，2006',fig:'图',p:'页',open:'打开 MIT 原始记录',archive:'延伸研究、图解与照片',archiveNote:'长篇研究是补充解释与实时模型实验。货币假设属于情景，不构成规范合规或市场估值。',
  pages:[
  {title:'2006：把知识放进工具。',stand:'论文发现 · Chen 第三至六章',paras:[
  'Chen 的问题很实际：建筑师能否把摩天楼设计中反复出现的决策编码，以后不必逐件重画？他研究了 HKIFC、Petronas、Cira 和 Hearst，把体量规则与立面细节变成可复用的程序，而非一组完成图。[chen]',
@@ -124,3 +124,73 @@ const TIMELINE_PAGE={
  ],caption:'日期与署名取自所标注的公开来源。七个图符是重新绘制的示意图，并非实测立面，也不采用统一比例：这些建筑被当作一连串决策来阅读，而不是按体量互相比较。'}
 };
 for(const l of ['en','th','zh'])READER[l].pages.push(TIMELINE_PAGE[l]);
+
+/* Page six: Chapter 6.2. The thesis ends by listing what it cannot do; this page
+   holds that list beside what the 2026 extension does about it, including the one
+   it does not solve. */
+const GAPS_PAGE={
+ en:{title:'In 2006 he wrote down what his system could not do.',stand:'Chapter 6.2 · Future work, quoted from the thesis',paras:[
+ 'The last section of the thesis is a list. Not of what the system does, but of what it does not: it “focused on the exterior skins of skyscrapers… did not take into consideration the conditions behind these exterior skins, such as connections between the skins and the structure or the functional programs in the interior,” and it “does not provide a mechanism to test the structural and ecological performance of the digital models it generates.” Then the sentence that leaves the door open: “I hope that new versions of the system will be developed to include these analytical functions.” [chen]',
+ 'The new sections address parts of the first two gaps. A schematic interior section shows slab, ceiling and services with a storey height from the actual level stack. The brief desk computes area allowances and corner potential. These drawings do not coordinate facade anchors, structural joints, tenant layouts, egress or building services. The original gaps remain only partly addressed.',
+ 'The third is the hardest, and it is answered honestly rather than comfortably. There is now a mechanism, but it is a screening mechanism, not a certification. A uniform fixed-base cantilever gives the first-mode period; a single soil column gives a site period; real solar geometry gives the beam exposure on each facade for the actual latitude and date. Those are analytics. They are not a design spectrum, not a drift check, not a wind tunnel, not a daylight assessment.',
+ 'So the honest position in 2026 is this: all three gaps remain open. Their geometry and assumptions are now visible, and performance is instrumented without being solved. What has not changed is the standard the thesis set. A system earns trust by knowing exactly where its evidence stops, and every percentage on this site is a change in a computed quantity, never a claim that a building is safe.'
+ ],diagram:'gaps',labels:[
+ 'Skin to structure — PARTLY ADDRESSED: schematic section; no engineered connection or coordinated facade joint',
+ 'Interior programme — PARTLY ADDRESSED: area and level arithmetic; no tenant plan, circulation or egress design',
+ 'Structural and ecological performance — INSTRUMENTED, NOT SOLVED: period and beam-exposure analytics exist; they are screening, never certification'
+ ],caption:'The passage is quoted from Chapter 6.2 of the 2006 thesis. The three boxes restate what he names as missing; the marks record what this 2026 extension does and does not do about each one. Drawing and arithmetic are not certification.'},
+ th:{title:'ในปี 2006 เขาเขียนไว้ว่าระบบของเขาทำอะไรไม่ได้',stand:'บท 6.2 · งานในอนาคต อ้างจากวิทยานิพนธ์',paras:[
+ 'ส่วนสุดท้ายของวิทยานิพนธ์เป็นรายการ ไม่ใช่รายการสิ่งที่ระบบทำได้ แต่เป็นสิ่งที่มันทำไม่ได้ ระบบ “focused on the exterior skins of skyscrapers… did not take into consideration the conditions behind these exterior skins, such as connections between the skins and the structure or the functional programs in the interior” และมัน “does not provide a mechanism to test the structural and ecological performance of the digital models it generates” แล้วก็มีประโยคที่เปิดทางไว้ว่า “I hope that new versions of the system will be developed to include these analytical functions” [chen]',
+ 'ส่วนต่อยอดแตะบางส่วนของสองช่องว่างแรก ภาพตัดภายในแสดงพื้น ฝ้า และงานระบบโดยใช้ความสูงจากชุดชั้นจริง โต๊ะโจทย์คำนวณพื้นที่กับมุม แต่ยังไม่ประสานจุดยึดเปลือก รอยต่อโครงสร้าง ผังผู้เช่า ทางหนีไฟ หรือระบบอาคาร จึงยังแก้ไม่ครบ',
+ 'ข้อที่สามยากที่สุด และคำตอบคือคำตอบอย่างซื่อสัตย์ ไม่ใช่อย่างสบายใจ มีกลไกแล้ว แต่เป็นกลไกคัดกรอง ไม่ใช่การรับรอง คานยื่นสม่ำเสมอยึดฐานให้คาบโหมดแรก ชั้นดินหนึ่งชั้นให้คาบดิน เรขาคณิตแสงอาทิตย์จริงให้การรับรังสีที่กระจกแต่ละด้านตามละติจูดและวันที่จริง สิ่งเหล่านั้นคือการวิเคราะห์ แต่ไม่ใช่สเปกตรัมออกแบบ ไม่ใช่การตรวจการเคลื่อนตัว ไม่ใช่อุโยงลม ไม่ใช่การประเมินแสงสว่าง',
+ 'ส่วนต่อยอดแตะบางส่วนด้วยภาพตัดและบัญชีพื้นที่ แต่ยังไม่ประสานรอยต่อโครงสร้าง ผังผู้เช่า ทางหนีไฟ หรือระบบอาคาร ช่องว่างจึงยังเปิดอยู่',
+ ],diagram:'gaps',labels:[
+ 'เปลือกกับโครงสร้าง — แตะบางส่วนด้วยภาพเขียน: ตัดตามผังชั้น ช่องว่างเหนือเพดาน และรอยต่อเปลือก วาดจากเรขาคณิตจริง',
+ 'โปรแกรมภายใน — ปิดด้วยการคำนวณ: ความสูงชั้น พื้นที่แกนกลางและส่วนกลาง และโซนมุม คำนวณไม่ใช่กล่าวอ้าง',
+ 'โครงสร้างและสิ่งแวดล้อม — ติดตั้งเครื่องมือแล้ว แต่ยังไม่แก้ปัญหา: มีการวิเคราะห์คาบและการรับรังสี เป็นการคัดกรอง ไม่ใช่การรับรอง'
+ ],caption:'ข้อความอ้างอิงจากบท 6.2 ของวิทยานิพนธ์ปี 2006 กล่องทั้งสามคือสิ่งที่เขาระบุว่าขาด ขีดกำมะกับสิ่งที่ส่วนขยายปี 2026 นี้ทำและไม่ทำ การเขียนและการคำนวณไม่ใช่การรับรอง'},
+ zh:{title:'2006 年，他把自己系统做不到的事写了下来。',stand:'第 6.2 节 · 未来工作，引用自论文',paras:[
+ '论文的最后一节是一份清单。不是系统能做什么，而是不能做什么：系统「focused on the exterior skins of skyscrapers… did not take into consideration the conditions behind these exterior skins, such as connections between the skins and the structure or the functional programs in the interior」，并且「does not provide a mechanism to test the structural and ecological performance of the digital models it generates」。然后是那句留门的话：「I hope that new versions of the system will be developed to include these analytical functions.」[chen]',
+ '扩展只处理前两项的部分内容。示意剖面按实际楼层表显示楼板、吊顶与设备，任务书台计算面积及转角潜力。但未协调幕墙锚固、结构节点、租户平面、疏散或机电系统，不能据此关闭这些缺口。',
+ '第三项最难，回答得诚实而不轻松。机制已经有了，但那是筛查机制，不是认证机制。均匀固端悬臂给出第一阶周期，单一土层给出场地周期，真实太阳几何给出每一面幕墙在真实纬度与日期上的受照量。这些是分析。但它们不是设计谱，不是层间位移校核，不是风洞，也不是采光评估。',
+ '2026 年的结论是三项缺口都仍然开放。几何与假设可见，也有性能研究工具，但问题尚未解决。网站百分比表达计算量变化，不是建筑安全评分。'
+ ],diagram:'gaps',labels:[
+ '表皮到结构 — 部分涉及：示意剖面，尚无工程连接或协调幕墙节点',
+ '室内功能 — 部分涉及：面积与层高计算，尚无租户布局、流线或疏散设计',
+ '结构与生态性能 — 已有工具，但未解决：存在周期与受照分析，那是筛查，绝非认证'
+ ],caption:'引文出自 2006 年论文第 6.2 节。三个方框复述他所列的缺口，标记记录 2026 年的扩展对每一项做了什么、没做什么。作图与算术不等于认证。'}
+};
+for(const l of ['en','th','zh'])READER[l].pages.push(GAPS_PAGE[l]);
+
+SOURCES.push(
+ {id:'trinity',author:'Trinity Church Boston',year:'1877 / archive',title:'Art and Architecture; parish history',where:'Own architectural history and consecration record; Boston, 9 February 1877',url:'https://trinitychurchboston.org/art-and-architecture/'},
+ {id:'sullivan',author:'Louis H. Sullivan',year:'1896',title:'The Tall Office Building Artistically Considered',where:'Lippincott’s Magazine, March 1896; primary text hosted by MIT OpenCourseWare',url:'https://ocw.mit.edu/courses/1-012-introduction-to-civil-engineering-design-spring-2002/pages/readings/the-tall-office-building-artistically-considered/'},
+ {id:'guaranty',author:'Historic American Buildings Survey',year:'archive',title:'Prudential (Guaranty) Building',where:'Library of Congress, HABS NY-5564',url:'https://tile.loc.gov/storage-services/master/pnp/habshaer/ny/ny0200/ny0204/data/ny0204data.pdf'},
+ {id:'home',author:'CTBUH',year:'building record',title:'Home Insurance Building',where:'Structural material classification; 1885 completion',url:'https://www.skyscrapercenter.com/building/home-insurance-building/9071'},
+ {id:'boley',author:'National Park Service',year:'nomination record',title:'National Register documentation: Louis Curtiss and the Boley Building',where:'Federal nomination documentation; 1908–1909 construction',url:'https://nara-media.s3.amazonaws.com/electronic-records/rg-079/NPS_MO/01000014.pdf'},
+ {id:'hallidie',author:'SEAONC Hensolt Legacy Project',year:'1918 / archive',title:'Hallidie Building',where:'Structural engineering heritage record',url:'https://legacy.seaonc.org/structure/hallidie-building/'},
+ {id:'smith',author:'Eric Nordstrom / BLDG51',year:'2024',title:'A. O. Smith Research and Engineering Building: photographic field account',where:'Later field documentation; dates the building to 1930 in the text and 1931 in the title. This conflicts with the inherited 1928 chronology; the date remains qualified.',url:'https://bldg51.com/2024/03/09/a-forgotten-trailbazerbuilt-during-the-depression-a-closer-look-at-holabird-and-roots-streamlined-style-art-deco-1931-a-o-smith-research-tower/'},
+ {id:'lever',author:'Skidmore, Owings & Merrill',year:'1952 / project record',title:'Lever House',where:'Architect’s project and restoration account',url:'https://www.som.com/projects/lever-house/'}
+);
+const history=READER.en.pages.find(p=>p.diagram==='timeline');
+history.title='From load-bearing walls to curtain walls.';
+history.paras[0]='Home Insurance, Chicago, 1884–85: an early hybrid frame whose structural classification is iron/steel and masonry, not a simple story of walls disappearing overnight. The facade and the frame developed together. [home]';
+history.paras[1]='Guaranty, Buffalo, 1894–96: repeated windowed bays link the office unit to the facade. Sullivan’s 1896 essay explicitly relates the standard office room to the structural bay and window opening. That is a design argument more than a century before Chen, not proof of a measured rent premium. [guaranty] [sullivan]';
+history.paras[2]='Richardson’s Trinity Church was completed in Boston in 1877. It belongs to the masonry tradition, not a claim to have invented the skyscraper skeleton. Sullivan’s separate 1896 essay explains repeated office tiers as a consequence of repeated interior units. [trinity] [sullivan]';
+history.paras[3]='The glass sequence continues through Boley, Hallidie and Lever House. A. O. Smith’s glass-and-metal research building belongs here too, but the inherited 1928 date conflicts with later field documentation dated 1930–31. We retain that uncertainty rather than treating it as settled. Central services and perimeter glazing are one influential arrangement, not the only possible office plan. [boley] [hallidie] [smith] [lever]';
+history.labels[1]='Guaranty, Buffalo, 1894–96 — repeated window bays and the office unit';
+history.labels[4]=history.labels[4].replace('Halidie','Hallidie');history.labels[5]='A. O. Smith, Milwaukee, 1928–31? — glass-and-metal facade; dating qualified in the text';
+const hth=READER.th.pages.find(p=>p.diagram==='timeline');
+hth.title='จากผนังรับน้ำหนักสู่ผนังม่าน';
+hth.paras[0]='Home Insurance ชิคาโก ค.ศ. 1884–85 เป็นโครงสร้างผสมเหล็กกับอิฐ ไม่ใช่เรื่องเล่าง่าย ๆ ว่าผนังรับน้ำหนักหายไปทันที เปลือกและโครงสร้างพัฒนาร่วมกัน [home]';
+hth.paras[1]='Guaranty บัฟฟาโล ค.ศ. 1894–96 ช่องหน้าต่างซ้ำเชื่อมห้องสำนักงานเข้ากับรูปด้าน บทความของ Sullivan ปี 1896 เชื่อมห้องมาตรฐานกับช่วงโครงสร้างและช่องหน้าต่างโดยตรง เป็นเหตุผลออกแบบก่อน Chen กว่าหนึ่งศตวรรษ ไม่ใช่หลักฐานส่วนเพิ่มค่าเช่าที่วัดได้ [guaranty] [sullivan]';
+hth.paras[2]='Trinity Church ของ Richardson สร้างเสร็จที่บอสตันในปี 1877 อยู่ในสายงานผนังอิฐรับน้ำหนัก ไม่ใช่การอ้างว่าคิดโครงตึกสูง บทความอีกชิ้นของ Sullivan ปี 1896 อธิบายรูปด้านชั้นสำนักงานที่ซ้ำจากหน่วยห้องภายในที่ซ้ำกัน [trinity] [sullivan]';
+hth.paras[3]='เส้นทางผนังกระจกต่อผ่าน Boley, Hallidie และ Lever House ส่วนอาคารวิจัยกระจกกับโลหะ A. O. Smith มีปี 1928 ในลำดับเดิม แต่เอกสารภาคสนามภายหลังระบุ 1930–31 จึงยังระบุปีอย่างมีเงื่อนไข แกนบริการกลางกับกระจกรอบนอกเป็นแบบแผนสำคัญหนึ่งแบบ ไม่ใช่ผังสำนักงานที่เป็นไปได้แบบเดียว [boley] [hallidie] [smith] [lever]';
+hth.labels[1]='Guaranty บัฟฟาโล 1894–96 — ช่องหน้าต่างซ้ำสัมพันธ์กับหน่วยห้องสำนักงาน';hth.labels[4]=hth.labels[4].replace('Halidie','Hallidie');hth.labels[5]='A. O. Smith มิลวอกี 1928–31? — ผนังกระจกกับโลหะ ปีมีเงื่อนไขตามเนื้อหา';
+const hzh=READER.zh.pages.find(p=>p.diagram==='timeline');
+hzh.title='从承重墙到幕墙。';
+hzh.paras[0]='Home Insurance，芝加哥，1884–85：早期铁、钢与砌体的混合结构，并非承重墙一夜消失的简单故事。立面与骨架共同发展。[home]';
+hzh.paras[1]='Guaranty，布法罗，1894–96：重复窗间把办公室单元与立面联系起来。Sullivan 在 1896 年文章中明确把标准办公室、结构开间与窗洞关联。这比 Chen 早一个多世纪，是设计论述，并非实测租金溢价证据。[guaranty] [sullivan]';
+hzh.paras[2]='Richardson 的 Trinity Church 于 1877 年在波士顿落成，属于砌体传统，并非发明摩天楼骨架的主张。Sullivan 另一篇 1896 年文章把办公层的重复外观解释为内部单元的重复。[trinity] [sullivan]';
+hzh.paras[3]='玻璃立面的发展经过 Boley、Hallidie 和 Lever House。A. O. Smith 的玻璃金属研究楼也在其中，但沿用的 1928 年与后来的实地记录 1930–31 年冲突，因此保留年代限定。中央服务核与周边玻璃是一种有影响的布局，而非唯一可行平面。[boley] [hallidie] [smith] [lever]';
+hzh.labels[1]='Guaranty，布法罗，1894–96 — 重复窗间与办公室单元';hzh.labels[4]=hzh.labels[4].replace('Halidie','Hallidie');hzh.labels[5]='A. O. Smith，密尔沃基，1928–31? — 玻璃金属立面，年代见正文限定';

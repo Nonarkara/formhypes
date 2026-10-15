@@ -135,6 +135,7 @@ function hkifcLevel(i){
 const VOID_HKIFC=[[18,7050],[30,6880],[31,6880],[48,7030],[60,6880],[61,6880],[72,6880]];
 
 export const levelPrograms={
+ custom:{levels:s=>Array.from({length:Math.max(1,Math.min(400,s.floors))},()=>({h:s.height*1000,use:'office',gfa:true})),voids:[]},
  mini:{floors:()=>{const a=[];for(let i=0;i<128;i++)a.push({h:4200,use:'office',gfa:true});return a},voids:[]},
  petronas:{levels:()=>PETRONAS.map((h,i)=>({h,use:i<5?'retail':'office',gfa:true})),voids:VOIDS},
  hkifc:{levels:()=>{const a=[];for(let i=0;i<128;i++)a.push({h:hkifcLevel(i),use:i<11?'retail':'office',gfa:true});return a},voids:VOID_HKIFC}
@@ -145,7 +146,7 @@ export const levelPrograms={
  *  conversion happens once, here, and nowhere else. */
 export function stack(s){
  const prog=levelPrograms[s.program]||levelPrograms.mini;
- const src=prog.levels?prog.levels():prog.floors();
+ const src=prog.levels?prog.levels(s):prog.floors();
  const voidMap=new Map((prog.voids||[]).map(([i,u])=>[i,u]));
  const out=[];let z=0;
  for(let i=0;i<s.floors;i++){

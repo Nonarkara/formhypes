@@ -784,7 +784,7 @@ test('the museum run is seven dated stops in order, each with its own drawing', 
   const T = RESEARCH_T.timeline;
   assert.equal(T.length, 7);
   // Chronological, and each stop says something the next one depends on.
-  assert.deepEqual(T.map(n => n.year), ['1884–85','1894–96','1896','1909','1918','1928','1952']);
+  assert.deepEqual(T.map(n => n.year), ['1884–85','1894–96','1896','1909','1918','1928–31?','1952']);
   // Two of the seven must not share a drawing: Boley is piers behind glass,
   // A. O. Smith is no masonry at all, and collapsing them hides the difference.
   assert.equal(new Set(T.map(n => n.kind)).size, 7, 'two stops share one schematic');

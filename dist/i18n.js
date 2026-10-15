@@ -268,7 +268,7 @@ const en={
  /* Human scale. The section is a drawing; these are its labels. */
  'h.services':'services, ducts and cable tray',
  'h.hidden':'above the ceiling — not visible from the floor',
- 'h.glaze':"Daily façade exposure, 08:00–18:00 city time. Sun geometry determines exposure; the glass bands are illustrative choices. Glass appearance does not establish rent or comfort.",
+ 'h.glaze':"Daily façade exposure, 00:00–24:00 city time. Sun geometry determines exposure; the glass bands are illustrative choices. Glass appearance does not establish rent or comfort.",
  'h.glassCount':"Scenario bands: {v} low, {s} medium, {d} high. Values at right are equivalent full-incidence hours on the more exposed face.",
  'h.glass.vision':"low exposure",
  'h.glass.solar':"medium exposure",
@@ -360,7 +360,7 @@ const en={
  'sun.hcmc':"Ho Chi Minh City",
  'sun.position':"Altitude {alt}° · bearing {az}° · {zone}",
  'sun.night':"Sun below horizon · no direct incidence now",
- 'sun.note':"SunCalc 2.1 · geometric direct sun. Daily exposure: 15-minute samples, 08–18. Unobstructed vertical faces; no weather, self-shadow or neighbour occlusion. No automatic rent adjustment.",
+ 'sun.note':"SunCalc 2.1 · geometric direct sun. Daily exposure: 15-minute samples, 00–24. Unobstructed vertical faces; no weather, self-shadow or neighbour occlusion. No automatic rent adjustment.",
  'sun.invalid':"Enter a valid date (2000–2100) and city time.",
  'sun.reference':"Reference: 0.8 kW/m² direct-normal irradiance; not measured weather.",
 };
@@ -624,7 +624,7 @@ const th={
 
  'h.services':'งานบริการ ท่อ และถาดสาย',
  'h.hidden':'เหนือเพดาน — มองไม่เห็นจากระดับพื้น',
- 'h.glaze':"การรับแดดของผิวอาคารรายวัน เวลาเมือง 08:00–18:00 เรขาคณิตดวงอาทิตย์กำหนดการรับแดด ส่วนระดับกระจกเป็นเพียงตัวเลือกสมมติ สีของกระจกไม่ได้ยืนยันค่าเช่าหรือความสบาย",
+ 'h.glaze':"การรับแดดของผิวอาคารรายวัน เวลาเมือง 00:00–24:00 เรขาคณิตดวงอาทิตย์กำหนดการรับแดด ส่วนระดับกระจกเป็นเพียงตัวเลือกสมมติ สีของกระจกไม่ได้ยืนยันค่าเช่าหรือความสบาย",
  'h.glassCount':"ระดับสมมติ: ต่ำ {v} กลาง {s} สูง {d} ค่าด้านขวาคือชั่วโมงเทียบเท่าที่แสงตกตั้งฉากบนด้านที่รับแดดมากกว่า",
  'h.glass.vision':"รับแดดต่ำ",
  'h.glass.solar':"รับแดดปานกลาง",
@@ -716,7 +716,7 @@ const th={
  'sun.hcmc':"นครโฮจิมินห์",
  'sun.position':"มุมเงย {alt}° · มุมทิศ {az}° · {zone}",
  'sun.night':"ดวงอาทิตย์อยู่ใต้ขอบฟ้า ไม่มีแสงตรงในขณะนี้",
- 'sun.note':"SunCalc 2.1 · เรขาคณิตแสงตรง สุ่มทุก 15 นาที เวลา 08–18 น. ศึกษาผิวแนวตั้งที่ไม่มีสิ่งบัง ไม่รวมอากาศ เงาบังตัวเอง หรืออาคารข้างเคียง ไม่ปรับค่าเช่าอัตโนมัติ",
+ 'sun.note':"SunCalc 2.1 · เรขาคณิตแสงตรง สุ่มทุก 15 นาที เวลา 00–24 น. ศึกษาผิวแนวตั้งที่ไม่มีสิ่งบัง ไม่รวมอากาศ เงาบังตัวเอง หรืออาคารข้างเคียง ไม่ปรับค่าเช่าอัตโนมัติ",
  'sun.invalid':"ระบุวันที่ถูกต้องในช่วงปี 2000–2100 และเวลาเมือง",
  'sun.reference':"ค่าสมมติรังสีตรงตั้งฉาก 0.8 kW/m² ไม่ใช่ข้อมูลอากาศที่วัดได้",
 };
@@ -980,7 +980,7 @@ const zh={
 
  'h.services':'设备、风管与线槽',
  'h.hidden':'位于吊顶之上——站在地面上看不见',
- 'h.glaze':"按城市时间 08:00–18:00 计算每日立面日照。太阳几何决定暴露量；玻璃分档仅为情景选择。玻璃颜色不能证明租金或舒适度。",
+ 'h.glaze':"按城市时间 00:00–24:00 计算每日立面日照。太阳几何决定暴露量；玻璃分档仅为情景选择。玻璃颜色不能证明租金或舒适度。",
  'h.glassCount':"情景分档：低 {v}，中 {s}，高 {d}。右侧数字为较曝晒立面的等效垂直入射小时。",
  'h.glass.vision':"低暴露",
  'h.glass.solar':"中暴露",
@@ -1072,7 +1072,7 @@ const zh={
  'sun.hcmc':"胡志明市",
  'sun.position':"高度角 {alt}° · 方位角 {az}° · {zone}",
  'sun.night':"太阳位于地平线下，此刻无直射入射",
- 'sun.note':"SunCalc 2.1 · 直射太阳几何。每日 08–18 时每 15 分钟采样。以无遮挡竖直立面为参考，不含天气、自遮挡与邻楼遮挡，不自动调整租金。",
+ 'sun.note':"SunCalc 2.1 · 直射太阳几何。每日 00–24 时每 15 分钟采样。以无遮挡竖直立面为参考，不含天气、自遮挡与邻楼遮挡，不自动调整租金。",
  'sun.invalid':"请输入 2000–2100 年内的有效日期及城市时间。",
  'sun.reference':"假设直射法向辐照度为 0.8 kW/m²，并非实测天气。",
 };
@@ -1084,6 +1084,9 @@ Object.assign(th,{"f.triangle": "สามเหลี่ยม / 3 มุม", 
 Object.assign(zh,{"f.triangle": "三角形 / 三个尖角", "f.hexagon": "六边形 / 六个面", "f.oval": "折面椭圆 / 24 面", "f.petal": "四瓣形 / 凹凸边缘", "f.pinwheel": "风车形 / 四叶", "mast.note": "由 Non 博士创作 · depa + Axiom · 二十周年，2006–2026"});
 
 en['sun.tokyo']='Tokyo';th['sun.tokyo']='โตเกียว';zh['sun.tokyo']='东京';
+Object.assign(en,{"g.prog.custom": "Custom uniform levels", "prog.custom.note": "Uniform occupied floors using the chosen floor-to-floor height. Services are included within each level; no extra refuge or mechanical bands are scheduled.", "prog.custom.src": "FormHypes project assumption", "c.height": "Custom floor-to-floor"});
+Object.assign(th,{"g.prog.custom": "ชั้นสม่ำเสมอที่กำหนดเอง", "prog.custom.note": "ชั้นใช้งานสม่ำเสมอตามความสูงที่กำหนด รวมงานระบบในแต่ละชั้น แต่ยังไม่กำหนดชั้นหลบภัยหรือชั้นเครื่องกลเพิ่มเติม", "prog.custom.src": "สมมติฐานโครงการ FormHypes", "c.height": "ความสูงชั้นที่กำหนดเอง"});
+Object.assign(zh,{"g.prog.custom": "自定义等高楼层", "prog.custom.note": "使用指定层高的等高使用楼层。每层预留设备空间，尚未另行安排避难层或设备空层。", "prog.custom.src": "FormHypes 项目假设", "c.height": "自定义层高"});
 export const t={en,th,zh};
 
 export function translator(lang){
@@ -1094,3 +1097,6 @@ export function translator(lang){
   return s;
  };
 }
+Object.assign(en,{'r.timeline.b1':'The route from heavy walls to curtain walls links structure, daylight and the economics of office space. These are historical precedents, not evidence that one form guarantees a rent premium.','r.timeline.b3':'The Guaranty Building, Buffalo, 1894–96, was designed by Adler & Sullivan. Sullivan’s 1896 essay connects the standard office room with its structural bay and window opening.','r.timeline.b5':'Richardson’s Trinity Church was completed in Boston in 1877. It belongs to the masonry tradition, not a claim to have invented the skyscraper skeleton.','r.timeline.b6':'Boley, Hallidie and Lever House belong to the curtain-wall sequence. A. O. Smith’s inherited 1928 date conflicts with later field documentation dated 1930–31. The date is qualified; glass and aluminium facade framing should not be confused with the building’s primary steel structure.','r.timeline.note':'Primary records and reading limits are linked in the guided reader’s Sources & reading trail. Drawings are schematic, not measured elevations.'});
+Object.assign(th,{'r.timeline.b1':'เส้นทางจากผนังหนักสู่ผนังม่านเชื่อมโครงสร้าง แสง และเศรษฐศาสตร์สำนักงาน เป็นตัวอย่างประวัติศาสตร์ ไม่ใช่หลักฐานว่ารูปทรงแบบใดรับประกันส่วนเพิ่มค่าเช่า','r.timeline.b3':'Guaranty ที่บัฟฟาโล ค.ศ. 1894–96 ออกแบบโดย Adler & Sullivan บทความ Sullivan ปี 1896 เชื่อมห้องสำนักงานมาตรฐานกับช่วงโครงสร้างและช่องหน้าต่าง','r.timeline.b5':'Trinity Church ของ Richardson สร้างเสร็จที่บอสตันในปี 1877 อยู่ในสายงานผนังก่อรับน้ำหนัก ไม่ใช่การอ้างว่าคิดโครงตึกสูง','r.timeline.b6':'Boley, Hallidie และ Lever House อยู่ในเส้นทางผนังม่าน ส่วน A. O. Smith มีปี 1928 ในข้อมูลเดิม แต่เอกสารภาคสนามภายหลังระบุ 1930–31 จึงยังระบุอย่างมีเงื่อนไข กรอบอะลูมิเนียมของผนังกระจกไม่ใช่โครงสร้างเหล็กหลักของอาคาร','r.timeline.note':'แหล่งต้นทางและขอบเขตการอ่านเชื่อมอยู่ในรายการอ้างอิงของคู่มือ ภาพเป็นแผนภาพ ไม่ใช่รูปด้านที่วัดจริง'});
+Object.assign(zh,{'r.timeline.b1':'从厚墙到幕墙的发展联系结构、采光和办公空间经济。这些是历史先例，不能证明某种形态保证租金溢价。','r.timeline.b3':'Guaranty，布法罗，1894–96，由 Adler & Sullivan 设计。Sullivan 1896 年文章把标准办公室与结构开间、窗洞关联。','r.timeline.b5':'Richardson 的 Trinity Church 于 1877 年在波士顿落成，属于砌体传统，并非发明摩天楼骨架的主张。','r.timeline.b6':'Boley、Hallidie 和 Lever House 属于幕墙发展序列。A. O. Smith 沿用的 1928 年与后来实地记录 1930–31 年冲突，因此限定年代。玻璃立面的铝框不应与建筑主要钢结构混淆。','r.timeline.note':'一手记录与阅读范围见导读的参考文献。图解是示意，并非实测立面。'});

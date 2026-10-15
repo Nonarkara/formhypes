@@ -1,11 +1,17 @@
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=5d568dc702';
-import{t,langs,langMeta,translator}from'./i18n.js?v=16f0046827';
-import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=f6c0736b31';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=83bfd6e335';
+import{t,langs,langMeta,translator}from'./i18n.js?v=128aef9b56';
+import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=b90562ebdd';
 
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=a75307527e';
-import {renderReader} from './reader.js?v=e4af773b57';
+import {renderReader} from './reader.js?v=273c83572f';
+
+// The three desks added in 2026 after Chapter 6.2. Each is a self-contained
+// module that injects its own prefixed CSS, so nothing here owns their styling.
+import {BRIEF_I18N, renderBrief,getBriefStudy} from './brief.js?v=7ace9762af';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=8a31f6ea1d';
+import {CONTEXT_I18N, renderContext} from './context.js?v=a36e8e6fe5';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=76931110a7';
 const $=id=>document.getElementById(id);
@@ -19,13 +25,13 @@ let drawn={w:0,h:0},pendingRaf=false;
 // [i18n key, min, max, step, unit] — the label is resolved per language in
 // buildRanges(); nothing here is English-only.
 const schema={
- orientation:['c.orientation',0,360,5,'°'],span:['c.span',32,62,.01,'m'],aspect:['c.aspect',.65,1.5,.05,'×'],floors:['c.floors',12,70,1,''],
+ height:['c.height',3,6,.05,'m'],orientation:['c.orientation',0,360,5,'°'],span:['c.span',32,62,.01,'m'],aspect:['c.aspect',.65,1.5,.05,'×'],floors:['c.floors',12,70,1,''],
  taper:['c.taper',.6,1.2,.02,'×'],twist:['c.twist',0,180,5,'°'],
  core:['c.core',12,26,1,'m'],common:['c.common',8,22,1,'%'],
  site:['c.site',40,100,2,'m'],maxHeight:['c.maxHeight',100,350,5,'m'],frontage:['c.frontage',4,9,.5,'m'],
  rent:['c.rent',100,1400,25,'$'],premium:['c.premium',0,80,5,'%'],
  occupancy:['c.occupancy',50,100,1,'%'],reserve:['c.reserve',0,60,2,'$']};
-const groups={orientationControl:['orientation'],geometryControls:['span','aspect','floors','taper','twist'],constraintControls:['core','common','site','maxHeight','frontage'],rentControls:['rent','premium','occupancy','reserve']};
+const groups={orientationControl:['orientation'],geometryControls:['span','aspect','floors','height','taper','twist'],constraintControls:['core','common','site','maxHeight','frontage'],rentControls:['rent','premium','occupancy','reserve']};
 
 /* ── language ─────────────────────────────────────────────────────────── */
 // Short stamps drawn into the plan SVG and the tower canvas. Every language
@@ -108,7 +114,7 @@ function buildRanges(){
    const div=document.createElement('div');div.className='control';
    div.innerHTML=`<div class="controlhead"><label for="${k}">${label}</label><output id="${k}Value" for="${k}">${controlValue(k)}</output></div><input type="range" id="${k}" min="${min}" max="${max}" step="${step}" value="${state[k]}">`;
    host.append(div);
-   $(k).addEventListener('input',()=>{state[k]=Number($(k).value);changed()});
+   $(k).addEventListener('input',()=>{state[k]=Number($(k).value);if(k==='height')state.program='custom';changed()});
   }
  }
 }
@@ -137,10 +143,27 @@ function changed(){
 }
 
 /* ── update ───────────────────────────────────────────────────────────── */
+const DESKS=[['brief',BRIEF_I18N,renderBrief],['walk',WALK_I18N,renderWalk],['context',CONTEXT_I18N,renderContext]];
+function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textContent=dict[lang].title;if($(id+'Panel').open)render({lang,state,changed:applyDeskPatch})}}
+for(const [id]of DESKS)$(id+'Panel').addEventListener('toggle',()=>{if($(id+'Panel').open)renderDesks()});
+function applyDeskPatch(patch){
+ for(const [key,value]of Object.entries(patch)){
+  if(key==='span'&&Number.isFinite(value)&&value>0&&value<300){state.span=value}
+  else if(key in schema){const[,min,max,step]=schema[key];if(Number.isFinite(value)){const bounded=Math.max(min,Math.min(max,value));state[key]=Math.round((min+Math.round((bounded-min)/step)*step)*1e6)/1e6}}
+
+  else if(['family','program','skin','system','city'].includes(key)){
+   const allowed={family:families,program:levelPrograms,skin:facadeFamilies,system:systems,city:cities};
+   if(Object.hasOwn(allowed[key],value))state[key]=value;
+  }
+ }
+ if('height'in patch)state.program='custom';changed();
+}
+
 function update(){
  metrics=evaluate(state);sync();
  renderLocation({lang,state,metrics,cities,cityLabel:k=>tt("sun."+k),stackHeight,onCity:city=>{state={...state,city};changed()}});
- renderPlay({lang,state,families,profile,label:f=>tt("f."+f),onChange:patch=>{state={...state,...patch};changed()}});
+ renderPlay({lang,state,families,profile,label:f=>tt("f."+f),onChange:patch=>{applyDeskPatch(patch)}});
+ renderDesks();
  const sun=solarPosition(state);$('sunPosition').textContent=(sun.aboveHorizon?tt('sun.position',{alt:sun.altitude.toFixed(1),az:sun.azimuth.toFixed(1),zone:sun.zone}):tt('sun.night')+' · '+sun.zone);
  $('contribution').textContent=money(metrics.contribution);
  $('contributionLabel').textContent=metrics.valid?tt('m.contribution'):tt('m.contributionBad');
@@ -1200,7 +1223,7 @@ $('exportJson').onclick=()=>download('formhypes-study.json',JSON.stringify({
  version:3,units:{length:'m',area:'m²',currency:'USD',rent:'USD/m²/year'},tier:'conceptual scenario',
  author:'Dr Non',affiliation:'depa + Axiom',anniversary:'2006–2026',
  source:'Inspired by Dr Non’s MIT classmate Shouheng Chen. Embedded design knowledge after Shouheng Chen, MIT SMArchS 2006. Financial and political readings are extensions.',
- contextStudies:{ground:getLocationStudy(),fengShui:getFengStudy()},
+ contextStudies:{ground:getLocationStudy(),fengShui:getFengStudy(),brief:getBriefStudy(state),walk:getWalkStudy()},
  regime:regimes[state.regime].label,state,metrics,createdAt:new Date().toISOString()},null,2),'application/json');
 $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
  'family,regime,structure,floors,span_m,roof_scale,twist_deg,gross_m2,rentable_m2,corner_offices,height_m,distinctiveness,annual_rent_usd,envelope_reserve_usd,structure_reserve_usd,annual_contribution_usd',

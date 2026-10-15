@@ -42,3 +42,19 @@ Omitted: shear, torsion, cracking, higher modes, damping, soil–structure inter
 ## Editorial corrections
 
 Removed unsupported claims about Chen’s knowledge, universal triangulation overestimation, nonexistent nonconvex support functions, exact numerical integrals, retrospective formal shape-grammar classification, automatic BOMA/AGS compliance and a guaranteed market for symbolic ambition. Corrected Stiny’s first name. Original diagrams, photographs and interactive comparisons remain accessible in the extended studies appendix; dedication retains original Chinese attribution and its 2019 source date. Wordmark restored as requested; Dr Non authorship stays explicit.
+
+## MiniMax continuation audit · 15 October 2026
+
+The unfinished brief, context and walk modules were inspected, repaired and wired through the release graph. Source facts checked:
+
+- AWC Empire fact sheet, owner PDF: https://www.assetworldcorp-th.com/storage/portfolio/office/empire-tower/fact-sheet.pdf . Downloaded and text inspected: general-information table gives 58 floors, 227 m and address **1 South Sathorn Road**. The document does not establish the draft's 2.60 m clear height or 3,000 m² typical plate. The latter is now a labelled reference assumption; the former is not claimed as a measurement.
+- KLCC 2024 annual report: https://www.klcc.com.my/downloads/interactive_ar2024.pdf . Owner describes Dayabumi as a 36-storey office building; the older 35-floor convention is recorded in metadata, not silently mixed. The inherited 157 m is a historical-case-study figure (IIUM ICoPFM 2011), not a new survey.
+- Wisma 46: CTBUH record https://www.skyscrapercenter.com/jakarta/wisma-46/880 gives 261.9 m. Owner https://www.wisma46.com/about rounds to 262 m and describes 50 storeys; counts vary by convention. Current diagram uses 46 above-ground floors.
+- Landmark 81: CTBUH Data Handbook 2023 gives 461.2 m and 81 floors: https://s3.us-east-1.amazonaws.com/cloud.ctbuh.org/shop/DataHandbook_2023.pdf . Arup https://www.arup.com/projects/landmark-81-tower/ rounds to 461 m.
+- Building coordinates are approximate reference points, not surveyed parcels. Neighbour bearings, widths, heights and distances remain invented scenarios. Sun uses the city reference coordinate, explicitly stated.
+
+Museum audit: Trinity Church Boston's own record https://trinitychurchboston.org/art-and-architecture/ and parish history establish Boston and consecration on 9 February 1877. The inherited Chicago attribution was wrong. The Guaranty attribution is Adler & Sullivan, not D. S. Hopkins. SOM's own Lever House account https://www.som.com/projects/lever-house/ and project-day article identify the architect; UN Secretariat is not its coauthor. Sullivan's original 1896 essay is hosted by MIT OCW and linked in the reader; it relates the office unit, structural bay and opening, not an empirically measured rent premium. No 111-year precision is asserted.
+
+A. O. Smith dating remains unsettled: inherited chronology 1928 versus a later photographic field account by Eric Nordstrom / BLDG51 (2024) stating 1930 in text and 1931 in its title. The plate now says 1928–31? and the text cites that conflict. Aluminium facade framing is distinguished from the building's steel frame. The source list records this as later field documentation, not a contemporary building record.
+
+Mechanism checks: all three scheme ledgers reconcile delivered area with plate areas and floor counts. The applied model is the uniform tower component, not an implemented podium. Custom heights now use a real level-programme path. Perspective drawings are schematic; engineering connections, tenant programmes and structural/ecological performance remain partly addressed or unimplemented. The sixth research page explicitly leaves all three thesis gaps open.

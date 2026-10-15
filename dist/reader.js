@@ -1,4 +1,4 @@
-import {READER,SOURCES,ARTIFACTS} from './reader-content.js?v=94bf21e4bc';
+import {READER,SOURCES,ARTIFACTS} from './reader-content.js?v=be2235638b';
 let current=0;
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
 function diagram(kind,labels){
@@ -18,6 +18,27 @@ function diagram(kind,labels){
  }
  if(kind==='ledger')wrap.innerHTML=shell(`<rect x="30" y="22" width="540" height="42" fill="none" stroke="currentColor" stroke-width="2"/><rect x="30" y="22" width="150" height="42" fill="currentColor" opacity=".2"/><rect x="480" y="22" width="90" height="42" fill="#f59e0b"/><path d="M180 72V96H480V72M330 96V119M330 119H180M330 119H480" ${line}/><text x="105" y="49" text-anchor="middle">2</text><text x="325" y="49" text-anchor="middle">3</text><text x="525" y="49" text-anchor="middle">4</text><rect x="165" y="132" width="30" height="30" fill="none" stroke="currentColor"/><text x="180" y="153" text-anchor="middle">5</text><rect x="465" y="132" width="30" height="30" fill="#f59e0b"/><text x="480" y="153" text-anchor="middle">6</text>`);
  if(kind==='city')wrap.innerHTML=shell(`<path d="M300 90L75 35M300 90L300 25M300 90L525 35M300 90L75 145M300 90L300 155M300 90L525 145" ${line}/><path d="M286 110V65L300 50L314 65V110Z" fill="#f59e0b" stroke="currentColor"/>${[[75,35],[300,25],[525,35],[75,145],[300,155],[525,145]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="18" fill="var(--panel)" stroke="currentColor"/><text x="${x}" y="${y+5}" text-anchor="middle">${i+1}</text>`).join('')}`);
+ if(kind==='gaps'){
+  // Chapter 6.2 lists three things the 2006 system could not do. Each box is one
+  // of them. The mark says what this extension does about it -- and the third is
+  // deliberately NOT marked as solved, because instrumented is not certified.
+  const S=[{m:false},{m:false},{m:false}];
+  let d='';
+  S.forEach((g,i)=>{
+   const x=30+i*180,y=34,w=160,h=92;
+   d+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="currentColor" stroke-width="1.5"/>`;
+   d+=`<text x="${x+10}" y="${y+22}" font-size="12" fill="currentColor">${i+1}</text>`;
+   d+=`<text x="${x+10}" y="${y+38}" font-size="9" fill="currentColor" opacity=".6">${String(i+1).padStart(2,'0')}</text>`;
+   d+=`<text x="${x+10}" y="${y+56}" font-size="9.5" fill="currentColor" opacity=".75">§6.2</text>`;
+   // A filled amber bar is a gap closed. An open bracket is a gap still open.
+   if(g.m)d+=`<rect x="${x+10}" y="${y+68}" width="${w-20}" height="6" fill="#f59e0b"/>`;
+   else d+=`<path d="M${x+10} ${y+74} v-6 h${w-20} v6" fill="none" stroke="currentColor" stroke-width="1.5"/>`;
+  });
+  d+=`<path d="M30 140H570" ${line}/>`;
+  d+=`<text x="30" y="158" font-size="9" fill="currentColor" opacity=".6">2006 · Chapter 6.2</text>`;
+  d+=`<text x="570" y="158" text-anchor="end" font-size="9" fill="currentColor" opacity=".6">2026 · this instrument</text>`;
+  wrap.innerHTML=shell(d);
+ }
  if(kind==='timeline'){
   // Seven stops on one axis, left to right, because the order is the argument.
   // Each glyph is a 40x40 schematic showing only the idea that made the next
@@ -58,7 +79,7 @@ function diagram(kind,labels){
     <g ${F} stroke-width="1.3"><rect x="14" y="14" width="12" height="12"/><path d="M14 14L1 1M26 14L39 1M26 26L39 39M14 26L1 39"/></g>
     <g ${F} stroke-width=".7"><path d="M8 1V39M32 1V39M1 8H39M1 32H39"/></g>`
   ];
-  const Y=['1884','1894','1896','1909','1918','1928','1952'];
+  const Y=['1884','1894','1896','1909','1918','1928–31?','1952'];
   const N=G.length,w=(540-60)/N;
   let d=`<path d="M30 112H570" ${line}/>`;
   G.forEach((g,i)=>{

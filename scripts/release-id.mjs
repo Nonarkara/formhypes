@@ -50,7 +50,8 @@ const MEDIA = ['research/media/office-2023.jpg', 'research/media/house-2006.jpg'
   'research/media/lab-0506.jpg', 'research/media/lab-0507.jpg',
   'research/media/lab-0508.jpg', 'research/artifacts/chen-fig34.png',
   'research/artifacts/chen-fig36.png', 'research/artifacts/chen-fig76-detail.png'];
-const IN_APP = ['./reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
+const DESKS=['brief.js','walk.js','context.js'];
+const IN_APP = ['./brief.js','./walk.js','./context.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
 const IN_HTML = ['style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 
 const ids = {};
@@ -60,6 +61,8 @@ const solar = stamp(await read('solar.js'), ['./vendor/suncalc.js'], ids);
 await write('solar.js', solar);ids['solar.js']=sha(solar);
 const model = stamp(await read('model.js'), ['./geometry.js','./solar.js'], ids);
 await write('model.js', model);ids['model.js']=sha(model);
+
+for(const f of DESKS){const src=stamp(await read(f), ['./model.js','./solar.js','./geometry.js'], ids);await write(f,src);ids[f]=sha(src)}
 
 const research = stamp(await read('research.js'), MEDIA, ids);
 await write('research.js', research);

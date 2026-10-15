@@ -45,16 +45,17 @@ test('Feng Shui geometry is an angular relationship, not a rent multiplier',()=>
  near(angularGap(0,360),0);near(angularGap(355,5),10);near(angularGap(180,0),180);
  assert.match(dist('play.js'),/No effect on rent/);assert.doesNotMatch(dist('model.js'),/feng|suitability/i);
 });
-test('guided reader has five substantial, fully translated pages and every citation resolves',()=>{
+test('guided reader has six substantial, fully translated pages and every citation resolves',()=>{
  for(const lang of ['en','th','zh']){
-  assert.equal(READER[lang].pages.length,5);assert.equal(READER[lang].nav.length,5);
-  for(const p of READER[lang].pages){assert.ok(p.paras.length>=3);assert.ok(p.title&&p.caption&&p.labels.length>=4);
+  assert.equal(READER[lang].pages.length,6);assert.equal(READER[lang].nav.length,6);
+  for(const p of READER[lang].pages){assert.ok(p.paras.length>=3);assert.ok(p.title&&p.caption&&p.labels.length>=3);
    for(const text of p.paras)for(const [,id]of text.matchAll(/\[([a-z]+)\]/g))assert.ok(SOURCES.some(s=>s.id===id),id);
   }
-  // The museum run is a real page, not a stub: seven dated stops in step with
-  // the nav, and it must say what the drawings are not.
-  const tl=READER[lang].pages.at(-1);
-  assert.equal(tl.diagram,'timeline');assert.equal(tl.labels.length,7);
+  // Find pages by what they are, not by position -- appending a page must not
+  // silently re-point every assertion at the wrong one.
+  const tl=READER[lang].pages.find(p=>p.diagram==='timeline');
+  assert.ok(tl,lang+' is missing the museum-run page');
+  assert.equal(tl.labels.length,7);
   // "these are schematic drawings, not measured elevations" has to be said in
   // each language's own word -- asserting the English one against Thai and
   // Chinese would push the copy back into Latin fallback.
@@ -66,10 +67,28 @@ test('guided reader has five substantial, fully translated pages and every citat
  // Seven stops, in order, and the two corrections that matter are stated rather
  // than assumed: Home Insurance was not a true skeleton, and Richardson did not
  // invent one either.
- assert.deepEqual(READER.en.pages.at(-1).labels.map(l=>/(1884|1894|1896|1909|1918|1928|1952)/.exec(l)[0]),
+ const tlEn=READER.en.pages.find(p=>p.diagram==='timeline');
+ assert.deepEqual(tlEn.labels.map(l=>/(1884|1894|1896|1909|1918|1928|1952)/.exec(l)[0]),
   ['1884','1894','1896','1909','1918','1928','1952']);
- assert.match(READER.en.pages.at(-1).paras[1],/111 years old/);
- assert.match(READER.en.pages.at(-1).paras[2],/Trinity Church, finished in Chicago in 1877, is load-bearing masonry/);
+ assert.match(tlEn.paras[1],/more than a century/);
+ assert.match(tlEn.paras[2],/Boston in 1877/);assert.match(tlEn.paras[3],/1928 date conflicts/);
+ // Page six is Chapter 6.2: the thesis's own list of what it could not do. All
+ // three gaps must be named, the third must NOT be claimed as solved, and the
+ // "screening not certification" limit must survive editing.
+ const gaps=READER.en.pages.find(p=>p.diagram==='gaps');
+ assert.ok(gaps,'the Chapter 6.2 gaps page is missing');
+ assert.equal(gaps.labels.length,3);
+ assert.match(gaps.paras[0],/connections between the skins and the structure/);
+ assert.match(gaps.paras[0],/structural and ecological performance/);
+ assert.match(gaps.paras[0],/\[chen\]/);
+ assert.match(gaps.paras[3],/instrumented without being solved/);
+ assert.match(gaps.labels[2],/INSTRUMENTED, NOT SOLVED/);
+ // The diagram must draw the third gap as open, not closed: an amber filled bar
+ // on all three would claim a certification this project never makes.
+ const rjs=dist('reader.js');
+ assert.match(rjs,/if\(kind==='gaps'\)/);
+ assert.doesNotMatch(gaps.paras.join(' ')+gaps.labels.join(' '), /closed by drawing|closed by computation/i);
+ assert.match(rjs,/const S=\[\{m:false\},\{m:false\},\{m:false\}\]/);
  assert.ok(SOURCES.some(s=>s.author==='Non Arkaraprasertkul'&&s.year==='2007'));
 });
 test('all thesis excerpts exist with exact figure and page locators',()=>{
@@ -101,7 +120,7 @@ test('every new shape has unit-scale area and perimeter, with valid export topol
 });
 
 test('JSON study exports retain contextual assumptions and their stated limits',()=>{
- assert.match(dist('app.js'),/contextStudies:\{ground:getLocationStudy\(\),fengShui:getFengStudy\(\)\}/);
+ assert.match(dist('app.js'),/contextStudies:\{ground:getLocationStudy\(\),fengShui:getFengStudy\(\),brief:getBriefStudy\(state\),walk:getWalkStudy\(\)\}/);
  assert.match(dist('location.js'),/not safety assessment/);assert.match(dist('play.js'),/invented-site design prompt/);
 });
 

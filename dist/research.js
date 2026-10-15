@@ -215,3 +215,12 @@ export const RESEARCH_T={
   ['research/media/lab-0508.jpg?v=516243ebdf','r.people.c5']
  ]
 };
+// Audited attributions and reading limits for the inherited museum plate.
+RESEARCH_T.timeline[1].who='Adler & Sullivan';
+RESEARCH_T.timeline[4].bld='Hallidie Building';
+RESEARCH_T.timeline[5].year='1928–31?';
+RESEARCH_T.timeline[6].who='Gordon Bunshaft & Natalie de Blois / SOM';
+Object.assign(RESEARCH_T.timeline[1].say,{en:'Repeated window bays and the standard office unit. The relationship is documented in Sullivan’s 1896 essay, not a measured rent-premium study.',th:'ช่องหน้าต่างซ้ำกับหน่วยห้องสำนักงาน ความสัมพันธ์นี้ปรากฏในบทความ Sullivan ปี 1896 ไม่ใช่งานวัดส่วนเพิ่มค่าเช่า',zh:'重复窗间与标准办公室单元，关系见 Sullivan 1896 年文章，并非实测租金溢价研究。'});
+Object.assign(RESEARCH_T.timeline[5].say,{en:'Glass and aluminium facade framing over a steel building frame. The inherited 1928 date conflicts with a later field account dated 1930–31; the date remains qualified.',th:'ผนังกระจกกับกรอบอะลูมิเนียมบนโครงอาคารเหล็ก ปี 1928 เดิมขัดกับเอกสารภาคสนามภายหลังที่ระบุ 1930–31 จึงยังระบุปีอย่างมีเงื่อนไข',zh:'钢结构建筑外的玻璃铝框立面。沿用的 1928 年与后来实地记录 1930–31 年冲突，年代保留限定。'});
+Object.assign(RESEARCH_T.timeline[6].say,{en:'A steel-framed office slab and its glass-and-metal curtain wall. A central service core is one planning arrangement, not the only possible tower plan.',th:'ตึกสำนักงานโครงเหล็กกับผนังม่านกระจกโลหะ แกนบริการกลางเป็นการจัดผังรูปแบบหนึ่ง ไม่ใช่ผังตึกสูงที่เป็นไปได้แบบเดียว',zh:'钢框架办公楼板与玻璃金属幕墙。中央服务核是一种布局，而非唯一的塔楼平面。'});
+RESEARCH_T.timeline[1].say.zh='重复窗间与标准办公室单元，关系见苏利文一八九六年文章，并非实测租金溢价研究。';

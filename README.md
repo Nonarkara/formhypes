@@ -48,3 +48,11 @@ Eleven profiles feed the same model, search and OBJ export. Feng Shui prompts al
 The location desk supports Bangkok, Tokyo, Kuala Lumpur, Jakarta and Ho Chi Minh City. It shows sourced regional context, a user-input cantilever/soil-column period experiment, a height/structure sensitivity plot and table, and implemented versus missing checks. All mechanics inputs begin empty. The optional teaching example is labelled as invented, not measured or recommended. Percentages are changes in vibration period; they do not express suitability or seismic safety. Actual geotechnical investigation, demand/capacity, drift, foundation analysis and local approval remain unimplemented.
 
 Validation includes geometry topology, equal-area search across all profiles, accounting conservation, physical dimensional scaling, Tokyo civil time/solar geometry, translated reader integrity and artifact/dependency pins. Browser review covers EN/TH/ZH, reader navigation, new forms, Feng Shui and location interactions, including a 390px viewport. `npx axiom-audit` returned npm 404; that audit could not be run.
+
+### Finish MiniMax's 2026 desks
+
+Three compact expandable desks now cover brief/FAR arithmetic and scheme comparison, interior/street perspective, and hypothetical replacement-building context. Apply the tower study creates an area-matched uniform tower; podium geometry remains a separate arithmetic study. Custom floor-to-floor height now changes the actual stack, metrics, drawings and export. The six-page reader retains the museum run and adds a candid Chapter 6.2 gap map.
+
+The shadow desk projects an opaque triangulated shell across 32 loft bands. It separately reports ground overlap hours and incidence-weighted direct exposure intercepted at nine receiver-face points; receiver height matters. Invented neighbours, approximate site references and city-coordinate sun are explicitly identified. These are conceptual scenario calculations, not surveyed city data or a daylight/engineering assessment.
+
+Validation: 112 tests. Source corrections and verification limits are recorded in `docs/RESEARCH-EVIDENCE.md`.
