@@ -79,6 +79,12 @@ test('a research query opens Research even from a studio hash, and landlord is y
  assert.match(paper.paras[0],/Profile Finding/);
  assert.match(paper.paras[0],/Point Finding/);
  assert.match(paper.paras[2],/not a sales claim/);
+ assert.match(paper.paras[2],/does not fold them into one score/);
+ assert.match(paper.paras[2],/construction understanding is the next layer/);
+ assert.match(paper.paras[2],/does not extract a handbook/);
+ assert.doesNotMatch(paper.paras.join('\n'),/ESG|greenwash/i);
+ assert.match(TRACKS.en[2].intro,/separate questions/);
+ assert.match(RESEARCH_UI.en.legacy,/not a second thesis/);
  assert.doesNotMatch(paper.paras.join('\n'),/unlock value|property-technology/i);
  assert.equal(TRACKS.en[2].pages[0].title,'A paid comparison is still a hypothesis.');
  assert.match(readFileSync(new URL('../dist/research-reader.js',import.meta.url),'utf8'),/\$\{step\}\/9/);

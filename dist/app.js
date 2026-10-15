@@ -2,12 +2,12 @@ import {mountConsole} from './console.js?v=7dfaef5695';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=1653f45f3c';
-import{t,langs,langMeta,translator}from'./i18n.js?v=f73c1605d3';
+import{t,langs,langMeta,translator}from'./i18n.js?v=f3eed43302';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=b90562ebdd';
 
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=a75307527e';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=ad3ae7a066';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=5151ab7731';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.

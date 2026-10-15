@@ -1095,7 +1095,7 @@ Object.assign(en,{
  'place.caution':' Completed height is {height} m. The 660 m scheme is a different proposal.',
  'place.gift':'Shouheng Chen (Xiaohei) brought the thesis back to Shenzhen. This names the city. It does not value the tower.',
  'place.none':'{country} · {city}. No replaced building, so no neighbourhood. Brief {plot} m², FAR {far}, allowance {allowance} m². Model {model} m².',
- 'place.econ':'Scenario, not a tender: contribution {contribution} = rent {rent} − envelope {envelope} − structure {structure}. Envelope charges {skin} m² of skin per year. Structure is {base} USD/m²/year × {mult}. Skin and shadow are the ecology counted here. No rating.',
+ 'place.econ':'Scenario, not a tender: contribution {contribution} = rent {rent} − envelope {envelope} − structure {structure}. Envelope charges {skin} m² of skin per year. Structure is {base} USD/m²/year × {mult}. These reserves are not an energy, waste, or carbon result.',
  'place.source':'Building source'
 });
 Object.assign(th,{
@@ -1108,7 +1108,7 @@ Object.assign(th,{
  'place.caution':' ความสูงที่สร้างเสร็จคือ {height} ม. แบบ 660 ม. เป็นข้อเสนอคนละชุด',
  'place.gift':'Shouheng Chen (Xiaohei) นำวิทยานิพนธ์กลับสู่เซินเจิ้น บรรทัดนี้ตั้งชื่อเมือง ไม่ได้ประเมินมูลค่าตึก',
  'place.none':'{country} · {city}. ยังไม่มีอาคารที่ถูกแทนที่ จึงไม่ระบุย่าน โจทย์ {plot} ตร.ม. อัตราส่วน {far} ให้สร้างได้ {allowance} ตร.ม. โมเดล {model} ตร.ม.',
- 'place.econ':'เป็นสถานการณ์ ไม่ใช่ราคาประกวด: ผลตอบแทน {contribution} = ค่าเช่า {rent} − เปลือก {envelope} − โครงสร้าง {structure} เปลือกคิดจากผิว {skin} ตร.ม.ต่อปี โครงสร้างคือ {base} ดอลลาร์สหรัฐ/ตร.ม./ปี × {mult} เปลือกและเงาคือส่วนนิเวศที่นับได้ ไม่มีอันดับ',
+ 'place.econ':'เป็นสถานการณ์ ไม่ใช่ราคาประกวด: ผลตอบแทน {contribution} = ค่าเช่า {rent} − เปลือก {envelope} − โครงสร้าง {structure} เปลือกคิดจากผิว {skin} ตร.ม.ต่อปี โครงสร้างคือ {base} ดอลลาร์สหรัฐ/ตร.ม./ปี × {mult} เงินสำรองเหล่านี้ไม่ใช่ผลพลังงาน ของเสีย หรือคาร์บอน',
  'place.source':'แหล่งข้อมูลอาคาร'
 });
 Object.assign(zh,{
@@ -1121,7 +1121,7 @@ Object.assign(zh,{
  'place.caution':' 建成高度是 {height} 米。660 米是另一套设想。',
  'place.gift':'陈寿恒（小黑）把论文带回深圳。这里写下这座城市，并不为这座塔估价。',
  'place.none':'{country} · {city}。没有被替代的建筑，因此不写街区。任务书用地 {plot} 平方米，容积率 {far}，允许 {allowance} 平方米。模型 {model} 平方米。',
- 'place.econ':'情景，不是招标价：贡献额 {contribution} = 租金 {rent} − 表皮 {envelope} − 结构 {structure}。表皮按每年 {skin} 平方米计。结构为每年 {base} 美元/平方米 × {mult}。表皮与阴影是这里数得清的生态，没有评级。',
+ 'place.econ':'情景，不是招标价：贡献额 {contribution} = 租金 {rent} − 表皮 {envelope} − 结构 {structure}。表皮按每年 {skin} 平方米计。结构为每年 {base} 美元/平方米 × {mult}。这些储备不是能耗、废弃或碳的结果。',
  'place.source':'建筑来源'
 });
 Object.assign(en,{"g.prog.custom": "Custom uniform levels", "prog.custom.note": "Uniform occupied floors using the chosen floor-to-floor height. Services are included within each level; no extra refuge or mechanical bands are scheduled.", "prog.custom.src": "FormHypes project assumption", "c.height": "Custom floor-to-floor"});

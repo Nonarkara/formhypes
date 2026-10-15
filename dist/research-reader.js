@@ -1,4 +1,4 @@
-import {TRACKS,RESEARCH_UI,RESEARCH_SOURCES,THESIS_EXCERPTS,HISTORY_PHOTO,PROTOCOL_FILES} from './research-tracks.js?v=569054d191';
+import {TRACKS,RESEARCH_UI,RESEARCH_SOURCES,THESIS_EXCERPTS,HISTORY_PHOTO,PROTOCOL_FILES} from './research-tracks.js?v=03da755274';
 import {renderReader as renderEarlierReader} from './reader.js?v=ad103beea3';
 import {defaults,evaluate,grossOf,profile,families,regimes} from './model.js?v=1653f45f3c';
 const N=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
