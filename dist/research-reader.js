@@ -87,7 +87,7 @@ function illustration(kind,labels,lang){
   });
  }
  const svg=N('div');svg.innerHTML=`<svg viewBox="0 0 720 210" aria-hidden="true">${d}</svg>`;fig.append(svg);
- const caption=N('figcaption');caption.append(N('p',RESEARCH_UI[lang].drawing,'note'));const list=N('ol');labels.forEach(l=>list.append(N('li',l)));caption.append(list);fig.append(caption);return fig;
+ const caption=N('figcaption');caption.append(N('p',RESEARCH_UI[lang].drawing,'note'));const list=N('ol');labels.forEach(l=>list.append(N('li',l.replace(/^[1-6] \u00b7 /,''))));caption.append(list);fig.append(caption);return fig;
 }
 function paragraph(text,sourceIds){
  const p=N('p');for(const part of text.split(/(\[[a-z]+\])/g)){

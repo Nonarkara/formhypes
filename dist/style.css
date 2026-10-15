@@ -591,3 +591,4 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .research-excerpt-portrait{grid-template-columns:minmax(0,320px) minmax(0,1fr)}
 .research-excerpt figcaption{max-width:52ch}
 @media(max-width:600px){.research-excerpt-portrait{grid-template-columns:1fr}}
+#research{scroll-margin-top:80px}
