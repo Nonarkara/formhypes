@@ -1,3 +1,4 @@
+import {modulorPath} from './modulor.js?v=3431f62913';
 // Human-eye views: two perspective constructions projected from live geometry.
 // Not renders — no perspective-correct texture, no refraction through glass, no
 // lighting or shadows, no occupants beyond the scale figure, and no interior
@@ -67,9 +68,7 @@ export function interior(state,t){
  svc(.95,1.05,cl+.31,cl+.41,true);
  const fz=Math.min(D*.6,z0+7.2),fx=-span*.16;
  const FP=(x,y)=>[X(fx+x,fz),Y(y,fz)];
- o.push(`<polygon class="wk-fig" points="${poly([[-.17,1.44],[.17,1.44],[.12,.96],[.15,.02],[.03,.02],[0,.70],[-.03,.02],[-.15,.02],[-.12,.96]].map(q=>FP(q[0],q[1]).map(n=>num(n,1))))}"/>`);
- o.push(`<ellipse class="wk-fig" cx="${num(FP(0,1.62)[0],1)}" cy="${num(FP(0,1.62)[1],1)}" rx="${num(f*.105/fz,1)}" ry="${num(f*.125/fz,1)}"/>`);
- [[-.21,1.42],[-.16,.99],[.21,1.42],[.16,.99]].forEach(([x,y])=>o.push(seg(FP(x,1.42),FP(x,.99),'wk-fig')));
+ o.push(`<path class="wk-fig" data-scale-figure="modulor" fill-rule="evenodd" d="${modulorPath(FP)}"/>`);
  o.push(`<path class="wk-a" fill="none" stroke-dasharray="6 5" d="M0 ${num(cy,1)}H${W}"/>`);
  const hit=Math.min(D,z0+(cl-EYE)/Math.tan(18*DTR));
  o.push(seg(P(0,EYE,z0),P(0,Math.min(cl,EYE+(hit-z0)*Math.tan(18*DTR)),hit),'wk-a').replace('class="wk-a"','class="wk-a" stroke-dasharray="7 5"'));
@@ -197,7 +196,7 @@ export function street(state,t,view){
  o+=prism(nA,cam,'wk-nb','wk-nb','wk-nb-l')+prism(nB,cam,'wk-nb','wk-nb','wk-nb-l');
  o+=prism(levels,cam,'wk-tw','wk-tw2','wk-l');
  const fp=out(out(A[1],uA,FOOT+ROAD*.6),uA,5.5),FP=(x,y)=>cam.P(fp[0]+x,y,fp[1]);
- o+=`<polygon class="wk-fig" points="${poly([[-.17,1.44],[.17,1.44],[.12,.96],[.15,.02],[.03,.02],[0,.70],[-.03,.02],[-.15,.02],[-.12,.96]].map(q=>FP(q[0],q[1])))}"/>`;
+ o+=`<path class="wk-fig" data-scale-figure="modulor" fill-rule="evenodd" d="${modulorPath(FP)}"/>`;
  const hc=levels[0].pts[vi],ha=cam.P(hc[0],0,hc[1]),hb=cam.P(hc[0],total,hc[1]);
  if(ha&&hb){
   const dx=ha[0]<cx?-18:18,mx=(ha[0]+hb[0])/2+dx,my=(ha[1]+hb[1])/2;
@@ -221,7 +220,7 @@ en:{title:'Human-eye view',tier:'Two perspective constructions projected from th
  two:'Both drawings are perspective projections computed from the current model geometry: the plan at every level, the real level stack, the live span, taper and twist. Nothing is hand-placed.',
  none:'No perspective-correct texture, no refraction through glass, no lighting or shadows, no occupants beyond the scale figure, and no interior partition beyond the one that is cut. Ceiling, duct, pipe and tray sizes are diagrammatic.',
  eye:'Eye height',f2f:'floor to floor',clear:'clear height',services:'services zone',plate:'plate span',depth:'depth shown',lens:'Lens',
- figure:'Scale figure',eyeLine:'Occupant eye line at 1.60 m',blocked:'The sight line reaches the ceiling plane; the services sit above it',
+ figure:'Le Corbusier · Modulor · 1.83 / 2.26 m',eyeLine:'Occupant eye line at 1.60 m',blocked:'The sight line reaches the ceiling plane; the services sit above it',
  cut:'Ceiling cut away here only so the plenum can be drawn. There is no opening.',
  svNote:'The 0.95 m services zone is a diagrammatic allowance, not a coordinated services design.',
  slab:'Floor slab',ceiling:'Ceiling',plenum:'Plenum',duct:'Supply duct',pipes:'Sprinkler and drainage',tray:'Cable tray',glazing:'Curtain wall',
@@ -238,7 +237,7 @@ th:{title:'มุมมองระดับสายตา',tier:'ภาพท�
  two:'ทั้งสองภาพเป็นการฉายเชิงมุมมองที่คำนวณจากเรขาคณิตของโมเดลปัจจุบัน คือผังทุกชั้น โครงสร้างชั้นจริง ความกว้าง ความลาด และการบิดตามค่าที่ใช้งานอยู่ ไม่มีการจัดวางด้วยมือ',
  none:'ไม่มีพื้นผิวที่แก้การเปรียบเสียบเชิงมุมมอง ไม่มีการหักเหของแก้ว ไม่มีแสงหรือเงา ไม่มีคนนอกจากหุ่นมาตรฐาน และไม่มีผนังภายในนอกจากผนังที่ถูกตัดไว้หนึ่งผนัง ขนาดฝ้าเพดาน ท่อลม ท่อน้ำ และรางสายเป็นค่าสมมติเชิงแผนภาพ',
  eye:'ระดับสายตา',f2f:'พื้นถึงพื้น',clear:'ความสูงใส',services:'โซนงานระบบ',plate:'ความกว้างพื้นที่ชั้น',depth:'ความลึกที่แสดง',lens:'เลนส์',
- figure:'หุ่นมาตรฐาน',eyeLine:'ระดับสายตาผู้ใช้อาคารที่ 1.60 ม.',blocked:'สายตาถึงระดับฝ้าเพดาน และงานระบบอยู่เหนือระดับนั้น',
+ figure:'Le Corbusier · Modulor · 1.83 / 2.26 ม.',eyeLine:'ระดับสายตาผู้ใช้อาคารที่ 1.60 ม.',blocked:'สายตาถึงระดับฝ้าเพดาน และงานระบบอยู่เหนือระดับนั้น',
  cut:'ฝ้าเพดานถูกตัดตรงนี้เพียงเพื่อให้เห็นโซนงานระบบ ไม่ใช่ช่องเปิดจริง',
  svNote:'โซนงานระบบ 0.95 ม. เป็นค่าสมมติเชิงแผนภาพ ไม่ใช่งานระบบที่ออกแบบประสานกันแล้ว',
  slab:'พื้นคอนกรีต',ceiling:'ฝ้าเพดาน',plenum:'ช่องเหนือฝ้าเพดาน',duct:'ท่อส่งลม',pipes:'ท่อสปริงเกลอร์และท่อระบาย',tray:'รางสาย',glazing:'ผนังกระจก',
@@ -255,7 +254,7 @@ zh:{title:'人视视角',tier:'两幅由实时模型几何投影得出的透视�
  two:'两幅图都是由当前模型几何计算出的透视投影：各层平面、真实层叠，以及当前的跨度、收分与扭转。没有任何一处是手工摆放的。',
  none:'没有透视正确的贴图，没有玻璃折射，没有光照与阴影，除比例人形外没有人物，除所剖切的一道隔墙外没有室内隔墙。天花、风管、水管与桥架的尺寸均为图示假设。',
  eye:'视高',f2f:'层高',clear:'净高',services:'设备区',plate:'楼层宽度',depth:'所示进深',lens:'镜头',
- figure:'比例人形',eyeLine:'使用者视高 1.60 米',blocked:'视线止于吊顶面，设备位于其上方',
+ figure:'勒·柯布西耶 · 模度人 · 1.83 / 2.26 米',eyeLine:'使用者视高 1.60 米',blocked:'视线止于吊顶面，设备位于其上方',
  cut:'此处剖切吊顶，仅为画出设备区，并非真实开口。',
  svNote:'0.95 米的设备区是图示预留，不是协调完成的服务设计。',
  slab:'楼板',ceiling:'吊顶',plenum:'吊顶上方夹层',duct:'送风管',pipes:'喷淋管与排水管',tray:'电缆桥架',glazing:'幕墙',

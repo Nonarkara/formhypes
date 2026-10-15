@@ -1,3 +1,4 @@
+import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=83bfd6e335';
 import{t,langs,langMeta,translator}from'./i18n.js?v=3c6dc76a8b';
@@ -10,7 +11,7 @@ import {renderReader} from './research-reader.js?v=99af654f59';
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy} from './brief.js?v=7ace9762af';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=8a31f6ea1d';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=c3809ce4fe';
 import {CONTEXT_I18N, renderContext} from './context.js?v=2a8b214607';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=76931110a7';
@@ -1063,12 +1064,9 @@ function humanPlate(){
  add('line',{x1:X1,y1:YF,x2:X1-V*0.34,y2:YF,stroke:'#585e5b','stroke-width':'.7'});
  add('line',{x1:X1,y1:yc,x2:X1-GY-4,y2:yc,stroke:'#585e5b','stroke-width':'.6'});
 
- // a person, 1.75 m, with an eye at 1.60 m and the sight line it produces
- const px=X1-46,ey=YF-1.6*V,hd=YF-1.75*V;
- add('circle',{cx:px,cy:hd-5,r:5.5,fill:'none',stroke:'#191c1b','stroke-width':'1.3'});
- add('path',{d:`M${px} ${hd+1} V${hd+34} M${px} ${hd+18} L${px-9} ${hd+30} M${px} ${hd+18} L${px+9} ${hd+30}`,
-   fill:'none',stroke:'#191c1b','stroke-width':'1.3','stroke-linecap':'round'});
- add('path',{d:`M${px-13} ${YF} H${px+13}`,stroke:'#191c1b','stroke-width':'1.2'});
+ // Le Corbusier's Modulor: a filled scale silhouette with the raised hand at 2.26 m.
+ const px=X1-46,ey=YF-1.6*V;
+ add('path',{d:modulorPath((x,y)=>[px+x*V,YF-y*V]),fill:'#191c1b','fill-rule':'evenodd','data-scale-figure':'modulor'});
  add('circle',{cx:px,cy:ey,r:1.8,fill:'#191c1b'});
  add('path',{d:`M${px} ${ey} L${X1} ${ey-4}`,stroke:'#f59e0b','stroke-width':'.9'});
  add('path',{d:`M${X1} ${ey-4} l-6 -2 v4 Z`,fill:'#f59e0b'});
@@ -1087,6 +1085,7 @@ function humanPlate(){
  add('text',{x:X0+40,y:YN+34,fill:'#8b918d','font-size':'7.5','font-family':'IBM Plex Sans,Arial'},
    tt('h.hidden'));
  wrap.append(ns);
+ wrap.append(el('p','note','Le Corbusier · Modulor · 1.83 / 2.26 m'));
 
  // Solar screening uses the selected floor, city and date. Daily exposure
  // bands are geometric comparisons; glazing and rent are separate assumptions.

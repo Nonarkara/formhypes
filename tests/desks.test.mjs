@@ -194,3 +194,11 @@ test('every desk import is pinned to the bytes that will reach the browser',asyn
   assert.equal(query.slice(2),createHash('sha256').update(readDist(path.slice(2))).digest('hex').slice(0,10),file+' stale import');
  }
 });
+
+test('Modulor figure is grounded and uses the same 2.26 m raised-hand scale in every view',async()=>{
+ const {MODULOR_CONTOURS,MODULOR_HEIGHT,MODULOR_REACH,modulorPath}=await import('../dist/modulor.js');
+ assert.equal(MODULOR_HEIGHT,1.83);assert.equal(MODULOR_REACH,2.26);
+ const ys=MODULOR_CONTOURS.flat().map(p=>p[1]);assert.equal(Math.min(...ys),0);assert.equal(Math.max(...ys),2.26);
+ for(const scale of [10,26,80]){const d=modulorPath((x,y)=>[100+x*scale,200-y*scale]);assert.ok(d.includes('Z'));assert.ok(!/NaN|Infinity/.test(d));}
+ for(const file of ['app.js','walk.js'])assert.match(readFileSync(new URL('../dist/'+file,import.meta.url),'utf8'),/modulorPath/);
+});
