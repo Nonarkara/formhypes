@@ -1,3 +1,4 @@
+import {mountConsole} from './console.js?v=2dc3cae4b1';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=83bfd6e335';
@@ -10,13 +11,13 @@ import {renderReader} from './research-reader.js?v=99af654f59';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy} from './brief.js?v=7ace9762af';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs} from './brief.js?v=ad6e346e85';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=c3809ce4fe';
 import {CONTEXT_I18N, renderContext} from './context.js?v=2a8b214607';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=76931110a7';
 const $=id=>document.getElementById(id);
-let lang='en',tt=translator('en');
+let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
 const num=v=>Math.round(v).toLocaleString(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US');
 
@@ -145,7 +146,7 @@ function changed(){
 
 /* ── update ───────────────────────────────────────────────────────────── */
 const DESKS=[['brief',BRIEF_I18N,renderBrief],['walk',WALK_I18N,renderWalk],['context',CONTEXT_I18N,renderContext]];
-function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textContent=dict[lang].title;if($(id+'Panel').open)render({lang,state,changed:applyDeskPatch})}}
+function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textContent=dict[lang].title;if($(id+'Panel').open)render({lang,state,changed:applyDeskPatch,onInputs:()=>{consoleUI?.render();drawTower()}})}}
 for(const [id]of DESKS)$(id+'Panel').addEventListener('toggle',()=>{if($(id+'Panel').open)renderDesks()});
 function applyDeskPatch(patch){
  for(const [key,value]of Object.entries(patch)){
@@ -208,6 +209,7 @@ function update(){
  $('floor').max=state.floors;
  $('floor').value=Math.min(Number($('floor').value),state.floors);
  drawPlan();
+ consoleUI?.render();
 }
 
 /* ── where the rent comes from ────────────────────────────────────────── */
@@ -287,7 +289,7 @@ function drawPlan(){
  drawHuman();
  drawTower();
 }
-$('floor').oninput=drawPlan;
+$('floor').oninput=()=>{drawPlan();consoleUI?.render()};
 
 /* ── tower ────────────────────────────────────────────────────────────── */
 const canvas=$('tower'),ctx=canvas.getContext('2d');
@@ -298,13 +300,14 @@ function drawTower(){
  if(W<2||H<2)return;
  drawn={w:Math.round(W),h:Math.round(H)};
  canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
- const scale=Math.min((H-145)/(total*.96+state.span*.4),(W-65)/(state.span*2))*zoom;
+ const scale=Math.min(Math.max(25,H-145)/(total*.96+state.span*.4),(W-65)/(state.span*2))*zoom;
  const c=Math.cos(yaw),s=Math.sin(yaw);
  const project=(x,y,z)=>{const rx=x*c-y*s,ry=x*s+y*c;return[W*.54+rx*scale,H*.80-(z*.96-ry*.36)*scale,ry-z*.04]};
  function path(pts,fill,stroke,width=1){ctx.beginPath();pts.forEach((v,i)=>{const p=project(...v);if(i)ctx.lineTo(p[0],p[1]);else ctx.moveTo(p[0],p[1])});ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke()}}
  function line(a,b,col,width=.6){ctx.beginPath();const p=project(...a),q=project(...b);ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.strokeStyle=col;ctx.lineWidth=width;ctx.stroke()}
 
  for(let i=-120;i<=120;i+=12){line([i,-120,0],[i,120,0],'#293136',.5);line([-120,i,0],[120,i,0],'#293136',.5)}
+ const landArea=getBriefStudy(state).inputs.plot,landSide=Math.sqrt(landArea)/2;ctx.setLineDash([6,4]);path([[-landSide,-landSide,0],[landSide,-landSide,0],[landSide,landSide,0],[-landSide,landSide,0]],null,'#f59e0b',1.5);ctx.setLineDash([]);ctx.fillStyle='#f59e0b';ctx.font='11px "IBM Plex Mono",monospace';ctx.fillText(num(landArea)+' m²',16,H-78);
  const site=state.site/2;path([[-site,-site,0],[site,-site,0],[site,site,0],[-site,site,0]],null,'#a2aca9',1);
  for(const[x,y,w,h]of[[-65,34,20,38],[48,53,22,62],[63,-42,19,27],[-50,-52,24,21]]){
   path([[x-w/2,y-w/2,0],[x+w/2,y-w/2,0],[x+w/2,y-w/2,h],[x-w/2,y-w/2,h]],'#151b1e','#354046',.6);
@@ -423,7 +426,7 @@ const ro=new ResizeObserver(entries=>{
  requestAnimationFrame(()=>{pendingRaf=false;drawn={w:0,h:0};drawTower()});
 });
 ro.observe(canvas);
-$('reset').onclick=()=>{state={...defaults};yaw=-.65;zoom=1;$('floor').value=24;changed();toast(tt('s.reset'))};
+$('reset').onclick=()=>{setBriefInputs({plot:9000,far:8});state={...defaults};yaw=-.65;zoom=1;$('floor').value=24;changed();toast(tt('s.reset'))};
 
 /* ── search ───────────────────────────────────────────────────────────── */
 /* The search is ~160 full evaluations. Run it in slices that yield to the
@@ -500,7 +503,7 @@ function renderStudies(){
   const d=document.createElement('div');d.className='saved';
   const b=document.createElement('button');
   b.textContent=`${i+1}. ${tt('f.'+study.state.family)} / ${tt('regime.'+study.state.regime+'.label')} / ${money(evaluate(study.state).contribution)}`;
-  b.onclick=()=>{state={...defaults,...study.state};changed();toast(tt('s.restored'))};
+  b.onclick=()=>{if(study.site)setBriefInputs(study.site);state={...defaults,...study.state};changed();toast(tt('s.restored'))};
   const del=document.createElement('button');del.textContent='×';
   del.setAttribute('aria-label','Delete saved study '+(i+1));
   del.onclick=()=>{studies.splice(i,1);persist();renderStudies()};
@@ -509,7 +512,7 @@ function renderStudies(){
 }
 $('save').onclick=()=>{
  if(studies.length>=8){toast(tt('s.full'));return}
- studies.push({state:{...state},savedAt:new Date().toISOString()});
+ studies.push({state:{...state},site:{plot:getBriefStudy(state).inputs.plot,far:getBriefStudy(state).inputs.far},savedAt:new Date().toISOString()});
  if(!persist()){studies.pop();toast(tt('s.saveFail'));return}
  renderStudies();toast(tt('s.saved'));
 };
@@ -522,6 +525,8 @@ $('save').onclick=()=>{
    keep using it, and re-run whenever the language changes the wrapping. */
 function measureChrome(){
  const h=document.querySelector('header'),m=document.querySelector('.masthead');
+ document.documentElement.style.setProperty('--shell-header',(h?.offsetHeight||40)+'px');
+ if(consoleUI){const vp=$('tower')?.parentElement;if(vp)vp.style.minHeight='0px';return}
  const vh=Math.max(window.innerHeight,320);
  document.documentElement.style.setProperty('--chrome',
   (h?h.offsetHeight:46)+(m&&m.offsetHeight?m.offsetHeight:50)+4+'px');
@@ -555,7 +560,7 @@ function renderResearch(){
  $('rLede').textContent=tt('r.lede');
  $('rCredit').textContent=tt('r.credit');
  renderDedication();
- renderReader(lang,{state,onNavigate:desk=>{showTab('studio');const target=$(desk);if(!target)return;if(target.tagName==='DETAILS')target.open=true;target.scrollIntoView({block:'start'});if(!target.hasAttribute('tabindex'))target.tabIndex=-1;target.focus({preventScroll:true})}});
+ renderReader(lang,{state,onNavigate:desk=>{showTab('studio');consoleUI?.openForTarget(desk);const target=$(desk);if(!target)return;if(target.tagName==='DETAILS')target.open=true;if(!consoleUI)target.scrollIntoView({block:'start'});if(!target.hasAttribute('tabindex'))target.tabIndex=-1;target.focus({preventScroll:true})}});
  const body=$('rBody');body.replaceChildren();
  for(const sec of SECTIONS){
   const s=el('section');
@@ -1243,6 +1248,7 @@ function showTab(t,push=true,behavior='smooth'){
  });
  if(push&&location.hash.slice(1)!==t)history.replaceState(null,'','#'+t);
  window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':behavior});
+ consoleUI?.active(t==='studio');
  if(t==='studio')drawTower();
  if(t==='research')renderResearch();
 }
@@ -1267,6 +1273,7 @@ try{
  if(Object.hasOwn(objectives,q.get('objective')??''))state.objective=q.get('objective');
  deepRun=q.get('run')==='1';
 }catch{}
+consoleUI=mountConsole({getData:()=>({lang,state,metrics,level:Number($('floor').value)}),getBrief:()=>getBriefStudy(state),setBrief:setBriefInputs,onStudyChange:()=>update(),onLevel:level=>{$('floor').value=level;$('floor').oninput()},onLayout:()=>{measureChrome();requestAnimationFrame(drawTower)}});
 setLang(lang);
 if(state.objective)$('objective').value=state.objective;
 renderStudies();update();measureChrome();

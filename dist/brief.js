@@ -299,7 +299,8 @@ function massingSVG(state){
   `<polygon points="${pts(crown)}" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5 3"/>${sec}</svg>`;
 }
 
-export function renderBrief({lang,state,changed}){
+let briefTab=0;
+export function renderBrief({lang,state,changed,onInputs}){
  const c=BRIEF_I18N[lang]||BRIEF_I18N.en;
  const host=document.getElementById('briefDesk');if(!host)return;
  injectCSS();
@@ -312,7 +313,7 @@ export function renderBrief({lang,state,changed}){
  }
  // Desk-only edits re-render from the same state; edits that push to the app
  // rely on the integrator re-invoking renderBrief with the new state.
- const again=()=>renderBrief({lang,state,changed});
+ const again=()=>{renderBrief({lang,state,changed,onInputs});onInputs?.()};
  const focused=host.contains(document.activeElement)?document.activeElement.id:null;
  const locale=lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US';
  const num=(v,d=0)=>(Number.isFinite(v)?v:0).toLocaleString(locale,{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -348,7 +349,7 @@ export function renderBrief({lang,state,changed}){
  /* 2–3 · plot, FAR, plate — the arithmetic, shown line by line */
  const s2=section(c['sec.plot']);
  const f2=fields(s2);
- number(f2,'br-plot',c['l.plot'],1,100,desk.plot,v=>desk.plot=v);
+ number(f2,'br-plot',c['l.plot'],1,'any',desk.plot,v=>desk.plot=v);
  number(f2,'br-far',c['l.far'],.1,.1,desk.far,v=>desk.far=v);
  number(f2,'br-plate',c['l.plate'],50,50,desk.plate,v=>desk.plate=v);
  const t2=table();
@@ -478,7 +479,11 @@ export function renderBrief({lang,state,changed}){
   const tr=el('tr');tr.append(cell,act);t7.b.append(tr);
  }
  s7.append(t7.t);
- root.append(s1,s2,s3,s4,s5,s6,s7,el('p',c['as.end'],'br-disclaimer'));
+ const tabs=el('nav',undefined,'brief-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label',c.title);
+ const sections=[[s1,s2,s3],[s4,s5],[s6,s7]],names={en:['Land & brief','Schemes & corners','Thesis controls'],th:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมวิทยานิพนธ์'],zh:['用地与任务书','方案与转角','论文参数']}[lang];
+ const select=i=>{briefTab=i;[...tabs.children].forEach((b,j)=>{b.setAttribute('aria-selected',String(i===j));b.tabIndex=i===j?0:-1});sections.forEach((group,j)=>group.forEach(s=>s.hidden=i!==j))};
+ names.forEach((name,i)=>{const b=el('button',name);b.type='button';b.setAttribute('role','tab');b.onclick=()=>select(i);b.onkeydown=e=>{let n;if(e.key==='ArrowRight')n=(i+1)%3;if(e.key==='ArrowLeft')n=(i+2)%3;if(n!==undefined){e.preventDefault();select(n);tabs.children[n].focus()}};tabs.append(b)});
+ root.append(tabs,s1,s2,s3,s4,s5,s6,s7,el('p',c['as.end'],'br-disclaimer'));select(briefTab);
  host.append(root);
 
  if(focused)document.getElementById(focused)?.focus({preventScroll:true});
@@ -487,3 +492,9 @@ export function getBriefStudy(state){return {inputs:JSON.parse(JSON.stringify(de
 Object.assign(BRIEF_I18N.en,{'sch.tooLarge':'This tower area needs a span beyond the model range. Reduce the brief or revise the scheme before applying.'});
 Object.assign(BRIEF_I18N.th,{'sch.tooLarge':'พื้นที่ส่วนตึกต้องใช้หน้ากว้างเกินช่วงโมเดล โปรดลดโจทย์หรือปรับทางเลือกก่อนนำไปใช้'});
 Object.assign(BRIEF_I18N.zh,{'sch.tooLarge':'该塔楼面积所需跨度超出模型范围，请先减少面积或调整方案。'});
+
+export function setBriefInputs(patch){
+ const bounds={plot:[1,1e6],far:[.1,100]};
+ if(!patch||Object.entries(patch).some(([key,value])=>!Object.hasOwn(bounds,key)||!Number.isFinite(value)||value<bounds[key][0]||value>bounds[key][1]))return false;
+ Object.assign(desk,patch);return true;
+}

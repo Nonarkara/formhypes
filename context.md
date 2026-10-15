@@ -67,3 +67,15 @@ Final visual revision: portrait thesis crops now have fit-width white mounts and
 Replaced the section's stick figure and both perspective figures with a shared filled, raised-arm Modulor silhouette. Adapted from Shyamal's CC0 “Modulor measurements.svg” (2017, revised 2018), https://commons.wikimedia.org/wiki/File:Modulor_measurements.svg . Source describes it as a stylized interpretation, not an exact facsimile. Original proportional concept credited to Le Corbusier. Fondation Le Corbusier's vocabulary page confirms the 1.83 m reference stature; the raised-hand reference is 2.26 m. Source contour sampled into three paths, normalized in metres with feet at zero and hand at 2.26. Section and both perspective projections use that same geometry. Existing camera eye height remains 1.60 m. No room, floor or service dimensions change.
 
 Design Read: a recognisable architectural scale silhouette, black on the section and light on the dark perspectives, without a new panel or oversized label. Browser reviewed the actual section in the right rail. A geometry check holds grounding, raised-hand height and finite scaled projections.
+
+## 2026-10-16 · Contained studio console
+
+Design Read: the land and the tower occupy one bounded drafting console. Reference: the existing FormHypes rails, kept as a persistent drawing with docked tools. The model stays on screen. Structural separators are 2px, cell rules 1px, the assumed plot boundary is a 1.5px amber dash.
+
+Studio is a fixed shell. Land, FAR and city sit in one strip. Seven workspaces reparent the existing desks: Form, Brief, Place, Walk-in, Façade, Compare, Studies. The eleven plan buttons are the chooser; the old dropdown remains, hidden. Default land is a hypothetical 9,000 m² square; FAR 8 is a scenario assumption. The amber plot boundary and the grey site envelope stay distinct. The readout is model gross area against plot × FAR. Area over the allowance is marked. A footprint past the plot boundary is marked separately.
+
+The façade desk draws slab-edge anchorage and pressure-plate drainage from Architectural Graphic Standards, 11th edition, pp. 142–144, figs. 2.429–2.432 and 2.435–2.437. The diagrams explain those principles. Bracket sizing, fire performance and manufacturer testing remain project work. The book excerpt is a pinned image, captioned as a reference, not a sizing chart.
+
+Land and FAR fields accept any number inside their bounds, including the 9,000 m² default. Plan names stay whole words. Phone controls in the console strip and the Design/Performance switch are 44px targets. Research paths are unchanged.
+
+Verification: 124 tests. Browser at 1440×900 and 390×844: zero studio overflow, workspace routing, façade diagram, research reader, EN/TH/ZH.

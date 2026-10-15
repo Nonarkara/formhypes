@@ -62,3 +62,7 @@ Validation: 112 tests. Source corrections and verification limits are recorded i
 Research now has three main tabs, each with three short chapters in English, Thai and Chinese: a complete argument-level reading of Chen's 2006 thesis; the 2026 system, friendship history and situated architectural questions; and a commercial research/paper proposal. Six original thesis excerpts carry exact figure/page locators. The running geometry engine draws an eleven-profile atlas. A live equal-GFA comparison and scatter plot read current Studio assumptions and report USD scenario outputs. Each locale has a downloadable research protocol. The earlier reader and full illustrated appendix remain accessible.
 
 Commercial success and engineering adequacy are research questions, not validated results. The protocol names the unperformed timed workflow, held-out market and stakeholder studies. Source scope and artifact provenance are recorded in `docs/RESEARCH-EVIDENCE.md`.
+
+### Contained studio
+
+The studio now stays inside the viewport. Land area, FAR and city sit above the drawing. Form, Brief, Place, Walk-in, Façade, Compare and Studies open beside the tower instead of lengthening the page. The default land is a hypothetical 9,000 m² square and FAR 8 is a scenario; the amber dashed square is that plot, and the grey square is the model's site envelope. The façade workspace explains slab-edge anchorage and drained pressure-plate mullions from Architectural Graphic Standards, 11th edition, pp. 142–144. Those drawings are principles, not a sized assembly.
