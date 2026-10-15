@@ -554,7 +554,9 @@ test('the integrated skin includes the levels that earn nothing', () => {
 test('gross floor area is still conserved exactly under the new geometry', () => {
   const base=M.grossOf({...M.defaults});
   for(const f of Object.keys(M.families))for(const tw of [0,45,90])
-    assert.ok(Number.isFinite(M.grossOf({...M.defaults,family:f,twist:tw}))&&M.grossOf({...M.defaults,family:f,twist:tw})>0,f+'/'+tw);
+    {const m=M.evaluate({...M.defaults,family:f,twist:tw});
+     assert.ok(m.gross>0,f+'/'+tw);
+     assert.ok(Math.abs(m.gross-(m.core+m.common+m.rentable))<1e-6,f+'/'+tw+' gross must equal core + common + rentable');}
   assert.ok(base>0);
 });
 
