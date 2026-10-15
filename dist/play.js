@@ -7,6 +7,7 @@ export const PLAY={
 export const PROMPTS=[{family:'octagon',taper:1,twist:0},{family:'pinwheel',taper:.8,twist:90},{family:'petal',taper:.88,twist:30},{family:'hexagon',taper:.7,twist:60}];
 export const angularGap=(a,b)=>Math.abs(((a-b+540)%360)-180);
 let site={facing:180,water:180,back:0};
+export function getFengStudy(){return {site:{...site},tier:'invented-site design prompt; no rent or safety effect'}}
 const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n};
 const compass=['N','NE','E','SE','S','SW','W','NW'];
 const point=(a,r)=>[100+Math.sin(a*Math.PI/180)*r,100-Math.cos(a*Math.PI/180)*r];

@@ -3,8 +3,8 @@ import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,
 import{t,langs,langMeta,translator}from'./i18n.js?v=ed8c039212';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=7942c638f9';
 
-import {renderLocation} from './location.js?v=3f7eefff88';
-import {renderPlay} from './play.js?v=6dc7f5f550';
+import {renderLocation,getLocationStudy} from './location.js?v=9d6611d6ed';
+import {renderPlay,getFengStudy} from './play.js?v=a75307527e';
 import {renderReader} from './reader.js?v=7238b55653';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=e78a192096';
@@ -1088,6 +1088,7 @@ $('exportJson').onclick=()=>download('formhypes-study.json',JSON.stringify({
  version:3,units:{length:'m',area:'m²',currency:'USD',rent:'USD/m²/year'},tier:'conceptual scenario',
  author:'Dr Non',affiliation:'depa + Axiom',anniversary:'2006–2026',
  source:'Inspired by Dr Non’s MIT classmate Shouheng Chen. Embedded design knowledge after Shouheng Chen, MIT SMArchS 2006. Financial and political readings are extensions.',
+ contextStudies:{ground:getLocationStudy(),fengShui:getFengStudy()},
  regime:regimes[state.regime].label,state,metrics,createdAt:new Date().toISOString()},null,2),'application/json');
 $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
  'family,regime,structure,floors,span_m,roof_scale,twist_deg,gross_m2,rentable_m2,corner_offices,height_m,distinctiveness,annual_rent_usd,envelope_reserve_usd,structure_reserve_usd,annual_contribution_usd',

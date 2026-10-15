@@ -84,3 +84,8 @@ test('changing cities discards soil assumptions rather than treating them as reg
 test('every new shape has unit-scale area and perimeter, with valid export topology',()=>{
  for(const f of ['triangle','hexagon','oval','petal','pinwheel']){const p=planLibrary[f]();assert.ok(polyArea(p)>.2);assert.ok(polyPerimeter(p)>2);assert.ok(p.every(q=>q.every(Number.isFinite)))}
 });
+
+test('JSON study exports retain contextual assumptions and their stated limits',()=>{
+ assert.match(dist('app.js'),/contextStudies:\{ground:getLocationStudy\(\),fengShui:getFengStudy\(\)\}/);
+ assert.match(dist('location.js'),/not safety assessment/);assert.match(dist('play.js'),/invented-site design prompt/);
+});

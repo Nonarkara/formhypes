@@ -14,6 +14,7 @@ export const LC={
 export function periodCurves(heights,mass,eis){return eis.map(ei=>heights.map(height=>({height,period:cantileverPeriod(height,mass,ei)})))}
 let assumptions={mass:'',ei:['','',''],depth:'',velocity:'',demo:false},lastCity;
 export function resetGroundForCity(city){if(lastCity&&lastCity!==city){assumptions.depth='';assumptions.velocity=''}lastCity=city}
+export function getLocationStudy(){return {city:lastCity,assumptions:{...assumptions,ei:[...assumptions.ei]},tier:'teaching or user-input sensitivity; not safety assessment',units:{mass:'tonnes/m',ei:'GN*m^2',depth:'m',velocity:'m/s'},method:'uniform fixed-base Euler-Bernoulli cantilever and single uniform soil column',sources:LOCATION_SOURCES}}
 const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n};
 export function renderLocation({lang,state,metrics,cities,cityLabel,stackHeight,onCity}){
  resetGroundForCity(state.city);
@@ -39,9 +40,9 @@ export function renderLocation({lang,state,metrics,cities,cityLabel,stackHeight,
  const x=t=>50+t/maxT*490,y=h=>180-h/maxH*150;
  const fig=el('figure');fig.className='period-plot';
  const selectedSystem=['column-grid','outrigger','diagrid'].indexOf(state.system);
- fig.innerHTML=`<svg viewBox="0 0 600 220" role="img"><path d="M50 20V180H550" fill="none" stroke="currentColor"/>${curves.map((points,i)=>`<polyline points="${points.map(p=>[x(p.period),y(p.height)].join(',')).join(' ')}" fill="none" stroke="${i===selectedSystem?'#f59e0b':'currentColor'}" stroke-width="${i===selectedSystem?3:1.5}" stroke-dasharray="${i===selectedSystem?'none':i===0?'2 3':'6 4'}"/>`).join('')}<text x="45" y="18" text-anchor="end">${maxH.toFixed(0)} m</text><text x="45" y="185" text-anchor="end">0</text><text x="50" y="203">0 s</text><text x="540" y="203" text-anchor="end">${maxT.toFixed(1)} s</text></svg>`;
+ fig.innerHTML=`<svg viewBox="0 0 600 220" role="img"><path d="M50 20V180H550" fill="none" stroke="currentColor"/>${curves.map((points,i)=>`<polyline points="${points.map(p=>[x(p.period),y(p.height)].join(',')).join(' ')}" fill="none" stroke="${i===selectedSystem?'#f59e0b':'currentColor'}" stroke-width="${i===selectedSystem?3:1.5}" stroke-dasharray="${i===selectedSystem?'none':i===0?'2 3':i===1?'6 4':'8 3 2 3'}"/>`).join('')}<text x="45" y="18" text-anchor="end">${maxH.toFixed(0)} m</text><text x="45" y="185" text-anchor="end">0</text><text x="50" y="203">0 s</text><text x="540" y="203" text-anchor="end">${maxT.toFixed(1)} s</text></svg>`;
  fig.firstElementChild.setAttribute('aria-label',c.height+' × '+c.period);
- const caption=el('figcaption',c.height+' × '+c.period+' · '+c.systems.map((name,i)=>name+' '+(i===selectedSystem?'—':i===0?'···':'– –')).join(' / '));fig.append(caption);output.append(fig);
+ const caption=el('figcaption',c.height+' × '+c.period+' · '+c.systems.map((name,i)=>name+' '+(i===selectedSystem?'—':i===0?'···':i===1?'– –':'– · –')).join(' / '));fig.append(caption);output.append(fig);
  const table=el('table');const cap=el('caption',c.period+' (s) · '+c.change);table.append(cap);const hr=el('tr');[c.floors,c.height,...c.systems].forEach(s=>hr.append(el('th',s)));const thead=el('thead');thead.append(hr);table.append(thead);const body=el('tbody');
  const selected=['column-grid','outrigger','diagrid'].indexOf(state.system);
  for(const n of [...new Set([12,24,state.floors,48,70])].sort((a,b)=>a-b)){const h=stackHeight(state,n),tr=el('tr');tr.append(el('th',n+(n===state.floors?' · '+c.selected:'')),el('td',h.toFixed(1)+' m'));const base=cantileverPeriod(h,Number(assumptions.mass)*1000,Number(assumptions.ei[selected])*1e9);
