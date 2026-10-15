@@ -278,8 +278,8 @@ export const planLibrary={
   chamfer:()=>unit(minkowski(rect(1,0.74),diamond(0.13))),
 
   // THE FIRST EXCEPTION. A cruciform is not a convex body: the segment joining
-  // two opposite arm tips leaves the plan, so its support function does not
-  // exist and no Minkowski decomposition can produce it. Every one of its eight
+  // two opposite arm tips leaves the plan, so its support function records only its convex hull;
+  // convex Minkowski sums cannot preserve its recesses. Every one of its eight
   // arm-tip turns is still locally convex, which is why it carries corner
   // offices — cornerZones tests each vertex and never asks whether the plan as a
   // whole is convex. Chen's twelve vertices, kept exactly as he wrote them.
@@ -303,7 +303,15 @@ export const planLibrary={
   // (√2−1)/2 × scale; the eight valleys are 135° reflex and are correctly
   // refused by cornerZones, because a re-entrant corner is where the plate is
   // missing, not where a tenant sits.
-  rub:()=>unit(starPolygon(RUB_INNER_RADIUS))
+  rub:()=>unit(starPolygon(RUB_INNER_RADIUS)),
+
+  // New 2026 design families. All are simple CCW polygons without holes.
+  // The oval and petals are deliberately faceted approximations, not curves.
+  triangle:()=>unit(regularPolygon(3,0.5,Math.PI/2)),
+  hexagon:()=>unit(regularPolygon(6,0.5,Math.PI/6)),
+  oval:()=>unit(regularPolygon(24,0.5).map(([x,y])=>[x,y*.72])),
+  petal:()=>unit(Array.from({length:24},(_,i)=>{const a=i*Math.PI/12,r=.4+.09*Math.cos(4*a);return[r*Math.cos(a),r*Math.sin(a)]})),
+  pinwheel:()=>unit(Array.from({length:12},(_,i)=>{const a=i*Math.PI/6,r=[.5,.38,.29][i%3];return[r*Math.cos(a),r*Math.sin(a)]}))
 };
 export function loftVolume(A0,A1,z0,z1,s,NZ=8){
   if(z1<=z0)return 0;

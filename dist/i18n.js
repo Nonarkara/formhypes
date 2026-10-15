@@ -197,7 +197,7 @@ const en={
 
  'r.ledeHead':'Twenty years of an unfinished idea.',
  'r.verdict':'{a} is +{p}% against {b} — {g} a year more, at the same floor area.',
- 'r.lede':'In 2006 Shouheng Chen argued that a skyscraper could be built out of rules instead of out of hands. The rules were the interesting part. We took them, added the half he left open — what the building earns — and the tower stopped being a drawing.',
+ 'r.lede':"Four pages through the 2006 thesis, its mechanism, the economics of form and the city around it. Original figures are distinguished from new diagrams. FormHypes is a 2026 extension by Dr Non at depa + Axiom, inspired by his MIT classmate Shouheng Chen.",
  'r.credit':"FormHypes is a product of Dr Non at depa + Axiom. His MIT classmate Shouheng Chen’s 2006 thesis inspired him to build this system twenty years later, for its 20th anniversary in 2026. Chen’s thesis and original ideas remain credited to him; the present system and its extensions are Dr Non’s work.",
 
  'r.dedHead':'Dedicated to 陈寿恒 — Chen Shouheng.',
@@ -206,10 +206,10 @@ const en={
  'r.dedSrc':'The standing above is taken from the lecture notice 数字化建筑•设计研究和实践探索, Shenzhen University School of Architecture and Urban Planning, 18 November 2019.',
 
  'r.ch1.h':'1 · The problem he named',
- 'r.ch1.b':'Two problems, not one. Complexity and convention. Complex towers have thousands of nearly identical but non-identical components; conventional CAD makes an architect hand-place every one of them. And the good towers have conventions behind them — Pelli’s mullions, Foster’s diagrids — that nobody had put into software. Chen’s claim: you can store the conventions as data and let the computer apply them, which kills the repetitive work and keeps the expertise.',
+ 'r.ch1.b':"Chen studies recurring massing and facade decisions in four towers, then embeds those decisions in reusable procedures. His goal is early design work that retains architectural knowledge while reducing repetitive construction of digital components (chapters 3–4).",
 
- 'r.ch2.h':'2 · Why nobody had done it',
- 'r.ch2.b':'Knowledge-based systems worked in engineering and stalled in architecture. Chen gives three reasons and they are still true: offices would not buy the hardware; architects were not trained to both design and program; and architects were afraid that writing down their knowledge would hand it to their competitors. The third reason is the interesting one. It is not a technology problem. It is a politics problem, and it is the same politics that shows up later in his own case studies.',
+ 'r.ch2.h':"2 · Adoption barriers in 2006",
+ 'r.ch2.b':"The thesis discusses obstacles to knowledge-based tools in architectural practice, including equipment, programming skills and sharing expertise. These are historical arguments in the thesis, not proof that nobody else had attempted computational architecture, or evidence of present-day adoption barriers.",
 
  'r.ch3.h':'3 · Four buildings, read as rules',
  'r.ch3.b':'He picked four towers and extracted the geometry, not the pictures. HKIFC: vertical mullions, 300 mm proud, cut a knife edge from the front and a glassier building from the side. Petronas: horizontal composition, to make each single unit matter and to stop the tower reading as one mass. Cira: one glass across vision and spandrel so the facets read as a solid. Hearst: a diagrid spanning 12 m by eight floors that carries the wall, carries the slab, and deletes the interior column grid.',
@@ -227,17 +227,17 @@ const en={
  'r.code.b':'Chen stored one floor-to-floor height per level in a flat array and subtracted mechanical and refuge voids by band. Here is the Petronas schedule, lifted from his Rhinoscript, irregularity intact:',
  'r.code.note':'Those voids are the whole point. Five coupled mechanical and refuge levels produce height and produce no floor area. Chen notes that "very typically, mechanical and refuge floors are placed together, one on top of the other." In this system that is not a description — it is a term in the calculation. Height and gross floor area stop being the same number.',
 
- 'r.math.h':'8 · The geometry he had to imagine, done properly',
- 'r.math.b1':'Chen did not write mathematics. He wrote arrays of points and loops that moved them, and he learned to code a couple of years before he started. That is not a weakness — it is why his work reads as thinking rather than as calculation. He could see that the Petronas has lobes, that HKIFC has a mechanical band, that a floor plate can be found rather than drawn. What he could not do was ask the questions the geometry already knew how to answer, because nobody had yet written them down for him. We can.',
- 'r.math.b2':'So here is what changed. Nothing below is an opinion.',
- 'r.math.b3':'THE SURFACE. Chen’s towers were stacks of plates, and the skin between two plates was drawn as two triangles. A twist makes that quad non-planar, so the triangles over-count, and nobody could tell by how much. The tower is really a lofted solid — a curve that tapers and rotates as it rises — and its surface has an exact area element. Integrate it and the familiar shortcut P·√(1+θ′²) turns out to be wrong by more than four times on a twenty-metre square twisted a full turn, because it ignores the lever arm of every point about the axis. A twist is not a slant. It costs most where the mass is.',
- 'r.math.b4':'THE PLANS. A convex shape is completely described by its support function, and support functions add. That one fact turns a plan from a list of coordinates maintained by hand into an expression: a chamfered slab is a rectangle plus a rotated square. It also draws a line. The cruciform and the eight-point star are not convex — no straight line spans them — so the whole algebra is simply unavailable for them. Chen could not have known that, because he had no language in which to ask. Two of his five plans can never have had the support functions the other three have.',
- 'r.math.note':'Every number in this section is checked against a closed form in the test suite: a prism against perimeter × height, a frustum against the standard formula, a twist against its exact integral, and Minkowski addition against Cauchy’s theorem that perimeter is additive. Chen’s geometry was imagined and then made real by hand. This is the same geometry, written down properly. The buildings, and the idea that knowledge can be an array, are entirely his.',
+ 'r.math.h':"8 · Geometry added in 2026",
+ 'r.math.b1':"Chen’s original system uses geometric rules, point relationships and transformations. FormHypes adds an independently implemented polygon and loft kernel. This extension makes a different set of measurements available; it does not establish what Chen could or could not understand.",
+ 'r.math.b2':"The formulas describe an idealised geometric model. Their application and numerical accuracy have limits.",
+ 'r.math.b3':"SURFACE. The profile tapers and rotates with height. Surface area is integrated numerically over the resulting loft, including the distance of each edge from the rotation axis. Prism and frustum cases supply reference checks. No general claim is made that triangulation always overestimates a twisted surface.",
+ 'r.math.b4':"PLANS. Convex polygon Minkowski sums construct some profiles. Nonconvex stars, crosses and petals are stored as explicit boundaries. A nonconvex set has a support function, but that function describes its convex hull and loses the recesses. The model retains them for area and local corner tests.",
+ 'r.math.note':"Geometry tests check selected identities and numerical convergence. They do not certify structural behaviour, construction cost or all possible inputs. The numerical implementation is new work; the embedded-design precedent is credited to Chen.",
  'r.stand.h':'9 · First, the measuring convention',
- 'r.stand.b1':'Every number here is in metres, and every area is a gross floor area in the sense that Architectural Graphic Standards, 11th edition, Appendix D defines it: the sum of floor areas measured horizontally in plan to the exterior faces of the perimeter walls. Partitions, columns, stairwells, lift shafts and mechanical penthouses are inside it. So is anything with 6 ft of headroom. Below that headroom, and for balconies and porches, it counts at half. Outside it entirely: exterior stairs, fire escapes, patios, terraces, open courtyards, light wells, roof overhangs, cornices, chimneys, unfinished attic areas and pipe trenches.',
- 'r.stand.b2':'AGS splits a floor into five categories — net assignable, circulation, mechanical, construction and gross floor — and the gross is the sum of all five. The commercial counterpart is BOMA’s Standard Method of Floor Measurement, and it contains the sentence that decides half of what this model does: no deductions are made for columns and projections necessary to the building.',
- 'r.stand.b3':'So a column costs money to build and nothing to lease. That is why the frame multiplier hits the reserve here, and the rent is computed from net rentable. It is not an opinion about architecture. It is what the measurement standard says, and the two numbers only come apart if you keep them apart.',
- 'r.stand.b4':'AGS also defines architectural volume, and defines it as area times the average height of the finished roof — a prism, by construction. FormHypes does not compute volume that way. It integrates the lofted solid, surface and interior, exactly. The answers differ, and they should: one is a reporting convention for letting, the other is a claim about the geometry.',
+ 'r.stand.b1':"Model lengths are metres. Gross area is the sum of occupied polygon floorplates at their actual slab elevations; service void bands add height but no occupied area. This is the prototype’s explicit measurement convention, not a certified BOMA, planning-GFA or Architectural Graphic Standards calculation.",
+ 'r.stand.b2':"Gross area is allocated to core, common allowance and rentable area. The common percentage is a scenario input. A real measurement exercise needs wall thickness, service allocation, occupancy classification and the applicable measurement edition.",
+ 'r.stand.b3':"Column density affects the illustrative structural reserve. It does not determine a code-compliant frame or a BOMA rent roll. Clear-height and column-free premiums are editable market assumptions, not consequences of a measurement standard.",
+ 'r.stand.b4':"Volume and envelope area are integrated numerically from the loft. They measure the mathematical model, not an as-built survey. Curved-looking profiles are faceted polygons, and the exported shell is conceptual geometry.",
  'r.stand.b5':'The rest is convention, from the same book and from the U.S. National CAD Standard v3.1. Units stated once, metric throughout. A graphic scale graduated in metres rather than centimetres, because a forty-metre plate reads as a very large building at a glance. A north arrow. A hatched core. Corner potential flagged in one colour and nothing else coloured at all.',
  'r.stand.note':'A prototype, not a compliance check. Nothing here has been tested against a live building code or a live jurisdiction, and every rent figure is an illustrative input you can change.',
 
@@ -257,11 +257,11 @@ const en={
  'h.glass.vision':"low exposure",
  'h.glass.solar':"medium exposure",
  'h.glass.dark':"high exposure",
- 'r.grammar.h':'11 · The arrays were a shape grammar. He never called it that.',
- 'r.grammar.b1':'In 1971, in Information Processing 71 — the IFIP proceedings, pages 1460 to 1465 — Charles Stiny and James Gips published Shape Grammars and the Generative Specification of Painting and Sculpture. It was selected as one of the best computer papers of the year. A shape grammar is four things: ⟨S, M, P, I⟩ — a vocabulary of shapes S, a set of markers M, a set of productions P, an initial shape I. A production rewrites one shape into another. To apply A → B you embed A somewhere in the shape under test, matching it through a transformation t, then fuse: take the match out, put B in its place. The whole operation is one line of algebra.',
- 'r.grammar.b2':'That is what a parametric tower does. Choose a plan. Resize it to the floor area you have. Restack it until it hits the height allowance. Chen’s LevelFinder is a rewrite rule. His array of fifty-nine irregular numbers is the marker vocabulary — it declares which levels repeat and which are exceptions, and the rewrite consumes it. The knowledge is not a list of numbers. It is a set of substitutions.',
- 'r.grammar.b3':'Then the uncomfortable part. Shape grammars were built to formalise the ambiguity that ordinary computation rules out, and Stiny’s version is Turing-complete — parallel shape grammars can compute anything computable. So a shape grammar is a formal system whose output is variation, while a parametric model is a formal system that returns one answer at a time and keeps the rest behind a button. Chen’s thesis is a grammar without the theory. The vocabulary, the markers and the productions are his. The algebra underneath is ours.',
- 'r.grammar.b4':'The algebra we added is Stiny’s shape algebras — Uⁱʲ, the things a grammar is permitted to manipulate. Ours has one part: support functions and Minkowski sums in the plane, lofted into solids. It has an honest limit. The cruciform and the eight-point star are non-convex, so no support function exists for them. The kernel says so out loud rather than quietly approximating them with a convex hull. A grammar you cannot express exactly is still a grammar; you just have to say where it breaks.',
+ 'r.grammar.h':"11 · A comparison with rule-based design",
+ 'r.grammar.b1':"George Stiny and James Gips introduced shape grammars in 1971. A grammar rewrites shapes through explicit rules. That history provides a comparison for this project; a parametric generator is not automatically a formally specified shape grammar.",
+ 'r.grammar.b2':"Chen’s level schedules, transformations and component relationships are reusable design rules. FormHypes implements related operations with polygon profiles and a level stack. We use the comparison to explain knowledge reuse, not to classify his entire thesis retrospectively.",
+ 'r.grammar.b3':"No formal grammar or proof of computational universality is supplied by this prototype.",
+ 'r.grammar.b4':"Convex plan operations and explicit nonconvex boundaries coexist in the kernel. Support functions alone cannot recover recesses; numerical loft integration then measures each chosen boundary. This implementation is a 2026 extension, not a claim to Stiny’s full shape algebra.",
  'r.grammar.note':'Sources: Stiny & Gips, “Shape Grammars and the Generative Specification of Painting and Sculpture”, Information Processing 71 (IFIP, 1971), 1460–1465; Stiny, The Algebras of Design (1991); Flemming, “More than the sum of parts: the grammar of Queen Anne houses”, Environment and Planning B 14(3), 1987, 323–350, and “The role of shape grammars in the analysis and creation of designs” in Kalay (ed.), Computability of Designs, Wiley, 1987, 245–272. Whether Chen had read any of it is not recorded in the thesis. We are not claiming he had.',
 
  'r.petronas.h':'12 · The plan Pelli actually drew, run through the same engine',
@@ -269,7 +269,7 @@ const en={
  'r.petronas.b2':'Which means the star is a closed form rather than something to eyeball. Two concentric squares, one rotated 45°. The outer radius is the rotated square’s corner. The inner radius is where the two squares cross. Their ratio is √(2−√2) = 0.7653669 — a number, not a taste. Chen’s eight-point star is the same sixteen vertices on the same lattice run at a different number. That is the entire distance between their two plates.',
  'r.petronas.b3':'So here is the Rub el Hizb put through the same kernel that draws the box and the chamfer, next to a plain rectangle resized to carry exactly the same floor area. Every figure below is computed live in your browser at the moment you read this. Nothing on this plate is typed in.',
  'r.petronas.b4':'The engine agrees with Pelli about daylight and disagrees with him about the corners, at this size. Archnet writes that the generating pattern “uses space efficiently to maximize exposure to natural light”, and the plate agrees: more of the Rub el Hizb sits within sky reach than an area-matched rectangle does. But a corner office needs two frontages, and the eight points come out at exactly 90° — perfect — on edges too short to carry twelve metres. Eight tips, none of them leaseable. Push the plate larger and all eight qualify.',
- 'r.petronas.b5':'That is what the semicircles were for. In 1993 Pelli could not scale his building until the points worked, so he filled the notches instead: longer edges, more floor, the same eight tips. The engine reaches the same place the only way a parametric model can, by moving a slider. And archnet’s other number is the one that actually paid for it: the core is 23 per cent of the floor plan, “a relatively low ratio in comparison to other skyscrapers”. The star buys daylight and identity. The core buys the rent.',
+ 'r.petronas.b5':"The model’s sixteen-vertex Rub el Hizb is an abstraction. It omits the circular additions and the actual building’s structure and interior. Changes in its corner count cannot demonstrate why Pelli made a design decision or predict the realised tower’s rent.",
  'r.petronas.b6':'Two more things the record says, because they are the two things a model cannot do. Archnet describes “a ring of sixteen cylindrical columns at the inner corners of the star-shaped plan which forms a ‘soft tube’” — sixteen columns standing in the notches, which is precisely what this kernel counts when it derives frame cost from plate density. And on the void, Pelli at the opening in 1998: Lao Tzu, that the reality of a hollow object is in the void, the form as a door to the infinite. He put two holes in the most rentable building in Kuala Lumpur, on purpose.',
  'r.petronas.note':'Sources: archnet.org/sites/4402; Wikipedia, “Petronas Towers”; skyscraper.org; PC Par architect; Dezeen, Rafael Pelli in conversation, 2018. The floor-area cross-check is against archnet’s 218,000 m² per tower over 88 storeys — an average smeared across 88 floors and a 44-storey circular annex, so it is a sanity check on the order of magnitude, not a reconstruction of Pelli’s drawing.',
 
@@ -303,11 +303,11 @@ const en={
  'r.moved.6.2':'Value',
 
  'r.political.h':'15 · The reading that came a year later',
- 'r.political.b1':'Shouheng Chen finished at MIT in June 2006. The next year, the same department produced a thesis that took his case studies and asked a harder question: not how the buildings are made, but why they look like that.',
- 'r.political.b2':'The argument is that built form is never only a shape. Every distinctive tower is a claim — that this city, this firm, this government can do something the neighbour cannot. Height is a ranking. Uniqueness is a differentiator. Both read from a kilometre away, to people who will never go inside. The Petronas Towers are the clearest case: fifty storeys of repeated lobes is not a structural necessity. It is a decision to be the tallest building in the world at that moment, and the horizontal reading keeps every unit legible while the tower is being measured against something else. That is politics, not only composition.',
- 'r.political.b3':'None of this is a lone reading. Ambition expressed in built form has been documented many times over, by clients, by critics and by historians. What the 2007 work at MIT added was scope and timing: its cases concentrate on China, where the skyscraper was being built at a scale and a speed nobody had attempted before, and where one finished tower was answered by the next commission. Pelli in Hong Kong, SOM in Shanghai, a client in Beijing asking for whatever had just been completed elsewhere. China is what makes the general argument concrete, because there the ambition is visible all at once rather than one commission at a time.',
- 'r.political.b4':'And that reading changes what you build. If a form is a claim, then the market will pay for the claim whether or not the building needed it. A tower can be too tall, too strange, or too expensive, and still be the correct answer — because the thing being bought is not floor area. It is the statement the floor area makes. Once you accept that, "too ambitious" stops being an engineering failure and becomes a pricing error. Which means the only honest response is to put the number next to the ambition and let the client read them together.',
- 'r.political.note':'This section is Nonarkara’s reading, written for this system in 2026. It is not a summary or a reproduction of a published 2007 thesis text, and it does not claim the argument originated there — ambition expressed in built form is long documented. What that year contributed was a focus on China at the moment China was building at this scale. The descriptions of Chen’s buildings here are drawn from his own chapter three.',
+ 'r.political.b1':"Non Arkaraprasertkul’s 2007 MIT thesis is Shanghai contemporary: the politics of built form. Advised by Stanford Anderson and Yung Ho Chang, it studies Shanghai’s transformation through planning, politics, global markets and urban imagery. The guided reader cites its repository abstract; we do not claim it reused Chen’s cases.",
+ 'r.political.b2':"His 2008 Footprint paper considers urban form, individual buildings, skylines and streetscape from both pedestrian and architect-planner perspectives. It is a source for asking how a tower is experienced outside its rentable area.",
+ 'r.political.b3':"Our 2026 synthesis places the owner’s ledger beside access, public space, heritage and neighbourhood change. A distinctive silhouette alone cannot measure those outcomes. Evidence must include the people who occupy and use the place.",
+ 'r.political.b4':"The four reasons to build are alternative scenario objectives. They can reveal a trade-off, but they do not establish that symbolic ambition is profitable or publicly beneficial. Use them to state a brief, then test the brief against demand and local evidence.",
+ 'r.political.note':"Primary references and reading scope are linked in the four-page reader. This section’s synthesis is FormHypes, 2026.",
 
  'r.regime.h':'16 · Four reasons to build',
  'r.regime.b':"Chen’s 2006 system asked the architect to choose a building. Dr Non’s system also asks why. The reason is a control, and it changes which form wins. Landlord yield ranks annual contribution; city competition also rewards height and silhouette. Both use the same corrected rent accounting. A taller, stranger answer may earn more or less under the stated scenario; the result is computed, not prescribed. The city-competition reading came from towers commissioned as an answer to the last one completed: height became a scoreboard and each finished building helped set the next brief.",
@@ -318,7 +318,7 @@ const en={
  'r.close.h':'18 · So what',
  'r.close.b':'The thesis gave us a way to make the expertise computable. The year after gave us the reason to care what the expertise is for. Twenty years on, the useful thing is not that we can build four towers and forty variations. It is that we can now ask a client, in their own numbers, what their ambition costs — and have the answer change when they tell us what the building is for. Three moves: read the thesis, set your own rent, then read the same site under all four regimes and see which one is arguing with you.',
 
- 'r.source':'Source: Shouheng Chen, “Embedding Methods for Massing and Detail Design in Computer Generated Design of Skyscrapers”, MIT, Department of Architecture, June 2006. The full text was read for this rewrite. Quoted fragments are marked in the text.',
+ 'r.source':"Selected primary-source sections and original figures were inspected against the supplied MIT thesis. The guided reader provides figure/page locators and separates original work from 2026 interpretation.",
 
  'x.label':'Exit',
  'regime.yield.label':'Landlord yield',
@@ -538,7 +538,7 @@ const th={
 
  'r.ledeHead':'ความคิดที่ยังไม่จบ ครบยี่สิบปี',
  'r.verdict':'{a} ชนะ {b} อยู่ {p}% คือ {g} ต่อปี ที่พื้นที่รวมเท่ากัน',
- 'r.lede':'ปี 2006 Shouheng Chen ตั้งข้อว่าตึกสูงสร้างจากกฎได้ ไม่ต้องมาจากมือ และส่วนที่น่าสนใจคือกฎ เราหยิบมันมา เติมครึ่งที่เขาทิ้งไว้ คือตึกนี้สร้างรายได้อะไร แล้วตึกก็เลิกเป็นแค่ภาพเขียน',
+ 'r.lede':"สี่หน้าพาอ่านวิทยานิพนธ์ปี 2006 กลไก เศรษฐศาสตร์รูปทรง และเมืองรอบอาคาร แยกภาพต้นฉบับกับแผนภาพใหม่ชัดเจน FormHypes เป็นส่วนต่อยอดปี 2026 โดย ดร.นน ที่ depa + Axiom ได้แรงบันดาลใจจาก Shouheng Chen เพื่อนร่วมรุ่น MIT",
  'r.credit':"FormHypes เป็นผลงานของ Dr Non ที่ depa + Axiom โดยได้รับแรงบันดาลใจจากวิทยานิพนธ์ปี 2006 ของ Shouheng Chen เพื่อนร่วมรุ่นที่ MIT และพัฒนาระบบนี้ขึ้นยี่สิบปีต่อมา ในวาระครบรอบ 20 ปีในปี 2026 วิทยานิพนธ์และแนวคิดดั้งเดิมเป็นของ Chen ส่วนระบบปัจจุบันและส่วนต่อยอดเป็นผลงานของ Dr Non",
 
  'r.dedHead':'อุทิศแด่ 陈寿恒 — Chen Shouheng',
@@ -547,10 +547,10 @@ const th={
  'r.dedSrc':'สถานะข้างต้นอ้างอิงจากประกาศการบรรยาย 数字化建筑•设计研究和实践探索 คณะสถาปัตยกรรมและผังเมือง มหาวิทยาลัยเซินเจิ้น 18 พฤศจิกายน 2019',
 
  'r.ch1.h':'1 · ปัญหาที่เขาตั้งชื่อ',
- 'r.ch1.b':'สองปัญหา ไม่ใช่หนึ่ง คือความซับซ้อนกับความเป็นแบบอย่าง ตึกซับซ้อนมีชิ้นส่วนนับพันที่คล้ายกันแต่ไม่ซ้ำกัน CAD ทั่วไปบังคับให้สถาปนิกวางเองทีละชิ้น และตึกที่ดีก็มีแบบอย่างอยู่เบื้องหลัง เช่น มัลลิอันของ Pelli ไดอะกริดของ Foster ที่ไม่เคยถูกใส่ลงในซอฟต์แวร์ ข้อเสนอของเขาคือ เก็บแบบอย่างเป็นข้อมูล แล้วให้คอมพิวเตอร์นำไปใช้ งานซ้ำหายไป ความรู้ยังอยู่',
+ 'r.ch1.b':"Chen ศึกษาการตัดสินใจซ้ำเรื่องมวลและเปลือกอาคารสี่แห่ง แล้วบันทึกเป็นขั้นตอนใช้ซ้ำ เป้าหมายคือเก็บความรู้สถาปัตยกรรมและลดงานประกอบดิจิทัลที่ซ้ำในช่วงต้นการออกแบบ (บทที่ 3–4)",
 
- 'r.ch2.h':'2 · ทำไมยังไม่มีใครทำสำเร็จ',
- 'r.ch2.b':'ระบบอิงความรู้ได้ผลในวิศวกรรม แต่ค้างในสถาปัตยกรรม Chen ให้เหตุผลสามข้อ และยังจริงทุกข้อ สำนักไม่ยอมซื้อเครื่อง สถาปนิกไม่ได้ถูกฝึกให้ทั้งออกแบบทั้งเขียนโปรแกรม และสถาปนิกกลัวว่าการเขียนความรู้ของตัวเองลงไปจะทำให้คู่แข่งได้ข้อมูลไป ข้อที่สามน่าสนใจที่สุด มันไม่ใช่ปัญหาเทคโนโลยี แต่เป็นปัญหาการเมือง และเป็นการเมืองชุดเดียวกับที่โผล่ออกมาในกรณีศึกษาของเขาเอง',
+ 'r.ch2.h':"2 · อุปสรรคการนำไปใช้ในปี 2006",
+ 'r.ch2.b':"วิทยานิพนธ์อภิปรายอุปสรรคด้านอุปกรณ์ ทักษะโปรแกรม และการแบ่งปันความรู้ เป็นข้อเสนอในบริบทเวลานั้น ไม่ได้พิสูจน์ว่าไม่มีใครเคยทำสถาปัตยกรรมเชิงคำนวณ หรือว่ายังมีอุปสรรคเดิมในปัจจุบัน",
 
  'r.ch3.h':'3 · สี่ตึก อ่านออกมาเป็นกฎ',
  'r.ch3.b':'เขาเลือกสี่ตึกแล้วดึงเรขาคติออกมา ไม่ใช่ดึงภาพ HKIFC มัลลิอันแนวตั้งยื่นออก 300 มม. ตัดเป็นคมกริมจากด้านหน้า และทำให้ตึกดูเป็นแก้วมากขึ้นเมื่อมองด้านข้าง Petronas เน้นแนวนอน เพื่อให้แต่ละยูนิตมีความสำคัญ และไม่ให้ตึกอ่านเป็นก้อนเดียว Cira ใช้กระจกชนิดเดียวทั้งวิชั่วและสแปนเดรล เพื่อให้เห็นเป็นตัวตนของตึก Hearst ใช้ไดอะกริดกว้าง 12 ม. สูง 8 ชั้น ทั้งรับผนัง ทั้งรับพื้น และตัดกริดเสากลางออกไปเลย',
@@ -568,17 +568,17 @@ const th={
  'r.code.b':'Chen เก็บความสูงพื้นถึงพื้นที่ชั้นละค่าไว้ในอาร์เรย์แบน แล้วหักชั้นห้องเครื่องกับชั้นหลบภัยตามช่วง นี่คือตารางชั้นของ Petronas ที่ดึงมาจาก Rhinoscript ของเขา ไม่ได้ปัดความไม่สมบูรณ์ออก:',
  'r.code.note':'ชั้นว่างเหล่านั้นคือทั้งหมด ชั้นห้องเครื่องกับชั้นหลบภัยห้าคู่ ให้ความสูง แต่ไม่ให้พื้นที่ใช้งาน Chen สังเกตว่า "โดยทั่วไปห้องเครื่องและชั้นหลบภัยจะวางติดกัน ชั้นหนึ่งทับอีกชั้นหนึ่ง" ในระบบนี้ไม่ใช่คำบรรยาย แต่คือพจน์ในสมการ ความสูงกับพื้นที่รวมเลิกเป็นตัวเลขเดียวกัน',
 
- 'r.math.h':'8 · เรขาคณิตที่เขาต้องจินตนาการ แล้วทำให้ถูกต้อง',
- 'r.math.b1':'Shouheng Chenไม่ได้เขียนคณิตศาสตร์ เขาเขียนอาร์เรย์ของจุดกับลูปที่ขยับมัน และเขาเริ่มเขียนโค้ดได้ไม่กี่ปีก่อนลงมือ นั่นไม่ใช่จุดอ่อน นั่นคือเหตุผลที่งานของเขาอ่านแล้วรู้สึกเหมือนการคิด มากกว่าการคำนวณ เขามองเห็นว่าเปโตรนาสมีปีก ว่าศูนย์การเงินนานาชาติฮ่องกงมีชั้นเครื่อง ว่าแผ่นพื้นชั้นค้นหาได้แทนที่จะต้องวาด สิ่งที่เขาทำไม่ได้คือถามคำถามที่เรขาคณิตรู้คำตอบอยู่แล้ว เพราะยังไม่มีใครเขียนไว้ให้เขา ตอนนี้เราเขียนได้',
- 'r.math.b2':'นี่คือสิ่งที่เปลี่ยนไป ข้างล่างนี้ไม่มีข้อความใดเป็นความคิดเห็น',
- 'r.math.b3':'ผิวอาคาร เดิมผังเป็นกองแผ่น และผิวระหว่างแผ่นสองใบถูกวาดเป็นสามเหลี่ยมสองอัน เมื่อมีการบิด สี่เหลี่ยมนั้นจะไม่อยู่ในระนาบเดียว สามเหลี่ยมจึงนับเกิน และไม่มีใครบอกได้ว่าเกินเท่าไร ในความจริงตึกคือก้อนขึ้นรูปที่ค่อย ๆ แคบและหมุนไปตามความสูง มันมีพื้นที่ผิวที่แน่นอน พออินทิเกรตแล้ว สูตรย่อ P·√(1+θ′²) ที่คนคุ้นเคยกลับผิดไปมากกว่าสี่เท่าบนสี่เหลี่ยมจัตุรัสยี่สิบเมตรที่หมุนครบหนึ่งรอบ เพราะมันไม่สนใจระยะแขนของแต่ละจุดรอบแกนหมุน การบิดไม่ใช่การเขยอม มันแพงที่สุดตรงที่เนื้อหามากที่สุด',
- 'r.math.b4':'ผังพื้นที่ รูปทรงที่นูนอธิบายได้ด้วยฟังก์ชันซัพพอร์ตทั้งหมด และฟังก์ชันซัพพอร์ตบวกกันได้ ข้อเท็จจริงเพียงข้อเดียวนี้เปลี่ยนผังจากรายการพิกัดที่ต้องดูแลด้วยมือ ให้เป็นนิพจน์ แผ่นที่เหลี่ยมมุมคือสี่เหลี่ยมบวกสี่เหลี่ยมหมุน แต่มันก็ขีดเส้นแบ่งไว้หนึ่งเส้น รูปกางบาทกับรูปดาวแปดแฉกไม่นูน ไม่มีเส้นตรงใดคาดผ่านได้ ดังนั้นพีชคณิตทั้งหมดใช้ไม่ได้กับสองนั้้น Shouheng Chenไม่มีทางรู้ เพราะเขาไม่มีภาษาที่จะถาม หน้าตาของเขาห้าผังจะไม่มีฟังก์ชันซัพพอร์ตตลอดไป ไม่ว่าจะวาดมาดีเพียงใด',
- 'r.math.note':'ทุกตัวเลขในหัวข้อนี้ถูกตรวจเทียบกับคำตอบปิดในชุดทดสอบ ปริพซิมเทียบกับเส้นรอบคูณความสูง กรวยตัดเทียบกับสูตรมาตรฐาน การบิดเทียบกับอินทิเกรตแน่นอน และการบวกมิงคอฟสกีเทียบกับทฤษฎีของ Cauchy ว่าเส้นรอบบวกกันได้ เรขาคณิตของเขาคือสิ่งที่จินตนาการแล้วทำให้เป็นจริงด้วยมือ นี่คือเรขาคณิตเดียวกันที่เขียนอย่างถูกต้อง ตึกทั้งหลาย และแนวคิดว่าความรู้สามารถเป็นอาร์เรย์ได้ เป็นของเขาทั้งหมด',
+ 'r.math.h':"8 · เรขาคณิตที่เพิ่มในปี 2026",
+ 'r.math.b1':"ระบบเดิมของ Chen ใช้กฎเรขาคณิต ความสัมพันธ์จุด และการแปลงรูป FormHypes เพิ่มแกนคำนวณรูปหลายเหลี่ยมและการเชื่อมทรงที่เขียนใหม่ เพื่อวัดอีกชุดข้อมูล ไม่ได้ตัดสินความเข้าใจของ Chen",
+ 'r.math.b2':"สูตรอธิบายโมเดลเรขาคณิตในอุดมคติ การใช้งานและความแม่นเชิงตัวเลขมีขอบเขต",
+ 'r.math.b3':"ผิวอาคาร ผังย่อขยายและหมุนตามความสูง พื้นที่ผิวคำนวณเชิงตัวเลขบนทรงที่เชื่อม รวมระยะขอบจากแกนหมุน ใช้ปริซึมและทรงตัดเป็นกรณีตรวจสอบ ไม่อ้างว่าการแบ่งสามเหลี่ยมให้ค่าผิวบิดเกินจริงเสมอ",
+ 'r.math.b4':"ผัง ผลบวก Minkowski ของรูปนูนสร้างผังบางแบบ ดาว กากบาท และกลีบเว้าเก็บเส้นขอบโดยตรง เซตเว้ามีฟังก์ชันรองรับ แต่ฟังก์ชันเก็บเพียงเปลือกนูนและทำส่วนเว้าหาย โมเดลจึงเก็บเส้นขอบเพื่อหาพื้นที่และมุม",
+ 'r.math.note':"การทดสอบตรวจเอกลักษณ์และการลู่เข้าเชิงตัวเลขบางกรณี ไม่รับรองโครงสร้าง ต้นทุน หรือข้อมูลทุกแบบ วิธีคำนวณนี้เป็นงานใหม่ ส่วนแนวคิดฝังความรู้ออกแบบให้เครดิต Chen",
  'r.stand.h':'9 · ก่อนอื่น คือข้อตกลงในการวัด',
- 'r.stand.b1':'ตัวเลขทุกตัวบนเว็บนี้อยู่ในหน่วยเมตร และพื้นที่ทุกตัวคือพื้นที่รวม ตามที่ Architectural Graphic Standards ฉบับที่ 11 ภาคผนวก D นิยามไว้ คือผลรวมของพื้นที่ชั้นที่วัดในแนวนอนบนผังจนถึงผิวด้านนอกของผนังรอบอาคาร ภายในนั้นมีผนังกั้น เสา บันได ช่องลิฟต์ และห้องเครื่อง รวมถึงพื้นที่ใดก็ตามที่มีความสูงใต้เพดาน 6 ฟุต ส่วนที่ต่ำกว่านั้น รวมทั้งระเบียงและชิงช้า คิดครึ่งหนึ่ง ส่วนที่ไม่นับเลยคือบันไดภายนอก บันไดหนีไฟ ลาน ระเบียงกลางแจ้ง ช่องแสง ชายคลุมหลังคา เชิงชาย ปล่องไฟ พื้นที่ใต้หลังคาที่ยังไม่เก็บ และร่องท่อ',
- 'r.stand.b2':'AGS แบ่งพื้นที่ชั้นออกเป็นห้าหมวด คือพื้นที่สุทธิที่จัดสรรได้ ทางเดิน งานระบบ งานก่อสร้าง และพื้นที่รวม โดยพื้นที่รวมคือผลรวมของทั้งห้าหมวด คู่ค้านของมันในเชิงพาณิชย์คือ Standard Method of Floor Measurement ของ BOMA และในนั้นมีประโยคหนึ่งที่กำหนดครึ่งหนึ่งของสิ่งที่แบบจำลองนี้ทำ ว่าไม่มีการหักลดพื้นที่สำหรับเสาและส่วนยื่นที่จำเป็นต่ออาคาร',
- 'r.stand.b3':'เสาหนึ่งต้นจึงมีต้นทุนในการก่อสร้าง แต่ไม่มีต้นทุนในการปล่อยเช่า นั่นคือเหตุผลที่ตัวคูณโครงสร้างในระบบนี้ไปตกในเงินสำรองค่าใช้จ่าย ส่วนค่าเช่าคำนวณจากพื้นที่สุทธิที่ปล่อยเช่าได้จริง นี่ไม่ใช่ความเห็นเรื่องสถาปัตยกรรม แต่เป็นสิ่งที่มาตรฐานการวัดระบุไว้ และตัวเลขสองตัวนี้จะแยกออกจากกันได้ก็ต่อเมื่อเราแยกมันออกจากกัน',
- 'r.stand.b4':'AGS ยังนิยามปริมาตรสถาปัตยกรรมด้วย โดยนิยามว่าเป็นพื้นที่คูณความสูงเฉลี่ยถึงผิวหลังคาที่เสร็จแล้ว ซึ่งเป็นปริพันธ์โดยนิยาม FormHypes ไม่คำนวณปริมาตรแบบนั้น แต่อินทิเกรตตัวของแข็งที่เกิดจากการบิดอย่างแน่นอน ทั้งพื้นผิวและปริมาตร คำตอบของสองวิธีจึงต่างกัน และควรต่างกัน วิธีหนึ่งเป็นข้อตกลงในการบัญชีและปล่อยเช่า อีกวิธีเป็นข้ออ้างเชิงเรขาคณิต',
+ 'r.stand.b1':"ความยาวใช้เมตร พื้นที่รวมคือผลรวมผังชั้นใช้งานตามระดับพื้นจริง ชั้นว่างระบบเพิ่มความสูงแต่ไม่เพิ่มพื้นที่ใช้งาน นี่เป็นนิยามของต้นแบบ ไม่ใช่ผลวัดรับรองตาม BOMA พื้นที่ตามผังเมือง หรือ Architectural Graphic Standards",
+ 'r.stand.b2':"พื้นที่รวมแบ่งเป็นแกนกลาง พื้นที่ส่วนกลาง และพื้นที่เช่า ร้อยละส่วนกลางเป็นสมมติฐาน การวัดจริงต้องมีความหนาผนัง การจัดสรรพื้นที่บริการ ประเภทใช้งาน และฉบับมาตรฐานที่ใช้",
+ 'r.stand.b3':"ความหนาแน่นเสามีผลต่อเงินสำรองโครงสร้างในตัวอย่าง ไม่ได้กำหนดโครงสร้างผ่านกฎหมายหรือบัญชีค่าเช่าตาม BOMA ส่วนเพิ่มเพดานสูงและไร้เสาเป็นสมมติฐานตลาด ไม่ใช่ผลจากมาตรฐานการวัด",
+ 'r.stand.b4':"ปริมาตรและพื้นที่เปลือกอินทิเกรตเชิงตัวเลขจากทรงเชื่อม เป็นการวัดโมเดลคณิตศาสตร์ ไม่ใช่สำรวจอาคารจริง ผังที่ดูโค้งเป็นรูปเหลี่ยม และเปลือกส่งออกเป็นเรขาคณิตแนวคิด",
  'r.stand.b5':'ที่เหลือเป็นข้อตกลงทั่วไป จากหนังสือเล่มเดียวกันและจาก U.S. National CAD Standard v3.1 หน่วยวัดระบุไว้ครั้งเดียว ทั้งหมดเป็นเมตรระบบ สเกลกราฟิกไล่สเกลเป็นเมตรไม่ใช่เซนติเมตร เพราะผังขนาดสี่สิบเมตรจะสื่อว่าเป็นตึกขนาดใหญ่มากได้ในภาพเดียว ลูกศรทิศเหนือ แกนกลางที่แรงประ และศักยภาพมุมที่ทำเครื่องหมายไว้สีเดียว ไม่มีสีอื่นทั้งนั้น',
  'r.stand.note':'นี่คือต้นแบบ ไม่ใช่การตรวจสอบตามกฎหมาย ไม่มีสิ่งใดบนเว็บนี้ที่ผ่านการตรวจสอบกับกฎหมายควบคุมอาคารจริง และตัวเลขค่าเช่าทุกตัวเป็นค่าสมมติที่เปลี่ยนได้',
 
@@ -597,11 +597,11 @@ const th={
  'h.glass.vision':"รับแดดต่ำ",
  'h.glass.solar':"รับแดดปานกลาง",
  'h.glass.dark':"รับแดดสูง",
- 'r.grammar.h':'11 · อาร์เรย์เหล่านี้คือ shape grammar จริง ๆ แค่เขาไม่เคยเรียกมันว่านั้น',
- 'r.grammar.b1':'ปี 1971 ใน Information Processing 71 ซึ่งเป็นรายงานการประชุม IFIP หน้า 1460 ถึง 1465 ชาร์ลส์ สตีนีและเจมส์ กิปส์ ได้ตีพิมพ์ Shape Grammars and the Generative Specification of Painting and Sculpture ซึ่งได้รับเลือกให้เป็นหนึ่งในงานวิจัยคอมพิวเตอร์ที่ดีที่สุดของปีนั้น shape grammar มีอยู่สี่อย่าง ⟨S, M, P, I⟩ คือคลังรูปทรง S ชุดของเครื่องหมาย M ชุดของกฎการผลิต P และรูปเริ่มต้น I กฎหนึ่งข้อคือการเขียนรูปหนึ่งทับอีกรูปหนึ่ง การใช้ A → B ต้องฝัง A ลงในรูปที่กำลังทดสอบ โดยจับคู่ผ่านการเปลี่ยนรูป t แล้วหลอมรวม เอาสิ่งที่จับคู่ได้ออกแล้วใส่ B แทนที่ ทั้งปฏิบัติการนี้เขียนได้เป็นบรรทัดเดียวของพีชคณิตศาสตร์',
- 'r.grammar.b2':'นั่นคือสิ่งที่ตึกแบบพาราเมตริกทำ เลือกผังหนึ่ง แล้วปรับขนาดให้ได้พื้นที่ตามที่มี จากนั้นก็ซ้อนชั้นจนชนเพดานที่อนุญาต LevelFinder ของเขาคือกฎการเขียนทับหนึ่งข้อ อาร์เรย์จำนวน 59 ตัวที่ไม่สม่ำเสมอของเขาคือคลังเครื่องหมาย มันบอกว่าชั้นใดซ้ำกัน ชั้นใดเป็นข้อยกเว้น และกฎการเขียนทับก็กินมันไป ความรู้ไม่ใช่รายการตัวเลข แต่คือชุดของการแทนที่',
- 'r.grammar.b3':'แล้วก็มุมที่ไม่สบายใจ shape grammar ถูกสร้างขึ้นเพื่อทำให้ความกำกวมที่การคำนวณทั่วไปตัดออกไปกลายเป็นรูปธรรม และรุ่นของสตีนีนั้นสมบูรณ์แบบทัวริง กล่าวคือ shape grammar แบบขนานคำนวณได้ทุกอย่างที่คำนวณได้ นั่นแปลว่า shape grammar เป็นระบบเชิงรูปแบบที่ผลลัพธ์คือความหลากหลาย ขณะที่แบบจำลองพาราเมตริกเป็นระบบเชิงรูปแบบที่คืนคำตอบทีละข้อ แล้วเก็บที่เหลือไว้หลังปุ่ม วิทยานิพนธ์ของเขาคือ grammar ที่ไม่มีทฤษฎีรองรับ คลัง เครื่องหมาย และกฎการผลิต เป็นของเขา ส่วนพีชคณิตศาสตร์ที่รองรับอยู่ข้างล่างเป็นของเรา',
- 'r.grammar.b4':'พีชคณิตศาสตร์ที่เราเพิ่มคือ shape algebra ของสตีนี คือ Uⁱʲ ซึ่งเป็นสิ่งที่ grammar ได้รับอนุญาตให้จัดการ ของเรามีเพียงส่วนเดียว คือ support function และการบวกมิงคอฟสกีในระนาบ แล้วเก็บขึ้นเป็นตัวของแข็งด้วยการบิด มันมีขีดจำกัดที่ตรงไปตรงมา รูปกางเขนกับดาวแปดแฉกไม่นูน จึงไม่มี support function สำหรับมัน เคอร์เนลพูดตรง ๆ ว่ามันไม่มี แทนที่จะแอบเรียบรองด้วย convex hull grammar ที่เขียนออกมาได้ไม่ครบทุกกรณี ก็ยังเป็น grammar ได้ แค่ต้องบอกว่ามันพังตรงไหน',
+ 'r.grammar.h':"11 · เปรียบเทียบกับการออกแบบด้วยกฎ",
+ 'r.grammar.b1':"George Stiny และ James Gips เสนอ shape grammars ในปี 1971 โดยเขียนรูปใหม่ผ่านกฎชัดเจน ประวัตินี้ใช้เปรียบเทียบได้ แต่ตัวสร้างพารามิเตอร์ไม่ได้เป็น shape grammar ที่กำหนดเป็นทางการโดยอัตโนมัติ",
+ 'r.grammar.b2':"ตารางชั้น การแปลงรูป และความสัมพันธ์องค์ประกอบของ Chen เป็นกฎใช้ซ้ำ FormHypes ใช้การดำเนินการคล้ายกันกับผังรูปหลายเหลี่ยมและชั้นอาคาร การเปรียบเทียบอธิบายการใช้ความรู้ซ้ำ ไม่ได้จัดประเภทวิทยานิพนธ์ย้อนหลังทั้งเล่ม",
+ 'r.grammar.b3':"ต้นแบบนี้ไม่ได้เสนอระบบกฎรูปทรงอย่างเป็นทางการหรือบทพิสูจน์ความสามารถคำนวณสากล",
+ 'r.grammar.b4':"แกนคำนวณใช้ทั้งรูปนูนและเส้นขอบเว้า ฟังก์ชันรองรับอย่างเดียวเรียกส่วนเว้าคืนไม่ได้ แล้วจึงอินทิเกรตทรงที่เลือกเชิงตัวเลข นี่เป็นส่วนต่อยอดปี 2026 ไม่ได้อ้างว่าใช้พีชคณิตรูปทรงของ Stiny ครบถ้วน",
  'r.grammar.note':'ที่มา: Stiny & Gips, “Shape Grammars and the Generative Specification of Painting and Sculpture”, Information Processing 71 (IFIP, 1971), 1460–1465 / Stiny, The Algebras of Design (1991) / Flemming, “More than the sum of parts: the grammar of Queen Anne houses”, Environment and Planning B 14(3), 1987, 323–350 และ “The role of shape grammars in the analysis and creation of designs” ใน Kalay (บก.), Computability of Designs, Wiley, 1987, 245–272 วิทยานิพนธ์ไม่ได้บันทึกไว้ว่าเขาได้อ่านสิ่งเหล่านี้หรือไม่ และเราไม่ได้อ้างว่าเขาอ่าน',
 
  'r.petronas.h':'12 · ผังที่เพลลีวาดจริง นำมารันผ่านเคอร์เนลเดียวกัน',
@@ -609,7 +609,7 @@ const th={
  'r.petronas.b2':'แปลว่าดาวนี้เป็นคำตอบปิด ไม่ใช่ของที่ต้องมองด้วยตา สี่เหลี่ยมสองอันที่ร่วมศูนย์กัน อันหนึ่งหมุนไป 45 องศา รัศมีนอกคือมุมของสี่เหลี่ยมที่ถูกหมุน ส่วนรัศมีในคือจุดที่สองสี่เหลี่ยมตัดกัน อัตราส่วนของสองรัศมีคือ √(2−√2) = 0.7653669 เป็นตัวเลข ไม่ใช่รสนิยม ดาวแปดแฉกของเซนยังเป็นจุดยอดสิบหกจุดบนโครงข่ายเดียวกัน แต่รันด้วยตัวเลขอีกตัว นั่นคือระยะห่างทั้งหมดระหว่างผังสองแผ่นของพวกเขา',
  'r.petronas.b3':'ดังนั้นนี่คือ Rub el Hizb ที่ผ่านเคอร์เนลเดียวกับที่วาดกล่องและเหลี่ยมตัดมุม ข้าง ๆ สี่เหลี่ยมผืนผ้าที่ปรับขนาดมาให้มีพื้นที่เท่ากันทุกตัว ตัวเลขด้านล่างทั้งหมดคำนวณสด ๆ ในเบราว์เซอร์ของคุณ ตอนที่คุณอ่าน ไม่มีตัวเลขไหนบนแผ่นนี้ถูกพิมพ์ไว้ล่วงหน้า',
  'r.petronas.b4':'เรื่องแสง เคอร์เนลเห็นตรงกับเพลลี เรื่องมุม ที่ขนาดนี้เห็นต่าง Archnet เขียนว่ารูปแบบที่สร้างผังนี้ “ใช้พื้นที่อย่างมีประสิทธิภาพเพื่อเพิ่มการรับแสงธรรมชาติให้มากที่สุด” และแผ่นข้อมูลนี้ก็เห็นตรงกัน ว่าส่วนของ Rub el Hizb ที่อยู่ในระยะรับแสงสว่างมากกว่าสี่เหลี่ยมที่พื้นที่เท่ากัน แต่ออฟฟิศมุมต้องมีหน้าสองด้าน ส่วนยอดทั้งแปดของดาวออกมาเป็นมุม 90 องศาพอดี ซึ่งสมบูรณ์แบบ แต่อยู่บนด้านที่สั้นเกินจะรับสิบสองเมตรได้ ปลายแปดด้าน ไม่มีด้านไหนให้เช่าได้เลย ขยายผังให้ใหญ่ขึ้น ทั้งแปดก็ผ่านทันที',
- 'r.petronas.b5':'ครึ่งวงกลมเหล่านั้นมีไว้เพื่อเรื่องนี้ ในปี 2536 (1993) เพลลีขยายตึกจนยอดใช้งานได้ไม่ได้ จึงเติมรอยเว้าแทน ด้านยาวขึ้น พื้นที่เพิ่มขึ้น ยอดแปดด้านเท่าเดิม เคอร์เนลไปถึงจุดเดียวกันได้ทางเดียวที่แบบจำลองพาราเมตริกทำได้ คือเลื่อนสไลเดอร์ และอีกตัวเลขหนึ่งของ Archnet คือตัวที่จ่ายค่าเช่าจริง ๆ แกนกลางกินพื้นที่ 23 เปอร์เซ็นต์ของผัง “อัตราส่วนค่อนข้างต่ำเมื่อเทียบกับตึกสูงอื่น ๆ” ดาวซื้อแสงและอัตลักษณ์ แกนกลางซื้อรายได้',
+ 'r.petronas.b5':"Rub el Hizb 16 จุดในโมเดลเป็นภาพนามธรรม ไม่รวมส่วนโค้ง โครงสร้าง และภายในจริง จำนวนมุมที่เปลี่ยนจึงพิสูจน์เหตุผลตัดสินใจของ Pelli หรือทำนายค่าเช่าตึกจริงไม่ได้",
  'r.petronas.b6':'อีกสองข้อที่บันทึกไว้ เพราะเป็นสองสิ่งที่แบบจำลองทำไม่ได้ Archnet อธิบายว่า “วงแหวนของเสาทรงกลมสิบหกต้นตั้งอยู่ที่มุมด้านในของผังรูปดาวแฉก ซึ่งก่อตัวเป็นท่อนุ่ม” เสาสิบหกต้นยืนอยู่ในรอยเว้น ซึ่งก็คือสิ่งที่เคอร์เนลนี้นับอยู่พอดีเมื่อหาต้นทุนโครงสร้างจากความหนาแน่นของผัง และเรื่องช่องว่าง เพลลีบอกในพิธีเปิดปี 2541 (1998) ว่าลาจือไท่กล่าวไว้ว่าความจริงของสิ่งกลวง ๆ อยู่ที่ช่องว่าง เป็นประตูสู่สิ่งไร้รู้จำกัด เขาเจาะรูโหว่สองรูในตึกที่ปล่อยเช่าได้ดีที่สุดในกัวลาลัมเปอร์ โดยตั้งใจ',
  'r.petronas.note':'ที่มา: archnet.org/sites/4402 / Wikipedia, “Petronas Towers” / skyscraper.org / PC Par architect / Dezeen, Rafael Pelli สัมภาษณ์ 2018 การเทียบพื้นที่ชั้นทำกับตัวเลข 218,000 ตร.ม. ต่อหอ หารด้วย 88 ชั้นของ Archnet ซึ่งเป็นค่าเฉลี่ยที่กระจายอยู่ทั้ง 88 ชั้นและอาคารหนุบวงกลม 44 ชั้น จึงเป็นการตรวจขนาดใหญ่เท่านั้น ไม่ใช่การจำลองแบบของเพลลี',
 
@@ -643,11 +643,11 @@ const th={
  'r.moved.6.2':'มูลค่า',
 
  'r.political.h':'15 · การตีความที่มาปีหลัง',
- 'r.political.b1':'Shouheng Chen จบที่ MIT เดือนมิถุนายน 2006 ปีถัดมา ภาควิชาเดียวกันมีวิทยานิพนธ์อีกเล่มที่หยิบกรณีศึกษาของเขามาแล้วถามคำถามที่ยากกว่า ไม่ใช่ว่าตึกสร้างอย่างไร แต่ทำไมมันถึงหน้าตาแบบนั้น',
- 'r.political.b2':'ข้อโต้แย้งคือ รูปทรงที่สร้างขึ้นไม่ใช่แค่รูปทรง ตึกที่มีเอกลักษณ์ทุกตึกคือข้ออ้าง ว่าเมืองนี้ บริษัทนี้ รัฐบาลนี้ ทำอะไรได้ที่คู่ข้างยังทำไม่ได้ ความสูงคือการจัดอันดับ ความไม่ซ้ำคือการสร้างความแตกต่าง ทั้งสองอย่างอ่านออกจากระยะกิโลเมตร โดยคนที่ไม่เคยเข้าไปในตึก หอคอยเปตองรอยเป็นกรณีที่ชัดที่สุด ห้าสิบชั้นของกลีบซ้ำ ๆ ไม่ใช่ความจำเป็นโครงสร้าง แต่คือการตัดสินใจให้เป็นตึกที่สูงที่สุดในโลกในเวลานั้น และการอ่านแนวนอนยังทำให้แต่ละยูนิตอ่านออกไปได้ ขณะที่ตึกนั้นกำลังถูกวัดเทียบกับสิ่งอื่น นี่คือการเมือง ไม่ใช่แค่การประกอบรูป',
- 'r.political.b3':'ไม่มีใครอ่านแบบนี้คนเดียว ความทะเยอมที่แสดงออกผ่านรูปทรงถูกบันทึกไว้หลายครั้งหลายคน ทั้งเจ้าของงาน นักวิจารณ์ และนักประวัติศาสตร์ สิ่งที่งานปี 2007 ที่ MIT เพิ่มคือขอบเขตและจังหวะเวลา กรณีของมันกระจุกที่ประเทศจีน ซึ่งกำลังสร้างตึกสูงในขนาดและความเร็วที่ไม่เคยมีใครลองมาก่อน และตึกหนึ่งที่เสร็จแล้วถูกตอบด้วยงานถัดไป Pelli ที่ฮ่องกง SOM ที่เซี่ยงไฮ้ ลูกค้าในปักกิ่งที่สั่งซื้อสิ่งที่เพิ่งเสร็จที่อื่น จีนคือสิ่งที่ทำให้ข้อโต้แย้งทั่วไปกลายเป็นเรื่องเฉพาะ เพราะที่นั่นความทะเยอมมองเห็นได้ทั้งหมดพร้อมกัน ไม่ใช่ทีละงาน',
- 'r.political.b4':'และการตีความนั้นเปลี่ยนว่าเราสร้างอะไร ถ้ารูปทรงคือข้ออ้าง ตลาดก็จ่ายให้ข้ออ้างนั้น ไม่ว่าตึกต้องการมันหรือไม่ก็ตาม ตึกหนึ่งอาจสูงเกิน ประหลาดเกิน หรือแพงเกิน และยังเป็นคำตอบที่ถูกต้องได้ เพราะสิ่งที่ถูกซื้อไม่ใช่พื้นที่ แต่คือประโยคที่พื้นที่นั้นพูด เมื่อยอมรับแบบนี้ คำว่า "ทะเยอมเกินจำเป็น" ก็เลิกเป็นความผิดพลาดทางวิศวกรรม และกลายเป็นความผิดพลาดทางราคา ซึ่งหมายความว่าคำตอบที่ซื่อสัตย์เพียงอย่างเดียวคือเอาตัวเลขไปวางข้างความทะเยอม แล้วให้ลูกค้าอ่านทั้งสองอย่างพร้อมกัน',
- 'r.political.note':'ส่วนนี้เป็นการตีความของ Nonarkara เขียนขึ้นเพื่อระบบนี้ในปี 2026 ไม่ใช่สรุปหรือการถอดความวิทยานิพนธ์ปี 2007 ที่ตีพิมพ์ และไม่ได้อ้างว่าข้อโต้แย้งนี้เกิดขึ้นจากงานนั้นเป็นคนแรก เพราะความทะเยอมที่ปรากฏผ่านรูปทรงถูกบันทึกไว้มานานแล้ว สิ่งที่ปีนั้นเพิ่มคือการโฟกัสที่ประเทศจีน ในช่วงที่จีนกำลังสร้างในขนาดนั้น ส่วนที่อธิบายตึกของ Chen ดึงมาจากบทสามของเขาเอง',
+ 'r.political.b1':"วิทยานิพนธ์ MIT ปี 2007 ของ Non Arkaraprasertkul คือ Shanghai contemporary: the politics of built form มี Stanford Anderson และ Yung Ho Chang เป็นอาจารย์ที่ปรึกษา ศึกษาผังเมือง การเมือง ตลาดโลก และภาพลักษณ์เซี่ยงไฮ้ คู่มืออ้างบทคัดย่อ ไม่อ้างว่าใช้กรณีเดียวกับ Chen",
+ 'r.political.b2':"บทความ Footprint ปี 2008 พิจารณารูปเมือง อาคาร เส้นขอบฟ้า และท้องถนนจากมุมคนเดินเท้ากับสถาปนิกนักผังเมือง เป็นแหล่งตั้งคำถามว่าผู้คนนอกพื้นที่เช่าสัมผัสตึกอย่างไร",
+ 'r.political.b3':"บทสังเคราะห์ปี 2026 วางบัญชีเจ้าของข้างการเข้าถึง พื้นที่สาธารณะ มรดก และย่านที่เปลี่ยนไป รูปทรงเด่นอย่างเดียววัดผลเหล่านี้ไม่ได้ ต้องมีหลักฐานจากผู้ใช้งานและผู้คนในพื้นที่",
+ 'r.political.b4':"เหตุผลสร้างสี่แบบเป็นวัตถุประสงค์ทดลองต่างกัน ช่วยเปิดให้เห็นการแลกเปลี่ยน แต่ไม่พิสูจน์ว่าความทะเยอทะยานเชิงสัญลักษณ์ทำกำไรหรือเป็นประโยชน์สาธารณะ ใช้ตั้งโจทย์แล้วทดสอบกับอุปสงค์และหลักฐานท้องถิ่น",
+ 'r.political.note':"แหล่งต้นทางและขอบเขตการอ่านเชื่อมไว้ในคู่มือสี่หน้า บทสังเคราะห์นี้เป็นของ FormHypes ปี 2026",
 
  'r.regime.h':'16 · สี่เหตุผลในการสร้าง',
  'r.regime.b':"ระบบปี 2006 ของ Chen ให้นักออกแบบเลือกอาคาร ระบบของ Dr Non ถามต่อว่าอาคารนั้นมีขึ้นเพื่ออะไร เหตุผลนี้เปลี่ยนผลการค้นหา เจ้าของที่มุ่งค่าเช่าจัดอันดับจากรายรับส่วนเพิ่มรายปี ส่วนการแข่งขันระหว่างเมืองให้น้ำหนักความสูงและรูปทรงด้วย ทั้งสองใช้การคิดค่าเช่าที่แก้ไขแล้วเหมือนกัน อาคารที่สูงและแตกต่างกว่าอาจให้รายรับมากหรือน้อยกว่าได้ตามสมมติฐาน ผลต้องมาจากการคำนวณ ไม่ใช่กำหนดไว้ล่วงหน้า แนวคิดการแข่งขันมาจากยุคที่อาคารใหม่ถูกสร้างเพื่อตอบอาคารที่เพิ่งเสร็จ ความสูงเป็นคะแนน และอาคารแต่ละหลังช่วยตั้งโจทย์ให้หลังถัดไป",
@@ -658,7 +658,7 @@ const th={
  'r.close.h':'18 · สรุปแล้วทำอะไรต่อ',
  'r.close.b':'วิทยานิพนธ์ให้วิธีทำให้ความรู้คำนวณได้ ปีถัดมาให้เหตุผลว่าเราจะสนใจความรู้นั้นเพราะอะไร ยี่สิบปีต่อมา สิ่งที่มีประโยชน์ไม่ใช่การที่เราสร้างตึกได้สี่ตึกกับสี่สิบตัวแปร แต่คือเราถามลูกค้าได้ว่า ความทะเยอมของเขามีต้นทุนเท่าไร ในตัวเลขของเขาเอง แล้วคำตอบจะเปลี่ยนเมื่อเขาบอกว่าตึกนี้มีไว้ทำอะไร สามก้าว อ่านวิทยานิพนธ์ ตั้งค่าเช่าของคุณเอง แล้วอ่านที่ดินเดิมนี้ภายใต้ทั้งสี่เหตุผล แล้วดูว่าอันไหนกำลังทะเลาะกับคุณ',
 
- 'r.source':'ต้นทาง: Shouheng Chen, “Embedding Methods for Massing and Detail Design in Computer Generated Design of Skyscrapers”, MIT, Department of Architecture, มิถุนายน 2006 อ่านฉบับเต็มเพื่อเขียนใหม่นี้ ข้อความที่ยกมาอ้างถูกทำเครื่องหมายไว้ในเนื้อความ',
+ 'r.source':"ตรวจหัวข้อและภาพต้นฉบับกับวิทยานิพนธ์ MIT ที่ได้รับแล้ว คู่มือมีเลขภาพและหน้า พร้อมแยกงานเดิมกับการตีความปี 2026",
 
  'x.label':'ออก',
  'regime.yield.label':'ผลตอบแทนของเจ้าของ',
@@ -878,7 +878,7 @@ const zh={
 
  'r.ledeHead':'一个还没做完的想法，已经二十年。',
  'r.verdict':'{a} 高于 {b} {p}%，即在相同面积下每年多 {g}。',
- 'r.lede':'2006 年，Shouheng Chen 提出摩天楼可以由规则生成，而不是由双手生成。有意思的是那些规则。我们把它们拿过来，补上他留空的那一半——这栋楼能挣多少钱——于是塔楼不再只是一张图。',
+ 'r.lede':"四页读懂 2006 年论文、生成机制、形态经济与周边城市。原始图像与新图解明确区分。FormHypes 由 Non 博士在 depa + Axiom 于 2026 年扩展，灵感来自 MIT 同学 Shouheng Chen。",
  'r.credit':"FormHypes 是 Dr Non 在 depa + Axiom 开发的作品。其灵感来自 MIT 同窗陈寿恒于 2006 年完成的论文。二十年后的 2026 年，Dr Non 开发了本系统，纪念这一想法的二十周年。论文与原始构想归陈寿恒；现有系统及其扩展是 Dr Non 的作品。",
 
  'r.dedHead':'献给 陈寿恒（Shouheng Chen）',
@@ -887,10 +887,10 @@ const zh={
  'r.dedSrc':'以上经历出自深圳大学建筑与城市规划学院讲座通知《数字化建筑•设计研究和实践探索》，2019 年 11 月 18 日。',
 
  'r.ch1.h':'1 · 他点名的那个问题',
- 'r.ch1.b':'是两个问题，不是一个：复杂度，和惯例。复杂的塔楼有成千上万个彼此相似却不相同的构件，常规 CAD 要求建筑师逐个亲手放置。而好塔楼背后都有惯例——Pelli 的竖挺、Foster 的斜交网——这些从没被写进软件里。陈的主张是：把惯例存成数据，让计算机去套用，既消灭重复劳动，又保住经验。',
+ 'r.ch1.b':"Chen 研究四栋塔楼反复出现的体量与立面决策，并编码为可复用程序，以保留建筑知识、减少早期设计的重复构件工作（第三至四章）。",
 
- 'r.ch2.h':'2 · 为什么一直没人做成',
- 'r.ch2.b':'知识系统在工程领域成功，在建筑领域停滞。陈给出三条原因，至今仍然成立：事务所不愿买硬件；建筑师没受过既做设计又写程序的双重训练；建筑师害怕把自己的知识写下来就等于送给竞争对手。第三条最有意思。它不是技术问题，是政治问题——而这恰恰是政治，跟他后文案例里的政治是同一种。',
+ 'r.ch2.h':"2 · 2006 年的采用障碍",
+ 'r.ch2.b':"论文讨论设备、编程能力与知识共享等阻碍。这些是当时的论述，不能证明无人尝试过计算建筑，也不能直接代表今天的采用障碍。",
 
  'r.ch3.h':'3 · 四栋楼，被读成规则',
  'r.ch3.b':'他挑了四座塔，抽取的是几何，不是图片。香港国际金融中心：竖挺外凸 300 毫米，正面看是一把刀，侧看玻璃感反而更强。佩特罗纳斯：横向构成，让每一个单元都重要，也让塔不再被读成一整块。汇丰中心：视窗与窗间墙用同一种玻璃，好让折面读作实体。赫斯特：12 米 × 8 层的斜交网，既承外墙，也承楼板，并把室内柱网一并取消。',
@@ -908,17 +908,17 @@ const zh={
  'r.code.b':'陈把每层的层高存进一个扁平数组，再按区段扣掉设备层与避难层。这是他从 Rhinoscript 里取出的佩特罗纳斯楼层表，原样保留了不规则之处：',
  'r.code.note':'那些空层就是全部。五对耦合的设备层与避难层，产生高度，却不产生面积。陈自己指出"通常设备层和避难层是叠在一起的，一层压一层"。在这个系统里，这不是描述，而是计算式中的一项。高度与总建筑面积不再是同一个数。',
 
- 'r.math.h':'8 · 他只能想象的几何学，今天做对了',
- 'r.math.b1':'陈不写数学。他写的是点的数组和搬动它们的循环，学会编程也只比动手早两年。这不是弱点——正因为如此，他的成果读起来像思考，而不像演算。他能看出佩特罗纳斯有瓣、港岛中心有设备带、楼板可以被找到而不必被画出来。他做不到的，是去问那些几何学本身早已知道答案的问题，因为那时还没有人为他写下来。我们可以。',
- 'r.math.b2':'以下是改变的部分。以下每一条都不是观点。',
- 'r.math.b3':'曲面。陈的塔是一摞楼板，板与板之间的表皮被画成两个三角形。扭转使那个四边形离开平面，三角形于是多算，而没人能说出多算多少。塔其实是一个放样体：一条随高度收分并旋转的曲线，它有精确的面积元。积分之后，那个熟悉的捷径 P·√(1+θ′²) 在二十米见方、整高扭转一圈的体块上误差超过四倍，因为它忽略了每一点关于转轴的力臂。扭转不是斜切，它在体量最大的地方最贵。',
- 'r.math.b4':'平面。凸体可由支撑函数完全描述，而支撑函数可以相加。仅此一条就把平面从一份要手工维护的坐标表变成一个表达式：切角板等于矩形加一个旋转的正方形。它同时划出一道界线。十字形与八芒形不是凸体——没有任何直线能贯穿它们——整套代数对它们根本不适用。陈不可能知道这一点，因为他没有可以提问的语言。他那五个平面中的两个，永远不会有另外三个所具备的支撑函数。',
- 'r.math.note':'本节每个数字都在测试套件中与闭式解比对：棱柱对照周长乘高，棱台对照标准公式，扭转对照其精确积分，闵可夫斯基加法对照柯西关于周长可加的定理。陈的几何是想象的，然后用手实现的。这就是同一套几何，只是写对了。关于这些建筑、以及关于知识即数组的想法，全部归他。',
+ 'r.math.h':"8 · 2026 年新增的几何方法",
+ 'r.math.b1':"Chen 原系统使用几何规则、点关系和变换。FormHypes 增加独立实现的多边形与放样内核，提供另一组测量，并不据此判断 Chen 的能力或理解。",
+ 'r.math.b2':"公式描述理想化几何模型，应用范围和数值精度均有边界。",
+ 'r.math.b3':"表面：平面随高度收分、旋转，对所得放样曲面进行数值积分，计入边缘距转轴的距离，以棱柱和台体校验。不能笼统声称三角剖分总会高估扭转曲面。",
+ 'r.math.b4':"平面：部分轮廓由凸多边形 Minkowski 和构造。非凸星形、十字和花瓣采用显式边界。非凸集合也有支撑函数，但它只编码凸包，会丢失凹口；模型保留这些边界计算面积和局部转角。",
+ 'r.math.note':"测试校验部分恒等式和数值收敛，不认证结构、造价或所有输入。数值实现是新工作；嵌入设计知识的先例归功于 Chen。",
  'r.stand.h':'9 · 先说测量口径',
- 'r.stand.b1':'本站所有数字都以米计，所有面积都是《建筑制图标准》（Architectural Graphic Standards，第 11 版）附录 D 所定义的总建筑面积：在平面上水平量测至外围护墙外表面，逐层求和。隔墙、柱、楼梯、电梯井与设备层都在其中；净高 6 英尺以上的空间也在其中。低于此高度的空间，以及阳台与门廊，按一半计。完全不计入的：室外楼梯、消防梯、露台、屋顶平台、室外天井采光井、屋面挑檐、檐口、烟囱、未完成的阁楼空间与管沟。',
- 'r.stand.b2':'AGS 把楼层面积分成五类：净使用面积、交通面积、机电面积、建筑面积通道与总建筑面积，而总量是五者之和。它的商业对应物是 BOMA 的《楼层测量标准方法》，其中有一句话决定了本模型一半的行为：因建筑自身需要的柱与凸出部分不作扣减。',
- 'r.stand.b3':'所以一根柱子要花钱建造，却在出租时一文不值。这就是本系统把结构系数算进预留费用、而租金按净可租面积计算的原因。这不是关于建筑的观点，而是测量标准的规定；两个数字要分开，只有你先把它们分开。',
- 'r.stand.b4':'AGS 也定义了建筑体积，定义方式是面积乘以完成屋面的平均高度——按定义就是棱柱。FormHypes 不这样算体积。它对放样出来的实体做精确积分，内外表面都算。两种答案不同，而且本就应该不同：一种是为了出租与报表的约定，另一种是关于几何的主张。',
+ 'r.stand.b1':"长度以米计。总面积为实际标高处使用楼层多边形之和；设备空层增加高度但不增加使用面积。这是原型明示约定，不是认证的 BOMA、规划建筑面积或 Architectural Graphic Standards 计量。",
+ 'r.stand.b2':"总面积分配给核心筒、公共预留和可出租面积。公共比例是情景输入。正式计量还需墙厚、服务面积分摊、用途分类与适用标准版本。",
+ 'r.stand.b3':"柱密度影响示例结构储备，不能决定合规框架或 BOMA 租金表。净高与无柱溢价是可编辑市场假设，并非计量标准的推论。",
+ 'r.stand.b4':"体积和表皮面积由放样数值积分，测量的是数学模型，不是竣工实测。看似弧形的轮廓实为折面多边形，导出外壳属于概念几何。",
  'r.stand.b5':'其余是惯例，出自同一本书以及美国国家 CAD 标准 v3.1。单位只声明一次，全程公制。图示比例尺以米而非厘米分级，因为一块四十米的平面一眼就读出这栋楼很大。一个指北针。一个剖面线的核心。转角潜力只用一种颜色标出，此外不着任何颜色。',
  'r.stand.note':'这是原型，不是合规检查。此处没有任何内容经过在建管辖区法规的验证，所有租金数字都是可修改的示例输入。',
 
@@ -937,11 +937,11 @@ const zh={
  'h.glass.vision':"低暴露",
  'h.glass.solar':"中暴露",
  'h.glass.dark':"高暴露",
- 'r.grammar.h':'11 · 那些数组本来就是一个形状文法，只是他从未这样称呼它',
- 'r.grammar.b1':'1971 年，在 IFIP 1971 论文集 Information Processing 71 的 1460–1465 页，Charles Stiny 与 James Gips 发表《形状文法与绘画及雕塑的生成性描述》（Shape Grammars and the Generative Specification of Painting and Sculpture），被评为当年最佳计算机论文之一。形状文法由四件事构成：⟨S, M, P, I⟩——形状词表 S、标记集 M、产生式集 P、初始形状 I。一条产生式把一个形状改写成另一个。要施加 A → B，先把 A 嵌入被检验的形状中，通过变换 t 匹配它，然后融合：取出匹配部分，放入 B。整个操作是一行代数式。',
- 'r.grammar.b2':'这就是参数化摩天楼在做的事。选一个平面。把尺寸调整到你拥有的面积。然后叠层，直到碰到高度许可。Chen 的 LevelFinder 就是一条改写规则。他那 59 个不规则数字组成的数组就是标记词表——它声明哪些层重复、哪些是例外，而改写把它吃掉。知识不是一组数字，而是一组替换。',
- 'r.grammar.b3':'然后是那句不舒服的话。形状文法被造出来，正是为了把普通计算排除掉的那种含混形式化，而 Stiny 的版本是图灵完备的——并行形状文法可以计算一切可计算之物。于是形状文法是一个输出为「变化」的形式系统，而参数化模型是一个一次只返回一个答案、把其余答案藏在按钮后面的形式系统。陈的论文是一个没有理论的文法。词表、标记与产生式都是他的；底下的代数是我们的。',
- 'r.grammar.b4':'我们补上的代数是 Stiny 的形状代数——Uⁱʲ，即文法被允许操作的对象。我们的只有一个部分：平面上的支撑函数与闵可夫斯基和，再放样成实体。它有一条诚实的边界。十字形与八芒星是非凸的，因此不存在支撑函数。内核把这件事说出来，而不是悄悄用凸包去近似。一个无法被精确表达的文法仍然是文法；你只需要说清它在哪里失效。',
+ 'r.grammar.h':"11 · 与规则设计的比较",
+ 'r.grammar.b1':"George Stiny 与 James Gips 于 1971 年提出形状文法，以明确规则重写形状。它提供比较背景，但参数化生成器并不自动成为形式化形状文法。",
+ 'r.grammar.b2':"Chen 的楼层表、变换和构件关系是可复用规则。FormHypes 在多边形与楼层栈中实现相关操作。这用于解释知识复用，不是对其整篇论文的追认分类。",
+ 'r.grammar.b3':"本原型未提供形式文法或计算通用性的证明。",
+ 'r.grammar.b4':"内核同时采用凸平面运算与显式非凸边界。支撑函数无法独立恢复凹口，再由数值积分测量所选放样。这是 2026 年扩展，未声称实现 Stiny 全部形状代数。",
  'r.grammar.note':'来源：Stiny & Gips，「Shape Grammars and the Generative Specification of Painting and Sculpture」，Information Processing 71（IFIP，1971），1460–1465；Stiny，The Algebras of Design（1991）；Flemming，「More than the sum of parts: the grammar of Queen Anne houses」，Environment and Planning B 14(3)，1987，323–350；以及 Kalay（编），Computability of Designs，Wiley，1987，245–272 中的「The role of shape grammars in the analysis and creation of designs」。论文没有记录他是否读过其中任何一篇。我们也不主张他读过。',
 
  'r.petronas.h':'12 · 把 Pelli 真正画的那张平面，送进同一个引擎',
@@ -949,7 +949,7 @@ const zh={
  'r.petronas.b2':'于是这颗星是闭式解，而不是靠眼睛估的东西。两个同心正方形，其中一个旋转 45°。外半径是旋转后正方形的角，内半径是两个正方形相交之处。两者的比值是 √(2−√2) = 0.7653669——一个数字，不是口味。陈的八芒星是同一套十六个顶点、同一张格网上的运算，只是取了另一个数。这就是他们两块楼板之间全部的距离。',
  'r.petronas.b3':'所以这里是把 Rub el Hizb 送进与方盒、切角同一个内核，旁边放一块调整为完全相同建筑面积的矩形。下面每一个数字都在你阅读的此刻由浏览器实时计算。这块板上没有一个数字是预先打上去的。',
  'r.petronas.b4':'在采光上，引擎与 Pelli 一致；在转角上，在当前尺寸下引擎与 Pelli 不一致。Archnet 写道，生成平面的几何「高效地利用空间，以最大化自然采光」，这块板也同意：Rub el Hizb 落在有效采光范围内的比例高于等面积的矩形。但转角办公需要两个朝向，而星的八个尖角恰好是 90°——完美——却落在短于十二米的边上。八个尖角，一个都不能出租。把楼板放大，八个就全部成立。',
- 'r.petronas.b5':'这正是那些半圆存在的理由。1993 年的 Pelli 无法靠放大建筑让尖角成立，于是改为填平凹角：边更长、面积更多、还是那八个尖。引擎到达同一地点，用的是参数化模型唯一的方式——推动一个滑块。而 Archnet 的另一个数字才是真正付账的那个：核心占平面面积的 23%，「与其他摩天楼相比是相当低的比例」。星买到采光与辨识度，核心买到租金。',
+ 'r.petronas.b5':"模型的十六顶点 Rub el Hizb 是抽象轮廓，省略实际圆弧、结构与内部。转角数量变化无法证明 Pelli 的决策原因，也不能预测实楼租金。",
  'r.petronas.b6':'记录里还有两件事，因为它们正是模型做不到的两件事。Archnet 描述「一圈十六根圆柱形柱子，立于星形平面的内侧转角，组成一根『软管』」——十六根柱子站在凹角里，而这正是本内核在由楼板密度推导结构成本时所计算的东西。至于空洞，1998 年启用时 Pelli 说：老子言「虚器之实在于其虚」，形体是一扇通向无限的窗。他刻意在吉隆坡最赚钱的建筑上开了两个洞。',
  'r.petronas.note':'来源：archnet.org/sites/4402；维基百科「Petronas Towers」；skyscraper.org；PC Par architect；Dezeen 对 Rafael Pelli 的访谈，2018。楼面面积的对照基于 Archnet 的每塔 218,000 m² 除以 88 层——这是一个摊在 88 层和 44 层圆形附属建筑上的平均值，因此只是数量级的核对，不是对 Pelli 图纸的复原。',
 
@@ -983,11 +983,11 @@ const zh={
  'r.moved.6.2':'价值',
 
  'r.political.h':'15 · 一年之后的解读',
- 'r.political.b1':'Shouheng Chen 于 2006 年 6 月在 MIT 毕业。次年，同一系出现了另一篇论文，拿他的案例提出了一个更难的问题：不是这些楼怎么造出来的，而是它们为什么长成这个样子。',
- 'r.political.b2':'论点是：建成的形体从来不只是形体。每一栋有辨识度的塔都是一次主张——这座城市、这家公司、这个政府，能做出隔壁还做不到的事。高度是一种排名，独特性是一种区分。两者在一公里外就能被看懂，而看懂的人永远不会走进这栋楼。吉隆坡国油双峰塔是最清楚的例子：五十层重复的叶瓣并不是结构上的必需，而是一个决定——要在当时成为世界上最高的建筑；而横向的读法让每一个单元都保持可读，同时这座塔正被拿来与别的东西比较。这就是政治，不只是构图。',
- 'r.political.b3':'这并不是某一个人的读法。通过形体表达的野心，早就被记录过很多次，业主、评论者、历史学家都写过。2007 年在 MIT 的那份工作所增加的，是范围与时机：它的案例集中在中国——当时中国正以前所未有的规模和速度建造摩天楼，一栋刚完成的塔楼引来下一份委托。香港的 Pelli、上海的 SOM、北京的业主要着别处刚刚完成的东西。中国让这个一般性的论证变得具体，因为在那里，野心是一起被看见的，而不是一次委托一次。',
- 'r.political.b4':'而这种解读会改变你造什么。如果形体是一种主张，市场就会为主张付钱，不管这栋楼是否真的需要。楼可以太高、太怪、太贵，却仍然是正确答案——因为被买的不是面积，而是面积所说的那句话。一旦接受这一点，"野心太大"就不再是工程失误，而成了定价错误。也就是说，唯一诚实的回应是把数字放到野心旁边，让客户把两者一起读。',
- 'r.political.note':'本节是 Nonarkara 为本系统写于 2026 年的解读。它不是对一篇已出版 2007 年论文文本的摘要或复现，也不主张这一论点源自那份工作——通过形体表达的野心早被大量记录。那一年所增加的，是对那个正在以这种规模建造的中国的聚焦。本节对陈的楼的描述取自陈自己的第三章。',
+ 'r.political.b1':"Non Arkaraprasertkul 的 2007 年 MIT 论文为 Shanghai contemporary: the politics of built form，由 Stanford Anderson 与 Yung Ho Chang 指导，研究上海规划、政治、全球市场与城市意象。导读引用记录摘要，未声称沿用 Chen 的案例。",
+ 'r.political.b2':"其 2008 年 Footprint 论文从行人与建筑师规划师视角考察城市形态、单体、天际线及街景，为追问可出租空间以外的塔楼体验提供依据。",
+ 'r.political.b3':"2026 年综合解释将业主账目与通达、公共空间、遗产及社区变化并置。独特轮廓无法测量这些结果，还须包含使用者与在地居民的证据。",
+ 'r.political.b4':"四种建造动机是不同情景目标，可揭示取舍，不能证明象征雄心有利润或公共益处。用它们明确任务书，再以需求和在地证据检验。",
+ 'r.political.note':"一手参考与阅读范围见四页导读。本节综合解释属于 FormHypes，2026 年。",
 
  'r.regime.h':'16 · 建造的四种理由',
  'r.regime.b':"Chen 在 2006 年的系统让建筑师选择建筑。Dr Non 的系统进一步追问：为什么建它？这个理由成为控件，改变形体排序。业主收益按年度贡献排名，城市竞争还奖励高度与轮廓。两者采用同一套修正后的租金核算。更高、更独特的答案可能赚得更多，也可能更少，取决于公开的情景假设；结果由计算产生，而非预先规定。城市竞争的解读来自新塔楼回应上一栋竣工建筑的时代：高度成为记分牌，每栋成品又推动下一份任务书。",
@@ -998,7 +998,7 @@ const zh={
  'r.close.h':'18 · 所以，然后呢',
  'r.close.b':'那篇论文给了我们把经验变成可计算之物的方法。次年那篇给了我们为什么在乎这份经验的原因。二十年后，有用的并不是我们能造四座塔和四十个变体。而是我们现在能用客户自己的数字问他，他的野心要花多少钱——并且当他告诉我们这栋楼是为了什么时，答案会随之改变。三步：读论文，设定你自己的租金，然后在四种理由下把同一块地各读一遍，看是哪一种在跟你争论。',
 
- 'r.source':'来源：Shouheng Chen, “Embedding Methods for Massing and Detail Design in Computer Generated Design of Skyscrapers”, MIT, Department of Architecture, 2006 年 6 月。为此次重写已通读全文。引用片段在正文中标出。',
+ 'r.source':"已对照所提供 MIT 论文检查选定章节与原图。导读标明图页定位，并区分原作与 2026 年解释。",
 
  'x.label':'退出',
  'regime.yield.label':'房东收益',
@@ -1031,6 +1031,11 @@ const zh={
 
 
 
+Object.assign(en,{"f.triangle": "Triangular / 3 tips", "f.hexagon": "Hexagonal / 6 faces", "f.oval": "Faceted oval / 24 faces", "f.petal": "Four-petal / scalloped", "f.pinwheel": "Pinwheel / 4 blades", "mast.note": "By Dr Non · depa + Axiom · 20th anniversary, 2006–2026"});
+Object.assign(th,{"f.triangle": "สามเหลี่ยม / 3 มุม", "f.hexagon": "หกเหลี่ยม / 6 ด้าน", "f.oval": "วงรีเหลี่ยม / 24 ด้าน", "f.petal": "สี่กลีบ / ขอบเว้า", "f.pinwheel": "กังหัน / 4 ใบ", "mast.note": "โดย ดร.นน · depa + Axiom · ครบรอบ 20 ปี 2006–2026"});
+Object.assign(zh,{"f.triangle": "三角形 / 三个尖角", "f.hexagon": "六边形 / 六个面", "f.oval": "折面椭圆 / 24 面", "f.petal": "四瓣形 / 凹凸边缘", "f.pinwheel": "风车形 / 四叶", "mast.note": "由 Non 博士创作 · depa + Axiom · 二十周年，2006–2026"});
+
+en['sun.tokyo']='Tokyo';th['sun.tokyo']='โตเกียว';zh['sun.tokyo']='东京';
 export const t={en,th,zh};
 
 export function translator(lang){

@@ -426,3 +426,45 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 @media(pointer:coarse){button,select,.tabs button,.langs button,.viewtools button{min-height:44px}.solar-clock input,summary{min-height:44px}.textlink{min-height:44px}.actions button{min-width:44px}input[type=range]{min-height:32px}}
 .brand .b-cred i{color:var(--muted);font-weight:600;letter-spacing:0}
 @media(min-width:901px){.controls,.results{max-height:calc(100dvh - var(--chrome));overflow-y:auto}}
+
+/* Form atlas: comparable drawings earn equal cells; no oversized command boxes. */
+.form-atlas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin:8px 0}
+.form-atlas button{display:flex;flex-direction:column;gap:3px;white-space:normal;padding:4px 2px;font-size:10px;line-height:1.15;border:0}
+.form-atlas svg{width:36px;height:36px;overflow:visible}
+#feng{font-size:12px;padding:8px 0}#feng label{display:block;margin:8px 0 3px}
+.feng-prompts{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px}.feng-prompts button{padding:3px 6px}
+.feng-drawing{max-width:210px;margin:auto}.feng-drawing svg{display:block;width:100%;font-size:9px}
+.feng-reading{border-left:2px solid var(--accent);padding-left:8px;margin-top:8px}
+#feng a{font-size:11px;display:block}
+#reader{max-width:1060px;margin:auto;scroll-margin-top:60px}
+.reader-nav{display:flex;flex-wrap:wrap;gap:4px;border-bottom:2px solid var(--ink);padding:12px 0}
+.reader-nav button{border:0;padding:5px 9px}.reader-nav [aria-current="page"]{background:var(--ink);color:var(--paper)}
+.reader-page{padding:18px 0}.reader-page h2{font-size:22px;line-height:1.3;max-width:40ch;margin:0 0 18px}
+.reader-page>p{max-width:76ch;line-height:1.65}.reader-page a{overflow-wrap:anywhere}.reader-page>p a{font-size:12px}
+.reader-diagram{margin:18px 0 6px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.reader-diagram svg{width:100%;max-height:220px;display:block;color:var(--ink);font:15px var(--sans)}
+.reader-diagram ol{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 20px;padding-left:24px;font-size:12px;margin:6px 0}
+.thesis-artifact{margin:22px 0;display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:10px 24px;align-items:start;border-top:2px solid var(--ink);padding-top:16px}
+.thesis-artifact img{max-width:100%;height:auto;display:block;max-height:470px;object-fit:contain;object-position:left top;background:white}
+.thesis-artifact figcaption{font-size:15px;max-width:46ch;line-height:1.65}.thesis-artifact>a:last-child{grid-column:2;font-size:12px}
+.reader-pager{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:12px}
+#reader-sources,#researchAppendix{padding:14px 0;border-top:2px solid var(--ink)}
+#reader-sources li{margin:12px 0;scroll-margin-top:80px}#reader-sources .note{margin:4px 0}
+#researchAppendix{margin-top:20px}#appendixNote{max-width:76ch;margin:12px 0}
+.researchhead{padding:16px 0}.researchhead h1{font-size:22px;max-width:50ch;margin:4px 0 10px}
+.reader-timeline{padding:12px 0;border-top:2px solid var(--ink)}
+@media(max-width:600px){.reader-nav{gap:2px}.reader-nav button{padding:6px;font-size:12px}.reader-diagram ol{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-page h2{font-size:20px}.thesis-artifact{grid-template-columns:1fr}.thesis-artifact>a:last-child{grid-column:auto}.thesis-artifact img{max-height:390px}.reader-diagram svg{min-height:130px}}
+.location-desk{margin:18px 0;padding:14px 0;border-top:2px solid var(--ink);max-width:1160px}
+.location-desk h2{font-size:18px}.location-desk p{max-width:84ch;font-size:12px;margin:8px 0}
+.location-cities{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}.location-cities button{padding:4px 9px}
+.location-desk details{padding:10px 0;border-top:1px solid var(--line)}.location-desk details>button{margin:4px 5px 6px 0}
+.location-desk a{font-size:12px}.location-context{border-left:3px solid var(--accent);padding-left:10px}
+.mechanics-inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0;max-width:860px}
+.mechanics-inputs label{font-size:12px}.mechanics-inputs input{display:block;width:100%;min-height:30px;margin-top:4px;background:var(--panel);border:1px solid var(--line);padding:4px}
+.mechanics-table{overflow-x:auto}.mechanics-table table{min-width:530px;width:100%;border-collapse:collapse;font-size:12px}
+.mechanics-table caption{text-align:left;padding:8px 0}.mechanics-table th,.mechanics-table td{text-align:left;padding:7px;border-bottom:1px solid var(--line)}
+.location-desk dl{font-size:12px}.location-desk dl>div{display:flex;gap:12px;padding:5px 0;border-bottom:1px solid var(--line)}.location-desk dd{margin:0}
+@media(max-width:600px){.mechanics-inputs{grid-template-columns:repeat(2,minmax(0,1fr))}.location-desk dl>div{display:block}}
+#dedicationDetails{padding:14px 0;border-top:1px solid var(--line);margin-top:10px}
+#dedicationDetails .dedication{margin-top:12px}.researchhead .lede{font-size:15px;max-width:84ch;line-height:1.55}.researchhead .credit{margin-top:8px;max-width:100ch}
+.period-plot{margin:12px 0;max-width:700px}.period-plot svg{display:block;width:100%;font:12px var(--sans);overflow:visible}.period-plot figcaption{font-size:12px}

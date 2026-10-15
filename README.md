@@ -38,3 +38,13 @@ The desktop header is 40 px, action buttons fit their labels, and narrower side 
 Verification: 78 Node tests pass, including independent NOAA altitude checks within 1 degree for all four pilot cities, seasonal north/south reversal, east/west timing, night incidence, state validation, rotation, dependency hashes and exact corner accounting. Browser checks cover the city/date/time controls, save/restore and EN/TH/ZH credits at desktop and phone widths. No dependency install or remote analysis API is required.
 
 Deploy with `npm run deploy`. The staging helper excludes `.wrangler`, `.DS_Store`, `.git` and `.env` metadata from public assets. Production is Cloudflare Pages project `shdt` at https://shdt.nonarkara.org; the earlier Sites-hosted URL is a historical prototype, not the canonical release.
+
+### 2026-10-15 · Research reader, geometry atlas and location desk
+
+The four-page EN/TH/ZH reader separates Chen’s 2006 findings from the 2026 extension, with three original attributed figure crops and four explanatory diagrams. Original long-form studies, photographs and computed plates remain in the appendix. Primary sources, exact locators, crop provenance and reading limits are recorded in [docs/RESEARCH-EVIDENCE.md](docs/RESEARCH-EVIDENCE.md).
+
+Eleven profiles feed the same model, search and OBJ export. Feng Shui prompts alter the real geometry while the compass diagram exposes invented-site angular relationships; no cultural score or rent multiplier is inferred.
+
+The location desk supports Bangkok, Tokyo, Kuala Lumpur, Jakarta and Ho Chi Minh City. It shows sourced regional context, a user-input cantilever/soil-column period experiment, a height/structure sensitivity plot and table, and implemented versus missing checks. All mechanics inputs begin empty. The optional teaching example is labelled as invented, not measured or recommended. Percentages are changes in vibration period; they do not express suitability or seismic safety. Actual geotechnical investigation, demand/capacity, drift, foundation analysis and local approval remain unimplemented.
+
+Validation includes geometry topology, equal-area search across all profiles, accounting conservation, physical dimensional scaling, Tokyo civil time/solar geometry, translated reader integrity and artifact/dependency pins. Browser review covers EN/TH/ZH, reader navigation, new forms, Feng Shui and location interactions, including a 390px viewport. `npx axiom-audit` returned npm 404; that audit could not be run.

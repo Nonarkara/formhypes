@@ -5,14 +5,14 @@
 <meta name="theme-color" content="#111416">
 <title>FormHypes — Architectural intelligence</title>
 <meta name="description" content="FormHypes by Dr Non at depa + Axiom. Inspired by his MIT classmate Shouheng Chen, twenty years after the 2006 thesis. 20th anniversary, 2006–2026. English, Thai, Chinese.">
-<link rel="stylesheet" href="style.css?v=46132b1c07">
+<link rel="stylesheet" href="style.css?v=3df3f9078d">
 </head>
 <body>
 
 <!-- One rule under one line. No boxes: everything here is type separated by
      hairlines, so the drawing below gets the screen. -->
 <header>
-  <a href="#studio" class="brand" title="FormHypes — by Dr Non at depa + Axiom; inspired by his MIT classmate Shouheng Chen, 2006–2026" aria-label="FormHypes — by Dr Non at depa + Axiom; inspired by his MIT classmate Shouheng Chen, 2006–2026"><span class="b-form">Form</span><span class="b-hypes">Hypes</span><span class="b-cred">by Dr Non <i>depa + Axiom</i></span></a>
+  <a href="#studio" class="brand" title="FormHypes — by Dr Non at depa + Axiom; inspired by his MIT classmate Shouheng Chen, 2006–2026" aria-label="FormHypes — by Dr Non at depa + Axiom; inspired by his MIT classmate Shouheng Chen, 2006–2026"><span class="b-form">Form</span><span class="b-hypes">Hypes</span><span class="b-cred">inspired by <i>SHDT</i></span></a>
   <nav class="tabs" aria-label="Sections">
     <button type="button" data-tab="studio" aria-selected="true" class="on" data-i18n="nav.studio">Studio</button>
     <button type="button" data-tab="research" aria-selected="false" data-i18n="nav.research">Research</button>
@@ -48,6 +48,7 @@
 
       <label for="family" class="ctl" data-i18n="c.family">Floor profile</label>
       <select id="family"></select>
+      <details id="formAtlas"><summary id="atlasTitle">Form atlas</summary><div id="atlas"></div></details>
       <div id="geometryControls"></div>
 
       <label for="program" class="ctl" data-i18n="c.program">Level program</label>
@@ -63,6 +64,7 @@
       <p class="note" id="systemNote"></p>
 
       <details class="sun-study" open><summary data-i18n="sun.title">Sun study</summary><div id="solarControls"><label for="city" data-i18n="sun.city">City</label><select id="city"></select><div class="solar-clock"><label for="solarDate"><span data-i18n="sun.date">Date</span><input id="solarDate" type="date" min="2000-01-01" max="2100-12-31"></label><label for="solarTime"><span data-i18n="sun.time">Local time</span><input id="solarTime" type="time"></label></div><div id="orientationControl"></div><p id="sunPosition" class="note" role="status"></p><p class="note" data-i18n="sun.note"></p></div></details>
+      <details id="fengStudy"><summary id="fengTitle">Feng Shui playground</summary><div id="feng"></div></details>
       <details><summary data-i18n="c.constraints">Site &amp; core constraints</summary><div id="constraintControls"></div></details>
       <details><summary><span data-i18n="c.rent">Rent assumptions</span> <span class="data" data-i18n="c.USD">USD</span></summary><p class="note" data-i18n="c.note">Illustrative inputs.</p><div id="rentControls"></div></details>
 
@@ -159,6 +161,8 @@
     </aside>
   </div>
 
+  <section id="locationDesk" class="location-desk" aria-live="polite"></section>
+
   <section class="explore" aria-labelledby="exploreTitle">
     <div class="explorehead">
       <div><h2 id="exploreTitle" data-i18n="rail.explore">Find the form that earns its footprint.</h2><p data-i18n="rail.exploreSub">Every alternative is resized to your gross floor area.</p></div>
@@ -184,9 +188,11 @@
     <h1 data-i18n="r.ledeHead">Twenty years of an unfinished idea.</h1>
     <p class="lede" id="rLede"></p>
     <p class="credit" id="rCredit"></p>
-    <div id="dedication" class="dedication"></div>
+
   </div>
-  <article id="rBody"></article>
+  <div id="reader"></div>
+  <details id="dedicationDetails"><summary id="dedicationTitle">Dedication · MIT classmates, twenty years later</summary><div id="dedication" class="dedication"></div></details>
+  <details id="researchAppendix"><summary id="appendixTitle">Extended studies, diagrams &amp; photographs</summary><p class="note" id="appendixNote"></p><article id="rBody"></article></details>
   <footer><span data-i18n="d.footer">From embedded design knowledge to measurable form.</span><span class="data" data-i18n="d.version">Concept prototype</span></footer>
 </section>
 
@@ -197,5 +203,5 @@
 <dialog id="knowledgeDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="k.button">Architectural knowledge</h2><div id="knowledgeContent" role="status"></div><p class="knowledgeDownloads"><a href="knowledge/designon-knowledge.json?v=38eb5f372c" download data-i18n="k.download">Download</a><a href="knowledge/DESIGNON-LICENSE.txt?v=1950c131d0" data-i18n="k.license">License</a></p></dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="app.js?v=51cea25703"></script>
+<script type="module" src="app.js?v=f1d28229c0"></script>
 </body></html>

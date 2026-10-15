@@ -393,8 +393,8 @@ test('the product name is FormHypes everywhere it is rendered', () => {
     'wordmark expansion missing');
   assert.match(html, /<span class="b-form">Form<\/span><span class="b-hypes">Hypes<\/span>/,
     'wordmark is not split into FORM and HYPES');
-  assert.match(html, /<span class="b-cred">by Dr Non <i>depa \+ Axiom<\/i><\/span>/,
-    'the author and affiliation must be explicit in the header');
+  assert.match(html, /<span class="b-cred">inspired by <i>SHDT<\/i><\/span>/,
+    'the requested inspiration must be explicit in the wordmark');
   // SHDT carries the CCP red the mark is named for; nothing else does.
   for (const sel of ['.tb-sheet .b-cred i{'])
     assert.ok(readDist('style.css').includes(sel + 'font-style:normal;font-weight:800;color:#de2910'),

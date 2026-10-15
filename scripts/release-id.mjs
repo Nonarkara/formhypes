@@ -41,15 +41,16 @@ const stamp = (src, refs, ids) => refs.reduce(
     `${ref}?v=${ids[ref.replace(/^\.\//, '')]}`),
   src);
 
-const SHARED = ['model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'vendor/SUNCALC-LICENSE.txt', 'i18n.js', 'style.css',
+const SHARED = ['model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'vendor/SUNCALC-LICENSE.txt', 'i18n.js', 'style.css', 'play.js', 'location.js',
   'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 // The photographs are referenced from research.js, so they are stamped there
 // first and research.js is hashed afterwards — otherwise app.js would pin an id
 // for a research.js that then changed underneath it.
 const MEDIA = ['research/media/office-2023.jpg', 'research/media/house-2006.jpg',
   'research/media/lab-0506.jpg', 'research/media/lab-0507.jpg',
-  'research/media/lab-0508.jpg'];
-const IN_APP = ['./solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
+  'research/media/lab-0508.jpg', 'research/artifacts/chen-fig34.png',
+  'research/artifacts/chen-fig36.png', 'research/artifacts/chen-fig76-detail.png'];
+const IN_APP = ['./reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
 const IN_HTML = ['style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 
 const ids = {};
@@ -63,6 +64,11 @@ await write('model.js', model);ids['model.js']=sha(model);
 const research = stamp(await read('research.js'), MEDIA, ids);
 await write('research.js', research);
 ids['research.js'] = sha(research);
+
+const content = stamp(await read('reader-content.js'), [...MEDIA, 'knowledge/designon-knowledge.json'], ids);
+await write('reader-content.js', content);ids['reader-content.js']=sha(content);
+const reader = stamp(await read('reader.js'), ['./reader-content.js'], ids);
+await write('reader.js', reader);ids['reader.js']=sha(reader);
 
 // app.js is stamped against its imports, then hashed in its rewritten form so
 // index.html points at the bytes that actually ship.

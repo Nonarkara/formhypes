@@ -1,9 +1,13 @@
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule}from'./model.js?v=ddbf870438';
-import{t,langs,langMeta,translator}from'./i18n.js?v=41dbb05006';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=5cafb2724f';
+import{t,langs,langMeta,translator}from'./i18n.js?v=ed8c039212';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=7942c638f9';
 
-import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=dea7d64466';
+import {renderLocation} from './location.js?v=3f7eefff88';
+import {renderPlay} from './play.js?v=6dc7f5f550';
+import {renderReader} from './reader.js?v=7238b55653';
+
+import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=e78a192096';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en');
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -127,13 +131,15 @@ function sync(){
 function toast(msg){$('toast').textContent=msg;$('toast').classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('on'),4200)}
 function changed(){
  alternatives=[];
- $('searchResults').innerHTML=`<div class="empty"><span class="data">${tt('s.sum')} 80</span><p>${tt('s.changed')}</p></div>`;
+ $('searchResults').innerHTML=`<div class="empty"><span class="data">${tt('s.sum')} ${searchPlan(state).examined}</span><p>${tt('s.changed')}</p></div>`;
  update();
 }
 
 /* ── update ───────────────────────────────────────────────────────────── */
 function update(){
  metrics=evaluate(state);sync();
+ renderLocation({lang,state,metrics,cities,cityLabel:k=>tt("sun."+k),stackHeight,onCity:city=>{state={...state,city};changed()}});
+ renderPlay({lang,state,families,profile,label:f=>tt("f."+f),onChange:patch=>{state={...state,...patch};changed()}});
  const sun=solarPosition(state);$('sunPosition').textContent=(sun.aboveHorizon?tt('sun.position',{alt:sun.altitude.toFixed(1),az:sun.azimuth.toFixed(1),zone:sun.zone}):tt('sun.night')+' · '+sun.zone);
  $('contribution').textContent=money(metrics.contribution);
  $('contributionLabel').textContent=metrics.valid?tt('m.contribution'):tt('m.contributionBad');
@@ -521,6 +527,7 @@ function renderResearch(){
  $('rLede').textContent=tt('r.lede');
  $('rCredit').textContent=tt('r.credit');
  renderDedication();
+ renderReader(lang);
  const body=$('rBody');body.replaceChildren();
  for(const sec of SECTIONS){
   const s=el('section');
@@ -1007,7 +1014,7 @@ function familyTable(){
  const tb=el('tbody');
  for(const{k,m}of rows){
   const tr=el('tr');
-  tr.append(el('td',null,families[k]));
+  tr.append(el('td',null,tt('f.'+k)));
   const c=el('td','numeric',money(m.contribution));tr.append(c);
   tr.append(el('td','numeric',String(m.corners)));
   const d=el('td','numeric',(m.distinctiveness*100).toFixed(0));tr.append(d);

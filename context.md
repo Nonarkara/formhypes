@@ -19,3 +19,13 @@ Solar position uses vendored SunCalc 2.1.0 (BSD-2-Clause, notice in dist/vendor)
 Invariant: every rentable square metre receives base rent once; corner premium is corner area × base rent × premium fraction. An old regression test prescribed that competitive towers must earn less; this was removed as an economic outcome cannot be hard-coded after correcting accounting. Height-search and feasibility assertions remain.
 
 Design: preserve Sketchpad drafting-sheet identity and model dominance. Header is 40px on desktop; fit-width commands and narrower rails return model area. Phone labels retain native controls and 44px hit targets for coarse pointers. No live research, photographs, drawings, charts or canvas removed. Human section now reads the selected embedded level height.
+
+## 2026-10-15 · Guided research and form/place extensions
+
+Design Read: an annotated architectural working sheet, with compact reader navigation and original thesis evidence beside newly drawn explanations. Reference remains Sketchpad; research uses the hierarchy of an architectural monograph figure spread. The tower continues to dominate the studio. Equal atlas cells compare peer geometries; ordinary commands stay fit-width. No diagrams/photos/canvas are deleted. The No Design Tells skill was used for the visual review; the public npm `axiom-audit` package returns 404, so that deterministic audit is unavailable and is not claimed as passed.
+
+FormHypes inspired by SHDT is the wordmark. By Dr Non · depa + Axiom stays visible in studio, research and export credits. Research is four translated guided pages with seven original/explanatory diagrams and an accessible extended appendix. Three attributed thesis crops carry figure/page locators. Evidence and reading scope: docs/RESEARCH-EVIDENCE.md.
+
+Eleven simple CCW profiles now include triangle, hexagon, faceted oval, petals and pinwheel. All use existing slab stack, containment, area, envelope, rent, search and export operations. Feng Shui prompts are invented contemporary design briefs, with angular relationships, no fortune score or financial multiplier.
+
+Location desk adds Tokyo and connects all five city buttons to the existing solar selection. Regional Bangkok basin evidence and official J-SHIS resources are separate from a user-input mechanics lab. Default engineering inputs are empty. A clearly labelled teaching example illustrates cantilever/soil period sensitivity only. No suitability percentage, seismic capacity or foundation design is inferred. Soil inputs clear on city changes. Cultural context cites Dr Non and Nikken Sekkei; it does not assign national preferences. Standards desk exposes real model constraints and missing professional checks.

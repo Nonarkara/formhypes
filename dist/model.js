@@ -11,19 +11,19 @@
 /* ── geometry ─────────────────────────────────────────────────────────────
    The plans come from geometry.js, where each is an expression rather than a
    coordinate table, and the tower's skin area is a surface integral rather than
-   a set of triangles. Chen assembled his massing by hand from point arrays and
-   had no way to ask what the surface actually cost; both of those are closed
-   problems now, and both answers are exact. */
+   a set of triangles. This prototype adds explicit plan operators and numerical surface
+   integration. These extensions do not establish the limits of Chen’s system
+   or validate construction cost. */
 
 import{polyArea,polyPerimeter,minkowski,planLibrary,loftTable,lateralArea,loftVolume,
- pointInPolygon,distToBoundary,daylitFraction,daylightReachFor,cotSky,skyAngleDeg,isConvex}from'./geometry.js?v=ddc1f58b1d';
+ pointInPolygon,distToBoundary,daylitFraction,daylightReachFor,cotSky,skyAngleDeg,isConvex}from'./geometry.js?v=eb7a621ab9';
 
-import {solarDefaults,facadeExposure} from './solar.js?v=dea7d64466';
-export const families={box:'Rectilinear',chamfer:'Chamfered',cross:'Cruciform',octagon:'Octagonal',star:'Eight-point',rub:'Rub el Hizb'};
+import {solarDefaults,facadeExposure} from './solar.js?v=e78a192096';
+export const families={box:'Rectilinear',chamfer:'Chamfered',cross:'Cruciform',octagon:'Octagonal',star:'Eight-point',rub:'Rub el Hizb',triangle:'Triangular',hexagon:'Hexagonal',oval:'Faceted oval',petal:'Four-petal',pinwheel:'Pinwheel'};
 // Re-exported so the controller has one import edge into the model rather than
 // two into the model and the kernel. There is no cycle either way, but one edge
 // is one fewer thing for the release stamp to keep in step.
-export {isConvex,RUB_INNER_RATIO,RUB_INNER_RADIUS} from './geometry.js?v=ddc1f58b1d';
+export {isConvex,RUB_INNER_RATIO,RUB_INNER_RADIUS} from './geometry.js?v=eb7a621ab9';
 export const defaults={...solarDefaults,family:'cross',span:48,aspect:1,floors:48,height:4.1,taper:0.82,twist:0,core:14,common:12,rent:650,premium:30,occupancy:92,reserve:18,frontage:6,site:68,maxHeight:260,skin:'vertical',system:'column-grid',program:'petronas',regime:'yield'};
 
 const PLANS={};
@@ -41,7 +41,7 @@ export const inside=pointInPolygon;
 
 /** The plan at grade, aspect-stretched — the curve the whole tower is lofted
  *  from. Taper and twist are then a scale and a rotation of this one curve,
- *  which is what lets the skin area be integrated exactly. */
+ *  which allows the skin area to be integrated numerically. */
 const basePlan=s=>{
  const p=plan(s.family),kx=s.span*Math.sqrt(s.aspect),ky=s.span/Math.sqrt(s.aspect);
  return p.map(([x,y])=>[x*kx,y*ky]);
@@ -339,7 +339,7 @@ export function evaluate(s){
   const t=l.z/height,p=profile(s,t),zones=l.gfa?cornerZones(p,s):[];
   if(l.gfa){
    gross+=area(p);
-   // Exact skin for this level's slab, from the surface integral — not two
+   // Numerically integrated skin for this level's slab, from the surface integral — not two
    // triangles across a quad that a twist has already made non-planar.
   }
   facade+=lateralArea(tab,l.z,l.z+l.h,sAt,s0z,()=>0,th0z);
