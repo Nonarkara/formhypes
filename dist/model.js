@@ -16,21 +16,22 @@
    problems now, and both answers are exact. */
 
 import{polyArea,polyPerimeter,minkowski,planLibrary,loftTable,lateralArea,loftVolume,
- pointInPolygon,distToBoundary,daylitFraction,daylightReachFor,cotSky,skyAngleDeg,isConvex}from'./geometry.js';
+ pointInPolygon,distToBoundary,daylitFraction,daylightReachFor,cotSky,skyAngleDeg,isConvex}from'./geometry.js?v=ddc1f58b1d';
 
+import {solarDefaults,facadeExposure} from './solar.js?v=dea7d64466';
 export const families={box:'Rectilinear',chamfer:'Chamfered',cross:'Cruciform',octagon:'Octagonal',star:'Eight-point',rub:'Rub el Hizb'};
 // Re-exported so the controller has one import edge into the model rather than
 // two into the model and the kernel. There is no cycle either way, but one edge
 // is one fewer thing for the release stamp to keep in step.
-export {isConvex,RUB_INNER_RATIO,RUB_INNER_RADIUS} from './geometry.js';
-export const defaults={family:'cross',span:48,aspect:1,floors:48,height:4.1,taper:0.82,twist:0,core:14,common:12,rent:650,premium:30,occupancy:92,reserve:18,frontage:6,site:68,maxHeight:260,skin:'vertical',system:'column-grid',program:'petronas',regime:'yield'};
+export {isConvex,RUB_INNER_RATIO,RUB_INNER_RADIUS} from './geometry.js?v=ddc1f58b1d';
+export const defaults={...solarDefaults,family:'cross',span:48,aspect:1,floors:48,height:4.1,taper:0.82,twist:0,core:14,common:12,rent:650,premium:30,occupancy:92,reserve:18,frontage:6,site:68,maxHeight:260,skin:'vertical',system:'column-grid',program:'petronas',regime:'yield'};
 
 const PLANS={};
 const plan=f=>PLANS[f]||(PLANS[f]=planLibrary[f]());
 
 export function profile(s,t=0){
  const p=plan(s.family);
- const scale=1+(s.taper-1)*t,ang=s.twist*Math.PI/180*t,c=Math.cos(ang),d=Math.sin(ang);
+ const scale=1+(s.taper-1)*t,ang=(s.twist*t-(s.orientation||0))*Math.PI/180,c=Math.cos(ang),d=Math.sin(ang);
  const kx=s.span*Math.sqrt(s.aspect)*scale,ky=s.span/Math.sqrt(s.aspect)*scale;
  return p.map(([x,y])=>{const X=x*kx,Y=y*ky;return [X*c-Y*d,X*d+Y*c]});
 }
@@ -50,22 +51,14 @@ function coreBoundaryHit(p,core){let c=core/2,r=[[-c,-c],[c,-c],[c,c],[-c,c]];re
 function coreHit(p,core){const c=core/2;return coreBoundaryHit(p,core)||p.some(([x,y])=>Math.abs(x)<c&&Math.abs(y)<c)||[[-c,-c],[c,-c],[c,c],[-c,c]].some(v=>inside(p,v))}
 export function cornerZones(p,s){let out=[];for(let i=0;i<p.length;i++){let v=p[i],prev=p[(i+p.length-1)%p.length],next=p[(i+1)%p.length],u=[prev[0]-v[0],prev[1]-v[1]],w=[next[0]-v[0],next[1]-v[1]],lu=Math.hypot(...u),lw=Math.hypot(...w);if(lu<2*s.frontage+.01||lw<2*s.frontage+.01)continue;u=u.map(x=>x/lu);w=w.map(x=>x/lw);const cross=u[0]*w[1]-u[1]*w[0],angle=Math.acos(Math.max(-1,Math.min(1,u[0]*w[0]+u[1]*w[1])));if(cross>=0||angle>145*Math.PI/180)continue;const l=s.frontage,z=[v,[v[0]+u[0]*l,v[1]+u[1]*l],[v[0]+(u[0]+w[0])*l,v[1]+(u[1]+w[1])*l],[v[0]+w[0]*l,v[1]+w[1]*l]];if(coreHit(z,s.core))continue;const centroid=z.reduce((a,v)=>[a[0]+v[0]/4,a[1]+v[1]/4],[0,0]);if(!inside(p,z[2])||!inside(p,centroid))continue;out.push(z)}return out}
 
-/* ── which way does a corner face, and what does that cost it? ────────────
-   A corner office is not worth the same twice. The one looking due west takes
-   the low afternoon sun for hours; the only way to keep somebody at that
-   window is to put dark glass in it, and dark glass earns less per square
-   metre than a bright one. So orientation belongs in the rent, not only on the
-   elevation.
-
-   Eight compass sectors and one index each, for a mid-latitude site. This is a
-   modelling assumption, not a solar simulation — the section says so, and the
-   coefficients sit with the other illustrative inputs rather than pretending to
-   be a climate file. */
-
+/* Solar exposure is a city/date geometric study, independent of rent.
+ * Daily samples run 08:00–18:00 city civil time, every 15 minutes. Glass
+ * categories and value factors remain illustrative scenarios, not prescriptions.
+ */
 const SECTORS=[['E',0],['SE',-45],['S',-90],['SW',-135],['W',180],['NW',135],['N',90],['NE',45]];
 // Hours of usable low-angle sun, in the coarse sense: east and west are the
 // punishing ones because the sun is near the horizon exactly when people are.
-const SOLAR={E:1.00,SE:0.70,S:0.55,SW:0.70,W:1.00,NW:0.35,N:0.35,NE:0.35};
+// Exposure is integrated from the selected city/date; compass sectors label directions only.
 const GLASS={
  vision:{en:'clear vision low-e',th:'กระจกวิสิวชัน low-e ใส',zh:'透明 low-e 视窗玻璃',value:1.00},
  solar :{en:'low-e with a shade',th:'low-e พร้อมไซต์บังแดด',zh:'low-e 加遮阳',value:0.92},
@@ -90,27 +83,21 @@ export function compassOf(az){
 }
 
 /** Glazing a corner of that bearing has to carry, and what it does to value. */
-export function glazingAt(az){
- const c=compassOf(az),load=SOLAR[c];
+export function glazingAt(az,study={}){
+ const c=compassOf(az),exposure=facadeExposure((90-az+360)%360,study),load=exposure.load;
  const key=load>=0.8?'dark':load>=0.5?'solar':'vision';
- return {compass:c,load,key,...GLASS[key]};
+ return {compass:c,load,key,...GLASS[key],...exposure};
 }
 
-/** The glazing schedule for one plate, in plan order.
- *
- *  A corner is judged on its two FACES, not on the diagonal it points along: the
- *  sun does not care which way the corner aims, only which way the glass faces.
- *  That is the whole reason a plain rectangle needs solar-control glass on all
- *  four of its corners — every square faceplate has an east or a west wall on
- *  it somewhere — and it is why a plan whose points land on the diagonals can
- *  dodge the problem entirely. */
-export function glazingSchedule(p){
+/** Both outward faces are tested; the higher daily exposure sets the scenario.
+ * No exposure or glazing multiplier is silently applied to the rent model. */
+export function glazingSchedule(p,study={}){
  return p.map((v,i)=>{
   const prev=p[(i+p.length-1)%p.length],next=p[(i+1)%p.length];
-  const f=[glazingAt(edgeBearing(prev,v)),glazingAt(edgeBearing(v,next))];
+  const f=[glazingAt(edgeBearing(prev,v),study),glazingAt(edgeBearing(v,next),study)];
   const worst=f[0].load>=f[1].load?f[0]:f[1];
   return {vertex:i,faces:f,compass:worst.compass,load:worst.load,
-          key:worst.key,value:worst.value};
+          key:worst.key,value:worst.value,equivalentHours:worst.equivalentHours,referenceKWhM2:worst.referenceKWhM2};
  });
 }
 
@@ -402,7 +389,7 @@ export function evaluate(s){
 
  const base=s.rent*s.occupancy/100;
  const rentOrdinary=rentable*base;
- const rentCorner=cornerArea*base*(1+s.premium/100);
+ const rentCorner=cornerArea*base*(s.premium/100);
  const rentIdentity=rentable*base*identityRate;
  const rentColumnFree=rentable*base*columnFreeRate;
  const rentHeight=rentable*base*heightRate;

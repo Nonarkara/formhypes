@@ -1,8 +1,9 @@
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule}from'./model.js?v=e511bc4108';
-import{t,langs,langMeta,translator}from'./i18n.js?v=b87cb94c2d';
-import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=c71de66e1f';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule}from'./model.js?v=ddbf870438';
+import{t,langs,langMeta,translator}from'./i18n.js?v=41dbb05006';
+import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=7942c638f9';
 
+import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=dea7d64466';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en');
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -14,13 +15,13 @@ let drawn={w:0,h:0},pendingRaf=false;
 // [i18n key, min, max, step, unit] — the label is resolved per language in
 // buildRanges(); nothing here is English-only.
 const schema={
- span:['c.span',32,62,.01,'m'],aspect:['c.aspect',.65,1.5,.05,'×'],floors:['c.floors',12,70,1,''],
+ orientation:['c.orientation',0,360,5,'°'],span:['c.span',32,62,.01,'m'],aspect:['c.aspect',.65,1.5,.05,'×'],floors:['c.floors',12,70,1,''],
  taper:['c.taper',.6,1.2,.02,'×'],twist:['c.twist',0,180,5,'°'],
  core:['c.core',12,26,1,'m'],common:['c.common',8,22,1,'%'],
  site:['c.site',40,100,2,'m'],maxHeight:['c.maxHeight',100,350,5,'m'],frontage:['c.frontage',4,9,.5,'m'],
  rent:['c.rent',100,1400,25,'$'],premium:['c.premium',0,80,5,'%'],
  occupancy:['c.occupancy',50,100,1,'%'],reserve:['c.reserve',0,60,2,'$']};
-const groups={geometryControls:['span','aspect','floors','taper','twist'],constraintControls:['core','common','site','maxHeight','frontage'],rentControls:['rent','premium','occupancy','reserve']};
+const groups={orientationControl:['orientation'],geometryControls:['span','aspect','floors','taper','twist'],constraintControls:['core','common','site','maxHeight','frontage'],rentControls:['rent','premium','occupancy','reserve']};
 
 /* ── language ─────────────────────────────────────────────────────────── */
 // Short stamps drawn into the plan SVG and the tower canvas. Every language
@@ -50,6 +51,7 @@ function setLang(l){
  document.documentElement.lang=langMeta[l].htmlLang;
  document.querySelectorAll('[data-i18n]').forEach(n=>{n.textContent=tt(n.dataset.i18n)});
  document.title='FormHypes — '+tt('tag.line');
+ for(const id of ['reset','save','export'])$(id).setAttribute('aria-label',tt(id));
  buildLangButtons();buildSelectors();buildRanges();sync();
  renderResearch();renderMethod();renderStudies();
  update();
@@ -72,6 +74,8 @@ const tri = p => Object.fromEntries(langs.map(l => [l, t[l][p]]));
 // …and the same, with a language-independent suffix appended to all three.
 const triAs = (p, suffix) => Object.fromEntries(langs.map(l => [l, t[l][p] + suffix]));
 function buildSelectors(){
+ const city=$('city');city.replaceChildren();for(const id of Object.keys(cities))opt(city,id,tt('sun.'+id));city.value=state.city;city.onchange=()=>{state.city=city.value;changed()};
+ for(const id of ['solarDate','solarTime'])$(id).onchange=()=>{const next={...state,[id]:$(id).value};if(!validSolar(next)){sync();toast(tt('sun.invalid'));return}state=next;changed()};
  const famL={};for(const k of Object.keys(families))famL[k]=tri('f.'+k);
  fillSelect('family',families,famL,state.family);
  const progL={};for(const k of Object.keys(levelPrograms))progL[k]=tri('g.prog.'+k);
@@ -109,6 +113,7 @@ function sync(){
   if(k==='span'){$(k).min=Math.min(schema[k][1],state[k]);$(k).max=Math.max(schema[k][2],state[k])}
   $(k).value=state[k];$(k+'Value').textContent=controlValue(k);
  }
+ $('city').value=state.city;$('solarDate').value=state.solarDate;$('solarTime').value=state.solarTime;
  $('family').value=state.family;$('skin').value=state.skin;$('program').value=state.program;
  $('system').value=state.system;$('regime').value=state.regime;
  $('programNote').textContent=tt('prog.'+state.program+'.note')+' — '+tt('prog.'+state.program+'.src');
@@ -129,6 +134,7 @@ function changed(){
 /* ── update ───────────────────────────────────────────────────────────── */
 function update(){
  metrics=evaluate(state);sync();
+ const sun=solarPosition(state);$('sunPosition').textContent=(sun.aboveHorizon?tt('sun.position',{alt:sun.altitude.toFixed(1),az:sun.azimuth.toFixed(1),zone:sun.zone}):tt('sun.night')+' · '+sun.zone);
  $('contribution').textContent=money(metrics.contribution);
  $('contributionLabel').textContent=metrics.valid?tt('m.contribution'):tt('m.contributionBad');
  $('annualRent').textContent=money(metrics.rent);
@@ -448,7 +454,7 @@ function finishSearch(results,plan,objective,elapsed){
 
 /* ── studies ──────────────────────────────────────────────────────────── */
 function validState(x){return x&&families[x.family]&&levelPrograms[x.program]&&facadeFamilies[x.skin]&&systems[x.system]&&regimes[x.regime]
- &&Object.keys(schema).every(k=>Number.isFinite(x[k])&&(k==='span'?x[k]>0&&x[k]<300:x[k]>=schema[k][1]&&x[k]<=schema[k][2]))}
+ &&validSolar({...solarDefaults,...x})&&Object.keys(schema).every(k=>Number.isFinite(k==='orientation'?(x[k]??0):x[k])&&(k==='span'?x[k]>0&&x[k]<300:(x[k]??0)>=schema[k][1]&&(x[k]??0)<=schema[k][2]))}
 // The rebrand renamed both keys. Fall back to the old ones so a language
 // choice and a study shelf saved under the previous name survive it.
 const readStore=k=>{try{return localStorage.getItem(k)}catch{return null}};
@@ -461,7 +467,7 @@ function renderStudies(){
   const d=document.createElement('div');d.className='saved';
   const b=document.createElement('button');
   b.textContent=`${i+1}. ${tt('f.'+study.state.family)} / ${tt('regime.'+study.state.regime+'.label')} / ${money(evaluate(study.state).contribution)}`;
-  b.onclick=()=>{state={...study.state};changed();toast(tt('s.restored'))};
+  b.onclick=()=>{state={...defaults,...study.state};changed();toast(tt('s.restored'))};
   const del=document.createElement('button');del.textContent='×';
   del.setAttribute('aria-label','Delete saved study '+(i+1));
   del.onclick=()=>{studies.splice(i,1);persist();renderStudies()};
@@ -872,7 +878,8 @@ const ECON={services:0.95,specClear:2.9,specFloorToFloor:4.0,lowCeilingPenalty:0
 
 function humanPlate(){
  const wrap=el('div','human');
- const f2f=state.height, svc=ECON.services, clear=f2f-svc;
+ const level=stack(state)[Number($('floor').value)-1];
+ const f2f=level?.h||state.height, svc=ECON.services, clear=f2f-svc;
  // Scale to the plate rather than the other way round: a 9.6 m storey must not
  // run off the top of the drawing, and the width follows the height so the
  // room keeps its proportions instead of stretching.
@@ -939,10 +946,9 @@ function humanPlate(){
    tt('h.hidden'));
  wrap.append(ns);
 
- // The glazing schedule. Every corner that catches a low east or west sun has
- // to be dark, and a dark corner is worth less than a bright one. This is the
- // one number the plan cannot give you.
- const p=profile(state,0),zones=cornerZones(p,state),gl=glazingSchedule(p);
+ // Solar screening uses the selected floor, city and date. Daily exposure
+ // bands are geometric comparisons; glazing and rent are separate assumptions.
+ const p=profile(state,(level?.z||0)/metrics.height),zones=cornerZones(p,state),gl=glazingSchedule(p,state);
  const list=el('div','glaze');
  let nVision=0,nSolar=0,nDark=0;
  for(const z of zones){
@@ -954,7 +960,7 @@ function humanPlate(){
   const d=el('div','glazeRow');
   d.append(el('span','gz',near.faces.map(f=>f.compass).join(' · ')));
   d.append(el('span','gc '+near.key,tt('h.glass.'+near.key)));
-  d.append(el('span','gv',near.value.toFixed(2)));
+  d.append(el('span','gv',near.equivalentHours.toFixed(2)+' h'));
   list.append(d);
  }
  wrap.append(el('p','note',tt('h.glaze')));
@@ -1072,8 +1078,9 @@ function download(name,content,type){
 }
 $('exportObj').onclick=()=>download('formhypes-'+state.family+'.obj',meshOBJ(state),'text/plain');
 $('exportJson').onclick=()=>download('formhypes-study.json',JSON.stringify({
- version:2,units:{length:'m',area:'m²',currency:'USD',rent:'USD/m²/year'},tier:'conceptual scenario',
- source:'Embedded design knowledge after Shouheng Chen, MIT SMArchS 2006. Financial and political readings are extensions.',
+ version:3,units:{length:'m',area:'m²',currency:'USD',rent:'USD/m²/year'},tier:'conceptual scenario',
+ author:'Dr Non',affiliation:'depa + Axiom',anniversary:'2006–2026',
+ source:'Inspired by Dr Non’s MIT classmate Shouheng Chen. Embedded design knowledge after Shouheng Chen, MIT SMArchS 2006. Financial and political readings are extensions.',
  regime:regimes[state.regime].label,state,metrics,createdAt:new Date().toISOString()},null,2),'application/json');
 $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
  'family,regime,structure,floors,span_m,roof_scale,twist_deg,gross_m2,rentable_m2,corner_offices,height_m,distinctiveness,annual_rent_usd,envelope_reserve_usd,structure_reserve_usd,annual_contribution_usd',

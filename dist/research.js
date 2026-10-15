@@ -51,12 +51,12 @@ export const REGIME_ORDER=['yield','competition','civic','speculative'];
 
 /** Headings for the premium bars, so each rent stream is named in every language. */
 export const PREMIUM_LABELS={
- ordinary:{'en':'Ordinary net rentable','th':'พื้นที่ให้เช่าปกติ','zh':'普通可租面积'},
+ ordinary:{'en':'Base rent / all rentable area','th':'ค่าเช่าฐานของพื้นที่ให้เช่าทั้งหมด','zh':'全部可租面积的基础租金'},
  corner:{'en':'Corner premium','th':'พรีเมียมมุม','zh':'转角溢价'},
  identity:{'en':'Identity premium','th':'พรีเมียมอัตลักษณ์','zh':'辨识度溢价'},
  columnFree:{'en':'Column-free plate','th':'พื้นที่ไร้เสา','zh':'无柱楼板'},
  height:{'en':'Clear height premium','th':'พรีเมียมความสูงพื้นถึงเพดาน','zh':'净高溢价'},
- penalty:{'en':'Obsolete stock / dark core','th':'ห้องล้ำสมัย / แกนมืด','zh':'老旧标准 / 暗核心'}
+ penalty:{'en':'Obsolete stock / dark core','th':'อาคารเก่า / พื้นที่ลึก','zh':'老旧标准 / 暗核心'}
 };
 
 export const REGIME_READS={yield:'reads',competition:'reads',civic:'reads',speculative:'reads'};

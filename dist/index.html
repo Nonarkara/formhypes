@@ -4,15 +4,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#111416">
 <title>FormHypes — Architectural intelligence</title>
-<meta name="description" content="A parametric skyscraper studio built on the embedded design knowledge of Shouheng Chen's MIT thesis (2006), extended with the value model its author left open. English, Thai, Chinese.">
-<link rel="stylesheet" href="style.css?v=92acce2a99">
+<meta name="description" content="FormHypes by Dr Non at depa + Axiom. Inspired by his MIT classmate Shouheng Chen, twenty years after the 2006 thesis. 20th anniversary, 2006–2026. English, Thai, Chinese.">
+<link rel="stylesheet" href="style.css?v=46132b1c07">
 </head>
 <body>
 
 <!-- One rule under one line. No boxes: everything here is type separated by
      hairlines, so the drawing below gets the screen. -->
 <header>
-  <a href="#studio" class="brand" title="FormHypes — inspired by SHDT, Shouheng Chen's 2006 MIT thesis" aria-label="FormHypes — inspired by SHDT, Shouheng Chen's 2006 MIT thesis"><span class="b-form">Form</span><span class="b-hypes">Hypes</span><span class="b-cred">inspired by <i>SHDT</i></span></a>
+  <a href="#studio" class="brand" title="FormHypes — by Dr Non at depa + Axiom; inspired by his MIT classmate Shouheng Chen, 2006–2026" aria-label="FormHypes — by Dr Non at depa + Axiom; inspired by his MIT classmate Shouheng Chen, 2006–2026"><span class="b-form">Form</span><span class="b-hypes">Hypes</span><span class="b-cred">by Dr Non <i>depa + Axiom</i></span></a>
   <nav class="tabs" aria-label="Sections">
     <button type="button" data-tab="studio" aria-selected="true" class="on" data-i18n="nav.studio">Studio</button>
     <button type="button" data-tab="research" aria-selected="false" data-i18n="nav.research">Research</button>
@@ -33,7 +33,7 @@
   <div class="masthead">
     <p class="eyebrow" data-i18n="eyebrow">Geometry has consequences.</p>
     <h1 data-i18n="title">Design the form. Read its value.</h1>
-    <p class="mastnote" data-i18n="mast.note">A prototype by Nonarkara, built on the embedded design knowledge of Shouheng Chen's 2006 MIT thesis and carried twenty years further.</p>
+    <p class="mastnote" data-i18n="mast.note">Built by Dr Non at depa + Axiom. Inspired by his MIT classmate Shouheng Chen. 20th anniversary · 2006–2026.</p>
   </div>
 
   <div class="studio">
@@ -62,6 +62,7 @@
       <select id="system"></select>
       <p class="note" id="systemNote"></p>
 
+      <details class="sun-study" open><summary data-i18n="sun.title">Sun study</summary><div id="solarControls"><label for="city" data-i18n="sun.city">City</label><select id="city"></select><div class="solar-clock"><label for="solarDate"><span data-i18n="sun.date">Date</span><input id="solarDate" type="date" min="2000-01-01" max="2100-12-31"></label><label for="solarTime"><span data-i18n="sun.time">Local time</span><input id="solarTime" type="time"></label></div><div id="orientationControl"></div><p id="sunPosition" class="note" role="status"></p><p class="note" data-i18n="sun.note"></p></div></details>
       <details><summary data-i18n="c.constraints">Site &amp; core constraints</summary><div id="constraintControls"></div></details>
       <details><summary><span data-i18n="c.rent">Rent assumptions</span> <span class="data" data-i18n="c.USD">USD</span></summary><p class="note" data-i18n="c.note">Illustrative inputs.</p><div id="rentControls"></div></details>
 
@@ -196,5 +197,5 @@
 <dialog id="knowledgeDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="k.button">Architectural knowledge</h2><div id="knowledgeContent" role="status"></div><p class="knowledgeDownloads"><a href="knowledge/designon-knowledge.json?v=38eb5f372c" download data-i18n="k.download">Download</a><a href="knowledge/DESIGNON-LICENSE.txt?v=1950c131d0" data-i18n="k.license">License</a></p></dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="app.js?v=2174483b01"></script>
+<script type="module" src="app.js?v=51cea25703"></script>
 </body></html>

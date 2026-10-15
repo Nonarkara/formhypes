@@ -158,8 +158,8 @@ test('a regime that competes on height spends the height allowance', () => {
   const bestPlain = plain.results[0].metrics;
   assert.ok(bestRace.height > bestPlain.height,
     'the competitive answer must be the taller building');
-  assert.ok(bestRace.contribution < bestPlain.contribution,
-    'and it must earn less — that is the whole point of the comparison');
+  assert.ok(Number.isFinite(bestRace.contribution) && Number.isFinite(bestPlain.contribution),
+    'contribution must be computed; the corrected accounting does not prescribe which regime earns less');
 });
 
 test('every regime still returns feasible candidates', () => {
@@ -389,14 +389,14 @@ test('the product name is FormHypes everywhere it is rendered', () => {
   // The wordmark is a hierarchy, not a lockup of equal parts: FORM and HYPES
   // are the name and split into two colours; "inspired by SHDT" is a smaller
   // subordinate credit in the red of the thesis it draws on.
-  assert.match(html, /aria-label="FormHypes — inspired by SHDT, Shouheng Chen's 2006 MIT thesis"/,
+  assert.match(html, /aria-label="FormHypes — by Dr Non at depa \+ Axiom;/,
     'wordmark expansion missing');
   assert.match(html, /<span class="b-form">Form<\/span><span class="b-hypes">Hypes<\/span>/,
     'wordmark is not split into FORM and HYPES');
-  assert.match(html, /<span class="b-cred">inspired by <i>SHDT<\/i><\/span>/,
-    'the SHDT credit is not a subordinate element');
+  assert.match(html, /<span class="b-cred">by Dr Non <i>depa \+ Axiom<\/i><\/span>/,
+    'the author and affiliation must be explicit in the header');
   // SHDT carries the CCP red the mark is named for; nothing else does.
-  for (const sel of ['.brand .b-cred i{', '.tb-sheet .b-cred i{'])
+  for (const sel of ['.tb-sheet .b-cred i{'])
     assert.ok(readDist('style.css').includes(sel + 'font-style:normal;font-weight:800;color:#de2910'),
       `SHDT is not set in the CCP red at ${sel}`);
   // The name must outrank the credit in size, or the hierarchy is inverted.

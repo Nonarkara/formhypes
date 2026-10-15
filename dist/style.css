@@ -410,3 +410,19 @@ dialog li{margin:6px 0;line-height:1.5}
   .dedication{padding:15px 15px 13px}
   .ded-cred,.ded-src{font-family:var(--sans)}
 }
+
+/* Compact working chrome: visible geometry gets the viewport, commands fit text. */
+header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions button{padding:3px 7px}
+.masthead{grid-template-columns:minmax(0,1fr) auto;padding:6px 0;gap:4px 14px}.masthead .eyebrow{display:none}.masthead h1{grid-column:1;font-size:17px}.masthead .mastnote{grid-column:2;grid-row:1;max-width:none;font-size:11px;white-space:nowrap}
+.studio{grid-template-columns:222px minmax(0,1fr) 306px}.controls,.results{padding:10px 12px 12px}
+.textlink{width:fit-content;max-width:100%;gap:8px;justify-content:flex-start;border-top:0;padding:3px 0;margin-top:6px;min-height:28px}
+.searchcontrols select{min-width:0;width:auto;max-width:260px}.searchcontrols button{flex:none;width:auto;padding:4px 9px}
+.viewtools{flex-direction:row;gap:3px;left:12px;top:32px}.viewtools button{padding:3px 6px}.viewhead{left:12px;right:12px}
+.sun-study>summary{padding:6px 0}.sun-study label{font-size:11px;display:block;color:var(--muted)}.solar-clock{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px;margin:5px 0 9px}.solar-clock input{width:100%;min-width:0;background:transparent;border:0;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;padding:3px 0;color:var(--ink);min-height:28px}#sunPosition{font-family:var(--mono);line-height:1.5}#solarControls .note:last-child{font-size:10.5px}
+@media(min-width:1700px){.studio{grid-template-columns:236px minmax(0,1fr) 324px}}
+@media(max-width:1100px){.masthead .mastnote{grid-row:2;grid-column:1/-1;justify-self:start}.studio{grid-template-columns:210px minmax(0,1fr) 280px}}
+@media(max-width:900px){header{height:auto;min-height:44px;gap:4px 12px;padding:4px 12px}.studio{grid-template-columns:1fr}.viewport{order:-1;min-height:64dvh}.controls,.results{max-height:none;overflow:visible}.brand .b-cred{font-size:9px;margin-left:6px}.masthead .mastnote{white-space:normal}.actions{padding-left:8px}.tabs{gap:12px}.langs{gap:10px}}
+@media(max-width:600px){header{display:grid;grid-template-columns:1fr auto;gap:0 8px}.brand{font-size:13px;grid-column:1}.langs{grid-column:2;grid-row:1;margin:0}.tabs{grid-column:1;grid-row:2}.actions{grid-column:2;grid-row:2;border:0;padding:0;gap:2px}.masthead h1{font-size:15px}.masthead{padding:5px 0;row-gap:2px}.mobileonly{display:none}.viewport{min-height:66dvh}.searchcontrols button{flex:none}.searchcontrols{flex-wrap:wrap}.searchcontrols select{max-width:100%}.brand .b-cred{letter-spacing:0}.viewtools{top:32px}.viewtools button{font-size:11px}button,select{min-height:32px}.tabs button,.langs button{min-height:32px}.textlink{min-height:36px}}
+@media(pointer:coarse){button,select,.tabs button,.langs button,.viewtools button{min-height:44px}.solar-clock input,summary{min-height:44px}.textlink{min-height:44px}.actions button{min-width:44px}input[type=range]{min-height:32px}}
+.brand .b-cred i{color:var(--muted);font-weight:600;letter-spacing:0}
+@media(min-width:901px){.controls,.results{max-height:calc(100dvh - var(--chrome));overflow-y:auto}}
