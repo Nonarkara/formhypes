@@ -326,7 +326,7 @@ const CSS=`.cx-desk,.cx-desk *{box-sizing:border-box}
 .cx-cities button:last-child{border-right:0}
 .cx-cities button[aria-pressed=true]{background:var(--accent);color:var(--dark);font-weight:600}
 .cx-input{font:inherit;font-family:var(--mono);padding:4px 6px;border:1px solid var(--line);background:var(--panel);min-height:32px}
-.cx-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.cx-grid{align-items:start;display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
 @media(min-width:960px){.cx-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}}
 .cx-card{border:1px solid var(--line);background:var(--panel);padding:10px 12px;margin:0 0 12px}
 .cx-card h3{margin:0 0 6px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
@@ -361,7 +361,7 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 .cx-nb.hit{fill:var(--accent);fill-opacity:.3;stroke:var(--accent)}
 .cx-ref{fill:none;stroke:var(--dim);stroke-width:1;stroke-dasharray:4 3}
 .cx-tower{fill:var(--accent);fill-opacity:.16;stroke:var(--accent);stroke-width:2}
-.cx-shadow{fill:var(--accent);fill-opacity:.24;stroke:var(--accent);stroke-width:1}
+.cx-shadow{fill:var(--accent);fill-opacity:.24;stroke:none}
 .cx-bar-nb{fill:var(--panel);stroke:var(--dim);stroke-width:1}
 .cx-bar-model{fill:var(--accent)}
 .cx-t{fill:var(--dim);font-family:var(--mono);font-size:9px}
@@ -371,7 +371,11 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 .cx-line{stroke:var(--accent);stroke-width:1.5}
 .cx-strip-frame{fill:none;stroke:var(--line);stroke-width:1}
 .cx-strip-hit{fill:var(--accent)}
-.cx-now{stroke:var(--dim);stroke-width:2}`;
+.cx-now{stroke:var(--dim);stroke-width:2}
+.cx-legend i.cx-shadow{background:rgba(245,158,11,.24)}
+.cx-legend i.cx-tower{border:1px solid var(--accent);background:rgba(245,158,11,.16)}
+.cx-legend i.cx-nb{border:1px solid var(--muted)}
+.cx-legend i.cx-ref{border:1px dashed var(--muted)}`;
 Object.assign(CONTEXT_I18N.en,{areaNote:'Model ground footprint {0} m² against an assumed reference plate of {1} m².',plateNote:'The dashed square is an assumed reference plate of equivalent area, not a surveyed building outline.'});
 Object.assign(CONTEXT_I18N.th,{areaNote:'พื้นที่ฐานโมเดล {0} ตร.ม. เทียบกับพื้นที่ชั้นอ้างอิงสมมติ {1} ตร.ม.',plateNote:'สี่เหลี่ยมเส้นประคือผังอ้างอิงสมมติที่มีพื้นที่เท่ากัน ไม่ใช่เส้นขอบอาคารสำรวจ'});
 Object.assign(CONTEXT_I18N.zh,{areaNote:'模型底层面积 {0} 平方米，对比假设参考楼板 {1} 平方米。',plateNote:'虚线方形是假设参考楼板的等面积方形，不是实测建筑轮廓。'});

@@ -11,7 +11,7 @@ import {renderReader} from './reader.js?v=273c83572f';
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy} from './brief.js?v=7ace9762af';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=8a31f6ea1d';
-import {CONTEXT_I18N, renderContext} from './context.js?v=a36e8e6fe5';
+import {CONTEXT_I18N, renderContext} from './context.js?v=2a8b214607';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=76931110a7';
 const $=id=>document.getElementById(id);
