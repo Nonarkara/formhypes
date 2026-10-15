@@ -107,5 +107,5 @@ test('shared links carry a preview card and the sheet obeys the no-gradient rule
  assert.match(html,/<link rel="icon"/);
  assert.ok(readFileSync(new URL('../dist/og.jpg',import.meta.url)).length>10000);
  assert.ok(!/gradient\(/.test(css),'house style bans gradients');
- assert.match(css,/@media\(max-width:560px\)\{\.titleblock \.b-cred\{display:none\}\}/);
+ assert.match(css,/@media\(max-width:560px\)\{\.titleblock \.b-cred\{display:none\}/);
 });

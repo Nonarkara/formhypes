@@ -144,7 +144,12 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 .tb-notice{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .tb-ref{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;margin-left:auto;padding-left:14px}
 /* On a phone the header already carries "inspired by SHDT"; the sheet keeps the reference. */
-@media(max-width:560px){.titleblock .b-cred{display:none}}
+/* On a phone the header already carries "inspired by SHDT". The sheet takes two
+   rows so neither the not-for-construction notice nor the floor count is cut. */
+@media(max-width:560px){.titleblock .b-cred{display:none}
+ .titleblock{height:auto;flex-wrap:wrap;row-gap:3px;padding:5px 18px}
+ .tb-ref{flex-basis:100%;margin-left:0;padding-left:0}
+ .viewfoot{bottom:50px}}
 
 /* ── schedule · a column of figures, set tight ────────────────────────── */
 .primarymetric{border-bottom:2px solid var(--ink);padding:6px 0 10px;margin:0 0 10px}
