@@ -101,8 +101,9 @@ function paragraph(text){
 }
 export function renderReader(lang,host=document.getElementById('reader')){
  const c=READER[lang];host.replaceChildren();
- document.getElementById('dedicationTitle').textContent={en:'Dedication · MIT classmates, twenty years later',th:'แด่เพื่อนร่วมรุ่น MIT · ยี่สิบปีต่อมา',zh:'献给 MIT 同学 · 二十年后'}[lang];
- document.getElementById('appendixTitle').textContent=c.archive;document.getElementById('appendixNote').textContent=c.archiveNote;
+ const appendixTitle=document.getElementById('appendixTitle'),appendixNote=document.getElementById('appendixNote');
+ if(appendixTitle) appendixTitle.textContent=c.archive;
+ if(appendixNote) appendixNote.textContent=c.archiveNote;
  const nav=node('nav',undefined,'reader-nav');nav.setAttribute('aria-label',c.page);
  c.nav.forEach((title,i)=>{const b=node('button',`${i+1} · ${title}`);b.type='button';b.setAttribute('aria-current',i===current?'page':'false');b.onclick=()=>{current=i;renderReader(lang,host);host.querySelector('h2').focus({preventScroll:true});host.scrollIntoView({block:'start'})};nav.append(b)});host.append(nav);
  const page=c.pages[current],article=node('article',undefined,'reader-page');article.append(node('p',`${c.page} ${current+1} / ${c.pages.length} · ${page.stand}`,'note'));const h=node('h2',page.title);h.tabIndex=-1;article.append(h);

@@ -1,11 +1,39 @@
-import {TRACKS,RESEARCH_UI,RESEARCH_SOURCES,THESIS_EXCERPTS,HISTORY_PHOTO,PROTOCOL_FILES} from './research-tracks.js?v=111b4431ba';
-import {renderReader as renderEarlierReader} from './reader.js?v=038b0f658e';
-import {defaults,evaluate,grossOf,profile,families} from './model.js?v=83bfd6e335';
+import {TRACKS,RESEARCH_UI,RESEARCH_SOURCES,THESIS_EXCERPTS,HISTORY_PHOTO,PROTOCOL_FILES} from './research-tracks.js?v=03da755274';
+import {renderReader as renderEarlierReader} from './reader.js?v=ad103beea3';
+import {defaults,evaluate,grossOf,profile,families,regimes} from './model.js?v=1653f45f3c';
 const N=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
 let selected=0,pages=[0,0,0],initialised=false;
 export function readingSelection(search=''){
  const q=new URLSearchParams(search),track=Math.max(0,TRACKS.en.findIndex(x=>x.id===q.get('reading')));
  return {track,page:Math.max(0,TRACKS.en[track].pages.findIndex(x=>x.id===q.get('chapter')))};
+}
+const REGIME_ALIASES={landlord:'yield'};
+export function resolveRegimeQuery(raw){
+ if(raw==null||raw==='') return {regime:null,unknown:null};
+ const key=Object.hasOwn(REGIME_ALIASES,raw)?REGIME_ALIASES[raw]:raw;
+ if(Object.hasOwn(regimes,key)) return {regime:key,unknown:null};
+ return {regime:null,unknown:String(raw)};
+}
+/** A reading or chapter link opens Research, including when the hash still says studio. */
+export function entryTab(search='',hash=''){
+ const q=new URLSearchParams(String(search).replace(/^\?/,''));
+ const h=String(hash??'').replace(/^#/,'');
+ if((q.has('reading')||q.has('chapter'))&&h!=='research') return 'research';
+ return h==='research'?'research':'studio';
+}
+export function syncPathLabels(root=typeof document==='undefined'?null:document){
+ if(!root?.querySelectorAll) return;
+ const narrow=typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches;
+ root.querySelectorAll('.research-path-short').forEach(short=>{
+  const full=short.parentElement?.querySelector('.research-path-full');
+  if(!full) return;
+  if(!full.dataset.label) full.dataset.label=full.textContent;
+  if(!short.dataset.label) short.dataset.label=short.textContent;
+  full.textContent=narrow?'':full.dataset.label;
+  short.textContent=narrow?short.dataset.label:'';
+  if(narrow){full.setAttribute('aria-hidden','true');short.removeAttribute('aria-hidden');}
+  else{short.setAttribute('aria-hidden','true');full.removeAttribute('aria-hidden');}
+ });
 }
 export function researchComparison(state=defaults){
  const target=grossOf(state);
@@ -82,7 +110,7 @@ function illustration(kind,labels,lang){
   [80,265,450,635].forEach((x,i)=>{d+=`<path d="M${x-35} 40h70v100h-70zM${x-22} 58h44m-44 12h44m-44 12h35" ${F} stroke-width="${i===3?3:1.5}"/>`+circle(x,173,i+1);
    if(i===0)d+=`<text x="${x}" y="123" text-anchor="middle" font-size="30">?</text>`;
    if(i===1)d+=`<path d="M${x-20} 123l12-20 16 8 12-13" ${F} stroke-width="2"/>`;
-   if(i===2)d+=`<path d="M${x-20} 126v-25m16 25v-16m16 16v-31" ${F} stroke-width="6"/>`;
+   if(i===2)d+=`<path d="M${x-26} 96h52v36h-52zM${x-26} 108h52M${x-10} 96v36" ${F} stroke-width="1.2"/><text x="${x-22}" y="122" font-size="11">A</text>`;
    if(i===3)d+=`<path d="M${x-18} 115l12 12 25-29" ${F} stroke-width="2"/>`;
   });
  }
@@ -129,7 +157,11 @@ export function renderReader(lang,options={}){
  const c=RESEARCH_UI[lang],tracks=TRACKS[lang],host=document.getElementById('reader');
  if(!initialised){const s=readingSelection(location.search);selected=s.track;pages[selected]=s.page;initialised=true}
  const track=tracks[selected],index=pages[selected],page=track.pages[index];host.replaceChildren();
- document.getElementById('dedicationTitle').textContent={en:'Dedication · MIT classmates, twenty years later',th:'แด่เพื่อนร่วมรุ่น MIT · ยี่สิบปีต่อมา',zh:'献给 MIT 同窗 · 二十年后'}[lang];
+ const trail=document.getElementById('researchTrail');
+ const step=selected*3+index+1;
+ if(trail) trail.textContent=`${c.trail} · ${track.label} · ${page.tab} · ${step}/9`;
+ const archive=document.getElementById('researchArchive');
+ if(archive?.querySelector('summary')) archive.querySelector('summary').textContent=c.legacy;
  // The old six-page reader stays reachable in its own disclosure, with its
  // original drawings, sources and captions. The longer appendix also remains.
  const navigate=(ti,pi,focus)=>{
@@ -139,7 +171,7 @@ export function renderReader(lang,options={}){
  function tablist(items,active,label,idPrefix,onSelect){
   const nav=N('div',undefined,idPrefix==='path'?'research-paths':'research-chapters');nav.setAttribute('role','tablist');nav.setAttribute('aria-label',label);
   items.forEach((text,i)=>{const b=N('button',idPrefix==='path'?undefined:text);b.type='button';b.id=`research-${idPrefix}-${i}`;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(active===i));b.setAttribute('aria-controls',idPrefix==='path'?'research-path-panel':'research-reading-panel');b.tabIndex=active===i?0:-1;
-   if(idPrefix==='path'){const short={en:['Thesis · 2006','System · 2026','Commercial'],th:['วิทยานิพนธ์ · 2006','ระบบ · 2026','เชิงพาณิชย์'],zh:['论文 · 2006','系统 · 2026','商业研究']}[lang];b.setAttribute('aria-label',text);b.append(N('span',text,'research-path-full'),N('span',short[i],'research-path-short'))}
+   if(idPrefix==='path'){const short={en:['Thesis · 2006','System · 2026','Commercial'],th:['วิทยานิพนธ์ · 2006','ระบบ · 2026','เชิงพาณิชย์'],zh:['论文 · 2006','系统 · 2026','商业研究']}[lang];b.setAttribute('aria-label',text);const full=N('span',text,'research-path-full'),brief=N('span',short[i],'research-path-short');brief.setAttribute('aria-hidden','true');b.append(full,brief);}
    b.onclick=()=>onSelect(i);b.onkeydown=e=>{let n;if(e.key==='ArrowRight')n=(i+1)%items.length;if(e.key==='ArrowLeft')n=(i+items.length-1)%items.length;if(e.key==='Home')n=0;if(e.key==='End')n=items.length-1;if(n!==undefined){e.preventDefault();onSelect(n)}};nav.append(b)});return nav;
  }
  host.append(tablist(tracks.map(t=>t.label),selected,c.tracks,'path',i=>navigate(i,pages[i],`#research-path-${i}`)));
@@ -162,5 +194,8 @@ export function renderReader(lang,options={}){
  const refs=N('details');refs.id='research-sources';refs.append(N('summary',c.source));const list=N('ol');for(const id of sourceIds){const s=RESEARCH_SOURCES.find(s=>s.id===id),li=N('li'),a=N('a',`${s.author} (${s.year}). ${s.title}.`);li.id='research-source-'+id;a.href=s.url;a.target='_blank';a.rel='noopener';li.append(a);list.append(li)}refs.append(list,N('p',c.unsupported,'note'));article.append(refs);
  const pager=N('nav',undefined,'reader-pager');pager.setAttribute('aria-label',c.progress);
  for(const [d,label]of [[-1,c.previous],[1,c.next]]){const linear=selected*3+index+d,b=N('button',`${d<0?'← ':''}${label}${d>0?' →':''}`);b.type='button';b.disabled=linear<0||linear>8;b.onclick=()=>navigate(Math.floor(linear/3),linear%3,'#research-reading-title');pager.append(b)}article.append(pager);path.append(article);host.append(path);
- const legacy=N('details',undefined,'research-legacy');legacy.append(N('summary',c.legacy));const earlier=N('div');earlier.id='legacyReader';legacy.append(earlier);host.append(legacy);renderEarlierReader(lang,earlier);
+ const earlier=document.getElementById('legacyReader');
+ if(earlier) renderEarlierReader(lang,earlier);
+ syncPathLabels(host);
+ if(typeof matchMedia==='function'&&!syncPathLabels.bound){syncPathLabels.bound=true;matchMedia('(max-width:600px)').addEventListener?.('change',()=>syncPathLabels());}
 }

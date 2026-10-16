@@ -1,27 +1,27 @@
-import {mountConsole} from './console.js?v=d21f851a94';
+import {mountConsole} from './console.js?v=158ee47b7c';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=83bfd6e335';
-import{t,langs,langMeta,translator}from'./i18n.js?v=3c6dc76a8b';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=1653f45f3c';
+import{t,langs,langMeta,translator}from'./i18n.js?v=f3eed43302';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=b90562ebdd';
 
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=a75307527e';
-import {renderReader} from './research-reader.js?v=99af654f59';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=5151ab7731';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs} from './brief.js?v=ad6e346e85';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=c3809ce4fe';
-import {CONTEXT_I18N, renderContext} from './context.js?v=2a8b214607';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs} from './brief.js?v=7e4ceee637';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=3efcedfe27';
+import {CONTEXT_I18N, renderContext, CONTEXT_SITES, PLACE_ORDER, PLACE_SUFFIX} from './context.js?v=7d255b09ce';
 
-import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=76931110a7';
+import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
 const num=v=>Math.round(v).toLocaleString(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US');
 
-let state={...defaults},metrics,alternatives=[],yaw=-.65,zoom=1,wireframe=false,studies=[],knowledgePack;
+let state={...defaults},metrics,alternatives=[],yaw=-.65,zoom=1,wireframe=false,studies=[],knowledgePack,unknownRegime=null;
 let drawn={w:0,h:0},pendingRaf=false;
 
 // [i18n key, min, max, step, unit] — the label is resolved per language in
@@ -132,7 +132,9 @@ function sync(){
  const f=facadeFamilies[state.skin];
  $('skinNote').textContent=tt('skin.reads',{t:f.thesis,e:f.envelope.toFixed(2),i:(f.identity*100).toFixed(0)});
  $('systemNote').textContent=systems[state.system].columnFree?tt('sys.free'):tt('sys.grid');
- $('regimeNote').textContent=tt('regime.'+state.regime+'.reads')+' — '+tt('regime.'+state.regime+'.note');
+ $('regimeNote').textContent=tt('regime.frame')+' '+tt('regime.'+state.regime+'.reads')+' — '+tt('regime.'+state.regime+'.note');
+ const alias=$('regimeAlias');
+ if(alias){alias.hidden=!unknownRegime;alias.textContent=unknownRegime?tt('regime.unknown',{name:unknownRegime}):'';}
 }
 
 /* ── toast ────────────────────────────────────────────────────────────── */
@@ -146,7 +148,7 @@ function changed(){
 
 /* ── update ───────────────────────────────────────────────────────────── */
 const DESKS=[['brief',BRIEF_I18N,renderBrief],['walk',WALK_I18N,renderWalk],['context',CONTEXT_I18N,renderContext]];
-function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textContent=dict[lang].title;if($(id+'Panel').open)render({lang,state,changed:applyDeskPatch,onInputs:()=>{consoleUI?.render();drawTower()}})}}
+function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textContent=dict[lang].title;if($(id+'Panel').open)render({lang,state,changed:applyDeskPatch,onInputs:()=>{consoleUI?.render();drawTower();syncPlace()}})}}
 for(const [id]of DESKS)$(id+'Panel').addEventListener('toggle',()=>{if($(id+'Panel').open)renderDesks()});
 function applyDeskPatch(patch){
  for(const [key,value]of Object.entries(patch)){
@@ -201,6 +203,8 @@ function update(){
  const bm=baseline(state);
  const d=bm.contribution>0?(metrics.contribution/bm.contribution-1)*100:NaN;
  $('delta').textContent=Number.isFinite(d)?`${d>=0?'+':''}${d.toFixed(1)}% ${tt('m.delta')}${bm.valid?'':' ('+tt('m.deltaBad')+')'}`:tt('m.deltaBad');
+ if($('phoneContribution')){$('phoneContributionLabel').textContent=$('contributionLabel').textContent;$('phoneContribution').textContent=$('contribution').textContent;$('phoneDelta').textContent=Number.isFinite(d)?`${d>=0?'+':''}${d.toFixed(1)}%`:'';}
+ syncPlace();
 
  $('feasibility').className=metrics.valid?'valid':'invalid';
  $('feasibility').textContent=metrics.valid?tt('m.feasible'):metrics.reasons.map(r=>tt('m.reason.'+r)).join(' · ');
@@ -213,6 +217,51 @@ function update(){
 }
 
 /* ── where the rent comes from ────────────────────────────────────────── */
+/* A scale, not a filled bar: ten pen ticks and one longer mark, the way a
+   graphic scale sits on a drawing. The length is the share of the largest
+   line in this ledger. Nothing here is a pooled fill. */
+function ruleMark(fraction){
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ svg.setAttribute('viewBox','0 0 160 16');svg.setAttribute('aria-hidden','true');
+ const x=(1+158*Math.max(0,Math.min(1,fraction))).toFixed(1);
+ let ticks='';
+ for(let i=0;i<=10;i++){const tx=(1+158*i/10).toFixed(1);ticks+=`M${tx} ${i%5?8:4}V14`;}
+ svg.innerHTML=`<path d="M1 11H159" fill="none" stroke="currentColor" stroke-width="1"/><path d="${ticks}" fill="none" stroke="currentColor" stroke-width="1"/><path d="M${x} 1V15" fill="none" stroke="currentColor" stroke-width="1.6"/>`;
+ return svg;
+}
+function syncPlace(){
+ const sel=$('placeCase');if(!sel||!metrics)return;
+ const brief=getBriefStudy(state).inputs,locale=lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US';
+ const n=v=>Math.round(v).toLocaleString(locale);
+ const ids=[...PLACE_ORDER,...Object.keys(cities).filter(id=>!PLACE_ORDER.includes(id))];
+ const sig=lang+'|'+ids.join(',');
+ if(sel.dataset.sig!==sig){
+  sel.replaceChildren();
+  for(const id of ids){
+   const o=document.createElement('option');o.value=id;
+   const suf=PLACE_SUFFIX[id],c=CONTEXT_I18N[lang]||CONTEXT_I18N.en;
+   o.textContent=suf?tt('place.option',{country:c['country'+suf],city:c['city'+suf],neighbourhood:c['neigh'+suf],building:c['name'+suf]}):tt('place.optionNone',{country:tt('place.country.'+id),city:tt('sun.'+id)});
+   sel.append(o);
+  }
+  sel.dataset.sig=sig;
+  sel.onchange=()=>{if(cities[sel.value]){state.city=sel.value;changed()}};
+ }
+ if(sel.value!==state.city)sel.value=state.city;
+ $('placeLabel').textContent=tt('place.label');
+ const plot=brief.plot,far=brief.far,allowance=plot*far,site=CONTEXT_SITES[state.city];
+ const farText=Number(far).toLocaleString(locale,{maximumFractionDigits:1});
+ if(site){
+  const c=CONTEXT_I18N[lang]||CONTEXT_I18N.en,suf=PLACE_SUFFIX[state.city];
+  const height=Number.isInteger(site.height)?String(site.height):site.height.toFixed(1);
+  $('placeFacts').textContent=tt('place.facts',{country:c['country'+suf],city:c['city'+suf],neighbourhood:c['neigh'+suf],building:c['name'+suf],address:c['addr'+suf],floors:site.floors,height,gross:site.gross?tt('place.gross',{area:n(site.gross)}):'',plot:n(plot),far:farText,allowance:n(allowance),model:n(metrics.gross)})+(state.city==='shenzhen'?tt('place.caution',{height}):'');
+  const gift=$('placeGift');gift.hidden=state.city!=='shenzhen';gift.textContent=state.city==='shenzhen'?tt('place.gift'):'';
+  const src=$('placeSource'),line=$('placeSourceLine');line.hidden=false;src.href=site.source;src.textContent=tt('place.source');
+ }else{
+  $('placeFacts').textContent=tt('place.none',{country:tt('place.country.'+state.city),city:tt('sun.'+state.city),plot:n(plot),far:farText,allowance:n(allowance),model:n(metrics.gross)});
+  $('placeGift').hidden=true;$('placeGift').textContent='';$('placeSourceLine').hidden=true;
+ }
+ $('placeEconomy').textContent=tt('place.econ',{contribution:money(metrics.contribution),rent:money(metrics.rent),envelope:money(metrics.facadeCost),structure:money(metrics.structureCost),skin:n(metrics.facade),base:econ.structureBase,mult:metrics.structureMultiplier.toFixed(2)});
+}
 function renderPremiums(){
  const b=metrics.breakdown,rows=[
   ['ordinary',b.rentOrdinary,false],
@@ -225,12 +274,10 @@ function renderPremiums(){
  const host=$('premiumBars');host.replaceChildren();
  for(const[key,v,neg]of rows){
   if(Math.abs(v)<1)continue;
-  const row=document.createElement('div');row.className='bar'+(neg?' neg':'');
+  const row=document.createElement('div');row.className='staff'+(neg?' neg':'');
   const lbl=document.createElement('span');lbl.textContent=PREMIUM_LABELS[key][lang]||key;
-  const val=document.createElement('span');val.textContent=(neg?'−':'')+money(Math.abs(v));
-  const track=document.createElement('div');track.className='track';
-  const fill=document.createElement('div');fill.className='fill';fill.style.width=(Math.abs(v)/peak*100).toFixed(1)+'%';
-  track.append(fill);row.append(lbl,val,track);host.append(row);
+  const val=document.createElement('span');val.className='amt';val.textContent=(neg?'−':'')+money(Math.abs(v));
+  row.append(lbl,val,ruleMark(Math.abs(v)/peak));host.append(row);
  }
 }
 
@@ -449,8 +496,10 @@ function runSearch(){
   const end=Math.min(i+BATCH,plan.list.length);
   for(;i<end;i++)results.push(scoreCandidate(plan.list[i],objective));
   const done=i/plan.list.length;
-  progress.innerHTML=`<span class="data">${Math.round(done*100)}%</span><p>${i} / ${plan.list.length} ${tt('s.tested')}</p>`;
-  progress.style.setProperty('--done',(done*100).toFixed(1)+'%');
+  progress.replaceChildren();
+  const pct=document.createElement('span');pct.className='data';pct.textContent=Math.round(done*100)+'%';
+  const note=document.createElement('p');note.textContent=`${i} / ${plan.list.length} ${tt('s.tested')}`;
+  progress.append(pct,note,ruleMark(done));
   if(i<plan.list.length){setTimeout(slice,0);return}
   finishSearch(results,plan,objective,performance.now()-started);
  };
@@ -1238,23 +1287,49 @@ $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
 
 /* ── tabs ─────────────────────────────────────────────────────────────── */
 // The hash is the tab, so a link to #research is a link to the research and a
-// screenshot of it can be taken without driving the UI.
+// screenshot of it can be taken without driving the UI. Reading params win over
+// a stale #studio hash: that combination is a research link.
 function showTab(t,push=true,behavior='smooth'){
+ if(t!=='studio'&&t!=='research')t='studio';
  document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id===t));
  document.querySelectorAll('[data-tab]').forEach(x=>{
   const on=x.dataset.tab===t;
   x.classList.toggle('on',on);
   x.setAttribute('aria-selected',String(on));
  });
- if(push&&location.hash.slice(1)!==t)history.replaceState(null,'','#'+t);
+ const actions=document.querySelector('.actions');
+ if(actions)actions.hidden=t!=='studio';
+ if(push){
+  const url=new URL(location.href);
+  if(url.hash!=='#'+t){url.hash=t;history.replaceState(null,'',url);}
+ }
  window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':behavior});
  consoleUI?.active(t==='studio');
  if(t==='studio')drawTower();
  if(t==='research')renderResearch();
 }
+function openFromLocation(behavior='auto'){
+ const tab=entryTab(location.search,location.hash);
+ const q=new URLSearchParams(location.search);
+ if((q.has('reading')||q.has('chapter'))&&tab==='research'&&location.hash!=='#research'){
+  const url=new URL(location.href);url.hash='research';history.replaceState(null,'',url);
+ }
+ showTab(tab,false,behavior);
+}
+// On a phone the header is one row: wordmark, Studio/Research, language.
+// Reset/Save/Export move onto the study shelf so they do not stack over the tower.
+function placeActions(){
+ const actions=document.querySelector('.actions'),header=document.querySelector('header'),studies=document.querySelector('.studies');
+ if(!actions||!header||!studies)return;
+ const narrow=matchMedia('(max-width:600px)').matches;
+ if(narrow){if(actions.parentElement!==studies)studies.prepend(actions);}
+ else if(actions.parentElement!==header)header.append(actions);
+}
 document.querySelector('.tabs').addEventListener('click',e=>{
- const btn=e.target.closest('[data-tab]');
- if(btn)showTab(btn.dataset.tab);
+ const link=e.target.closest('[data-tab]');
+ if(!link)return;
+ e.preventDefault();
+ showTab(link.dataset.tab);
 });
 addEventListener('hashchange',()=>{const h=location.hash.slice(1);showTab(h==='research'?h:'studio',false)});
 // Delegated so the binding survives any later markup change in the rail.
@@ -1269,18 +1344,21 @@ try{const l=readStore('formHypesLang')??readStore('formYieldLang');if(langs.incl
 let deepRun=false;
 try{
  const q=new URLSearchParams(location.search);
- if(Object.hasOwn(regimes,q.get('regime')??''))state.regime=q.get('regime');
+ const resolved=resolveRegimeQuery(q.get('regime'));
+ if(resolved.regime)state.regime=resolved.regime;
+ else if(resolved.unknown)unknownRegime=resolved.unknown;
  if(Object.hasOwn(objectives,q.get('objective')??''))state.objective=q.get('objective');
  deepRun=q.get('run')==='1';
 }catch{}
 consoleUI=mountConsole({getData:()=>({lang,state,metrics,level:Number($('floor').value)}),getBrief:()=>getBriefStudy(state),setBrief:setBriefInputs,onStudyChange:()=>update(),onLevel:level=>{$('floor').value=level;$('floor').oninput()},onLayout:()=>{measureChrome();requestAnimationFrame(drawTower)}});
 setLang(lang);
+placeActions();
+matchMedia('(max-width:600px)').addEventListener('change',placeActions);
 if(state.objective)$('objective').value=state.objective;
 renderStudies();update();measureChrome();
 // Both tab hashes are also element ids, so the browser jumps to the anchor on
 // load and leaves the sticky header sitting on top of the masthead. Always run
 // the tab switch on boot — it resets the scroll and, with an instant behaviour,
 // does so before the first paint rather than animating into it.
-const firstTab=['studio','research'].includes(location.hash.slice(1))?location.hash.slice(1):'studio';
-showTab(firstTab,false,'auto');
+openFromLocation('auto');
 if(deepRun)runSearch();

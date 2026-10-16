@@ -1,10 +1,10 @@
 // Context desk — put the model on a real plot and count what its shadow does.
-// The four replaced buildings and their published figures are real and are
+// The five replaced buildings and their published figures are real and are
 // quoted as given. Every neighbouring block below is contextual massing composed
 // for this study: not surveyed, every height indicative. Both facts are printed
 // on screen, not merely held here.
-import {profile, area, stackHeight} from './model.js?v=83bfd6e335';
-import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposure} from './solar.js?v=76931110a7';
+import {profile, area, stackHeight} from './model.js?v=1653f45f3c';
+import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposure} from './solar.js?v=9279efc6dc';
 
 // Empire Tower 58F / 227 m / 1999, floor plate ≈3,000 m² and a 2.60 m Grade A
 // clear-height benchmark for Bangkok; Dayabumi Complex 35F / 157 m / 1984;
@@ -19,16 +19,21 @@ export const SITES={
  jakarta:{floors:46,height:261.9,plate:0,coord:'approx',lat:-6.20361,lon:106.82,
   neighbours:[{b:24,d:118,w:44,h:132},{b:79,d:156,w:52,h:168},{b:142,d:132,w:40,h:96},{b:201,d:175,w:58,h:205},{b:258,d:146,w:46,h:118},{b:311,d:124,w:42,h:84}]},
  hcmc:{floors:81,height:461.2,plate:0,coord:'approx',lat:10.795,lon:106.7219,
-  neighbours:[{b:41,d:152,w:46,h:126},{b:96,d:198,w:56,h:158},{b:151,d:164,w:44,h:92},{b:208,d:186,w:60,h:142},{b:266,d:224,w:64,h:176},{b:322,d:158,w:48,h:108}]}
+  neighbours:[{b:41,d:152,w:46,h:126},{b:96,d:198,w:56,h:158},{b:151,d:164,w:44,h:92},{b:208,d:186,w:60,h:142},{b:266,d:224,w:64,h:176},{b:322,d:158,w:48,h:108}]},
+ shenzhen:{floors:115,height:599,plate:0,gross:459525,coord:'approx',lat:22.5364,lon:114.0503,
+  neighbours:[{b:18,d:140,w:50,h:180},{b:72,d:190,w:58,h:240},{b:128,d:160,w:46,h:120},{b:188,d:210,w:64,h:300},{b:246,d:175,w:52,h:210},{b:312,d:150,w:44,h:96}]}
 };
 Object.assign(SITES.bangkok,{"bld": "Empire Tower", "addr": "1 South Sathorn Road, Bangkok", "source": "https://www.skyscrapercenter.com/building/empire-tower/1157", "sourceNote": "58 floors: AWC owner fact sheet; 227 m: CTBUH. 3,000 m² reference plate is an illustrative assumption, not a verified typical floor."});
 Object.assign(SITES.kl,{"bld": "Dayabumi Complex", "addr": "Jalan Sultan Hishamuddin, Kuala Lumpur", "source": "https://www.klcc.com.my/downloads/interactive_ar2024.pdf", "sourceNote": "Owner lists 36 storeys; historical studies count 35. 157 m: IIUM ICoPFM 2011 case study."});
 Object.assign(SITES.jakarta,{"bld": "Wisma 46", "addr": "Jenderal Sudirman Street, Plot 1, Jakarta", "source": "https://www.skyscrapercenter.com/jakarta/wisma-46/880", "sourceNote": "261.9 m, 46 above-ground floors: CTBUH. Owner rounds height to 262 m and describes 50 total storeys."});
 Object.assign(SITES.hcmc,{"bld": "Landmark 81", "addr": "720A Điện Biên Phủ, Ho Chi Minh City", "source": "https://s3.us-east-1.amazonaws.com/cloud.ctbuh.org/shop/DataHandbook_2023.pdf", "sourceNote": "461.2 m, 81 floors: CTBUH Data Handbook 2023. Arup rounds height to 461 m."});
+Object.assign(SITES.shenzhen,{"bld": "Ping An Finance Center", "addr": "5033 Yitian Road, Futian District, Shenzhen", "source": "https://web.archive.org/web/20170426055820/http://ctbuh.org/TallBuildings/FeaturedTallBuildings/FeaturedTallBuildingArchive2017/PingAnFinanceCenterShenzhen/tabid/7503/language/en-US/Default.aspx", "sourceNote": "Completed tower: 599 m, 115 storeys, gross area 459,525 m², Futian District — CTBUH featured sheet, 2017. Address 5033 Yitian Road is the Skyscraper Center record. A later 660 m entry is a redesign proposal, not this tower. No typical floor plate is verified here."});
 SITES.kl.floors=36;
 export const CONTEXT_SITES=SITES;
-const ORDER=['bangkok','kl','jakarta','hcmc'];
-const SUFFIX={bangkok:'Bkk',kl:'Kl',jakarta:'Jak',hcmc:'Hcmc'};
+const ORDER=['bangkok','kl','jakarta','hcmc','shenzhen'];
+const SUFFIX={bangkok:'Bkk',kl:'Kl',jakarta:'Jak',hcmc:'Hcmc',shenzhen:'Sz'};
+export const PLACE_ORDER=ORDER;
+export const PLACE_SUFFIX=SUFFIX;
 const LEVELS=33;
 
 export const CONTEXT_I18N={
@@ -40,6 +45,9 @@ zh:{title:'把模型放进城市里',tier:'选址与阴影影响 · 概念研究
 Object.assign(CONTEXT_I18N.en,{"colShaded": "Ground overlap", "colFacade": "Sampled face exposure blocked", "facadeNote": "Last column: incidence-weighted direct exposure blocked at nine points over the neighbour’s nearest axis-aligned face, using its height. Ground hours count any footprint overlap. Both use 32 triangulated loft bands and 15-minute samples; neither measures indoor daylight.", "clearNote": "The 3,000 m² reference plate is an illustrative comparison. No clear-height benchmark for these buildings has been verified in the owner sources.", "plate": "Reference plate · assumption", "discShadow": "Flat ground and opaque massing; 32 triangulated loft bands. Nine sample points per neighbour face. No terrain, weather, other occluders or indoor daylight model. Neighbour masses are invented; the results describe this scenario only.", "noSite": "No pilot site is available for this solar city. Select a supported site below.", "discSolar": "Solar positions use the selected city reference coordinate; printed building points are approximate location references, not surveyed parcels."});
 Object.assign(CONTEXT_I18N.th,{"colShaded": "เงาทับพื้นที่ฐาน", "colFacade": "แสงที่ผิวตัวอย่างถูกบัง", "facadeNote": "คอลัมน์สุดท้ายถ่วงน้ำหนักการรับแสงตรงที่ถูกบัง ณ เก้าจุดบนผิวด้านใกล้โมเดลที่สุดตามแนวแกน โดยใช้ความสูงเพื่อนบ้าน ชั่วโมงที่ฐานนับเมื่อมีส่วนเงาทับ ใช้มวลแบ่งสามเหลี่ยม 32 ช่วงและตัวอย่างทุก 15 นาที ไม่ใช่ค่าการรับแสงภายใน", "clearNote": "พื้นที่ชั้นอ้างอิง 3,000 ตร.ม. เป็นสมมติฐานเปรียบเทียบ ยังไม่ยืนยันเกณฑ์ความสูงใสของอาคารเหล่านี้จากแหล่งข้อมูลเจ้าของ", "plate": "พื้นที่ชั้นอ้างอิง · สมมติฐาน", "discShadow": "พื้นราบและมวลทึบ แบ่งทรงเป็น 32 ช่วงสามเหลี่ยม สุ่มเก้าจุดต่อผิวเพื่อนบ้าน ไม่รวมภูมิประเทศ อากาศ สิ่งบังอื่น หรือแสงภายใน มวลเพื่อนบ้านเป็นสมมติ ผลจึงใช้กับสถานการณ์นี้เท่านั้น", "noSite": "เมืองแสงอาทิตย์นี้ยังไม่มีที่ตั้งต้นแบบ โปรดเลือกที่ตั้งที่รองรับด้านล่าง", "discSolar": "ตำแหน่งดวงอาทิตย์ใช้พิกัดอ้างอิงเมืองที่เลือก จุดอาคารที่แสดงเป็นตำแหน่งโดยประมาณ ไม่ใช่แปลงสำรวจ"});
 Object.assign(CONTEXT_I18N.zh,{"colShaded": "地面重叠", "colFacade": "立面采样受照遮挡", "facadeNote": "末列按九个点计算相邻体量最近轴向立面的入射加权直射遮挡，计入邻楼高度。地面小时数按任意足迹重叠累计。两者使用 32 段三角化放样和 15 分钟采样，均不表示室内采光。", "clearNote": "3,000 平方米参考楼板仅为比较假设。尚未从业主来源核实这些建筑的净高基准。", "plate": "参考楼板 · 假设", "discShadow": "平地、不透明体量、32 段三角化放样，每个邻楼立面九个采样点。不含地形、天气、其他遮挡或室内采光。邻楼体量是假设，结果仅描述此情景。", "noSite": "此日照城市暂无试点场地，请在下方选择支持的场地。", "discSolar": "太阳位置使用所选城市参考坐标；图示建筑点位仅为大致位置，不是实测地块。"});
+Object.assign(CONTEXT_I18N.en,{country:'Country',neighbourhood:'Neighbourhood',publishedGross:'Published gross area',publishedNote:'Published gross area is the cited building total. It is not this model’s floor area and not a typical floor plate.',countryBkk:'Thailand',neighBkk:'Sathorn',countryKl:'Malaysia',neighKl:'Merdeka Square',countryJak:'Indonesia',neighJak:'Sudirman',countryHcmc:'Vietnam',neighHcmc:'Binh Thanh',citySz:'Shenzhen',nameSz:'Ping An Finance Center',addrSz:'5033 Yitian Road, Futian, Shenzhen',countrySz:'China',neighSz:'Futian'});
+Object.assign(CONTEXT_I18N.th,{country:'ประเทศ',neighbourhood:'ย่าน',publishedGross:'พื้นที่รวมที่เผยแพร่',publishedNote:'พื้นที่รวมที่เผยแพร่เป็นพื้นที่ทั้งอาคารตามแหล่งอ้างอิง ไม่ใช่พื้นที่ของโมเดลนี้ และไม่ใช่พื้นที่ชั้นมาตรฐาน',countryBkk:'ไทย',neighBkk:'สาทร',countryKl:'มาเลเซีย',neighKl:'จัตุรัสเมอร์เดกา',countryJak:'อินโดนีเซีย',neighJak:'ซูดีร์มัน',countryHcmc:'เวียดนาม',neighHcmc:'บิ่ญถั่ญ',citySz:'เซินเจิ้น',nameSz:'ศูนย์การเงินผิงอัน',addrSz:'ถนนอี้เถียน 5033 ฝูเถียน เซินเจิ้น',countrySz:'จีน',neighSz:'ฝูเถียน'});
+Object.assign(CONTEXT_I18N.zh,{country:'国家',neighbourhood:'街区',publishedGross:'已公布总建筑面积',publishedNote:'已公布总建筑面积是所引建筑的总量，不是本模型的楼面面积，也不是标准层面积。',countryBkk:'泰国',neighBkk:'沙吞',countryKl:'马来西亚',neighKl:'独立广场',countryJak:'印度尼西亚',neighJak:'苏迪尔曼',countryHcmc:'越南',neighHcmc:'平盛',citySz:'深圳',nameSz:'平安金融中心',addrSz:'福田区益田路5033号，深圳',countrySz:'中国',neighSz:'福田'});
 
 /* ── shadow geometry ──────────────────────────────────────────────────────
    The sun vector is (east, north, up) as a unit vector, so a point at height h
@@ -166,17 +174,22 @@ function siteCard({c,site,name,H,storey,foot,M}){
  const head=wrap('cx-site');head.append(el('b',name));
  const dl=el('dl');dl.className='cx-kv';
  const kv=(k,v)=>{dl.append(el('dt',k),el('dd',v))};
- kv(c.addr,c['addr'+SUFFIX[Object.keys(SITES).find(k=>SITES[k]===site)]]);
+ const id=Object.keys(SITES).find(k=>SITES[k]===site),suf=SUFFIX[id];
+ kv(c.country,c['country'+suf]);
+ kv(c.neighbourhood,c['neigh'+suf]);
+ kv(c.addr,c['addr'+suf]);
  kv(c.coords,txt(site.lat<0?c.latS:c.latN,Math.abs(site.lat).toFixed(6))+' · '+txt(c.lonE,site.lon.toFixed(6)));
  kv('',c['coord'+site.coord[0].toUpperCase()+site.coord.slice(1)]);
  kv(c.realFloors,String(site.floors));
  kv(c.realHeight,num(site.height,site.height%1?1:0)+' '+M);
  kv(c.replaces,name);
+ if(site.gross)kv(c.publishedGross,Math.round(site.gross).toLocaleString('en-GB')+' m²');
  if(site.plate)kv(c.plate,site.plate.toLocaleString('en-GB')+' m²');
  kv(c.modelHeight,num(H,1)+' '+M);
  kv(c.storeyHeight,num(storey,2)+' '+M);
  const a=el('a', {en:'Building sources ↗',th:'แหล่งข้อมูลอาคาร ↗',zh:'建筑来源 ↗'}[document.documentElement.lang.startsWith('th')?'th':document.documentElement.lang.startsWith('zh')?'zh':'en']);a.href=site.source;a.target='_blank';a.rel='noopener';head.append(dl,a);card.append(head);
  const note=wrap('cx-note');note.append(el('p',c.clearNote));
+ if(site.gross)note.append(el('p',c.publishedNote));
  if(site.plate)note.append(el('p',txt(c.areaNote,Math.round(foot).toLocaleString('en-GB'),site.plate.toLocaleString('en-GB'))),el('p',c.plateNote));
  card.append(note);
  return card;

@@ -94,7 +94,15 @@ test('the brief desk offers the three schemes the client actually argues about',
 
 test('the four pilot sites are real, cited, and replace an existing building', () => {
   const ids = Object.keys(CONTEXT_SITES);
-  assert.deepEqual(ids.sort(), ['bangkok', 'hcmc', 'jakarta', 'kl']);
+  assert.deepEqual(ids.sort(), ['bangkok', 'hcmc', 'jakarta', 'kl', 'shenzhen']);
+  assert.equal(CONTEXT_SITES.shenzhen.floors, 115);
+  assert.equal(CONTEXT_SITES.shenzhen.height, 599);
+  assert.equal(CONTEXT_SITES.shenzhen.gross, 459525);
+  assert.ok(CONTEXT_SITES.shenzhen.height < 650, 'the 660 m redesign is not the completed tower');
+  assert.match(CONTEXT_I18N.en.countrySz, /China/);
+  assert.match(CONTEXT_I18N.en.neighSz, /Futian/);
+  assert.match(CONTEXT_I18N.zh.citySz, /深圳/);
+  assert.match(CONTEXT_I18N.th.neighSz, /ฝูเถียน/);
   for (const id of ids) {
     const s = CONTEXT_SITES[id];
     assert.ok(s.bld && s.addr, `${id}: building and street address required`);
