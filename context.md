@@ -79,3 +79,26 @@ The façade desk draws slab-edge anchorage and pressure-plate drainage from Arch
 Land and FAR fields accept any number inside their bounds, including the 9,000 m² default. Plan names stay whole words. Phone controls in the console strip and the Design/Performance switch are 44px targets. Research paths are unchanged.
 
 Verification: 124 tests. Browser at 1440×900 and 390×844: zero studio overflow, workspace routing, façade diagram, research reader, EN/TH/ZH.
+
+## 2026-10-16 · Cross-agent consolidation and hardening
+
+Merged Cursor PR #1 (first-timer research deep link, phone studio, Chen/2026 framing). Its only conflicts were `?v=` stamps. On phones, Reset/Save/Export now live in the Studies desk and the place panel replaces the land strip. This is deliberate, keep it.
+
+Bugs fixed after a three-way audit (security, code, PR):
+- Brief sliders commit on release.
+- Place desk sun time reaches the model.
+- The research link opens the location view.
+- Reset restores the whole brief desk.
+- Brief Apply stays inside the span slider range (32–62 m).
+- The timeline note no longer renders twice.
+- Release ids hash raw image bytes.
+- The title block wraps instead of clipping and names its author ("by Dr Non · depa + Axiom"). On phones it drops that line and keeps the notice and the reference.
+
+Security: `dist/_headers` carries a strict CSP (self plus Google Fonts, no unsafe-inline or eval), HSTS, frame denial, Permissions-Policy and COOP. Desk CSS lives in `desks.css`. A test forbids inline `<style>` injection, because the CSP would silently drop it. Vendored SunCalc is pinned by full sha256. A gitleaks scan of all history found no secrets. Local home paths are gone from tracked files, and `.openai/` is ignored.
+
+Still open, by choice:
+- Commit author email `nonsmartcity@gmail.com` is public in history. Going forward, set the GitHub noreply address with `git config user.email`.
+- `context.md` and `docs/` are public working notes.
+- The header (model gross) and the Brief desk (scheme GFA) show two different FAR verdicts. They are different quantities but share no label explaining that.
+- Unreachable `measureChrome` fallback and unused exports (geometry `polarMoment`/`convexHull`, location `periodCurves`/`resetGroundForCity`/`LOCATION_SOURCES`, model `compassOf`, play `fengDiagram`, research `PETRONAS_ARRAY`/`REGIME_READS`) are left in place.
+- Google Fonts could be self-hosted to drop both third-party origins.

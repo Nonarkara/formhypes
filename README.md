@@ -66,3 +66,10 @@ Commercial success and engineering adequacy are research questions, not validate
 ### Contained studio
 
 The studio now stays inside the viewport. Land area, FAR and city sit above the drawing. Form, Brief, Place, Walk-in, Façade, Compare and Studies open beside the tower instead of lengthening the page. The default land is a hypothetical 9,000 m² square and FAR 8 is a scenario; the amber dashed square is that plot, and the grey square is the model's site envelope. The façade workspace explains slab-edge anchorage and drained pressure-plate mullions from Architectural Graphic Standards, 11th edition, pp. 142–144. Those drawings are principles, not a sized assembly.
+
+## Security and operations
+
+- **Headers:** `dist/_headers` sets a strict Content-Security-Policy, HSTS, frame denial and Permissions-Policy. Anything that loads a new origin, or injects inline `<style>` or `<script>`, will be blocked. Put CSS in `style.css`, `console.css` or `desks.css`, and add any new origin to the CSP deliberately.
+- **Deploy:** `npm run deploy` stamps content hashes, runs the tests, then uploads `dist/` (minus `.wrangler`, `.DS_Store`, `.git`, `.env`) to Pages project `shdt`.
+- **Preview first:** for risky changes, deploy to a preview branch with `wrangler pages deploy <dir> --project-name=shdt --branch=<name>`.
+- **Supply chain:** there are no runtime dependencies. Vendored SunCalc is pinned by sha256 in the tests.
