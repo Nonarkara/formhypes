@@ -3,8 +3,16 @@
 // quoted as given. Every neighbouring block below is contextual massing composed
 // for this study: not surveyed, every height indicative. Both facts are printed
 // on screen, not merely held here.
-import {profile, area, stackHeight} from './model.js?v=e1aefac756';
+import {profile, area, stackHeight, evaluate} from './model.js?v=e1aefac756';
 import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposure} from './solar.js?v=9279efc6dc';
+import {lensOf,lensSVG,lensFormula,LENS_KEY,LIFE_YEARS} from './lens.js?v=2949cf8b98';
+import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
+import {CITYSCAPE} from './cityscape.data.js?v=fb3efe9e16';
+import {parseGround,parseCity,plotCandidates,plotFacts,landscapeSVG,skyViewSVG,makeScene} from './site.js?v=9f5f1ac44f';
+// The lens strings live in the shared translation file, not in this desk's own
+// dictionary: they are the same words the reader has already met in the rail,
+// and a second copy is a second thing to drift.
+import {t as I18N} from './i18n.js?v=cc2f147884';
 
 // Empire Tower 58F / 227 m / 1999, floor plate ≈3,000 m² and a 2.60 m Grade A
 // clear-height benchmark for Bangkok; Dayabumi Complex 35F / 157 m / 1984;
@@ -30,8 +38,15 @@ Object.assign(SITES.hcmc,{"bld": "Landmark 81", "addr": "720A Điện Biên Ph�
 Object.assign(SITES.shenzhen,{"bld": "Ping An Finance Center", "addr": "5033 Yitian Road, Futian District, Shenzhen", "source": "https://web.archive.org/web/20170426055820/http://ctbuh.org/TallBuildings/FeaturedTallBuildings/FeaturedTallBuildingArchive2017/PingAnFinanceCenterShenzhen/tabid/7503/language/en-US/Default.aspx", "sourceNote": "Completed tower: 599 m, 115 storeys, gross area 459,525 m², Futian District — CTBUH featured sheet, 2017. Address 5033 Yitian Road is the Skyscraper Center record. A later 660 m entry is a redesign proposal, not this tower. No typical floor plate is verified here."});
 SITES.kl.floors=36;
 export const CONTEXT_SITES=SITES;
-const ORDER=['bangkok','kl','jakarta','hcmc','shenzhen'];
-const SUFFIX={bangkok:'Bkk',kl:'Kl',jakarta:'Jak',hcmc:'Hcmc',shenzhen:'Sz'};
+/* Tokyo is in this list for the lens, not for a site. It has no pilot building
+   here — the desk can still put the model in the city, draw its ground and its
+   sun, but it cannot say which plot it stands on, and the band that offers a
+   replacement would be a claim nobody sourced. So Tokyo is offered, it draws
+   the same desk, and the one card that would have to invent an address says so
+   instead. Dropping it would have been the easy way: the site has six cities
+   and this desk used to offer five. */
+const ORDER=['bangkok','tokyo','kl','jakarta','hcmc','shenzhen'];
+const SUFFIX={bangkok:'Bkk',tokyo:'Tky',kl:'Kl',jakarta:'Jak',hcmc:'Hcmc',shenzhen:'Sz'};
 export const PLACE_ORDER=ORDER;
 export const PLACE_SUFFIX=SUFFIX;
 const LEVELS=33;
@@ -125,8 +140,22 @@ export function renderContext({lang,state,changed}){
  const host=document.getElementById('contextDesk');
  if(!host)return;
  const focus=host.contains(document.activeElement)?document.activeElement.id:null;
+ try{renderSite({lang,state,changed})}catch(e){console.warn('site desk',e)}
  const home=Object.hasOwn(SITES,state.city);
- if(!home){host.replaceChildren(el('h2',c.title),el('p',c.noSite));const nav=el('div');nav.className='cx-cities';for(const k of ORDER){const b=el('button',c['city'+SUFFIX[k]]);b.onclick=()=>changed({city:k});nav.append(b)}host.append(nav);return}
+ if(!home){
+  // A city with no pilot site still has a problem worth reading, and the lens
+  // is the reason it is in the list. So the band comes first and the note that
+  // there is no site comes after it — not instead of it.
+  host.replaceChildren();
+  const hd=wrap('cx-head');hd.append(el('h2',c.title),el('p',c.tier));host.append(hd);
+  const H0=stackHeight(state,state.floors)||0;
+  host.append(lensBand({key:state.city,lang,state,storey:state.floors>0?H0/state.floors:0,H:H0}));
+  const nav=wrap('cx-cities');
+  for(const k of ORDER){const b=el('button',c['city'+SUFFIX[k]]);b.onclick=()=>changed({city:k});nav.append(b)}
+  host.append(nav);
+  const w=el('p',txt(c.noSite,c['city'+SUFFIX[state.city]]));w.className='cx-warn';host.append(w);
+  return
+ }
  const key=state.city,site=SITES[key];
  let city=solarDefaults.city,date=solarDefaults.solarDate,time=solarDefaults.solarTime;
  if(cities[state.city]){city=state.city;date=state.solarDate;time=state.solarTime}
@@ -151,6 +180,11 @@ export function renderContext({lang,state,changed}){
  row.append(tl,ti);host.append(row);
  if(!home){const w=el('p',txt(c.noSite,cityName));w.className='cx-warn';host.append(w)}
 
+ // The lens sits directly under the city buttons, before anything else on the
+ // desk, because it is the reason the city is in the list at all. Everything
+ // below it is the same desk for every city; this is the part that is not.
+ host.append(lensBand({key,lang,state,storey,H}));
+
  const grid=wrap('cx-grid');
  grid.append(siteCard({c,key,site,name,H,storey,foot,M}),sunCard({c,sun,ray,H,res,samples,time}),planCard({s0,c,site,ns,res,ray,H,sun,M,DG}),skyCard({c,site,name,ns,H,M}));
  host.append(grid);
@@ -165,6 +199,51 @@ export function renderContext({lang,state,changed}){
  for(const k of ['discSite','discMass','discShadow','discSolar']){const p=el('p',c[k]);p.className='cx-warn';disc.append(p)}
  host.append(disc);
  if(focus)document.getElementById(focus)?.focus({preventScroll:true});
+}
+
+/* The lens band. Three facts, one drawing, one formula, one source list — and
+   every one of those sized by its content. The failure mode this is written
+   against is a band four cells wide with one word in each, which spends a
+   screen's worth of space saying that a city has weather. The rows wrap; they
+   do not spread. Nothing here stretches to fill a row. */
+function lensBand({key,lang,state,storey,H}){
+ const c=I18N[lang]||I18N.en;
+ let netArea=0;
+ try{netArea=evaluate(state).rentable||0}catch(e){}
+ const L=lensOf(key,{storeyM:storey,heightM:H,netArea});
+ const box=wrap('lx-band');
+ if(!L){box.hidden=true;return box}
+ box.setAttribute('data-city',key);box.setAttribute('data-kind',L.kind);
+ const head=wrap('lx-head');
+ head.append(el('h3',c['lx.title']),el('p',c['lx.'+LENS_KEY[key]]));
+ box.append(head);
+ const body=wrap('lx-body');
+ const fig=wrap('lx-fig');
+ fig.innerHTML=lensSVG(L,{years:c['lx.years'],bench:c['lx.bench'],let:c['lx.let'],overflow:c['lx.overflow'],storey:c['lx.storey'],settle:c['lx.settle'],model:c['lx.model'],ground:c['lx.ground'],aria:c['lx.title']+' · '+c['sun.'+key]});
+ body.append(fig);
+ const side=wrap('lx-side');
+ const fx=lensFormula(L);
+ if(fx){
+  const f=wrap('lx-fx');
+  f.append(el('code',fx.expr),el('span',c['lx.'+fx.gloss]));
+  side.append(f);
+ }
+ const dl=el('dl');dl.className='lx-rows';
+ for(const [id,val]of L.rows){dl.append(el('dt',c['lx.'+id]),el('dd',val))}
+ side.append(dl);
+ body.append(side);
+ box.append(body);
+ const meta=wrap('lx-meta');
+ const assume=el('p',txt(c['lx.assumed'],LIFE_YEARS));assume.className='lx-assume';meta.append(assume);
+ const src=el('ol');src.className='lx-src';
+ for(const [label,href]of L.src){
+  const li=document.createElement('li');
+  const a=el('a',label);a.href=href;a.target='_blank';a.rel='noopener';
+  li.append(a);src.append(li);
+ }
+ meta.append(el('h4',c['lx.sources']),src);
+ box.append(meta);
+ return box;
 }
 
 function siteCard({c,key,site,name,H,storey,foot,M}){
@@ -340,3 +419,103 @@ Object.assign(CONTEXT_I18N.zh,{storeyHeight:'总高度 / 使用楼层数'});
 Object.assign(CONTEXT_I18N.en,{addrBkk:'1 South Sathorn Road, Yannawa, Sathorn, Bangkok'});
 Object.assign(CONTEXT_I18N.th,{addrBkk:'1 ถนนสาทรใต้ แขวงยานนาวา เขตสาทร กรุงเทพฯ'});
 Object.assign(CONTEXT_I18N.zh,{addrBkk:'曼谷沙吞区南沙吞路1号'});
+
+// Tokyo joins the desk for its lens. There is no pilot building here and none is
+// claimed; the band renders anyway, and the desk says which card is missing.
+Object.assign(CONTEXT_I18N.en,{cityTky:'Tokyo',nameTky:'Tokyo'});
+Object.assign(CONTEXT_I18N.th,{cityTky:'โตเกียว',nameTky:'โตเกียว'});
+Object.assign(CONTEXT_I18N.zh,{cityTky:'东京',nameTky:'东京'});
+
+/* ── the stand-here desk ───────────────────────────────────────────────────
+
+   A plot is chosen here. Until now the tower stood in the middle of the city
+   because there was nowhere else to put it, which made the surrounding blocks a
+   backdrop rather than neighbours. Picking a lot out of the real survey turns
+   the cityscape into a constraint: the same plate now has to fit inside
+   somebody's existing building footprint, face a street of a known width, and
+   live with whatever is already standing next to it.
+
+   The lot list is ranked by AREA and nothing else. Area is the only criterion
+   that cannot be argued with; every other number here is reported and left to
+   the reader, because a tool that silently sorts by "best" is a tool that has
+   decided the question for you and then hidden the decision. */
+
+let siteLot=0;                                    // chosen lot index, per city
+let siteCity=null;
+
+export function renderSite({lang,state,changed}){
+ const c=I18N[lang]||I18N.en;
+ const host=document.getElementById('siteDesk');
+ if(!host)return;
+ const cityKey=state.city;
+ if(siteCity!==cityKey){siteCity=cityKey;siteLot=0}
+ host.replaceChildren();
+
+ const ground=parseGround(cityKey,GROUND),survey=parseCity(cityKey,CITYSCAPE);
+ if(!ground||!survey){return}
+
+ const plate=profile(state,0), plateArea=area(plate), towerH=stackHeight(state)||0;
+ const plots=plotCandidates(survey,ground,plateArea);
+ const head=wrap('st-head');
+ head.append(el('h3',c['st.title']),el('p',txt(c['st.lead'],ground.meta.label)));
+ host.append(head);
+
+ if(!plots.length){
+  // Said plainly rather than drawing an empty city and leaving the reader to
+  // work out why nothing happened.
+  const warn=wrap('st-warn');warn.append(el('p',c['st.none']));host.append(warn);
+  return;
+ }
+
+ siteLot=Math.max(0,Math.min(siteLot,plots.length-1));
+ const plot=plots[siteLot];
+ const sun=solarPosition({...solarDefaults,...state});
+ const facts=plotFacts(plot,{ground,buildings:survey.buildings,towerH,plateArea,
+  sun:{altitude:sun.altitude,azimuth:sun.azimuth}});
+
+ const body=wrap('st-body');
+ const fig=wrap('st-fig');
+ const scene=makeScene({radius:ground.meta.radius,towerH});
+ fig.innerHTML=landscapeSVG({ground,city:survey,plot,tower:plate,towerH,scene,
+  labels:{aria:c['st.title']+' · '+ground.meta.label}});
+ body.append(fig);
+
+ const side=wrap('st-side');
+ const pick=document.createElement('select');pick.className='st-pick';pick.id='siteLot';
+ for(let i=0;i<plots.length;i++){
+  const o=document.createElement('option');
+  o.value=String(i);
+  o.textContent=txt(c['st.rank'],i+1,plots.length,Math.round(plots[i].area));
+  pick.append(o);
+ }
+ pick.value=String(siteLot);
+ pick.onchange=()=>{siteLot=+pick.value;renderSite({lang,state,changed})};
+ side.append(pick);
+
+ const dl=el('dl');dl.className='st-rows';
+ const kv=(k,v)=>{if(v===null||v===undefined||v==='')return;dl.append(el('dt',k),el('dd',v))};
+ const n=v=>f2(v);
+ kv(c['st.area'],`${n(facts.area)} ${c['st.lot']}`);
+ kv(c['st.coverage'],`${f2(facts.coverage*100,0)}%`);
+ kv(c['st.width'],`${f2(facts.width,1)} m`);
+ kv(c['st.frontage'],facts.frontage>0?`${f2(facts.frontage,0)} m`:'—');
+ kv(c['st.street'],facts.nearestRoad===null?'—':`${GROUND_ROAD_M[facts.nearestRoad]} m · ${f2(facts.nearestRoadDist,0)} m`);
+ kv(c['st.neighbour'],facts.neighbourMax>0?`${f2(facts.neighbourMax,0)} m · ${facts.neighbourCount}`:'');
+ kv(c['st.ratio'],facts.heightRatio===null?'—':`${f2(facts.heightRatio,2)}×`);
+ kv(c['st.sky'],`${f2(facts.svf*100,0)}%`);
+ kv(c['st.shadow'],`${f2(facts.shadowReach,0)} m · ${txt(c['st.caught'],facts.shadowCaught)}`);
+ side.append(dl);
+ body.append(side);
+ host.append(body);
+
+ // The sky section, drawn from the same 72 bearings the percentage above was
+ // computed from — so the shape and the number cannot disagree.
+ const sky=wrap('st-sky');
+ const skyFig=wrap('st-fig');
+ skyFig.innerHTML=skyViewSVG({skyline:facts.skyline,svf:facts.svf,
+  labels:{title:c['st.skyTitle'],value:`${f2(facts.svf*100,0)}%`,aria:c['st.skyTitle']}});
+ sky.append(skyFig,el('p',c['st.skyNote']));
+ host.append(sky);
+
+ const src=el('p',c['st.source']);src.className='st-source';host.append(src);
+}

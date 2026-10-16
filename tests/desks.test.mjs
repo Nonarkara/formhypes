@@ -335,11 +335,15 @@ test('the performance rail leads with drawings and keeps the schedule on demand'
 
 test('every workspace is named by a drawing, and the word is kept for the reader',()=>{
  const app=readDist('console.js');
- assert.equal(WORKSPACES.length,7);
- // A strip of six words is a menu; six marks are an instrument panel.
- const marks=[...app.matchAll(/^\s*(?:form|brief|place|walk|facade|compare|studies):'([^']+)'/gm)].map(m=>m[1]);
- assert.equal(marks.length,7,'every workspace needs exactly one drawn mark');
- assert.equal(new Set(marks).size,7,'two workspaces share one mark — the strip cannot be read');
+ assert.equal(WORKSPACES.length,9);
+ // A strip of words is a menu; marks are an instrument panel. The keys are read
+ // from WORKSPACES rather than typed here, because a hardcoded list silently
+ // stops covering the workspaces added after it was written — which is exactly
+ // how two tools end up sharing one mark and nobody notices.
+ const alt=WORKSPACES.join('|');
+ const marks=[...app.matchAll(new RegExp('^\\s*('+alt+'):\'([^\']+)\'','gm'))].map(m=>m[2]);
+ assert.equal(marks.length,WORKSPACES.length,'every workspace needs exactly one drawn mark');
+ assert.equal(new Set(marks).size,WORKSPACES.length,'two workspaces share one mark — the strip cannot be read');
  for(const m of marks)assert.doesNotMatch(m,/NaN|undefined/);
  // The word does not vanish with the pixels: it stays for the accessibility
  // tree and the hover title, in all three languages.
@@ -505,19 +509,21 @@ test('the sheet bottom band is one in-flow stack, not elements with guessed offs
   'the band measurement must skip out-of-flow children, not only accept static ones');
  assert.ok(!/ctx\.fillText\(num\(landArea\)/.test(app)||/H-footInset-14/.test(app),
   'the land-area annotation must be anchored to the measured band');
- // Vertically it still measures the band. Horizontally it must measure too: the
- // bottom-right corner is shared with the view foot's right-hand label, whose
- // width is set by the language, so a fixed W-60 put the X arm on top of it in
- // English and not in Thai.
- const triad=/const origin=\[([^\]]*)\];ctx\.strokeStyle='#a2aca9'/.exec(app);
+ // Vertically it must measure the band, and horizontally the sibling it shares
+ // the corner with — that label's width is set by the language, so a constant
+ // cleared it in English and not in Thai.
+ const triad=/const origin=\[([^\]]*)\];\s*ctx\.strokeStyle='#a2aca9'/.exec(app);
  assert.ok(triad,'the axis triad origin is missing or no longer a single point');
- assert.ok(/H-footInset-16/.test(triad[1]),
-  `the triad must clear the measured band vertically, got origin ${triad[1]}`);
+ assert.ok(/labelLeft/.test(triad[1])&&/footR/.test(triad[1]),
+  `the triad must be placed against the measured view foot label and row, got ${triad[1]}`);
  assert.ok(!/W-60/.test(triad[1]),
   'the triad must measure the view foot label, not sit at a fixed width — that '+
   'offset only clears in one of the three languages');
- assert.ok(/viewfoot span/.test(app)&&/labelRight/.test(triad[1]),
-  'the triad must be placed against the measured view foot label it has to clear');
+ assert.ok(/viewfoot span|footEl\.querySelectorAll\('span'\)/.test(app),
+  'the triad must read the view foot label it has to clear');
+ // And it still has to clear the band: the land-area label proves footInset is
+ // still measured and still used, rather than quietly replaced.
+ assert.ok(/H-footInset-14/.test(app),'the land-area label must still clear the measured band');
 });
 
 test('the storey datum is knocked out of the drawing and never crosses the dimension',()=>{

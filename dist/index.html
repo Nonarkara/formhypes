@@ -15,9 +15,9 @@
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="720">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="style.css?v=39957eaad5">
-<link rel="stylesheet" href="console.css?v=4d67f4feaf">
-<link rel="stylesheet" href="desks.css?v=56cca43fba">
+<link rel="stylesheet" href="style.css?v=330572b70b">
+<link rel="stylesheet" href="console.css?v=2330a00749">
+<link rel="stylesheet" href="desks.css?v=de412d7441">
 </head>
 <body>
 
@@ -31,6 +31,7 @@
   </nav>
   <div class="langs" role="group" aria-label="Language"></div>
   <div class="actions">
+    <button type="button" id="manualBtn" title="Manual and system check"><span class="ic">?</span><span data-i18n="mn.open">Manual</span></button>
     <button type="button" id="reset" title="Reset"><span class="ic">↺</span><span data-i18n="reset">Reset</span></button>
     <button type="button" id="save" title="Save this study"><span class="ic">＋</span><span data-i18n="save">Save</span></button>
     <button type="button" id="export" title="Export geometry and data"><span class="ic">↓</span><span data-i18n="export">Export</span></button>
@@ -84,9 +85,6 @@
       <label for="detail" class="ctl" data-i18n="c.detail">How it is assembled</label>
       <select id="detail"></select>
       <p class="note" id="detailBasis"></p>
-      <div class="dsecwrap" id="detailFigure"></div>
-      <p class="note" id="detailNote"></p>
-      <dl class="spec" id="detailSpec"></dl>
 
       <label for="system" class="ctl" data-i18n="c.system">Structure</label>
       <select id="system"></select>
@@ -178,6 +176,52 @@
       </div>
       <p class="note" id="floorStats"></p>
 
+      <!-- PLATE SPLIT. The plan above draws the shape; this says what fraction of
+           it can actually be let. Core, circulation and net usable, with the
+           circulation share named and the model's own common/service allowance
+           printed underneath, because the two are different deductions and a
+           reader shown only one of them will think the other is wrong. -->
+      <div class="planhead">
+        <h2 data-i18n="as.head">How the plate divides</h2>
+      </div>
+      <div class="areasplit" id="areaFigure"></div>
+      <p class="note" id="areaNote"></p>
+
+      <!-- SECTION. The plan above says where the core is; this says what it does.
+           Almost everything in a core moves, and drawing it still makes it look
+           like a cupboard — so the cars run inside the lift zone they belong to,
+           clean water and fire water rise, wastewater falls. The same slider
+           marks the level in both drawings. The figures under it are computed by
+           named published methods, not drawn by eye.
+
+           This block is moved whole into the Core workspace by console.js. It
+           sat in the 300px performance rail, where an instrument this size is
+           an instrument nobody scrolls to. -->
+      <div id="coreDesk">
+      <div class="planhead">
+        <h2 data-i18n="cx.title">Core, in section</h2>
+      </div>
+      <div id="coreFigure"></div>
+      <div class="legend corelegend">
+        <span><i class="lg-car"></i><span data-i18n="cx.lgCar">Lift car</span></span>
+        <span><i class="lg-up"></i><span data-i18n="cx.lgUp">Rising</span></span>
+        <span><i class="lg-down"></i><span data-i18n="cx.lgDown">Falling</span></span>
+        <span><i class="lg-air"></i><span data-i18n="cx.lgAir">Vent</span></span>
+        <span><i class="lg-prv"></i><span data-i18n="cx.lgPrv">Break-pressure tank</span></span>
+      </div>
+      <dl class="metrics corefacts" id="coreFacts"></dl>
+      <p class="note" id="coreShown"></p>
+      <p class="note" id="coreSrc"></p>
+      </div>
+
+      <!-- ASSEMBLY. Also moved whole into its own workspace. The chooser stays
+           in the rail — a select is a control, not a drawing. -->
+      <div id="detailDesk">
+      <div class="dsecwrap" id="detailFigure"></div>
+      <p class="note" id="detailNote"></p>
+      <dl class="spec" id="detailSpec"></dl>
+      </div>
+
       <div class="primarymetric">
         <p id="contributionLabel" data-i18n="m.contribution">Annual contribution</p>
         <strong id="contribution"></strong>
@@ -263,6 +307,7 @@
   <details id="walkPanel"><summary id="walkTitle">Walk-in &amp; street</summary><div id="walkDesk" aria-live="polite"></div></details>
 
   <details id="contextPanel"><summary id="contextTitle">Site &amp; neighbours</summary><div id="contextDesk" aria-live="polite"></div></details>
+  <details id="sitePanel"><summary id="siteTitle">Stand here</summary><div id="siteDesk" aria-live="polite"></div></details>
 
   <section class="explore" aria-labelledby="exploreTitle">
     <div class="explorehead">
@@ -308,9 +353,10 @@
 </main>
 
 <dialog id="method"><button class="close" data-i18n="d.close">×</button><p class="eyebrow">2006 → 2026</p><h2><span data-i18n="meth.title1">Twenty years ahead.</span><br><span data-i18n="meth.title2">Still an unfinished idea.</span></h2><div id="methodBody"></div></dialog>
+<dialog id="manualDialog" class="manual"><button class="close" data-i18n="d.close">×</button><h2 id="manualTitle">Manual</h2><p class="lede" id="manualLede"></p><div id="manualBody"></div><section class="selfcheck"><h3 id="checkTitle"></h3><p class="note" id="checkLede"></p><button type="button" id="runCheck"></button><div id="checkOut" role="status" aria-live="polite"></div></section></dialog>
 <dialog id="exportDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="d.exportTitle">Take the study with you.</h2><p data-i18n="d.exportSub">Metres, explicit assumptions, editable geometry.</p><div class="exportoptions"><button type="button" id="exportObj"><span class="ic">◈</span>OBJ</button><button type="button" id="exportJson"><span class="ic">{ }</span>JSON</button><button type="button" id="exportCsv"><span class="ic">▤</span>CSV</button></div><p class="note" data-i18n="d.exportNote">OBJ contains the conceptual outer shell.</p><p class="note source" data-i18n="d.exportCredit"></p></dialog>
 <dialog id="knowledgeDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="k.button">Architectural knowledge</h2><div id="knowledgeContent" role="status"></div><p class="knowledgeDownloads"><a href="knowledge/designon-knowledge.json?v=38eb5f372c" download data-i18n="k.download">Download</a><a href="knowledge/DESIGNON-LICENSE.txt?v=1950c131d0" data-i18n="k.license">License</a></p></dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="app.js?v=e5b0956838"></script>
+<script type="module" src="app.js?v=ea3538efbf"></script>
 </body></html>
