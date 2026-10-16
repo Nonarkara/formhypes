@@ -211,51 +211,7 @@ const TYPES=[
 // than in one blanket disclaimer.
 const TYPE_STATUS={branch:'ty.approx',setback:'ty.approx',faceted:'ty.none',skin:'ty.partial'};
 
-const CSS=`#briefDesk .br-desk{font:inherit;font-size:13px;line-height:1.45;color:var(--ink);border-top:2px solid var(--ink);padding-top:10px}
-#briefDesk .br-h{margin:0 0 4px;font-size:15px;font-weight:600;letter-spacing:.01em}
-#briefDesk .br-lede{margin:0 0 4px;font-size:12px;color:var(--muted);max-width:74ch}
-#briefDesk .br-sec{margin:0;padding:13px 0 4px;border-top:1px solid var(--line)}
-#briefDesk .br-sec:first-of-type{border-top:0}
-#briefDesk .br-sec>h4{margin:0 0 9px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
-#briefDesk .br-fields{display:flex;flex-wrap:wrap;align-items:center;gap:7px 16px;margin:0 0 9px}
-#briefDesk .br-fields label{font-size:11px;color:var(--muted)}
-#briefDesk input[type=number]{width:104px;font:inherit;font-family:var(--mono);font-size:12px;padding:2px 4px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
-#briefDesk input[type=number]:focus,#briefDesk select:focus{outline:2px solid var(--accent);outline-offset:-1px}
-#briefDesk input[type=range]{width:118px;accent-color:var(--accent)}
-#briefDesk select{font:inherit;font-size:12px;padding:2px 4px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
-#briefDesk .br-ledger{width:100%;margin:0 0 9px;border-collapse:collapse;table-layout:fixed;font-size:12px}
-#briefDesk .br-ledger th{overflow-wrap:anywhere;text-align:left;font-weight:400;vertical-align:top;padding:2px 16px 2px 0;color:var(--muted)}
-#briefDesk .br-ledger td{text-align:right;vertical-align:top;padding:2px 0;font-family:var(--mono);white-space:normal;overflow-wrap:anywhere}
-#briefDesk .br-ledger thead th{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--line);padding-bottom:4px}
-#briefDesk .br-cur{color:var(--accent);font-weight:600}
-#briefDesk .br-flag{color:var(--accent);font-weight:600}
-#briefDesk .br-rule{display:block;width:min(100%,280px);height:16px;margin:0 0 9px;color:var(--ink)}
-#briefDesk .br-rule.over{color:var(--accent)}
-#briefDesk .br-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--line);margin:0 0 9px}
-#briefDesk .br-card{background:var(--panel);padding:9px 10px 10px}
-#briefDesk .br-card.br-on{background:var(--paper);border-left:3px solid var(--accent);padding-left:7px}
-#briefDesk .br-card button{font:inherit;font-size:12px;font-weight:600;color:var(--ink);background:none;border:0;border-bottom:1px solid var(--accent);padding:0 0 2px;cursor:pointer}
-#briefDesk .br-card dl{display:flex;flex-wrap:wrap;gap:2px 8px;margin:7px 0 0;font-size:11px}
-#briefDesk .br-card dt{color:var(--faint)}
-#briefDesk .br-card dd{margin:0 0 0 6px;font-family:var(--mono)}
-#briefDesk .br-opt{margin:8px 0 0;font-size:11.5px;color:var(--muted)}
-#briefDesk .br-sac{margin:5px 0 0;padding-top:5px;border-top:1px dotted var(--line);font-size:11.5px}
-#briefDesk .br-note{margin:0 0 9px;font-size:11px;color:var(--muted);max-width:78ch}
-#briefDesk .br-tag{display:inline-block;margin:5px 0 0;font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--accent);border:1px solid var(--accent);padding:0 4px}
-#briefDesk .br-read{font-size:11px;color:var(--muted);margin:0 0 9px}
-#briefDesk details{margin:0 0 9px}
-#briefDesk summary{font-size:11px;color:var(--muted);cursor:pointer}
-#briefDesk .br-svg{margin:7px 0 0;max-width:340px;color:var(--ink)}
-#briefDesk .br-svg svg{display:block;width:100%;height:auto}
-#briefDesk .br-disclaimer{margin:13px 0 0;padding-top:9px;border-top:1px solid var(--line);font-size:11px;color:var(--faint);max-width:82ch}
-#briefDesk .br-jump{font:inherit;font-size:11px;color:var(--ink);background:none;border:1px solid var(--line);padding:1px 6px;cursor:pointer;white-space:nowrap}
-#briefDesk .br-jump:hover{border-color:var(--accent);color:var(--accent)}`;
 
-let styled=false;
-function injectCSS(){
- if(styled)return;styled=true;
- const s=document.createElement('style');s.id='brief-style';s.textContent=CSS;document.head.append(s);
-}
 
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
@@ -306,7 +262,6 @@ let briefTab=0;
 export function renderBrief({lang,state,changed,onInputs}){
  const c=BRIEF_I18N[lang]||BRIEF_I18N.en;
  const host=document.getElementById('briefDesk');if(!host)return;
- injectCSS();
  if(!desk.seeded){
   desk.cap=Number.isFinite(state.maxHeight)?state.maxHeight:260;
   // Rounded onto Chen's own 0.1 scale grid so the slider thumb matches the value.

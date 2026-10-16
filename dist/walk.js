@@ -267,55 +267,8 @@ zh:{title:'人视视角',tier:'两幅由实时模型几何投影得出的透视�
  benchmarkText:'曼谷帝国大厦 — 公布的净高为 2.60 米。那是另一栋建筑的实测数据，仅作基准引用，并非本模型的结果。'}
 };
 
-const CSS=`
-.wk *{box-sizing:border-box}
-.wk-sec{border-top:1px solid var(--line);padding-top:12px;margin-top:20px}
-.wk-h{font:600 12px/1.5 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin:0 0 2px}
-.wk-note{font:400 12px/1.55 var(--sans);color:var(--muted);margin:0 0 8px;max-width:80ch}
-.wk-fig{margin:0}
-.wk-figwrap{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.wk-figwrap svg{display:block;width:100%;height:auto;background:var(--dark)}
-.wk-cap{font:400 11px/1.6 var(--mono);color:var(--muted);padding:6px 0 0}
-.wk-key{display:grid;grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);gap:1px 10px;margin:8px 0 0;font:400 11px/1.5 var(--sans);color:var(--muted)}
-.wk-key b{font:400 10px/1.7 var(--mono);color:var(--accent)}
-.wk-key i{overflow-wrap:anywhere;font-style:normal;font-family:var(--mono)}
-.wk-ctl{display:grid;grid-template-columns:minmax(80px,1fr) minmax(80px,2fr) auto;gap:6px 10px;align-items:center;margin:12px 0}
-.wk-ctl label,.wk-ctl output{font:400 11px/1.4 var(--sans);color:var(--muted)}
-.wk-ctl output{font-family:var(--mono);color:var(--ink);text-align:right}
-.wk-ctl input{width:100%;accent-color:var(--accent)}
-.wk-btn{font:400 11px/1 var(--sans);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:0;padding:6px 10px;cursor:pointer}
-.wk-btn:hover{border-color:var(--accent);color:var(--accent)}
-.wk-ctl p{grid-column:1/4;font:400 11px/1.55 var(--sans);color:var(--faint);margin:2px 0 0}
-.wk-src{font:400 11px/1.55 var(--sans);color:var(--faint);margin:8px 0 0;max-width:80ch}
-.wk-src b{font-weight:400;color:var(--accent)}
-.wk-svg .wk-sky{fill:var(--dark,#111416)}
-.wk-svg .wk-glass{fill:#1e2629;stroke:var(--dim);stroke-width:1}
-.wk-svg .wk-wall{fill:#1a2022;stroke:var(--dim);stroke-width:1}
-.wk-svg .wk-floor{fill:#141a1c;stroke:var(--dim);stroke-width:1}
-.wk-svg .wk-ceil{fill:#262e31;stroke:var(--dim);stroke-width:1}
-.wk-svg .wk-hatch{fill:#20272a;stroke:var(--dim);stroke-width:1}
-.wk-svg .wk-ground{fill:#1a1f21;stroke:var(--dim);stroke-width:1}
-.wk-svg .wk-kerb{fill:none;stroke:var(--dim);stroke-width:2}
-.wk-svg .wk-tw{fill:#232b2e}
-.wk-svg .wk-tw2{fill:#1f2629}
-.wk-svg .wk-nb{fill:#191f21}
-.wk-svg .wk-nb-l{fill:none;stroke:#4d5856;stroke-width:1}
-.wk-svg .wk-fig{fill:var(--dim,#a2aca9)}
-.wk-svg .wk-l{fill:none;stroke:var(--dim,#a2aca9);stroke-width:1}
-.wk-svg .wk-l2{fill:none;stroke:var(--dim,#a2aca9);stroke-width:2}
-.wk-svg .wk-faint{fill:none;stroke:#3f4a4b;stroke-width:1}
-.wk-svg .wk-ghost{opacity:.4}
-.wk-svg .wk-svc{fill:none;stroke:#77858a;stroke-width:1}
-.wk-svg .wk-a{stroke:var(--accent,#f59e0b);fill:none}
-.wk-svg .wk-bg{fill:var(--dark,#111416);stroke:none}
-.wk-svg .wk-pin{fill:var(--dark,#111416);stroke:var(--accent,#f59e0b);stroke-width:1}
-.wk-svg .wk-pin-t{fill:var(--accent,#f59e0b);font-family:var(--mono);font-size:11px}
-.wk-svg text{font-family:var(--mono);font-size:11px;fill:var(--dim,#a2aca9)}
-`;
 const view={d:46,look:16};
-let styled=false;
 export function renderWalk({lang,state,changed}){
- if(!styled){styled=true;const s=document.createElement('style');s.id='wk-style';s.textContent=CSS;document.head.append(s)}
  const c=WALK_I18N[lang]||WALK_I18N.en,t=k=>ph(c[k]);
  const host=document.getElementById('walkDesk');
  if(!host)return;

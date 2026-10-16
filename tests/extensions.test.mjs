@@ -156,3 +156,19 @@ test('the Method dialog publishes the rent equation the model actually computes,
  assert.match(dist('app.js'),/\$\('methodBtn'\)\.onclick=\(\)=>\{renderMethod\(\);\$\('method'\)\.showModal\(\)\}/);
  assert.ok(!dist('app.js').includes('obsolescence'),'stale formula text removed');
 });
+
+test('hygiene: vendored SunCalc is byte-pinned and the site ships its security headers',()=>{
+ const sha=createHash('sha256').update(readFileSync(new URL('../dist/vendor/suncalc.js',import.meta.url))).digest('hex');
+ assert.equal(sha,'65169cd1f50e6d1020d0672778fb544ebd2b799d5dc1d5fe90054e7392a27eda','vendored SunCalc changed: review the diff, then update this pin');
+ const h=dist('_headers');
+ for(const d of ["script-src 'self'","frame-ancestors 'none'","object-src 'none'"])assert.ok(h.includes(d),d);
+ assert.ok(!/unsafe-(inline|eval)/.test(h),'no unsafe CSP sources');
+ const tracked=['docs/DESIGNON-KNOWLEDGE.md','scripts/extract-designon.py'].map(f=>readFileSync(new URL('../'+f,import.meta.url),'utf8'));
+ for(const s of tracked)assert.ok(!s.includes('/Users/'),'no local home paths in public files');
+});
+
+test('no module injects inline styles, which the strict CSP would block',()=>{
+ for(const f of ['app.js','brief.js','walk.js','console.js','context.js','facade.js','research-reader.js','reader.js','location.js','play.js'])
+  assert.ok(!/(?:createElement|\bel)\(['"]style['"]\)|setAttribute\(['"]style['"]|style="/.test(dist(f)),f);
+ assert.match(dist('index.html'),/href="desks.css\?v=[a-f0-9]{10}"/);
+});

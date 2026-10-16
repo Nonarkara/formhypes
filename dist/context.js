@@ -119,10 +119,8 @@ const num=(v,d=1)=>Number.isFinite(v)?v.toFixed(d):'—';
 const wrap=cls=>{const n=el('div');n.className=cls;return n};
 const svg=(label,body,vb)=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox',vb);s.setAttribute('role','img');s.setAttribute('aria-label',label);s.innerHTML=body;return s};
 const nice=v=>{const p=Math.pow(10,Math.floor(Math.log10(Math.max(1,v))));return [1,2,5,10].map(k=>k*p).find(k=>k<=v)||p};
-let styled=false;
 
 export function renderContext({lang,state,changed}){
- if(!styled){const s=el('style');s.id='cx-style';s.textContent=CSS;document.head.append(s);styled=true}
  const c=CONTEXT_I18N[lang]||CONTEXT_I18N.en;
  const host=document.getElementById('contextDesk');
  if(!host)return;
@@ -328,67 +326,6 @@ function sunline({samples,H,res,c}){
  return svg(txt(c.stripAria)+' · '+c.shLen,body,'0 0 '+W+' '+Hh);
 }
 
-const CSS=`.cx-desk,.cx-desk *{box-sizing:border-box}
-.cx-desk{font-size:13px;line-height:1.45;color:var(--ink)}
-.cx-head{border-bottom:2px solid var(--ink);padding-bottom:6px;margin:0 0 10px}
-.cx-head h2{margin:0;font-size:19px;letter-spacing:.01em}
-.cx-head p{margin:3px 0 0;color:var(--muted)}
-.cx-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 12px;font-size:12px}
-.cx-cities{display:flex;flex-wrap:wrap;border:1px solid var(--line)}
-.cx-cities button{font:inherit;background:transparent;border:0;border-right:1px solid var(--line);padding:6px 11px;min-height:34px;cursor:pointer;color:var(--muted)}
-.cx-cities button:last-child{border-right:0}
-.cx-cities button[aria-pressed=true]{background:var(--accent);color:var(--dark);font-weight:600}
-.cx-input{font:inherit;font-family:var(--mono);padding:4px 6px;border:1px solid var(--line);background:var(--panel);min-height:32px}
-.cx-grid{align-items:start;display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
-@media(min-width:960px){.cx-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}}
-.cx-card{border:1px solid var(--line);background:var(--panel);padding:10px 12px;margin:0 0 12px}
-.cx-card h3{margin:0 0 6px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
-.cx-site b{display:block;font-size:16px}
-.cx-kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:6px 0 0;font-size:12px}
-.cx-kv dt{color:var(--muted)}
-.cx-kv dd{margin:0;font-family:var(--mono);word-break:break-word}
-.cx-note{font-size:11px;line-height:1.5;color:var(--faint);margin:6px 0 0}
-.cx-note p{margin:0 0 4px}
-.cx-warn{font-size:12px;line-height:1.5;border-left:2px solid var(--accent);padding:2px 0 2px 10px;margin:0 0 8px}
-.cx-fig{margin:0}
-.cx-fig svg{display:block;width:100%;height:auto;background:var(--dark)}
-.cx-legend{display:flex;flex-wrap:wrap;gap:3px 14px;margin:6px 0 0;padding:0;list-style:none;font-size:10.5px;color:var(--muted)}
-.cx-legend i{display:inline-block;width:13px;height:9px;margin-right:5px;vertical-align:-1px}
-.cx-strips{margin-top:12px}
-.cx-strip{display:flex;align-items:center;gap:10px;margin:2px 0}
-.cx-strip-holder{width:392px;max-width:62vw}
-.cx-strip svg{display:block;width:100%;height:auto;background:var(--dark)}
-.cx-strip figcaption{font-family:var(--mono);font-size:10px;color:var(--muted);min-width:104px;text-align:right}
-.cx-strips .cx-strip svg{max-width:392px}
-table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:11.5px}
-.cx-table caption{text-align:left;font-family:var(--sans);font-size:11px;color:var(--muted);padding:0 0 4px}
-.cx-table th,.cx-table td{border-bottom:1px solid var(--line);padding:3px 5px;text-align:right;white-space:nowrap}
-.cx-table th:first-child,.cx-table td:first-child{text-align:left}
-.cx-table thead th{border-bottom:2px solid var(--ink);color:var(--muted);font-weight:600}
-.cx-table tbody th{font-weight:600;color:var(--ink)}
-.cx-hit{color:var(--accent);font-weight:600}
-.cx-zero{color:var(--faint)}
-.cx-g{stroke:var(--line);fill:none;stroke-width:1}
-.cx-axis{stroke:var(--dim);fill:none;stroke-width:1}
-.cx-nb{fill:var(--panel);stroke:var(--dim);stroke-width:1}
-.cx-nb.hit{fill:var(--accent);fill-opacity:.3;stroke:var(--accent)}
-.cx-ref{fill:none;stroke:var(--dim);stroke-width:1;stroke-dasharray:4 3}
-.cx-tower{fill:var(--accent);fill-opacity:.16;stroke:var(--accent);stroke-width:2}
-.cx-shadow{fill:var(--accent);fill-opacity:.24;stroke:none}
-.cx-bar-nb{fill:var(--panel);stroke:var(--dim);stroke-width:1}
-.cx-bar-model{fill:var(--accent)}
-.cx-t{fill:var(--dim);font-family:var(--mono);font-size:9px}
-.cx-t-d{fill:var(--dim);font-family:var(--mono);font-size:10px}
-.cx-t-a{fill:var(--accent);font-family:var(--mono);font-size:9.5px;font-weight:600}
-.cx-t-n{fill:var(--dim);font-family:var(--mono);font-size:12px;font-weight:700}
-.cx-line{stroke:var(--accent);stroke-width:1.5}
-.cx-strip-frame{fill:none;stroke:var(--line);stroke-width:1}
-.cx-strip-hit{fill:var(--accent)}
-.cx-now{stroke:var(--dim);stroke-width:2}
-.cx-legend i.cx-shadow{background:rgba(245,158,11,.24)}
-.cx-legend i.cx-tower{border:1px solid var(--accent);background:rgba(245,158,11,.16)}
-.cx-legend i.cx-nb{border:1px solid var(--muted)}
-.cx-legend i.cx-ref{border:1px dashed var(--muted)}`;
 Object.assign(CONTEXT_I18N.en,{areaNote:'Model ground footprint {0} m² against an assumed reference plate of {1} m².',plateNote:'The dashed square is an assumed reference plate of equivalent area, not a surveyed building outline.'});
 Object.assign(CONTEXT_I18N.th,{areaNote:'พื้นที่ฐานโมเดล {0} ตร.ม. เทียบกับพื้นที่ชั้นอ้างอิงสมมติ {1} ตร.ม.',plateNote:'สี่เหลี่ยมเส้นประคือผังอ้างอิงสมมติที่มีพื้นที่เท่ากัน ไม่ใช่เส้นขอบอาคารสำรวจ'});
 Object.assign(CONTEXT_I18N.zh,{areaNote:'模型底层面积 {0} 平方米，对比假设参考楼板 {1} 平方米。',plateNote:'虚线方形是假设参考楼板的等面积方形，不是实测建筑轮廓。'});

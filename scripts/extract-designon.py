@@ -1,6 +1,7 @@
 """Extract a versioned, read-only reference pack from the named local codebase."""
-import pathlib, re, json, hashlib, subprocess
-root=pathlib.Path('/Users/nonarkara/Projects/space')
+import os, pathlib, re, json, hashlib, subprocess
+# Path to a local checkout of Nonarkara/luma-house (designon).
+root=pathlib.Path(os.environ.get('DESIGNON_ROOT','../space'))
 destination=pathlib.Path(__file__).resolve().parents[1]/'dist/knowledge'
 text=(root/'src/codes/standards.ts').read_text()
 catalog=text.split('export const STANDARDS')[1].split('/**')[0]

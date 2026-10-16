@@ -1,6 +1,6 @@
 # Architectural knowledge acquired from designon
 
-Source: `/Users/nonarkara/Projects/space`, repository `Nonarkara/luma-house`, clean source commit `6754f369dc8cfd79bd642e5e0dd8751f7a867b4a`, extracted 14 October 2026. The project's current CLAUDE.md identifies this tree as designon.nonarkara.org. Each reviewed file is pinned by GitHub URL and SHA-256 in `dist/knowledge/designon-knowledge.json`.
+Source: a local checkout of repository `Nonarkara/luma-house`, clean source commit `6754f369dc8cfd79bd642e5e0dd8751f7a867b4a`, extracted 14 October 2026. The project's current CLAUDE.md identifies this tree as designon.nonarkara.org. Each reviewed file is pinned by GitHub URL and SHA-256 in `dist/knowledge/designon-knowledge.json`.
 
 ## Acquired knowledge
 

@@ -11,9 +11,9 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=c
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=ccc92a9983';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=3efcedfe27';
-import {CONTEXT_I18N, renderContext, CONTEXT_SITES, PLACE_ORDER, PLACE_SUFFIX} from './context.js?v=7d255b09ce';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=e1c578d0a2';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=323758a32c';
+import {CONTEXT_I18N, renderContext, CONTEXT_SITES, PLACE_ORDER, PLACE_SUFFIX} from './context.js?v=d37368c2f9';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 const $=id=>document.getElementById(id);

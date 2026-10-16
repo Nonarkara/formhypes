@@ -42,7 +42,7 @@ const stamp = (src, refs, ids) => refs.reduce(
     `${ref}?v=${ids[ref.replace(/^\.\//, '')]}`),
   src);
 
-const SHARED = ['console.css','modulor.js','model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'vendor/SUNCALC-LICENSE.txt', 'i18n.js', 'style.css', 'play.js', 'location.js',
+const SHARED = ['console.css','desks.css','modulor.js','model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'vendor/SUNCALC-LICENSE.txt', 'i18n.js', 'style.css', 'play.js', 'location.js',
   'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 // The photographs are referenced from research.js, so they are stamped there
 // first and research.js is hashed afterwards — otherwise app.js would pin an id
@@ -55,7 +55,7 @@ const MEDIA = ['research/artifacts/ags-anchorage-2436.png','research/media/offic
   'research/protocol-en.txt','research/protocol-th.txt','research/protocol-zh.txt'];
 const DESKS=['facade.js','brief.js','walk.js','context.js'];
 const IN_APP = ['./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./context.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
-const IN_HTML = ['console.css','style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
+const IN_HTML = ['console.css','desks.css','style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 
 for(const lang of ['en','th','zh'])await write(`research/protocol-${lang}.txt`,researchProtocol(lang));
 const ids = {};
