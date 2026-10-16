@@ -199,6 +199,8 @@ const SCALE_MIN=.1,SCALE_MAX=2,SCALE_STEP=.1;// Chen's own search grid, §4.2.
 const desk={gfa:120000,plot:9000,far:8,plate:1800,cap:260,scheme:'curtain',
  curtain:{pf:1.15,ff:1},podium:{share:.3,floors:6,pf:2,ff:1.5},solid:{pf:1.5,ff:1.25},
  mx:1,my:1,tx:.8,ty:.8,mLevel:.55,seeded:false};
+const DESK_INITIAL=structuredClone(desk);
+export function resetBrief(){Object.assign(desk,structuredClone(DESK_INITIAL))}
 const SCHEMES=['curtain','podium','solid'];
 const TYPES=[
  ['branch',{family:'star',taper:.55,twist:0,orientation:0,aspect:1}],
@@ -273,6 +275,8 @@ export function schemeResult(k,state,inputs=desk){
  const f=k==='solid'?inputs.solid:inputs.curtain,p=Math.max(1,plate*f.pf),n=Math.max(1,Math.ceil(inputs.gfa/p)),h=n*f2f*f.ff;
  return {plate:p,podiumPlate:0,podiumN:0,podiumGfa:0,podiumH:0,towerN:n,towerGfa:n*p,towerH:h,n,gfa:n*p,h};
 }
+// Mirrors the studio span slider (app.js schema.span) so an applied brief stays editable.
+export const SPAN_RANGE=[32,62];
 export function fitBriefTower(state,result,scheme){
  const floors=Math.max(12,Math.min(70,result.towerN||12)),height=Math.max(3,Math.min(6,scheme==='solid'?state.height*desk.solid.ff:state.height*(scheme==='curtain'?desk.curtain.ff:1)));
  const candidate={...state,program:'custom',floors,height:Math.round(height*20)/20,span:48},target=Math.max(1,result.towerGfa);
@@ -335,7 +339,8 @@ export function renderBrief({lang,state,changed,onInputs}){
  const slider=(parent,id,label,min,max,step,value,on)=>{
   const i=el('input');i.type='range';i.id=id;i.min=String(min);i.max=String(max);i.step=String(step);i.value=value;const maxima={'br-gfa':1e7,'br-plot':1e6,'br-far':100,'br-plate':20000,'br-cap':1000,'br-floors':70};if(maxima[id])i.max=String(maxima[id]);
   const l=el('label',label);l.htmlFor=id;
-  i.oninput=()=>on(Number(i.value));
+  // Commit on release: every commit rebuilds the desk, which would drop a slider mid-drag.
+  i.onchange=()=>on(Number(i.value));
   parent.append(l,i);return i};
  const table=(head)=>{const t=el('table',undefined,'br-ledger');if(head){const hr=el('thead');const tr=el('tr');for(const k of head){const th=el('th',c[k]);th.scope='col';tr.append(th)}hr.append(tr);t.append(hr)}const b=el('tbody');t.append(b);return{t,b}};
  const verdict=(parent,text,flag)=>{const p=el('p',text,flag?'br-flag':undefined);p.style.margin='0 0 9px';parent.append(p)};
@@ -415,7 +420,7 @@ export function renderBrief({lang,state,changed,onInputs}){
   slider(f4,'br-pf',c['sch.pf'],.6,2,.05,own.pf,v=>{own.pf=v;again()});
   slider(f4,'br-ff',c['sch.ff'],.8,2,.05,own.ff,v=>{own.ff=v;again()});
  }
- const apply=el('button',c['sch.apply']);apply.type='button';apply.id='br-apply';apply.onclick=()=>{const patch=fitBriefTower(state,r,desk.scheme);if(!Number.isFinite(patch.span)||patch.span<=0||patch.span>=300){const note=el('p',c['sch.tooLarge'],'br-flag');apply.after(note);return}changed(patch)};
+ const apply=el('button',c['sch.apply']);apply.type='button';apply.id='br-apply';apply.onclick=()=>{const patch=fitBriefTower(state,r,desk.scheme);if(!Number.isFinite(patch.span)||patch.span<SPAN_RANGE[0]||patch.span>SPAN_RANGE[1]){const note=el('p',c['sch.tooLarge'],'br-flag');apply.after(note);return}changed(patch)};
  s4.append(apply,el('p',c['sch.applyNote'],'br-note'),el('p',c['sch.assumed'],'br-note'));
 
  /* 6 · corner offices, computed per family rather than asserted */

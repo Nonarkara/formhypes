@@ -41,6 +41,6 @@ export function renderFacade({host,lang,state,level,onLevel}){
  const metrics=N('dl',undefined,'facade-metrics');for(const [k,v]of [[c.ff,frame.height.toFixed(2)+' m'],[c.lean,frame.lean.toFixed(2)+'°'],[c.slide,frame.tangent.toFixed(3)+' m']])metrics.append(N('dt',k),N('dd',v));host.append(metrics);
  const f=N('figure'),drawing=N('div');drawing.innerHTML=facadeDiagram(frame,choices);drawing.firstElementChild.setAttribute('aria-label',c.tabs[choices.tab]);f.append(drawing,N('figcaption',c.figure));host.append(f,N('p',choices.tab===0?c.path:c.water,'facade-flow'));
  const list=N('ol',undefined,'facade-keys');c.parts.forEach(p=>list.append(N('li',p)));host.append(list,N('p',c.geometry,'note'),N('p',c.note,'note'),N('p',c.source,'note source'));
- const ref=N('details'),summary=N('summary',c.original),image=N('img');image.src='research/artifacts/ags-anchorage-2436.png?v=b16a7bca47';image.alt=c.originalCap;image.width=676;image.height=663;image.loading='lazy';ref.append(summary,image,N('p',c.originalCap,'note'));host.append(ref);
+ const ref=N('details'),summary=N('summary',c.original),image=N('img');image.src='research/artifacts/ags-anchorage-2436.png?v=031fadc32f';image.alt=c.originalCap;image.width=676;image.height=663;image.loading='lazy';ref.append(summary,image,N('p',c.originalCap,'note'));host.append(ref);
  if(focused)document.getElementById(focused)?.focus({preventScroll:true});
 }

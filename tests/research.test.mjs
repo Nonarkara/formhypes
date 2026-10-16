@@ -108,7 +108,7 @@ test('new research dependency graph and all excerpts carry content-derived relea
  for(const file of ['app.js','research-reader.js','research-tracks.js']){
   const src=readFileSync(new URL('../dist/'+file,import.meta.url),'utf8');
   for(const [,ref,id]of src.matchAll(/["']((?:\.\/)?(?:research\/artifacts\/)?[\w.-]+\.(?:js|png))\?v=([a-f0-9]{10})["']/g)){
-   const bytes=readFileSync(new URL('../dist/'+ref,import.meta.url),'utf8');assert.equal(createHash('sha256').update(bytes).digest('hex').slice(0,10),id,ref);
+   const bytes=readFileSync(new URL('../dist/'+ref,import.meta.url));assert.equal(createHash('sha256').update(bytes).digest('hex').slice(0,10),id,ref);
   }
  }
 });

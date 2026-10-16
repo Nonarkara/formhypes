@@ -1,4 +1,4 @@
-import {READER,SOURCES,ARTIFACTS} from './reader-content.js?v=be2235638b';
+import {READER,SOURCES,ARTIFACTS} from './reader-content.js?v=7e2203cd00';
 let current=0;
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
 function diagram(kind,labels){

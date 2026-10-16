@@ -1,17 +1,17 @@
-import {mountConsole} from './console.js?v=158ee47b7c';
+import {mountConsole} from './console.js?v=d37866e137';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=1653f45f3c';
-import{t,langs,langMeta,translator}from'./i18n.js?v=f3eed43302';
-import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=b90562ebdd';
+import{t,langs,langMeta,translator}from'./i18n.js?v=df2cda4efe';
+import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=a75307527e';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=5151ab7731';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=cb3173e57a';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs} from './brief.js?v=7e4ceee637';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=ccc92a9983';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=3efcedfe27';
 import {CONTEXT_I18N, renderContext, CONTEXT_SITES, PLACE_ORDER, PLACE_SUFFIX} from './context.js?v=7d255b09ce';
 
@@ -152,9 +152,9 @@ function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textCon
 for(const [id]of DESKS)$(id+'Panel').addEventListener('toggle',()=>{if($(id+'Panel').open)renderDesks()});
 function applyDeskPatch(patch){
  for(const [key,value]of Object.entries(patch)){
-  if(key==='span'&&Number.isFinite(value)&&value>0&&value<300){state.span=value}
-  else if(key in schema){const[,min,max,step]=schema[key];if(Number.isFinite(value)){const bounded=Math.max(min,Math.min(max,value));state[key]=Math.round((min+Math.round((bounded-min)/step)*step)*1e6)/1e6}}
+  if(key in schema){const[,min,max,step]=schema[key];if(Number.isFinite(value)){const bounded=Math.max(min,Math.min(max,value));state[key]=Math.round((min+Math.round((bounded-min)/step)*step)*1e6)/1e6}}
 
+  else if(key==='solarTime'){if(validSolar({...state,solarTime:value}))state.solarTime=value}
   else if(['family','program','skin','system','city'].includes(key)){
    const allowed={family:families,program:levelPrograms,skin:facadeFamilies,system:systems,city:cities};
    if(Object.hasOwn(allowed[key],value))state[key]=value;
@@ -473,7 +473,7 @@ const ro=new ResizeObserver(entries=>{
  requestAnimationFrame(()=>{pendingRaf=false;drawn={w:0,h:0};drawTower()});
 });
 ro.observe(canvas);
-$('reset').onclick=()=>{setBriefInputs({plot:9000,far:8});state={...defaults};yaw=-.65;zoom=1;$('floor').value=24;changed();toast(tt('s.reset'))};
+$('reset').onclick=()=>{resetBrief();state={...defaults};yaw=-.65;zoom=1;$('floor').value=24;changed();toast(tt('s.reset'))};
 
 /* ── search ───────────────────────────────────────────────────────────── */
 /* The search is ~160 full evaluations. Run it in slices that yield to the
@@ -554,7 +554,7 @@ function renderStudies(){
   b.textContent=`${i+1}. ${tt('f.'+study.state.family)} / ${tt('regime.'+study.state.regime+'.label')} / ${money(evaluate(study.state).contribution)}`;
   b.onclick=()=>{if(study.site)setBriefInputs(study.site);state={...defaults,...study.state};changed();toast(tt('s.restored'))};
   const del=document.createElement('button');del.textContent='×';
-  del.setAttribute('aria-label','Delete saved study '+(i+1));
+  del.setAttribute('aria-label',tt('s.delete')+' '+(i+1));
   del.onclick=()=>{studies.splice(i,1);persist();renderStudies()};
   d.append(b,del);$('savedStudies').append(d);
  });
@@ -950,7 +950,6 @@ function timelinePlate(){
  }
  wrap.append(ax);
  wrap.append(strip);
- wrap.append(el('p','note source',tt('r.timeline.note')));
  return wrap;
 }
 

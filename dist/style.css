@@ -135,12 +135,12 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 .viewtools button:hover{background:#2b3438;border-color:#5c686e;color:#fff}
 .viewtools button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--ink)}
 .viewtools button[aria-pressed="true"] .ic{color:var(--ink)}
-.viewfoot{position:absolute;bottom:30px;left:18px;right:18px;display:flex;justify-content:space-between;color:#7d8783;pointer-events:none}
+.viewfoot{position:absolute;bottom:48px;left:18px;right:18px;display:flex;justify-content:space-between;color:#7d8783;pointer-events:none}
 .mobileonly{display:none}
 /* A title block is where a drawing declares what it is and is not. A real one is
    a fixed grid of cells that never reflows — so this one holds its band and
    truncates, rather than wrapping out through the bottom of the sheet. */
-.titleblock{position:absolute;bottom:0;left:0;right:0;height:22px;border-top:1px solid #2c3438;display:flex;align-items:center;gap:14px;padding:0 18px;color:#7d8783;font-size:10px;letter-spacing:.02em;white-space:nowrap;overflow:hidden}
+.titleblock{position:absolute;bottom:0;left:0;right:0;min-height:22px;border-top:1px solid #2c3438;display:flex;flex-wrap:wrap;align-items:center;gap:3px 14px;padding:3px 18px;color:#7d8783;font-size:10px;letter-spacing:.02em;white-space:nowrap;overflow:hidden}
 /* The title block repeats the wordmark on the dark sheet, so the two name
    colours become the light ground and the amber. The hierarchy is identical. */
 .tb-sheet{letter-spacing:.14em;flex:none}
@@ -153,7 +153,11 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 /* On a phone the header already carries "inspired by SHDT"; the sheet keeps the reference. */
 /* On a phone the header already carries the wordmark and "inspired by SHDT". The sheet takes two
    rows so neither the not-for-construction notice nor the floor count is cut. */
-@media(max-width:560px){.titleblock .b-cred,.titleblock .tb-sheet{display:none}
+/* The title block says who drew the sheet, as a real one does. */
+.tb-by{flex:none;color:#a2aca9}
+/* The header already says "inspired by SHDT"; the sheet keeps its width for the reference. */
+.titleblock .b-cred{display:none}
+@media(max-width:560px){.titleblock .b-cred,.titleblock .tb-sheet,.titleblock .tb-by{display:none}
  .titleblock{height:auto;flex-wrap:wrap;row-gap:3px;padding:5px 18px}
  .tb-ref{flex-basis:100%;margin-left:0;padding-left:0}
  .viewfoot{bottom:50px}}

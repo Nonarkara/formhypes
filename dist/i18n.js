@@ -150,6 +150,7 @@ const en={
  's.restored':'Saved study restored.',
  's.saved':'Study saved in this browser.',
  's.saveFail':'Not saved: this browser blocks or has filled its storage.',
+ 's.delete':'Delete saved study',
  's.full':'Study shelf is full (8). Remove a study or export this one.',
  's.reset':'Design rules reset. Saved studies are retained.',
 
@@ -174,6 +175,7 @@ const en={
  'v.units':'metres',
  'v.narrow':'Built for a landscape laptop. On a narrow screen this console is cramped — rotate the device.',
  'tb.notice':'Concept prototype — not for construction',
+ 'tb.by':'by Dr Non · depa + Axiom',
  'v.level':'L',
 
  'k.button':'Architectural knowledge',
@@ -507,6 +509,7 @@ const th={
  's.restored':'เรียกงานศึกษาที่บันทึกไว้แล้ว',
  's.saved':'บันทึกงานศึกษาในเบราว์เซอร์นี้แล้ว',
  's.saveFail':'บันทึกไม่สำเร็จ: เบราว์เซอร์นี้ปิดกั้นหรือพื้นที่จัดเก็บเต็ม',
+ 's.delete':'ลบแบบที่บันทึก',
  's.full':'ชั้นเก็บเต็มแล้ว (8) ลบงานเก่าหรือส่งออกงานนี้',
  's.reset':'รีเซ็ตกฎการออกแบบแล้ว งานที่บันทึกไว้ยังอยู่',
 
@@ -531,6 +534,7 @@ const th={
  'v.units':'เมตร',
  'v.narrow':'สร้างมาเพื่อคอมพิวเตอร์โน้ตบุ๊กแนวนอน บนหน้าจอแคบคอนโซลนี้จะแน่นเกินไป โปรดหมุนเครื่อง',
  'tb.notice':'ต้นแบบเชิงแนวคิด ไม่ใช่งานก่อสร้าง',
+ 'tb.by':'โดย Dr Non · depa + Axiom',
  'v.level':'ช',
 
  'k.button':'ความรู้ทางสถาปัตยกรรม',
@@ -863,6 +867,7 @@ const zh={
  's.restored':'已恢复保存的研究。',
  's.saved':'研究已保存在此浏览器。',
  's.saveFail':'未能保存：此浏览器禁止存储或存储空间已满。',
+ 's.delete':'删除已保存方案',
  's.full':'研究架已满（8）。删除一项，或把当前研究导出。',
  's.reset':'设计规则已重置。已保存的研究保留。',
 
@@ -887,6 +892,7 @@ const zh={
  'v.units':'米',
  'v.narrow':'为横屏笔记本而做。窄屏上这个控制台很挤——请旋转设备。',
  'tb.notice':'概念原型——不可用于施工',
+ 'tb.by':'Dr Non · depa + Axiom 出品',
  'v.level':'层',
 
  'k.button':'建筑知识',

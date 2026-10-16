@@ -47,7 +47,6 @@ body.is-console .form-atlas span{display:block;margin-top:3px}
 .console-dock .location-desk{margin:0;border:0;padding:0}
 .console-dock .cx-grid{grid-template-columns:1fr!important}
 .console-dock .cx-grid>*{min-width:0}
-.console-dock .wk-grid{grid-template-columns:1fr!important}
 .console-dock .explore,.console-dock .studies{margin:0;padding:0;border:0}
 .console-dock .explorehead{display:block}.console-dock .searchcontrols{margin:10px 0}
 .console-dock .tablewrap{overflow:auto}
@@ -121,7 +120,8 @@ body.is-console [hidden]{display:none!important}
  body.is-console #geometryControls input[type=range]{min-height:44px}
  body.is-console .form-atlas{display:flex;overflow-x:auto;gap:8px;margin:0 0 4px;padding-bottom:2px}
  body.is-console .form-atlas button{flex:0 0 64px;min-width:44px;min-height:64px}
- body.is-console .titleblock{height:22px;flex-wrap:nowrap;padding:0 12px}
+ body.is-console .titleblock{padding:4px 12px}
+ body.is-console .phone-readout{bottom:42px}
  body.is-console .viewfoot{display:none}
  .searchcontrols{flex-direction:column;align-items:stretch;width:100%;gap:8px}
  .searchcontrols label{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;white-space:normal}

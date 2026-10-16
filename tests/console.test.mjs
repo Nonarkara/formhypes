@@ -39,7 +39,7 @@ test('facade references locate the supplied book and separate schematics from pr
  const b=readFileSync(new URL('../dist/research/artifacts/ags-anchorage-2436.png',import.meta.url));assert.equal(b.subarray(1,4).toString(),'PNG');assert.ok(b.length>10000);
 });
 test('new console, facade and book excerpt take part in the release dependency graph',()=>{
- for(const file of ['app.js','console.js','facade.js','index.html'])for(const [,ref,id]of read(file).matchAll(/["']((?:\.\/)?[\w./-]+\.(?:js|css|png))\?v=([a-f0-9]{10})["']/g))assert.equal(createHash('sha256').update(read(ref)).digest('hex').slice(0,10),id,ref);
+ for(const file of ['app.js','console.js','facade.js','index.html'])for(const [,ref,id]of read(file).matchAll(/["']((?:\.\/)?[\w./-]+\.(?:js|css|png))\?v=([a-f0-9]{10})["']/g))assert.equal(createHash('sha256').update(readFileSync(new URL('../dist/'+ref.replace(/^\.\//,''),import.meta.url))).digest('hex').slice(0,10),id,ref);
  const css=read('console.css');assert.match(css,/body\.is-console\{height:100dvh;overflow:hidden\}/);assert.match(css,/body\.is-console header\{height:40px/);assert.doesNotMatch(css,/gradient\(|box-shadow|border-radius/);
  assert.match(read('console.js'),/step='any'/);assert.match(read('brief.js'),/br-plot[\s\S]{0,40}'any'/);
 });

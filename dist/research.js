@@ -208,11 +208,11 @@ export const RESEARCH_T={
  /* The photographs. Filenames carry the dates; the captions carry only what
     the frames and those filenames support. */
  photos:[
-  ['research/media/office-2023.jpg?v=28b238fe18','r.people.c1'],
-  ['research/media/house-2006.jpg?v=0e724b0a54','r.people.c2'],
-  ['research/media/lab-0506.jpg?v=da52bf7eee','r.people.c3'],
-  ['research/media/lab-0507.jpg?v=98808d23ce','r.people.c4'],
-  ['research/media/lab-0508.jpg?v=516243ebdf','r.people.c5']
+  ['research/media/office-2023.jpg?v=2e17a6407d','r.people.c1'],
+  ['research/media/house-2006.jpg?v=d8c7979216','r.people.c2'],
+  ['research/media/lab-0506.jpg?v=14d696d2f4','r.people.c3'],
+  ['research/media/lab-0507.jpg?v=d12ee1ecac','r.people.c4'],
+  ['research/media/lab-0508.jpg?v=bb08c8bdbd','r.people.c5']
  ]
 };
 // Audited attributions and reading limits for the inherited museum plate.

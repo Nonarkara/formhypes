@@ -101,7 +101,7 @@ test('new modules and artifact URLs are content pinned',()=>{
  for(const file of ['app.js','reader.js','reader-content.js']){
   const text=dist(file);
   for(const [,ref,id]of text.matchAll(/["']((?:\.\/)?(?:research\/artifacts\/)?[\w.-]+\.(?:js|png))\?v=([a-f0-9]{10})["']/g)){
-   const bytes=dist(ref.replace(/^\.\//,''));assert.equal(createHash('sha256').update(bytes).digest('hex').slice(0,10),id,ref);
+   const bytes=readFileSync(new URL('../dist/'+ref.replace(/^\.\//,''),import.meta.url));assert.equal(createHash('sha256').update(bytes).digest('hex').slice(0,10),id,ref);
   }
  }
 });
@@ -141,7 +141,8 @@ test('shared links carry a preview card and the sheet obeys the no-gradient rule
  assert.match(html,/<link rel="icon"/);
  assert.ok(readFileSync(new URL('../dist/og.jpg',import.meta.url)).length>10000);
  assert.ok(!/gradient\(/.test(css),'house style bans gradients');
- assert.match(css,/@media\(max-width:560px\)\{\.titleblock \.b-cred,\.titleblock \.tb-sheet\{display:none\}/);
+ assert.match(css,/@media\(max-width:560px\)\{\.titleblock \.b-cred,\.titleblock \.tb-sheet,\.titleblock \.tb-by\{display:none\}/);
+ assert.match(html,/class="tb-by" data-i18n="tb.by"/,'the studio sheet names its author');
 });
 
 test('the Method dialog publishes the rent equation the model actually computes, in every language',()=>{

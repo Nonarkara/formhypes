@@ -1,7 +1,7 @@
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
 import {profile,stack,grossOf} from './model.js?v=1653f45f3c';
-import {renderFacade} from './facade.js?v=cbe61f90fa';
+import {renderFacade} from './facade.js?v=d7d9b0e97c';
 export const CONSOLE_TEXT={
  en:{capacity:'Model gross / area allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:['Form','Brief','Place','Walk-in','Façade','Explore','Studies'],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
  th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:['รูปทรง','โจทย์','ที่ตั้ง','มุมมอง','เปลือก','สำรวจ','แบบที่เก็บ'],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
@@ -56,5 +56,5 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
  }
  function show(key){if(!WORKSPACES.includes(key))return;selected=key;render();onLayout()}
  function active(on){document.body.classList.toggle('is-console',on);if(on){render();onLayout()}}
- return {render,show,active,openForTarget(id){if(id==='contextPanel')place=1;show(workspaceForTarget(id))}};
+ return {render,show,active,openForTarget(id){if(id==='contextPanel')place=1;if(id==='locationDesk')place=0;show(workspaceForTarget(id))}};
 }

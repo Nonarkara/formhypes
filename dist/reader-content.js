@@ -9,9 +9,9 @@ export const SOURCES=[
  {id:'knowledge',author:'designon · Dr Non',year:'2026',title:'Architectural knowledge source pack',where:'Source commit 6754f369 · drawing conventions and residential reference rules; not high-rise approval',url:'knowledge/designon-knowledge.json?v=38eb5f372c'}
 ];
 export const ARTIFACTS=[
- {src:'research/artifacts/chen-fig34.png?v=3f5b8dbe0d',figure:34,page:41,alt:'Chen’s original program tree: user interface branches into massing and detail construction.'},
- {src:'research/artifacts/chen-fig36.png?v=fb01ea14ad',figure:36,page:43,alt:'Chen’s original Profile Finding diagram: plans at transition levels loft into a tower.'},
- {src:'research/artifacts/chen-fig76-detail.png?v=37eed70e3b',figure:76,page:94,alt:'One tower from Chen’s original Figure 76, with generated massing and facade details.'}
+ {src:'research/artifacts/chen-fig34.png?v=4ee7387ece',figure:34,page:41,alt:'Chen’s original program tree: user interface branches into massing and detail construction.'},
+ {src:'research/artifacts/chen-fig36.png?v=13cc9b3976',figure:36,page:43,alt:'Chen’s original Profile Finding diagram: plans at transition levels loft into a tower.'},
+ {src:'research/artifacts/chen-fig76-detail.png?v=1e451cdc68',figure:76,page:94,alt:'One tower from Chen’s original Figure 76, with generated massing and facade details.'}
 ];
 export const READER={
  en:{nav:['The thesis','The mechanism','The economics','The city','Before the thesis','What he left open'],previous:'Previous',next:'Next',page:'Page',source:'Sources & reading trail',newDiagram:'Explanatory diagram · FormHypes, 2026',original:'Original thesis excerpt · © Shouheng Chen, 2006',fig:'Fig.',p:'p.',open:'Open original MIT record',archive:'Extended studies, diagrams & photographs',archiveNote:'These longer studies are supplementary interpretations and live model experiments. Their monetary assumptions are scenarios; none establishes code compliance or market value.',

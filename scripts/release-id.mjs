@@ -59,7 +59,9 @@ const IN_HTML = ['console.css','style.css', 'app.js', 'knowledge/designon-knowle
 
 for(const lang of ['en','th','zh'])await write(`research/protocol-${lang}.txt`,researchProtocol(lang));
 const ids = {};
-for (const f of [...SHARED, ...MEDIA]) ids[f] = sha(await read(f));
+// Hash raw bytes: a UTF-8 decode of a PNG/JPG collapses invalid runs to U+FFFD,
+// so some image edits would keep the same stamp.
+for (const f of [...SHARED, ...MEDIA]) ids[f] = sha(await readFile(join(DIST, f)));
 
 const solar = stamp(await read('solar.js'), ['./vendor/suncalc.js'], ids);
 await write('solar.js', solar);ids['solar.js']=sha(solar);
