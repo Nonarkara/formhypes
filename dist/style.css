@@ -360,6 +360,34 @@ dialog .close{position:absolute;top:8px;right:8px;border:0;font-size:16px;paddin
 dialog h2{margin-bottom:10px;font-size:19px}
 dialog h3{margin:18px 0 6px;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:400}
 dialog p{font-size:12px;line-height:1.6}
+/* ── the manual ──────────────────────────────────────────────────────────
+   Wider than the other dialogs and on its own scroll, because it is a
+   document rather than a note. The table is the reason it is wide: a control
+   name in Thai runs past anything narrower without a break opportunity. */
+dialog.manual{max-width:min(880px,94vw)}
+dialog.manual .lede{font-size:12px;color:var(--muted);max-width:74ch;margin:0 0 4px}
+dialog.manual h3{margin:16px 0 5px}
+.mn-table{width:100%;border-collapse:collapse;table-layout:fixed;margin:6px 0 4px;font-size:12px}
+.mn-table th,.mn-table td{text-align:left;vertical-align:top;padding:4px 12px 4px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.mn-table thead th{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:400}
+.mn-table tbody th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:400;padding-top:12px}
+.mn-table td:nth-child(2){font-family:var(--mono);font-size:11.5px;width:15em}
+.mn-table td:nth-child(3){color:var(--muted);font-size:11.5px;width:11em}
+/* The tag sits on its own line under the name. Inline it ran into the Thai
+   and Chinese names, which have no break opportunity inside a word. */
+.mn-tag{display:block;margin-top:2px;font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--accent)}
+.selfcheck{margin:22px 0 4px;padding-top:12px;border-top:2px solid var(--ink)}
+.selfcheck h3{margin:0 0 4px}
+#runCheck{font:inherit;font-size:12px;margin:8px 0;padding:6px 12px;background:none;border:1px solid var(--ink);color:var(--ink);cursor:pointer}
+#runCheck:hover{border-color:var(--accent);color:var(--accent)}
+#runCheck[disabled]{opacity:.5;cursor:default}
+.mn-check{display:grid;grid-template-columns:4.5em minmax(0,1fr);gap:2px 10px;padding:5px 0;border-top:1px solid var(--line);font-size:11.5px}
+.mn-mark{grid-row:1 / span 2;font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--accent);padding-top:1px}
+.mn-name{color:var(--ink)}
+.mn-detail{color:var(--muted);font-family:var(--mono);font-size:10.5px;line-height:1.5}
+.mn-check.mn-fail .mn-mark{color:var(--flag,#de2910)}
+.mn-check.mn-fail .mn-name{color:var(--ink);font-weight:600}
+#checkOut.mn-bad .mn-detail{color:var(--ink)}
 dialog ul{padding-left:18px;font-size:12px}
 dialog li{margin:6px 0;line-height:1.5}
 .exportoptions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
@@ -488,10 +516,57 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .brand .b-cred i{color:var(--muted);font-weight:600;letter-spacing:0}
 @media(min-width:901px){.controls,.results{max-height:calc(100dvh - var(--chrome));overflow-y:auto}}
 
-/* Form atlas: comparable drawings earn equal cells; no oversized command boxes. */
-.form-atlas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin:8px 0}
-.form-atlas button{display:flex;flex-direction:column;gap:3px;white-space:normal;padding:4px 2px;font-size:10px;line-height:1.15;border:0}
-.form-atlas svg{width:36px;height:36px;overflow:visible}
+/* Form atlas: comparable drawings earn equal cells; no oversized command boxes.
+   Six across, because the rail is 195px and there are eleven plans — three or
+   more rows and a ragged last one is the arithmetic, not a preference. The name
+   of each plan lives in one caption line under the grid, which tracks hover,
+   focus and selection, so nothing is lost by taking it off the tiles. */
+.form-atlas{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;margin:8px 0}
+.form-atlas button{display:flex;align-items:center;justify-content:center;white-space:normal;padding:0;font-size:10px;line-height:1;border:0;min-width:0}
+.form-atlas svg{width:22px;height:22px;overflow:visible}
+/* Line-height has to clear the Thai tone marks: at 1.2 the combining vowels and
+   the thanthakhat sit outside the 12px line box, so scrollHeight exceeds
+   clientHeight by 2px in Thai and in no other language. Harmless here because
+   nothing clips it — but it makes "does this text overflow?" the wrong question
+   to ask of this element, and a wrong question is how a real overflow gets
+   mistaken for a font quirk later. */
+.atlas-caption{margin:5px 0 0;font-size:10px;line-height:1.5;color:var(--muted);text-align:center;min-height:1.5em}
+/* ── core section · the only thing on the page that moves on its own ──────
+   The pipes animate in CSS and cost nothing while you read. Each riser is a
+   dashed line; the dash pattern travels, and the direction of travel is the
+   whole point — clean water and fire water rise, wastewater falls, and the vent
+   carries air upward at a different rate because it is moving air, not water.
+   Stroke-dashoffset is used rather than a moving marker because a dashed line
+   travelling along a pipe is how a section has always shown flow direction.
+
+   prefers-reduced-motion stops all of it. A section whose services move is a
+   drawing; one whose services jump when you asked them not to is a bug. */
+/* Each riser carries its own complete rule rather than sharing a grouped
+   selector. It is a few more lines and it removes an ambiguity that already
+   cost a guard: with a shared block, anything matching ".core-flow-air" can
+   land on the group's declarations and read the drain's stroke as the vent's. */
+.core-flow-up{fill:none;stroke:#f59e0b;stroke-width:1.6;stroke-linecap:butt;stroke-dasharray:7 5;animation:core-flow 1.1s linear infinite}
+.core-flow-down{fill:none;stroke:#f59e0b;stroke-width:1.6;stroke-linecap:butt;stroke-dasharray:7 5;animation:core-flow 1.1s linear reverse infinite}
+.core-flow-air{fill:none;stroke:#8b918d;stroke-width:1.2;stroke-linecap:butt;stroke-dasharray:2 6;animation:core-flow 2.4s linear infinite}
+@keyframes core-flow{from{stroke-dashoffset:0}to{stroke-dashoffset:-16}}
+@media(prefers-reduced-motion:reduce){
+ .core-flow-up,.core-flow-down,.core-flow-air{animation:none}
+}
+.coresec{display:block;width:100%;height:auto}
+/* Five keys in a 220px rail. Each key wraps as a whole unit or not at all —
+   "Lift car" breaking into "Lift / car" between the glyph and its own name is
+   the legend drawing attention to the wrong thing. */
+.corelegend{gap:4px 12px;font-size:10px;flex-wrap:wrap}
+.corelegend>span{white-space:nowrap;display:inline-flex;align-items:center}
+.corelegend .lg-car,.corelegend .lg-up,.corelegend .lg-down,.corelegend .lg-air,
+.corelegend .lg-prv{display:inline-block;width:16px;height:0;border-top:1.6px dashed var(--accent);vertical-align:middle;margin-right:5px}
+.corelegend .lg-car{border-top-style:solid;border-top-width:2.4px}
+.corelegend .lg-air{border-top-color:#8b918d;border-top-width:1.2px}
+.corelegend .lg-prv{border:0;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--ink)}
+.corefacts{margin-top:8px}
+.corefacts>div{border-bottom:1px dotted var(--line)}
+.corefacts .tag{font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-left:5px}
+
 #feng{font-size:12px;padding:8px 0}#feng label{display:block;margin:8px 0 3px}
 .feng-prompts{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px}.feng-prompts button{padding:3px 6px}
 .feng-drawing{max-width:210px;margin:auto}.feng-drawing svg{display:block;width:100%;font-size:9px}
@@ -678,6 +753,14 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 /* The detail section. A drawing, not a thumbnail: full rail width, its own 1px
    plate, and the figures set as a spec list so each number sits next to the
    name of the thing it is. No rounded anything, no fill, no shadow. */
+.areasplit svg{display:block;width:100%;height:auto;max-width:340px}
+/* Legend text sits beside its own swatch and its own figure. The percentage is
+   right-aligned in the same column for every row, so the three shares can be
+   compared by the edge of the column rather than by reading each one. */
+.areasplit .as-name{font:11px var(--sans);fill:var(--ink)}
+.areasplit .as-val{font:10px var(--mono);fill:var(--muted)}
+.areasplit .as-pct{font:600 11px var(--mono);fill:var(--ink)}
+#areaNote{font-size:10.5px;line-height:1.5;color:var(--faint);max-width:74ch}
 .dsecwrap{border:1px solid var(--line);margin:2px 0 8px;padding:4px;background:var(--paper)}
 .dsecwrap .dsec{display:block;width:100%;height:auto}
 .spec{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0 0 8px;font-size:11px}

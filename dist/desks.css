@@ -149,3 +149,77 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 .cx-legend i.cx-tower{border:1px solid var(--accent);background:rgba(245,158,11,.16)}
 .cx-legend i.cx-nb{border:1px solid var(--muted)}
 .cx-legend i.cx-ref{border:1px dashed var(--muted)}
+
+/* ── the city lens ────────────────────────────────────────────────────────
+   SEVEN typographic roles and seven distinct sizes: 22 / 15 / 13 / 12 / 11 /
+   10 / 9.5. The previous version ran 10 / 11 / 13.5 — three sizes for six
+   roles, with a ONE PIXEL step between the source list and the fact values, so
+   the eye had nothing to land on and every line arrived at the same volume.
+   That is the failure this block is written against, and tests/lens.test.mjs
+   now parses these numbers and fails the build if the scale collapses again.
+
+   The drawing carries FILL, not outline, so it has mass and separates from
+   the text. An outlined box on a cream page is the same value as the page: a
+   picture with no tone in it reads as a second caption.
+
+   The column is still content-width — a fact is as wide as its words. Fixing
+   the hierarchy and fixing the air-slop are the same job: weight goes on the
+   one thing that matters, and the rest goes tight against it. */
+.lx-band{border:1px solid var(--accent);border-left-width:3px;background:var(--panel);padding:14px 18px 13px;margin:0 0 12px;display:block}
+/* Role 7 — a label, not a headline. It was 11px uppercase amber, which made it
+   compete with the sentence it labels. */
+.lx-head h3{margin:0 0 5px;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);font-weight:600}
+/* Role 1 — the claim. The only large thing in the band, and the first thing
+   read. Nothing else is allowed to be bigger than 15px. */
+.lx-head p{margin:0;max-width:50ch;font-size:22px;line-height:1.26;font-weight:500;letter-spacing:-.012em;color:var(--ink)}
+.lx-body{display:flex;flex-wrap:wrap;gap:12px 34px;align-items:flex-start;margin-top:14px}
+.lx-fig{flex:0 0 auto;line-height:0}
+.lx-fig svg{display:block;width:420px;height:auto;max-width:100%}
+.lx-s{font:9.5px var(--mono);fill:var(--muted)}
+/* Labels printed on the dark ground. Muted is #585e5b and disappears on
+   #111416 — the same token that reads as "quiet" on cream reads as "missing"
+   on soil, so anything inside the earth carries this class instead. */
+.lx-on{fill:var(--dim)}
+.lx-side{flex:0 1 auto;min-width:0}
+.lx-fx{margin:0 0 9px}
+/* Role 2 — the proof. */
+.lx-fx code{display:block;font:600 15px var(--mono);color:var(--accent);letter-spacing:-.01em;line-height:1.35}
+/* Role 3 — what the proof means, in words. */
+.lx-fx span{display:block;margin-top:4px;max-width:46ch;font-size:12px;line-height:1.5;color:var(--muted)}
+/* Roles 4 and 5 — the numbers lead, the label supports. The value is a full
+   step BIGGER than its label, which is the opposite of the old table. */
+.lx-rows{display:grid;grid-template-columns:max-content max-content;gap:4px 18px;margin:0;align-items:baseline}
+.lx-rows dt{font-size:11px;color:var(--faint);white-space:nowrap}
+.lx-rows dd{margin:0;font:600 13px var(--mono);color:var(--ink);white-space:nowrap}
+/* Role 6 — provenance. Demoted to the bottom, on a hairline, with no underline
+   until the pointer is on it: a field of underlined links reads as content. */
+.lx-meta{margin:14px 0 0;padding-top:10px;border-top:1px solid var(--line)}
+.lx-assume{margin:0;font-size:10px;line-height:1.55;color:var(--dim);max-width:96ch}
+.lx-band h4{margin:9px 0 3px;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.lx-src{margin:0;padding:0;list-style:none;font-size:9.5px;line-height:1.6;color:var(--dim)}
+.lx-src li{margin:0}
+.lx-src a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line)}
+.lx-src a:hover,.lx-src a:focus-visible{color:var(--accent);border-bottom-color:var(--accent)}
+@media(max-width:900px){.lx-body{gap:12px 20px}.lx-fig svg{width:300px}.lx-head p{font-size:19px}.lx-side{max-width:none}}
+
+/* The stand-here desk. Same discipline as the lens band: one drawing, one
+   reading order, nothing stretched. The landscape is the drawing and it is
+   dark; the numbers sit beside it on the panel, not on top of it. */
+.st-head h3{margin:0 0 4px;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.st-head p{margin:0 0 12px;max-width:62ch;font-size:19px;line-height:1.4;color:var(--ink)}
+.st-body{display:flex;flex-wrap:wrap;gap:12px 34px;align-items:flex-start;margin:0 0 14px}
+.st-fig{flex:0 0 auto;line-height:0}
+.st-fig svg{display:block;width:760px;height:auto;max-width:100%}
+.st-side{flex:0 1 auto;min-width:0;max-width:340px}
+.st-pick{display:block;width:100%;margin:0 0 12px;padding:5px 6px;border:1px solid var(--line);border-radius:0;background:var(--paper);color:var(--ink);font:13px var(--mono)}
+.st-rows{margin:0}
+.st-rows dt{font-size:11px;color:var(--muted);line-height:1.5}
+.st-rows dd{margin:0 0 5px;font:600 13px var(--mono);color:var(--ink);letter-spacing:-.01em}
+.st-sky{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:flex-start;border-top:1px solid var(--line);padding-top:12px}
+.st-sky .st-fig svg{width:420px}
+.st-sky p{margin:0;flex:1 1 200px;max-width:40ch;font-size:12px;line-height:1.55;color:var(--muted);align-self:center}
+.sx-s{font:9.5px var(--mono);fill:var(--muted)}
+.st-source{margin:12px 0 0;font-size:9.5px;line-height:1.6;color:var(--faint)}
+.st-warn{border:1px solid var(--accent);border-left-width:3px;padding:10px 14px;margin:0 0 12px}
+.st-warn p{margin:0;font-size:13px;line-height:1.5;color:var(--ink)}
+@media(max-width:900px){.st-fig svg{width:340px}.st-side{max-width:none}.st-head p{font-size:17px}}
