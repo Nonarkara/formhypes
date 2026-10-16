@@ -1,25 +1,31 @@
-import {mountConsole} from './console.js?v=b1fba79295';
+import {mountConsole} from './console.js?v=6b3461d3d5';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=e1aefac756';
-import{t,langs,langMeta,translator}from'./i18n.js?v=c50ca75e3f';
+import{t,langs,langMeta,translator}from'./i18n.js?v=cc2f147884';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
 import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,crownOf,gardenOf,crownPlates} from './crowns.js?v=b0141b99a4';
-import {cityData,skyline,visibleMassings} from './cityscape.js?v=fc33dd1d7f';
+import {cityData,skyline,visibleMassings,ringArea} from './cityscape.js?v=04a51ce916';
 import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=1df95d7e5e';
+import {coreOf,coreSVG,CORE_SRC} from './core.js?v=e98b022d2a';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
-import {renderPlay,getFengStudy} from './play.js?v=a75307527e';
+import {renderPlay,getFengStudy} from './play.js?v=578d890470';
 import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=311a9c78c8';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=07c524befa';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=26a9b41c9c';
-import {CONTEXT_I18N, renderContext} from './context.js?v=177a55fcf2';
+import {CONTEXT_I18N, renderContext} from './context.js?v=4266d68c03';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
+import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
+import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
+import {MANUAL} from './manual-text.js?v=e72529eba9';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=f631563c95';
+import {WORKSPACES} from './console.js?v=6b3461d3d5';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -28,16 +34,9 @@ const num=v=>Math.round(v).toLocaleString(lang==='th'?'th-TH':lang==='zh'?'zh-CN
 let state={...defaults},metrics,alternatives=[],yaw=-.65,zoom=1,wireframe=false,studies=[],knowledgePack,unknownRegime=null;
 let drawn={w:0,h:0},pendingRaf=false;
 
-// [i18n key, min, max, step, unit] — the label is resolved per language in
-// buildRanges(); nothing here is English-only.
-const schema={
- height:['c.height',3,6,.05,'m'],orientation:['c.orientation',0,360,5,'°'],span:['c.span',32,62,.01,'m'],aspect:['c.aspect',.65,1.5,.05,'×'],floors:['c.floors',12,70,1,''],
- taper:['c.taper',.6,1.2,.02,'×'],twist:['c.twist',0,180,5,'°'],
- core:['c.core',12,26,1,'m'],common:['c.common',8,22,1,'%'],
- site:['c.site',40,100,2,'m'],maxHeight:['c.maxHeight',100,350,5,'m'],frontage:['c.frontage',4,9,.5,'m'],
- rent:['c.rent',100,1400,25,'$'],premium:['c.premium',0,80,5,'%'],
- occupancy:['c.occupancy',50,100,1,'%'],reserve:['c.reserve',0,60,2,'$']};
-const groups={orientationControl:['orientation'],geometryControls:['span','aspect','floors','height','taper','twist'],constraintControls:['core','common','site','maxHeight','frontage'],rentControls:['rent','premium','occupancy','reserve']};
+// [i18n key, min, max, step, unit] lives in schema.js now — the manual
+// documents the same table, and a copied table lies the first time a slider
+// moves. schema/groups are imported at the top of this file.
 
 /* ── language ─────────────────────────────────────────────────────────── */
 // Short stamps drawn into the plan SVG and the tower canvas. Every language
@@ -373,6 +372,57 @@ function renderPremiums(){
    draughtsman expects, so that someone who has never seen this site can size it
    in their head before reading a single number. That is also why it works for
    a reader who cannot tell a chamfer from a setback. */
+/* The section. Everything here is computed from the model's own rise and floor
+   count by the published methods in core.js — CIBSE for the lifts, ASPE for
+   the pressure zones, BS EN 12056-2 for the stacks — and the method is named
+   under the drawing, because a section that cannot say how it was sized is a
+   drawing. The same floor slider marks the level in both. */
+/* The plate split: core, circulation and net usable. Built from the same
+   evaluated metrics the schedule prints, so the pie cannot disagree with the
+   gross and rentable lines above it. */
+function drawAreaSplit(){
+ const host=$('areaFigure');if(!host)return;
+ const sp=splitOf(metrics||{});
+ const names={core:tt('as.core'),circulation:tt('as.circ'),net:tt('as.net')};
+ host.innerHTML=splitSVG(sp.slices.map(s=>({...s,label:names[s.key]})),
+  {total:sp.gross,legend:sp.legend.map((g,i)=>({...g,label:names[KEYS[i]],value:num(sp.slices[i].value)+' '+tt('m.perSqM')}))});
+ host.setAttribute('aria-label',AREA_SPLIT.aria);
+ // Both numbers on the note, not one. The pie's net and the schedule's net are
+ // computed from different deductions — 30% circulation against a 12% common
+ // allowance — so quoting only the pie's figure invites the reader to treat the
+ // schedule's efficiency line as an error.
+ if($('areaNote'))$('areaNote').textContent=tt('as.note')+' '+tt('as.total')+' '+
+  num(sp.gross)+' '+tt('m.perSqM')+' · '+num(sp.modelRentable)+' '+tt('m.perSqM')+' '+tt('m.rentable')+'.';
+}
+
+function drawCore(){
+ const box=$('coreFigure');if(!box)return;
+ const net=metrics?.rentable??0;
+ const core=coreOf(state,net);
+ box.innerHTML=coreSVG(state,core,{floor:Number($('floor').value),lang});
+ const L=core.lift,V=core.services;
+ const rows=[
+  ['cx.k.pop',num(L.population)],
+  ['cx.k.cars',L.cars],
+  ['cx.k.zones',L.zones+' × '+L.zoneFloors+'L'],
+  ['cx.k.interval',L.interval+' s < '+L.intervalMax+' s'],
+  ['cx.k.handle',L.handleRequired+' / 5 min'],
+  ['cx.k.wzones',V.zones+' × '+V.zoneHead+' m'],
+  ['cx.k.stacks',V.stacks+' × '+V.stackMM+' mm'],
+  ['cx.k.vent',V.ventStacks],
+  ['cx.k.travel',L.travelTime+' s'],
+  ['cx.k.vb',V.velocityBreakers]
+ ];
+ const f=$('coreFacts');f.replaceChildren();
+ for(const [k,v] of rows){
+  const d=document.createElement('div');
+  const dt=document.createElement('dt');dt.textContent=tt(k);
+  const dd=document.createElement('dd');dd.textContent=String(v);
+  d.append(dt,dd);f.append(d);
+ }
+ $('coreSrc').textContent=tt('cx.src')+' '+CORE_SRC.lifts+' · '+CORE_SRC.water+' · '+CORE_SRC.drains;
+ $('coreShown').textContent=tt('cx.shown');
+}
 function drawPlan(){
  const floor=Number($('floor').value);
  const st=stack(state),total=st[st.length-1].z+st[st.length-1].h;
@@ -419,6 +469,8 @@ function drawPlan(){
  $('plan').innerHTML=svg;
  $('floorValue').textContent=floor;
  $('floorStats').textContent=`${LANGS.plan[lang]} ${floor} · ${num(area(p))} ${tt('m.perSqM')} · ${zones.length} ${tt('m.cornerOffices')}`;
+ drawCore();
+ drawAreaSplit();
  drawHuman();
  drawTower();
 }
@@ -492,11 +544,12 @@ function drawTower(){
  const towerHalf=(state.span/2+8)*(Math.abs(c)+Math.abs(s));
  const cityFar=[],cityNear=[];
  for(const m of massings){
-  const d=((m[0]+m[2])/2)*s+((m[1]+m[3])/2)*c;
+  const d=m.cx*s+m.cy*c;
   (d>towerHalf?cityNear:cityFar).push(m);
  }
- cityFar.sort((a,b)=>((a[0]+a[2])/2*s+(a[1]+a[3])/2*c)-((b[0]+b[2])/2*s+(b[1]+b[3])/2*c));
- cityNear.sort((a,b)=>((b[0]+b[2])/2*s+(b[1]+b[3])/2*c)-((a[0]+a[2])/2*s+(a[1]+a[3])/2*c));
+ const depth=m=>m.cx*s+m.cy*c;
+ cityFar.sort((a,b)=>depth(a)-depth(b));
+ cityNear.sort((a,b)=>depth(b)-depth(a));
  // Stroke brightness carries height, so the skyline reads as a skyline: the tall
  // ones are the ones you see first. A height inferred from a level count is
  // drawn a shade dimmer than a surveyed one, because it is a weaker claim and
@@ -506,13 +559,62 @@ function drawTower(){
  // looked like it was standing in a void again — which is the exact problem the
  // cityscape was added to solve.
  const inkFor=h=>h>=120?'#6c818c':h>=60?'#5a6b75':h>=25?'#495761':h>=12?'#3c4950':'#333e45';
+
+ /* Extrude the real outline.
+
+    The previous version drew three quads from a bounding box, so every
+    building in the city was a rectangle whether or not it was one in the
+    survey — an L, a cruciform or a notched podium arrived as a slab and the
+    drawing read as a table. A wall is now one edge of the footprint: only the
+    edges whose outward normal faces the camera are drawn, which is both the
+    correct solid and roughly half the path data.
+
+    The facing test is a normal test, not an edge test: a wall is visible when
+    its OUTWARD NORMAL opposes the view direction. Testing the edge direction
+    instead is the subtle one — for an axis-aligned box the edge is
+    perpendicular to its normal, so half the visible walls are culled and the
+    drawing quietly loses a side. The invariant: a box shows one or two walls
+    at every one of the 360 headings.
+
+    The normal of a counter-clockwise ring's edge is (ey, −ex), so the ring's
+    handedness decides the sign. A clockwise ring would face every wall inwards
+    and the cull would remove exactly the walls the reader can see — the
+    building disappears rather than looking wrong. Normalise once per building. */
+ /* The camera's view direction in world coordinates, read off project() rather
+    than assumed. That projection is a rotation: ry = x·s + y·c is the depth
+    axis, because screenY falls as ry rises. So "further away" is the gradient
+    of ry, which is (s, c). Guessing the convention instead of deriving it puts
+    the vector ninety degrees out, and a box then shows the wrong pair of walls
+    — invisible on a symmetric shape, wrong on an L. */
+ const viewDir=[s,c];
+ /* Two things are wrong with a flat fill. Every wall took the same tone, so a
+    notched footprint drew as one black shape with lines on it and the plan
+    shape was invisible; and that tone sat so close to the ground plate that
+    the buildings read as holes cut in the drawing rather than solids standing
+    on it. A flat light/shade split by facing direction fixes both, and it is
+    the same three-tone treatment the tower itself uses — no gradient, just a
+    step per orientation, which is drafting rather than airbrush. */
+ const LIGHT=[-0.55,-0.84];                       // front-left, in world metres
+ const toneFor=dot=>dot>.35?'#2b3843':dot<-.35?'#121920':'#1e2830';
+ const roofTone=h=>h>=120?'#33414c':h>=60?'#2b3843':'#243039';
  function drawCity(list){
-  for(const[x1,y1,x2,y2,h]of list){
-   const ink=inkFor(h);
-   path([[x1,y1,0],[x2,y1,0],[x2,y1,h],[x1,y1,h]],'#1b242a',ink,.7);
-   path([[x1,y1,h],[x2,y1,h],[x2,y2,h],[x1,y2,h]],'#232f36',ink,.7);
-   path([[x1,y2,0],[x2,y2,0],[x2,y2,h],[x1,y2,h]],null,ink,.7);
-   if(h>=40)line([x1,y2,h],[x2,y2,h],ink,.8);
+  for(const b of list){
+   const h=b.h,ink=inkFor(h);
+   let ring=b.ring;
+   if(ringArea(ring)<0)ring=[...ring].reverse();
+   // Roof cap first, so the walls that meet it are drawn over it.
+   path(ring.map(([x,y])=>[x,y,h]),roofTone(h),ink,.7);
+   for(let i=0;i<ring.length;i++){
+    const a=ring[i],d=ring[(i+1)%ring.length];
+    const ex=d[0]-a[0],ey=d[1]-a[1];
+    const nx=ey,ny=-ex;                          // outward normal, ccw ring
+    if(nx*viewDir[0]-ny*viewDir[1]>=0)continue;  // faces away: not drawn
+    const lit=(nx*LIGHT[0]+ny*LIGHT[1])/(Math.hypot(nx,ny)||1);
+    path([[a[0],a[1],0],[d[0],d[1],0],[d[0],d[1],h],[a[0],a[1],h]],toneFor(lit),ink,.7);
+   }
+   // A coping line on the tall ones, so a roof edge reads against the sky and
+   // not as a smear of fill.
+   if(h>=40)path(ring.map(([x,y])=>[x,y,h]),null,ink,.8);
   }
  }
  if(city){
@@ -715,13 +817,17 @@ function drawTower(){
 
  /* The axis triad lives in the bottom-right corner of the sheet, which is also
     where the view foot's right-hand label sits — "metres", or its Thai and
-    Chinese equivalents, at whatever width that language makes it. A fixed
-    W-60 therefore lands the X arm on top of the label in English and clears it
-    in Thai. Measure the label, then stand the triad to its left; the same rule
-    as footInset, applied to a sibling whose width the drawing does not control. */
- const footLabel=[...document.querySelectorAll('.viewfoot span')].pop();
- const labelRight=footLabel?footLabel.getBoundingClientRect().right-bandEl.getBoundingClientRect().left:W-18;
- const origin=[Math.min(W-18,labelRight)-16,H-footInset-16];ctx.strokeStyle='#a2aca9';ctx.fillStyle='#a2aca9';
+    Chinese equivalents, at whatever width that language makes it. So both
+    corners of the placement are read rather than assumed: left of the measured
+    label, and clear above the measured foot row. A constant cleared the label
+    in English and not in Thai, and shared the row in all three. Same rule as
+    footInset, applied to a sibling whose size the drawing does not control. */
+ const footEl=document.querySelector('.viewfoot');
+ const footR=(footEl||bandEl).getBoundingClientRect();
+ const footLabel=footEl&&[...footEl.querySelectorAll('span')].pop();
+ const labelLeft=footLabel?footLabel.getBoundingClientRect().left:vpRect.right-60;
+ const origin=[Math.max(24,labelLeft-vpRect.left-40),Math.max(40,footR.top-vpRect.top-26)];
+ ctx.strokeStyle='#a2aca9';ctx.fillStyle='#a2aca9';
  for(const[dx,dy,label]of[[25,8,'X'],[-18,12,'Y'],[0,-26,'Z']]){ctx.beginPath();ctx.moveTo(...origin);ctx.lineTo(origin[0]+dx,origin[1]+dy);ctx.stroke();ctx.fillText(label,origin[0]+dx-4,origin[1]+dy+(dy<0?-4:13))}
 }
 let drag=null;
@@ -1491,6 +1597,82 @@ function familyTable(){
  wrap.append(el('p','verdict',tt('r.verdict',{a:families[winner.k],b:families[loser.k],p:gapPct,g:money(gapUsd)})));
  return wrap;
 }
+
+/* ── the manual ─────────────────────────────────────────────────────────── */
+/* The manual is not written down; most of it is read out of the running page.
+   The control table comes from schema.js — the same table the sliders were
+   built from — so it cannot drift from the model. The self-check asks the
+   document what is actually there and prints the difference. */
+
+function renderManual(){
+ const M=MANUAL[lang];
+ $('manualTitle').textContent=M.title;
+ $('manualLede').textContent=M.lede;
+ const host=$('manualBody');host.replaceChildren();
+
+ for(const [,head,body] of manualSections(lang)){
+  host.append(el('h3',null,head),el('p',null,body));
+ }
+
+ // The control table. Groups come from schema.js in rail order, so a control
+ // added to the rail appears here on the next open, with its real range.
+ // Three columns, not four: a "what it moves" column would need one label per
+ // control, and the metric labels are not uniform across the rail — half the
+ // figures have no i.m key at all. A column that is empty two thirds of the
+ // way down is worse than no column, so the range and the reading of the
+ // number are what the manual commits to.
+ const t=M.table;
+ host.append(el('h3',null,tt('rail.design')));
+ const table=el('table','mn-table'),head=el('thead'),hrow=el('tr');
+ for(const h of [t.head[0],t.head[1],t.head[2]]){const th=el('th',null,h);th.scope='col';hrow.append(th)}
+ head.append(hrow);table.append(head);
+ const body=el('tbody');
+ for(const group of controlGroups()){
+  const rows=controlRows(lang,tt).filter(r=>r.group===group.label);
+  if(!rows.length)continue;
+  const head2=el('tr','mn-group');
+  const th2=el('th',null,t.groups[group.label]);th2.colSpan='3';th2.scope='colgroup';
+  head2.append(th2);body.append(head2);
+  for(const r of rows){
+   const tr=el('tr');
+   const name=el('td',null,r.label);
+   if(r.kind==='assumption'||r.kind==='relative')name.append(el('span','mn-tag',r.kind==='relative'?t.relative:t.assumption));
+   const val=el('td',null,r.range+' · '+r.step);
+   tr.append(name,val,el('td',null,r.readAs));body.append(tr);
+  }
+ }
+ table.append(body);host.append(table);
+
+ const c=M.checks;
+ $('checkTitle').textContent=c.title;
+ $('checkLede').textContent=c.lede;
+ $('runCheck').textContent=c.run;
+}
+
+function renderSelfCheck(){
+ const out=$('checkOut');out.replaceChildren();
+ const result=runSelfCheck(document,lang,{tt,workspaces:WORKSPACES,defaults:state,
+  // buildRanges() writes one label per schema key at runtime, so the check is
+  // handed the list it actually produced rather than scraping the markup.
+  builtLabels:Object.keys(schema).filter(k=>document.querySelector(`label[for="${k}"]`)),
+  keys:{en:Object.keys(t.en).length,th:Object.keys(t.th).length,zh:Object.keys(t.zh).length}});
+ out.classList.toggle('mn-bad',!result.pass);
+ for(const c of result.checks){
+  const row=el('div','mn-check'+(c.ok?'':' mn-fail'));
+  row.append(el('span','mn-mark',c.ok?result.passWord:result.failWord),
+   el('span','mn-name',c.label),el('span','mn-detail',c.detail));
+  out.append(row);
+ }
+ // One tally line, and it counts what actually passed. The version here first
+ // printed `count / count` unconditionally, so a run with a failing check still
+ // read "7 / 7" directly above the word "fail" — the one place a reader would
+ // look for reassurance is the last place it may be wrong.
+ const passed=result.checks.filter(c=>c.ok).length;
+ out.append(el('p','note source',passed+' / '+result.count+' · '+(result.pass?result.ok:result.bad)));
+}
+
+$('manualBtn').onclick=()=>{renderManual();$('manualDialog').showModal()};
+$('runCheck').onclick=()=>{$('runCheck').disabled=true;renderSelfCheck();$('runCheck').disabled=false};
 
 /* ── method dialog ────────────────────────────────────────────────────── */
 function renderMethod(){

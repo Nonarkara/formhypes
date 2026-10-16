@@ -21,13 +21,38 @@ export function renderPlay({lang,state,families,profile,label,onChange}){
  const focus=document.activeElement?.closest('#feng,#atlas')?document.activeElement.id:null;
  document.getElementById('atlasTitle').textContent=c.atlas;document.getElementById('fengTitle').textContent=c.feng;
  atlas.replaceChildren();const grid=el('div');grid.className='form-atlas';
+ /* The atlas rail is 195px wide and carries eleven glyphs. Measured at the
+    11px label size, the widest plan name needs 62px in English, 79px in Thai
+    and 66px in Chinese — so a tile wide enough to hold a name can never be a
+    sixth of the rail, and six tiles per row is the only count that puts eleven
+    plans in two rows. The names therefore leave the tiles and go to one
+    caption line underneath. They were never far away: the floor-profile
+    select directly above this grid lists the same eleven options with their
+    corner counts. Three rows and a ragged last one was never a grid
+    decision; it was eleven names competing for 195px and losing. */
+ const caption=el('p','');caption.id='atlasCaption';caption.className='atlas-caption';
+ // The caption prints the whole label, count included: it fits 195px in all
+ // three languages (widest measured 107px, Thai ดาวแปดยอดหิชบ์ / 8 ยอด), and the count is what tells Eight-point apart
+ // from Rub el Hizb — two eight-pointed stars, eight tips against eight
+ // points. Only the name came off, because the name was what did not fit in a
+ // twenty-nine-pixel tile.
+ const name=f=>label(f);
+ const say=n=>{caption.textContent=n};
  for(const f of Object.keys(families)){
   const b=el('button');b.type='button';b.id='atlas-'+f;b.title=label(f);b.setAttribute('aria-label',label(f));b.setAttribute('aria-pressed',String(f===state.family));
   const p=profile({...state,family:f,span:1,aspect:1,orientation:0},0);
-  b.innerHTML=`<svg viewBox="-0.6 -0.6 1.2 1.2" aria-hidden="true"><polygon points="${p.map(([x,y])=>[x,-y].join(',')).join(' ')}" fill="none" stroke="currentColor" stroke-width=".035"/></svg>`;
-  const text=el('span',label(f).split(' /')[0]);b.append(text);b.onclick=()=>onChange({family:f});grid.append(b);
+  b.innerHTML=`<svg viewBox="-0.6 -0.6 1.2 1.2" aria-hidden="true"><polygon points="${p.map(([x,y])=>[x,-y].join(",")).join(" ")}" fill="none" stroke="currentColor" stroke-width=".055"/></svg>`;
+  // Hover and keyboard focus both name the tile, so the caption reads whatever
+  // is under the reader and not only the one already chosen.
+  b.addEventListener('pointerenter',()=>say(name(f)));
+  b.addEventListener('focus',()=>say(name(f)));
+  b.addEventListener('pointerleave',()=>say(name(state.family)));
+  b.addEventListener('blur',()=>say(name(state.family)));
+  b.onclick=()=>onChange({family:f});grid.append(b);
  }
- atlas.append(grid);
+ atlas.append(grid,caption);
+ say(name(state.family));
+ if(focus&&document.getElementById(focus))document.getElementById(focus).focus();
  feng.replaceChildren();feng.append(el('p',c.note));const prompts=el('div');prompts.className='feng-prompts';
  for(const [i,p]of PROMPTS.entries()){const b=el('button',c.prompts[i]);b.type='button';b.id='feng-prompt-'+i;b.title=c.applied;b.onclick=()=>onChange(p);prompts.append(b)}feng.append(prompts);
  feng.append(el('p',c.applied));

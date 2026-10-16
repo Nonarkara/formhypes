@@ -49,7 +49,16 @@ const SHARED = ['console.css','desks.css','modulor.js','model.js', 'geometry.js'
   // could change without moving any stamp and without appearing in the release
   // graph at all. They are content-pinned now like everything else: a changed
   // skyline is a changed hash, and shows up.
-  'crowns.js','materials.js','details.js','cityscape.js','cityscape.data.js'];
+  'crowns.js','materials.js','details.js','cityscape.js','cityscape.data.js','core.js',
+  // The manual reads schema.js for its ranges and i18n.js for its labels, so
+  // all three have to be stamped before it is hashed. A manual that drifts from
+  // the model is worse than none, because it is trusted.
+  'schema.js','manual-text.js','manual.js','areasplit.js',
+  // The city lens. context.js reads one published constant and one formula out
+  // of it per city, so its bytes are a published figure: if lens.js can change
+  // without moving any stamp, a hazard number can change without moving any
+  // stamp either, and nobody would be able to tell.
+  'lens.js','site.js','ground.data.js'];
 // The photographs are referenced from research.js, so they are stamped there
 // first and research.js is hashed afterwards — otherwise app.js would pin an id
 // for a research.js that then changed underneath it.
@@ -60,7 +69,7 @@ const MEDIA = ['research/artifacts/ags-anchorage-2436.png','research/media/offic
   'research/artifacts/chen-fig40.png', 'research/artifacts/chen-fig49.png',
   'research/protocol-en.txt','research/protocol-th.txt','research/protocol-zh.txt'];
 const DESKS=['facade.js','brief.js','walk.js','context.js'];
-const IN_APP = ['./crowns.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./context.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
+const IN_APP = ['./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./context.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
 const IN_HTML = ['console.css','desks.css','style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 
 for(const lang of ['en','th','zh'])await write(`research/protocol-${lang}.txt`,researchProtocol(lang));
@@ -74,7 +83,7 @@ await write('solar.js', solar);ids['solar.js']=sha(solar);
 const model = stamp(await read('model.js'), ['./geometry.js','./solar.js','./crowns.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js'], ids);
 await write('model.js', model);ids['model.js']=sha(model);
 
-for(const f of DESKS){const src=stamp(await read(f), ['./modulor.js','./model.js','./solar.js','./geometry.js',...MEDIA], ids);await write(f,src);ids[f]=sha(src)}
+for(const f of DESKS){const src=stamp(await read(f), ['./modulor.js','./model.js','./solar.js','./geometry.js','./lens.js','./site.js','./ground.data.js','./cityscape.data.js','./i18n.js',...MEDIA], ids);await write(f,src);ids[f]=sha(src)}
 
 const consoleSrc=stamp(await read('console.js'), ['./facade.js','./model.js'],ids);
 await write('console.js',consoleSrc);ids['console.js']=sha(consoleSrc);

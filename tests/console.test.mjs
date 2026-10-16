@@ -16,10 +16,40 @@ test('land/FAR setters validate atomically and preserve the actual geometry ledg
  assert.ok(setBriefInputs({plot:old.plot,far:old.far}));
 });
 test('workspace navigation keeps every existing desk addressable',()=>{
- assert.equal(WORKSPACES.length,7);
- for(const [id,workspace]of [['briefPanel','brief'],['contextPanel','place'],['locationDesk','place'],['walkPanel','walk'],['exploreTitle','compare'],['savedStudies','studies'],['atlas','form']])assert.equal(workspaceForTarget(id),workspace);
- for(const l of ['en','th','zh']){assert.deepEqual(Object.keys(CONSOLE_TEXT[l]),Object.keys(CONSOLE_TEXT.en));assert.equal(CONSOLE_TEXT[l].work.length,7);assert.deepEqual(Object.keys(FACADE_TEXT[l]),Object.keys(FACADE_TEXT.en));assert.equal(FACADE_TEXT[l].parts.length,8);
-  if(l!=='en')for(const p of FACADE_TEXT[l].parts)assert.match(p,l==='th'?/[ก-๙]/:/[\u3400-\u9fff]/);
+ assert.equal(WORKSPACES.length,9);
+ assert.deepEqual(WORKSPACES,['form','brief','core','detail','facade','place','walk','compare','studies']);
+ for(const [id,workspace]of [['briefPanel','brief'],['contextPanel','place'],['locationDesk','place'],['walkPanel','walk'],['exploreTitle','compare'],['savedStudies','studies'],['atlas','form'],['coreFigure','core'],['detailFigure','detail']])assert.equal(workspaceForTarget(id),workspace);
+ for(const l of ['en','th','zh']){assert.deepEqual(Object.keys(CONSOLE_TEXT[l]),Object.keys(CONSOLE_TEXT.en));assert.equal(CONSOLE_TEXT[l].work.length,9);assert.deepEqual(Object.keys(FACADE_TEXT[l]),Object.keys(FACADE_TEXT.en));assert.equal(FACADE_TEXT[l].parts.length,8);
+  if(l!=='en')for(const p of FACADE_TEXT[l].parts)assert.match(p,l==='th'?/[ก-๙]/:/[㐀-鿿]/);
+ }
+});
+test('the core and the assembly are drawings, so they are tools and not rail furniture',()=>{
+ // A drawing buried in a 300px rail is a drawing nobody scrolls to. Both were
+ // promoted to the bar, so their markup has to travel with them.
+ const html=read('index.html'),js=read('console.js');
+ assert.match(html,/id="coreDesk"/);assert.match(html,/id="detailDesk"/);
+ assert.match(js,/moveDesk\(\$\('coreDesk'\),panels\.core\)/);
+ assert.match(js,/moveDesk\(\$\('detailDesk'\),panels\.detail\)/);
+ // One home each. A copy left behind means getElementById returns whichever
+ // is first and the other renders but never updates.
+ const desk=html.slice(html.indexOf('id="coreDesk"'),html.indexOf('id="detailDesk"'));
+ assert.ok(desk.includes('id="coreFigure"'),'coreFigure must live inside coreDesk');
+ const rail=html.slice(html.indexOf('<aside class="controls"'),html.indexOf('<!-- 02'));
+ assert.ok(!rail.includes('id="coreFigure"'),'coreFigure must not stay in the rail');
+ // The chooser stays in the rail: a select is a control, not a drawing.
+ assert.ok(html.indexOf('id="detailBasis"')<html.indexOf('id="detailDesk"'),'the detail select stays in the rail');
+});
+test('every tool glyph is drawn in the 20-unit house vocabulary, and none is a copy',()=>{
+ const src=read('console.js');
+ const table=src.slice(src.indexOf('const WORK_GLYPHS='),src.indexOf('export function workspaceForTarget'));
+ const seen=new Map();
+ for(const k of WORKSPACES){
+  const g=new RegExp("\\n\\s*"+k+":'([^']+)'").exec(table);
+  assert.ok(g,k+' has no glyph');
+  assert.match(g[1],/^<(path|rect|circle)/,k+' glyph must be drawn, not typed');
+  const key=g[1].replace(/\s+/g,'');
+  assert.ok(!seen.has(key),k+' is a pixel-copy of the '+seen.get(key)+' glyph');
+  seen.set(key,k);
  }
 });
 test('local curtain-wall lean comes from the chosen face and actual slab programme',()=>{
