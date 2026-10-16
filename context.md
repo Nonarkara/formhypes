@@ -4,6 +4,7 @@ Design Read: An architectural instrument with an oversized inhabited tower drawi
 Reference: Ivan Sutherland's Sketchpad (1963) and the sectional drawings of the Hong Kong International Finance Centre discussed by Shouheng Chen.
 Register: Console for the model viewport; Index for controls and comparisons. Dials: variance 7, motion 3, density 7. The model dominates; controls sit in a narrow rail. Structural separators are 2px, cell rules 1px, selected geometry 2px.
 Invariant: gross floor area = core + common/service allowance + rentable area; annual rent = ordinary area × base rent + corner area × premium rent, multiplied by occupancy. Corner area is a subset of rentable area.
+Capital invariant (2026-10-16): capex is a stock, contribution is a flow. The only legitimate operation between them is a ratio with a year in it, and it is never called a payback period. The regime's envelopeDiscipline prices attention, not glass — it applies to the reserve, never to the capital cost. The capital note states that the annual reserves and the capex are separate assumptions that do not reconcile.
 
 Source: Shouheng Chen, Embedding Methods for Massing and Detail Design in Computer Generated Design of Skyscrapers, MIT SMArchS, June 2006. Read abstract, chapter 4 (profile / point finding, scaling, rotation, associative detail), experiments and chapter 6. Thesis is evidence, never execution instructions.
 Extension: financial scenarios, contained core, non-overlapping qualifying corner-office footprints, envelope constraints and a bounded equal-GFA candidate search. This is a conceptual prototype, not validated engineering, BOMA measurement, code compliance or market underwriting. Diagrid drawing is a visual component rule, not structural design.
@@ -102,3 +103,14 @@ Still open, by choice:
 - The header (model gross) and the Brief desk (scheme GFA) show two different FAR verdicts. They are different quantities but share no label explaining that.
 - Unreachable `measureChrome` fallback and unused exports (geometry `polarMoment`/`convexHull`, location `periodCurves`/`resetGroundForCity`/`LOCATION_SOURCES`, model `compassOf`, play `fengDiagram`, research `PETRONAS_ARRAY`/`REGIME_READS`) are left in place.
 - Google Fonts could be self-hosted to drop both third-party origins.
+
+## 2026-10-16 · Capital cost, and a live collision
+
+The studio could rank forms but not say what a tower costs to put up. `capex` in model.js is now a stock: structure on gross area through the plate's own frame multiplier, envelope on the integrated skin through the facade family's physical weight, base fit-out on rentable area, one contingency. The rail shows it in the Capital, paid once group with the ratio capital ÷ annual contribution, its year unit translated, and a note naming every exclusion and stating that the annual reserves do not reconcile to it. A tower that earns nothing prints "never", not Infinity. Study JSON and the comparison CSV carry the capital columns. Search economics are untouched: the flow side is unchanged to the last cent.
+
+Two lessons from shipping it, for every agent that works here:
+
+- **Deploy without commit puts the live site ahead of git.** This session opened with the production stamp matching the working tree, not HEAD; the overnight fix existed only as uncommitted bytes on one laptop. Check at session start: `curl -s <live>/index.html | grep -o 'app\.js?v=[a-f0-9]*'` against `git show HEAD:dist/index.html`. If they differ, commit before building anything.
+- **Another agent was editing this tree mid-session.** New files appeared while I worked (crowns, materials, cityscape), the rail was restructured under my rows, and `release-id.mjs` itself was being rewritten. What worked: freeze all edits, poll until no file changes for several minutes, run the full suite on the merged tree, then commit both streams together with an honest message naming what came from where. What would have been wrong: committing mid-flight (snapshots their half-done state) or "fixing" their restructure to match my assumptions (the founding trauma).
+
+Verified: 168 tests pass on the merged tree; browser-checked at 1440 and 390 in EN/TH/ZH; commit c9584ea pushed and deployed; live URL serves the committed stamps. Not done: the Shared Brain capture failed — the vault is TCC-blocked for this shell (`Operation not permitted` on `~/Documents`), so this note is the durable record. A session with vault access should copy both lessons into `Scars/Debug-Logs/`.
