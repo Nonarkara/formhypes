@@ -1,7 +1,7 @@
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
-import {profile,stack,grossOf} from './model.js?v=1653f45f3c';
-import {renderFacade} from './facade.js?v=d7d9b0e97c';
+import {profile,stack,grossOf} from './model.js?v=e1aefac756';
+import {renderFacade} from './facade.js?v=81743fe6ed';
 export const CONSOLE_TEXT={
  en:{capacity:'Model gross / area allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:['Form','Brief','Place','Walk-in','Façade','Explore','Studies'],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
  th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:['รูปทรง','โจทย์','ที่ตั้ง','มุมมอง','เปลือก','สำรวจ','แบบที่เก็บ'],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
@@ -14,6 +14,27 @@ export function siteLedger(state,inputs){
  return {gross,allowance,remaining:allowance-gross,fits};
 }
 export const WORKSPACES=['form','brief','place','walk','facade','compare','studies'];
+/* Each workspace is named by a drawing, not a word. A strip of six words is a
+   menu; six marks are an instrument panel, and they survive being read at a
+   glance while the reader is looking at the tower. Drawn the way the rest of
+   the sheet is drawn: 20-unit box, 1.2 stroke, no fill, no radius. The label
+   stays in the accessibility tree and in the hover title, in all three
+   languages — a glyph that cannot be named is a glyph that cannot be found. */
+const WORK_GLYPHS={
+ // cruciform plan with its core: the form the model is currently on
+ form:'<path d="M7.5 2h5v5.5H18v5h-5.5V18h-5v-5.5H2v-5h5.5z"/><rect x="8.5" y="8.5" width="3" height="3"/>',
+ // a brief: sheet, plot square, and the headroom left at the top
+ brief:'<path d="M4 2h8l4 4v12H4z"/><rect x="7" y="9" width="7" height="5"/><path d="M7 5.5h4"/>',
+ // a site: the marker dropped on its own parcel
+ place:'<path d="M10 17.6S4.4 10.5 4.4 7.3a5.6 5.6 0 1 1 11.2 0c0 3.2-5.6 10.3-5.6 10.3z"/><path d="M10 5.1a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6z"/>',
+ // one-point perspective from eye height: ground, a receding bay, a figure in it
+ walk:'<path d="M1 16.5h18"/><path d="M4.5 16.5 10 9.5l5.5 7"/><circle cx="10" cy="7" r="2"/><path d="M10 9v7.5"/>',
+ // curtain wall: two mullions, one transom
+ facade:'<rect x="3" y="4" width="14" height="12"/><path d="M7.7 4v12M12.3 4v12M3 10h14"/>',
+ // alternatives held to one area: four bars off one baseline
+ compare:'<path d="M2 16.5h16"/><path d="M4.5 16.5V9M8.5 16.5V5M12.5 16.5v-3M16.5 16.5V7"/>',
+ // the shelf: two studies, one behind the other
+ studies:'<rect x="2.5" y="10" width="12" height="7"/><rect x="5.5" y="3" width="12" height="7"/>'};
 export function workspaceForTarget(id){return ({briefPanel:'brief',walkPanel:'walk',contextPanel:'place',locationDesk:'place',exploreTitle:'compare',searchResults:'compare',savedStudies:'studies',facadeDesk:'facade'})[id]||'form'}
 const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
 export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,onLayout}){
@@ -45,7 +66,12 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
  function render(){
   if(typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches&&selected==='form')rail=0;
   const {lang,state,level}=getData(),c=CONSOLE_TEXT[lang];syncSite();nav.setAttribute('aria-label',c.tools);
-  buttons.forEach((b,i)=>{b.textContent=c.work[i];b.setAttribute('aria-selected',String(selected===WORKSPACES[i]));b.tabIndex=selected===WORKSPACES[i]?0:-1});
+  buttons.forEach((b,i)=>{
+   const k=WORKSPACES[i];
+   b.innerHTML='<svg class="wg" viewBox="0 0 20 20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="miter">'+WORK_GLYPHS[k]+'</svg><span class="wt">'+c.work[i]+'</span>';
+   b.title=c.work[i];
+   b.setAttribute('aria-selected',String(selected===WORKSPACES[i]));
+   b.tabIndex=selected===WORKSPACES[i]?0:-1});
   railButtons.forEach((b,i)=>{b.textContent=c.rail[i];b.setAttribute('aria-pressed',String(rail===i))});
   railNav.hidden=selected!=='form';shell.dataset.task=selected;shell.dataset.rail=String(rail);dock.hidden=selected==='form';
   for(const [k,p]of Object.entries(panels))p.hidden=k!==selected;

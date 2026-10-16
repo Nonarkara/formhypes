@@ -68,13 +68,6 @@ header{height:46px;padding:0 20px;border-bottom:1px solid var(--ink);display:fle
 .actions{display:flex;gap:6px;padding-left:20px;border-left:1px solid var(--line)}
 
 main{max-width:1840px;margin:auto;padding:0 20px}
-.place-context{display:grid;grid-template-columns:auto minmax(12rem,24rem);column-gap:16px;row-gap:3px;align-items:center;padding:8px 0 10px;border-bottom:1px solid var(--ink)}
-.place-context label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-#placeCase{width:100%;min-height:36px;border:1px solid var(--ink);background:var(--paper);color:var(--ink)}
-#placeFacts,#placeGift,#placeEconomy,#placeSourceLine{grid-column:1/-1;margin:0;font-size:13px;line-height:1.4;max-width:96ch}
-#placeEconomy{font-family:var(--mono);font-size:12px}
-#placeSourceLine{font-size:12px}
-@media(max-width:600px){.place-context{grid-template-columns:1fr;padding:4px 0 6px;row-gap:2px}#placeCase{min-height:44px}#placeFacts,#placeGift,#placeEconomy,#placeSourceLine{font-size:12px;line-height:1.25;margin:0}}
 .tabpane{display:none}
 .tabpane.on{display:block}
 
@@ -102,7 +95,7 @@ main{max-width:1840px;margin:auto;padding:0 20px}
 .note{color:var(--muted);font-size:11px;margin:0 0 8px;line-height:1.42}
 .note.source{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);color:var(--faint)}
 .ctl{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:12px 0 4px}
-select{width:100%;padding:4px 6px;border:0;border-bottom:1px solid var(--ink);border-radius:0;background:transparent;color:var(--ink);margin-bottom:8px;
+select{width:100%;padding:4px 18px 4px 6px;border:0;border-bottom:1px solid var(--ink);border-radius:0;background:transparent;color:var(--ink);margin-bottom:8px;
  appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 4'%3E%3Cpath d='M0 0h8L4 4z' fill='%23191c1b'/%3E%3C/svg%3E");
  background-position:calc(100% - 5px) 50%;background-size:8px 4px;background-repeat:no-repeat}
 select:focus{outline-offset:0}
@@ -114,14 +107,51 @@ details[open]>summary::before{content:'– '}
 .control{margin:8px 0}
 .controlhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .controlhead label{font-size:11px}
-input[type=range]{width:100%;height:16px;accent-color:var(--accent);margin:2px 0 8px}
+/* A drafting cursor, not a browser pill. The stock range control is a rounded
+   track with a round cap, which reads as a template control on any page; this
+   is a 1px rule with a square index that stands on it. No radius, no shadow,
+   no fill — the amber is a position marker, so the track itself stays ink. */
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:18px;background:transparent;margin:2px 0 8px;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--ink);border:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:3px;height:18px;margin-top:-8.5px;background:var(--accent);border:0;border-radius:0;box-shadow:none}
+input[type=range]:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
+input[type=range]::-moz-range-track{height:1px;background:var(--ink);border:0}
+input[type=range]::-moz-range-thumb{width:3px;height:18px;background:var(--accent);border:0;border-radius:0;box-shadow:none}
 .textlink{border:0;padding:7px 0 7px;margin-top:9px;font-size:11px;color:var(--ink);width:100%;justify-content:space-between;border-top:1px solid var(--line)}
 .textlink:hover{background:none;color:var(--muted)}
 .textlink .ic{color:var(--faint)}
 
 /* ── viewport · the one place a fill earns its keep ───────────────────── */
 .viewport{position:relative;background:var(--dark);min-height:calc(100vh - var(--chrome));overflow:hidden}
+/* The sheet's bottom band is a stack, not two elements with hard-coded offsets.
+   The phone readout used to sit at a fixed bottom while the title block below it
+   grew from one line to two on a narrow sheet — so the contribution figure was
+   printed straight through "Concept prototype — not for construction". A fixed
+   offset cannot know a sibling's height, and that is the whole bug: the only way
+   to stop them colliding is to stop positioning them independently. Every other
+   child of the sheet is absolutely positioned and is unaffected by this. */
+.viewport{display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch}
+/* In flow is what stops the band colliding with itself — but the canvas is
+   position:absolute, and a positioned box paints ABOVE every in-flow sibling in
+   the same stacking context. So making the band static reserved its space and
+   then hid it: elementFromPoint over the skyline readout returned the canvas,
+   and the whole bottom band was invisible while the layout measured it as
+   present. Geometry said "no overlap"; the pixels said otherwise. The band has
+   to be in flow for stacking and positioned for painting. pointer-events:none
+   keeps the orbit drag reaching the canvas underneath. */
+.viewport>.viewfoot,.viewport>.skyline-readout,.viewport>.phone-readout,
+.viewport>.titleblock{position:relative;z-index:2;pointer-events:none}
+.viewport>.viewfoot{padding:0 18px 2px}
 .viewhead{position:absolute;top:12px;left:18px;right:18px;display:flex;justify-content:space-between;color:var(--dim);z-index:2;pointer-events:none}
+/* Where the model ranks in the skyline it is standing in, and where that
+   skyline came from. It lives in the bottom band, which is in flow: the canvas
+   measures the band and anchors its own annotations to it, so a line of text
+   here cannot cover the model. Two lines — the claim, then its source — with a
+   rule between them, because the source is not decoration on the claim.
+   A height inferred from a level count is named as such. */
+.skyline-readout{margin:0 0 6px;padding:0 0 0 9px;border-left:2px solid var(--accent);
+ color:var(--dim);font-family:var(--mono);font-size:10px;line-height:1.5}
+.skyline-readout .sky-credit{display:block;color:var(--faint)}
 .vh-left{display:flex;align-items:center;gap:8px}
 .square{display:inline-block;width:6px;height:6px;background:var(--accent)}
 /* The canvas is out of flow on purpose: writing its backing store must never be
@@ -182,6 +212,18 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 #feasibility.invalid{border-left-color:var(--accent);background:#fdf3e0}
 
 #premiumPanel{border-top:1px solid var(--line);padding-top:9px;margin:4px 0 12px}
+/* The schedule is on demand. A rail that prints twenty-two figures before the
+   first drawing reads as a template; one that opens the group you ask for
+   reads as an instrument. Sharp summary rules, + / − as text, no chrome. */
+.railgroup{border-top:1px solid var(--line)}
+.railgroup>summary{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;gap:10px;
+  padding:8px 0;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--muted);cursor:pointer;list-style:none;user-select:none}
+.railgroup>summary::-webkit-details-marker{display:none}
+.railgroup>summary:hover,.railgroup[open]>summary{color:var(--ink)}
+.railgroup>summary .cnt{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--faint);text-align:right}
+.railgroup .metrics{padding-bottom:4px}
+.railgroup .note{font-size:11px;line-height:1.4;padding-bottom:6px}
 .panhel,.panelh{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px;font-weight:400}
 .staff{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 10px;align-items:baseline;margin:0 0 8px;font-size:11px;color:var(--ink)}
 .staff svg{grid-column:1/-1;width:100%;height:16px;display:block}
@@ -368,7 +410,9 @@ dialog li{margin:6px 0;line-height:1.5}
   .masthead{padding:10px 0}
   h1{font-size:17px}
   .viewport{min-height:56vh}
-  .mobileonly{display:block;position:absolute;bottom:56px;left:14px;right:14px;font-size:10.5px;color:#7d8783;z-index:2}
+  /* The sheet footer joins the bottom band rather than sitting at a guessed
+     offset from it — see the note on .viewport above. */
+  .viewport>.viewfoot{padding:0 14px 2px}
   .results>#plan{height:230px}
   .researchhead h1{font-size:22px}
   .lede{font-size:15px}
@@ -614,9 +658,39 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
  header .tabs a{justify-content:center}
 }
 @media(max-width:600px){
- body.is-console .phone-readout{display:flex;align-items:baseline;gap:8px;position:absolute;left:0;right:0;bottom:22px;z-index:2;margin:0;padding:3px 12px;background:#111416;color:#c9d3d0;border-top:1px solid #2c3438;font-size:11px;line-height:1.3;pointer-events:none}
+ body.is-console .phone-readout{display:flex;align-items:baseline;gap:8px;position:relative;z-index:2;margin:0;padding:3px 12px;background:#111416;color:#c9d3d0;border-top:1px solid #2c3438;font-size:11px;line-height:1.3;pointer-events:none}
  body.is-console .phone-readout strong{font-family:var(--mono);font-size:15px;color:var(--accent);font-weight:500}
  .studies>.actions{display:flex;gap:6px;grid-column:1/-1;border:0;padding:0 0 8px;margin:0}
  .studies>.actions button{flex:1;min-width:44px;min-height:44px;justify-content:center}
  .studies>.actions button span:not(.ic){display:inline}
 }
+
+/* ── material · twelve walls, chosen by their own colour ────────────────
+   A text list of cladding names is a specification. Twelve swatches is a
+   material board, and you pick the wall before you read its numbers. */
+.matstrip{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:2px 0 8px}
+.matstrip .sw{height:22px;border:1px solid var(--ink);background:none;cursor:pointer;padding:0;border-radius:0}
+.matstrip .sw:hover{outline:1px solid var(--ink);outline-offset:1px}
+.matstrip .sw.on{outline:2px solid var(--accent);outline-offset:1px}
+.matstrip .sw:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(max-width:600px){.matstrip{grid-template-columns:repeat(6,1fr)}.matstrip .sw{height:28px}}
+
+/* The detail section. A drawing, not a thumbnail: full rail width, its own 1px
+   plate, and the figures set as a spec list so each number sits next to the
+   name of the thing it is. No rounded anything, no fill, no shadow. */
+.dsecwrap{border:1px solid var(--line);margin:2px 0 8px;padding:4px;background:var(--paper)}
+.dsecwrap .dsec{display:block;width:100%;height:auto}
+.spec{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0 0 8px;font-size:11px}
+.spec dt{color:var(--muted)}
+.spec dd{margin:0;font-family:var(--mono);font-size:10.5px;color:var(--ink);text-align:right}
+.spec dd.ok{color:var(--ink)}
+.spec dd.warn{color:var(--accent)}
+@media(max-width:600px){.dsecwrap{padding:2px}.spec{font-size:12px}.spec dd{font-size:11.5px}}
+
+/* The LED switch. A checkbox that reads as a checkbox, not as a toggle pill —
+   the control is a drafting instrument here, same as every other switch. */
+.check{display:flex;align-items:center;gap:8px;margin:10px 0 2px;cursor:pointer;font-size:12px;line-height:1.3}
+.check input[type=checkbox]{appearance:none;width:15px;height:15px;border:1px solid var(--ink);background:none;border-radius:0;margin:0;flex:none;cursor:pointer;position:relative}
+.check input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent)}
+.check input[type=checkbox]:checked::after{content:'';position:absolute;inset:3px;background:var(--paper)}
+.check input[type=checkbox]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}

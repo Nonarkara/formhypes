@@ -66,8 +66,15 @@ test('a research query opens Research even from a studio hash, and landlord is y
  assert.match(html,/id="researchArchive"/);assert.doesNotMatch(html,/dedicationDetails[^>]*open/);
  assert.match(html,/href="#studio"/);assert.match(html,/href="#research"/);
  assert.match(html,/id="phoneReadout"/);
- assert.match(html,/id="placeContext"/);
- assert.match(html,/id="placeCase"/);
+ // The studio opens the page. A banner used to sit between <main> and the
+   // instrument carrying the Shenzhen note, and it kept coming back because a
+   // test pinned the markup here rather than at the Place desk, where that
+   // note belongs. Guard the layout instead of the banner.
+   assert.doesNotMatch(html,/id="placeContext"|id="placeCase"|id="placeEconomy"/);
+   const mainAt=html.indexOf('<main>'),studioAt=html.indexOf('<section id="studio"');
+   assert.ok(mainAt>=0&&studioAt>mainAt,'the studio must be the first thing in <main>');
+   assert.doesNotMatch(html.slice(mainAt,studioAt),/<section|<p id=|place-context/,
+    'content sits between <main> and the studio and pushes the instrument down');
  assert.match(text('en'),/Xiaohei/);
  assert.match(text('en'),/Shenzhen/);
  assert.match(text('zh'),/小黑/);

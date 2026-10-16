@@ -19,12 +19,15 @@ import{polyArea,polyPerimeter,minkowski,planLibrary,loftTable,lateralArea,loftVo
  pointInPolygon,distToBoundary,daylitFraction,daylightReachFor,cotSky,skyAngleDeg,isConvex}from'./geometry.js?v=eb7a621ab9';
 
 import {solarDefaults,facadeExposure} from './solar.js?v=9279efc6dc';
+import {gardenOf,gardenIndices,crownOf,crownMetrics,CROWN_RATES} from './crowns.js?v=b0141b99a4';
+import {detailOf,detailCost,airBarrier} from './details.js?v=1df95d7e5e';
+import {materialOf} from './materials.js?v=be1c7d7582';
 export const families={box:'Rectilinear',chamfer:'Chamfered',cross:'Cruciform',octagon:'Octagonal',star:'Eight-point',rub:'Rub el Hizb',triangle:'Triangular',hexagon:'Hexagonal',oval:'Faceted oval',petal:'Four-petal',pinwheel:'Pinwheel'};
 // Re-exported so the controller has one import edge into the model rather than
 // two into the model and the kernel. There is no cycle either way, but one edge
 // is one fewer thing for the release stamp to keep in step.
 export {isConvex,RUB_INNER_RATIO,RUB_INNER_RADIUS} from './geometry.js?v=eb7a621ab9';
-export const defaults={...solarDefaults,family:'cross',span:48,aspect:1,floors:48,height:4.1,taper:0.82,twist:0,core:14,common:12,rent:650,premium:30,occupancy:92,reserve:18,frontage:6,site:68,maxHeight:260,skin:'vertical',system:'column-grid',program:'petronas',regime:'yield'};
+export const defaults={...solarDefaults,family:'cross',span:48,aspect:1,floors:48,height:4.1,taper:0.82,twist:0,core:14,common:12,rent:650,premium:30,occupancy:92,reserve:18,frontage:6,site:68,maxHeight:260,skin:'vertical',material:'float',crown:'flat',garden:'none',led:false,detail:'drained-cavity',system:'column-grid',program:'petronas',regime:'yield'};
 
 const PLANS={};
 const plan=f=>PLANS[f]||(PLANS[f]=planLibrary[f]());
@@ -153,6 +156,23 @@ export function stack(s){
   const lvl=src[i]||src[src.length-1];
   out.push({index:i,z,h:lvl.h/1000,use:lvl.use,gfa:true});
   z+=lvl.h/1000;
+ }
+ // Sky gardens are applied first, in the same pre-insertion index space the
+ // stored voids below use, so a garden and a mechanical level can land on the
+ // same storey the way they would on site. A full-floor setback stops the plate
+ // outright; a partial one keeps what is left of the floor and gives away the
+ // rest. `frac` is therefore the share of the plate that is KEPT — the selector
+ // states the share GIVEN AWAY, and the two are complements, so the conversion
+ // happens here once. Getting this backwards would quietly triple the area a
+ // quarter-floor gives up.
+ const gsel=gardenOf(s);
+ for(const i of gardenIndices(s)){
+  const lvl=out[i];if(!lvl||!lvl.gfa)continue;
+  const given=gsel.frac;
+  lvl.frac=1-given;
+  lvl.garden=given;
+  if(given>=1){lvl.gfa=false;lvl.use='garden'}
+  else lvl.use='terrace';
  }
  // Mechanical and refuge levels are inserted at their stored positions. They
  // occupy height, carry no floor area, and are the reason gross floor area and
@@ -297,11 +317,49 @@ export const econ={
  // limit; it is what the market has decided daylight is worth. The old model
  // used one magic 13 m for both, which quietly asserted a market opinion as
  // though it were geometry.
- sillBand:0.9,
- skyAngle:skyAngleDeg,
- depthTolerance:13,
- deepPenalty:0.10,
- daylightDepth:9.0
+sillBand:0.9,
+  skyAngle:skyAngleDeg,
+  depthTolerance:13,
+  deepPenalty:0.10,
+  daylightDepth:9.0
+};
+
+/* ── extension: what the building costs to put up ───────────────────────────
+   A stock and a flow are different quantities and obey different laws. The
+   reserves above are annual charges — a $/m²/year rate applied every year for
+   ever. Nothing in this file so far said what the tower costs *once*, so the
+   model could rank designs against each other but could not answer the question
+   a client actually asks first: is this scheme worth building at all.
+
+   So the capital cost is stated separately, as a stock, in the same shape the
+   reserves use — a named rate on a named area — and it is never added to or
+   subtracted from an annual figure. Two readings of the same money at two
+   different moments. Both are illustrative USD assumptions a reader can trace
+   to a line in this block; neither is a tender, a cost plan or a valuation.
+
+   The frame rate carries the same column-density multiplier the reserve uses,
+   so a plan that pays for a longer perimeter pays for it once as well as yearly.
+   The envelope carries the facade family's physical weight but NOT the regime's
+   envelopeDiscipline: that factor describes how much attention a market pays to
+   the skin, not what the skin is made of. A speculative buyer's indifference does
+   not make the glass cheaper. */
+
+export const capex={
+  // superstructure and substructure to the base of the occupied stack, USD/m²
+  // of gross floor area, before the plate's own frame multiplier.
+  structure:1120,
+  // curtain wall, glazing and its supporting system, USD/m² of the integrated
+  // skin surface — the same surface the envelope reserve is charged on.
+  envelope:640,
+  // base building only: partitions, finishes, lighting, distribution. Tenant
+  // fit-out, loose furniture and building services plant are NOT in this.
+  fitout:88,
+  // carried on the sum of the three. Applied once, not compounded.
+  contingency:0.09,
+  // Used only to report the implied annual reserve, so the capital stock and the
+  // periodic reserve can be read against each other instead of drifting apart
+  // silently. It never feeds either figure.
+  life:50
 };
 
 /** Deepest plate depth — the distance daylight has to cross, measured from the
@@ -328,7 +386,7 @@ export function evaluate(s){
  const taperK=s.taper-1, twistK=s.twist*Math.PI/180;
  const sAt=z=>1+taperK*(z/height), s0z=()=>taperK/height, th0z=()=>twistK/height;
 
- let gross=0,facade=0,cornerArea=0,corners=0,coreFits=true,envelopeFits=true;
+ let gross=0,facade=0,cornerArea=0,corners=0,coreFits=true,envelopeFits=true,gardenArea=0;
  const coreArea=s.core**2,c=s.core/2;
  let depthWorst=0,clearWorst=Infinity;
 
@@ -338,11 +396,17 @@ export function evaluate(s){
  // whole height of the voids.
  for(const l of st){
   const t=l.z/height,p=profile(s,t),zones=l.gfa?cornerZones(p,s):[];
+  const frac=l.frac==null?1:l.frac;
   if(l.gfa){
-   gross+=area(p);
+   gross+=area(p)*frac;
    // Numerically integrated skin for this level's slab, from the surface integral — not two
    // triangles across a quad that a twist has already made non-planar.
   }
+  // The plate this level gave up to open air, counted whether or not anything
+  // is left to sell. A whole-floor setback earns nothing at all, and it is
+  // exactly that floor — the one that earns nothing — that still has to be
+  // drained, irrigated, planted and waterproofed every year of its life.
+  if(frac<1)gardenArea+=area(p)*(1-frac);
   facade+=lateralArea(tab,l.z,l.z+l.h,sAt,s0z,()=>0,th0z);
   cornerArea+=zones.reduce((a,z)=>a+area(z),0);
   corners+=zones.length;
@@ -368,7 +432,8 @@ export function evaluate(s){
  const skyReach=daylightReachFor(Math.max(0.5,Math.min(...occupied.map(l=>l.h))-econ.sillBand));
  const daylit=daylitFraction(basePlate,skyReach);
 
- const voidLevels=st.length-occupied.length;
+ const gardenLevels=st.filter(l=>l.use==='garden').length;
+ const voidLevels=st.length-occupied.length-gardenLevels;
  const voidArea=(gross/Math.max(occupied.length,1))*voidLevels;
  const sys=systems[s.system]||systems['column-grid'];
  const fac=facadeFamilies[s.skin]||facadeFamilies.vertical;
@@ -397,22 +462,71 @@ export function evaluate(s){
  const rentPenalty=rentable*base*(lowCeiling+depthRate);
  const rent=rentOrdinary+rentCorner+rentIdentity+rentColumnFree+rentHeight-rentPenalty;
 
- const facadeCost=facade*s.reserve*fac.envelope*reg.envelopeDiscipline;
- // Frame cost now follows the plate's own column count, not a flat multiplier.
- const cd=columnDensity(profile(s,0),s);
- const structureCost=gross*econ.structureBase*cd.multiplier;
- const contribution=rent-facadeCost-structureCost;
+/* The envelope reserve carries the material. It used not to: materialEnvelopeCost
+   was applied in the view, so the rail showed a granite skin price while
+   contribution, capexEnvelope and payback were all computed from the float-glass
+   reserve underneath. A choice that moves only the displayed number is worse than
+   a choice that moves nothing at all — the reader sees a cost, believes the
+   building accounts for it, and the arithmetic underneath quietly disagrees. */
+const matFactor=materialOf(s).envelope;
+const facadeCost=facade*s.reserve*fac.envelope*reg.envelopeDiscipline*matFactor;
+  // Frame cost now follows the plate's own column count, not a flat multiplier.
+  const cd=columnDensity(profile(s,0),s);
+  const structureCost=gross*econ.structureBase*cd.multiplier;
+  // The crown and the terraces. Neither sits inside the rentable stack, so
+  // neither is folded into rent: each is charged on its own measured area and
+  // each is reported separately. The one thing that must NOT be kept apart is
+  // height — a crown spends the same height allowance the floors spend, so it
+  // is added to the tower's height before the allowance is tested.
+  const topPlate=area(profile(s,1));
+  const cm=crownMetrics(s,topPlate);
+  const heightTotal=height+cm.h;
+  const gardenReserve=gardenArea*CROWN_RATES.garden;
+  // How the wall is assembled, as distinct from what it is made of. Each detail
+  // is charged on the one area it is named after — the skin for an envelope
+  // detail, the crown's own plan for a crown detail, the open-air area for a
+  // terrace detail — and it is never multiplied by the material coefficient,
+  // because the fabric is already in the envelope reserve above.
+  const dr=detailCost({facade,crownPlan:cm.plan,gardenArea},s);
+  const contribution=rent+cm.netRent-facadeCost-structureCost-cm.reserve-gardenReserve-dr.reserve;
+
+  /* The capital stock. Same named-area discipline as the reserves above, and
+     deliberately not combined with them: capex is paid once, contribution is
+     earned yearly, and the only legitimate operation between the two is a ratio
+     with a year in it. */
+  const capexStructure=gross*capex.structure*cd.multiplier;
+  const capexEnvelope=facade*capex.envelope*fac.envelope*matFactor;
+  const capexFitout=rentable*capex.fitout;
+  const capexBase=capexStructure+capexEnvelope+capexFitout+cm.capital+dr.capital;
+  const capexTotal=capexBase*(1+capex.contingency);
+  // A tower that earns nothing has no payback. Infinity is the honest reading;
+  // NaN would render as a blank cell and imply the figure was merely missing.
+  const payback=contribution>0?capexTotal/contribution:Infinity;
+  // What the reserves above would charge if this exact stock were spread evenly
+  // over its life. Reported so the two readings can be compared; it is a
+  // cross-check, not an input to either number.
+  const capexImpliedReserve=capexTotal/capex.life;
 
  const reasons=[];
  if(!coreFits)reasons.push('core');
  if(!envelopeFits)reasons.push('site');
- if(height>s.maxHeight)reasons.push('height');
+ if(heightTotal>s.maxHeight)reasons.push('height');
  if(rentable<=0)reasons.push('area');
 
  return {
   gross,core,common,rentable,cornerArea,corners,facade,height,
-  occupiedCount:occupied.length,voidLevels:st.length-occupied.length,
+  occupiedCount:occupied.length,voidLevels:st.length-occupied.length-gardenLevels,
+  gardenLevels,gardenArea,gardenReserve,
+  detailKey:s.detail,detailArea:dr.area,detailReserve:dr.reserve,detailCapital:dr.capital,detailBasis:dr.basis,
+  airRate:airBarrier(s).rate,airMeets:airBarrier(s).meets,
+  crownHeight:cm.h,heightTotal,crownReserve:cm.reserve,crownCapital:cm.capital,
+  crownPlan:cm.plan,crownKind:cm.kind,crownUse:cm.use,
+  crownNetRent:cm.netRent,
+  observationArea:cm.observationArea,observationRent:cm.observationRent,
+  ledArea:cm.area,ledRent:cm.advertRent,ledCost:cm.advertCost,
   voidArea,rent,facadeCost,structureCost,contribution,
+   capex:capexTotal,capexStructure,capexEnvelope,capexFitout,
+   capexPerM2:capexTotal/Math.max(gross,1),payback,capexImpliedReserve,
   efficiency:rentable/Math.max(gross,1)*100,
   yieldOnCost:contribution/Math.max(gross,1),
   distinctiveness:d.score,convexCorners:d.convex,
@@ -424,7 +538,7 @@ export function evaluate(s){
  structureMultiplier:cd.multiplier,columnCount:cd.columns,shapeFactor:cd.shapeFactor,
   premiums:{identity:identityRate,columnFree:columnFreeRate,height:heightRate,lowCeiling,depth:depthRate,corner:s.premium/100},
   breakdown:{rentOrdinary,rentCorner,rentIdentity,rentColumnFree,rentHeight,rentPenalty},
-  heightHeadroom:s.maxHeight-height,
+  heightHeadroom:s.maxHeight-heightTotal,
   valid:reasons.length===0,reasons
  };
 }
@@ -508,7 +622,7 @@ export function grossOf(s){
  const st=stack(s);
  const total=st[st.length-1].z+st[st.length-1].h;
  let gross=0;
- for(const l of st){ if(l.gfa) gross+=area(profile(s,l.z/total)) }
+ for(const l of st){ if(l.gfa) gross+=area(profile(s,l.z/total))*(l.frac==null?1:l.frac) }
  return gross;
 }
 

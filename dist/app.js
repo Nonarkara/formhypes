@@ -1,19 +1,23 @@
-import {mountConsole} from './console.js?v=d37866e137';
+import {mountConsole} from './console.js?v=b1fba79295';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,econ,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=1653f45f3c';
-import{t,langs,langMeta,translator}from'./i18n.js?v=df2cda4efe';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=e1aefac756';
+import{t,langs,langMeta,translator}from'./i18n.js?v=c50ca75e3f';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
+import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
+import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,crownOf,gardenOf,crownPlates} from './crowns.js?v=b0141b99a4';
+import {cityData,skyline,visibleMassings} from './cityscape.js?v=fc33dd1d7f';
+import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=1df95d7e5e';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=a75307527e';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=cb3173e57a';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=311a9c78c8';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=e1c578d0a2';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=323758a32c';
-import {CONTEXT_I18N, renderContext, CONTEXT_SITES, PLACE_ORDER, PLACE_SUFFIX} from './context.js?v=d37368c2f9';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=07c524befa';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=26a9b41c9c';
+import {CONTEXT_I18N, renderContext} from './context.js?v=177a55fcf2';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 const $=id=>document.getElementById(id);
@@ -85,6 +89,26 @@ function fillSelect(id,obj,labels,current){
 const tri = p => Object.fromEntries(langs.map(l => [l, t[l][p]]));
 // …and the same, with a language-independent suffix appended to all three.
 const triAs = (p, suffix) => Object.fromEntries(langs.map(l => [l, t[l][p] + suffix]));
+
+/* The detail list is grouped by the area each detail is charged on, not listed
+   flat. A flat list of twelve hides the one fact that matters most about it:
+   six of these are priced against the skin, four against the crown and two
+   against the terrace, so picking "obstruction light mount" on a tower with no
+   crown costs nothing at all — and the reader should see that from the list,
+   not discover it in a figure. */
+const DETAIL_GROUPS=['envelope','crown','terrace'];
+function buildDetailSelect(){
+ const sel=$('detail');sel.replaceChildren();
+ for(const g of DETAIL_GROUPS){
+  const keys=DETAIL_KEYS.filter(k=>DETAILS[k].system===g);
+  if(!keys.length)continue;
+  const og=document.createElement('optgroup');og.label=tt('dt.grp.'+g);
+  for(const k of keys)opt(og,k,tt('dt.'+k));
+  sel.append(og);
+ }
+ sel.value=state.detail;
+ sel.onchange=()=>{state.detail=sel.value;changed()};
+}
 function buildSelectors(){
  const city=$('city');city.replaceChildren();for(const id of Object.keys(cities))opt(city,id,tt('sun.'+id));city.value=state.city;city.onchange=()=>{state.city=city.value;changed()};
  for(const id of ['solarDate','solarTime'])$(id).onchange=()=>{const next={...state,[id]:$(id).value};if(!validSolar(next)){sync();toast(tt('sun.invalid'));return}state=next;changed()};
@@ -95,10 +119,20 @@ function buildSelectors(){
  // The thesis tag is a building name — Latin in every language, by convention.
  const facL={};for(const k of Object.keys(facadeFamilies))facL[k]=triAs('g.facade.'+k,' — '+facadeFamilies[k].thesis);
  fillSelect('skin',facadeFamilies,facL,state.skin);
+ const matL={};for(const k of MATERIAL_KEYS)matL[k]=MATERIALS[k].label;
+ fillSelect('material',MATERIALS,matL,state.material);
+ buildDetailSelect();
  const sysL={};for(const k of Object.keys(systems))sysL[k]=tri('g.system.'+k);
  fillSelect('system',systems,sysL,state.system);
  const regL={};for(const k of Object.keys(regimes))regL[k]=tt('regime.'+k+'.label');
  fillSelect('regime',regimes,regL,state.regime);
+ // The crown is named after the building it is being read against, the way the
+ // façade families are — a precedent is a precedent even when it is far away.
+ const crL={};for(const k of CROWNS_KEYS)crL[k]=triAs('crown.'+k,' — '+CROWNS[k].thesis);
+ fillSelect('crown',CROWNS,crL,state.crown);
+ const gdL={};for(const k of GARDENS_KEYS)gdL[k]=tt('garden.'+k);
+ fillSelect('garden',GARDENS,gdL,state.garden);
+ const led=$('led');led.checked=!!state.led;led.onchange=()=>{state.led=led.checked;changed()};
  $('regime').onchange=()=>{state.regime=$('regime').value;changed()};
  const obj=$('objective');obj.replaceChildren();
  for(const k of ['contribution','rent','yieldOnCost','corners','facade','silhouette'])opt(obj,k,tt('s.objective.'+k));
@@ -131,6 +165,47 @@ function sync(){
  $('programNote').textContent=tt('prog.'+state.program+'.note')+' — '+tt('prog.'+state.program+'.src');
  const f=facadeFamilies[state.skin];
  $('skinNote').textContent=tt('skin.reads',{t:f.thesis,e:f.envelope.toFixed(2),i:(f.identity*100).toFixed(0)});
+ // The material says what it does to the one figure it is allowed to move,
+ // and names the figures it is not allowed to move. Silence would let the
+ // reader assume concrete makes the tower quieter or bigger. It does neither.
+ const mt=materialOf(state);
+ if($('materialNote'))$('materialNote').textContent=tt('mat.reads',{name:mt.label,t:mt.thesis,e:mt.envelope.toFixed(2),c:mt.carbon,u:mt.upkeep.toFixed(2)});
+ if($('matStrip')){
+  const strip=$('matStrip');strip.replaceChildren();
+  for(const k of MATERIAL_KEYS){
+   const m=MATERIALS[k],b=document.createElement('button');
+   b.type='button';b.className='sw'+(k===state.material?' on':'');b.title=m.label;
+   b.setAttribute('aria-label',m.label);b.setAttribute('aria-pressed',String(k===state.material));
+   b.style.background=m.fill;b.style.borderColor=m.edge;
+   b.onclick=()=>{state.material=k;$('material').value=k;changed()};
+   strip.append(b);
+  }
+ }
+ // The detail is the other half of the wall and not a restatement of the
+// material. It is charged on its own named area — skin, crown plan or terrace —
+// and the note says which, because a reader who cannot tell why a line item is
+// zero cannot tell whether the line item is wrong.
+ const d=detailOf(state),sp=detailSpec(state),basis=DETAIL_BASIS[d.system];
+ if($('detail')){$('detail').value=state.detail}
+ if($('detailNote'))$('detailNote').textContent=tt('dt.note.'+state.detail);
+ if($('detailFigure'))$('detailFigure').innerHTML=detailSVG(d.draw);
+ if($('detailBasis'))$('detailBasis').textContent=tt('dt.basis',{a:tt('area.'+basis),r:d.standard});
+ if($('detailSpec')&&$('detailSpec').replaceChildren){
+  const rows=[
+   ['dt.f.air',sp.air.toFixed(2)+' L/(s·m²)',sp.meetsAir?'ok':'warn'],
+   ['dt.f.u',sp.uFactor.toFixed(2)+' W/m²K',''],
+   ['dt.f.defl',sp.deflection.toFixed(1)+' mm @ '+sp.span.toFixed(1)+' m',''],
+   ['dt.f.access',sp.access.toFixed(1)+'×','']];
+  const dl=$('detailSpec');
+  // sync() runs on every slider tick and on every language change. Appending
+  // without clearing stacked four copies of the list on the first pass.
+  dl.replaceChildren();
+  for(const [k,v,mark]of rows){
+   const dt2=document.createElement('dt');dt2.textContent=tt(k);
+   const dd=document.createElement('dd');dd.textContent=v;if(mark)dd.className=mark;
+   dl.append(dt2,dd);
+  }
+ }
  $('systemNote').textContent=systems[state.system].columnFree?tt('sys.free'):tt('sys.grid');
  $('regimeNote').textContent=tt('regime.frame')+' '+tt('regime.'+state.regime+'.reads')+' — '+tt('regime.'+state.regime+'.note');
  const alias=$('regimeAlias');
@@ -148,17 +223,18 @@ function changed(){
 
 /* ── update ───────────────────────────────────────────────────────────── */
 const DESKS=[['brief',BRIEF_I18N,renderBrief],['walk',WALK_I18N,renderWalk],['context',CONTEXT_I18N,renderContext]];
-function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textContent=dict[lang].title;if($(id+'Panel').open)render({lang,state,changed:applyDeskPatch,onInputs:()=>{consoleUI?.render();drawTower();syncPlace()}})}}
+function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textContent=dict[lang].title;if($(id+'Panel').open)render({lang,state,changed:applyDeskPatch,onInputs:()=>{consoleUI?.render();drawTower()}})}}
 for(const [id]of DESKS)$(id+'Panel').addEventListener('toggle',()=>{if($(id+'Panel').open)renderDesks()});
 function applyDeskPatch(patch){
  for(const [key,value]of Object.entries(patch)){
   if(key in schema){const[,min,max,step]=schema[key];if(Number.isFinite(value)){const bounded=Math.max(min,Math.min(max,value));state[key]=Math.round((min+Math.round((bounded-min)/step)*step)*1e6)/1e6}}
 
   else if(key==='solarTime'){if(validSolar({...state,solarTime:value}))state.solarTime=value}
-  else if(['family','program','skin','system','city'].includes(key)){
-   const allowed={family:families,program:levelPrograms,skin:facadeFamilies,system:systems,city:cities};
+  else if(['family','program','skin','system','city','material','crown','garden','detail'].includes(key)){
+   const allowed={family:families,program:levelPrograms,skin:facadeFamilies,system:systems,city:cities,material:MATERIALS,crown:CROWNS,garden:GARDENS,detail:DETAILS};
    if(Object.hasOwn(allowed[key],value))state[key]=value;
   }
+  else if(key==='led')state.led=!!value;
  }
  if('height'in patch)state.program='custom';changed();
 }
@@ -194,8 +270,48 @@ function update(){
  $('yield').textContent=money(metrics.yieldOnCost);
  $('facadeCost').textContent=money(metrics.facadeCost);
  $('structureCost').textContent=money(metrics.structureCost);
+ // The capital stock. Deliberately not styled as a second headline: it is paid
+ // once and the contribution is a yearly flow, so putting them side by side as
+ // equals would invite the reader to add them. The ratio carries a year in it.
+ $('capex').textContent=money(metrics.capex);
+ $('capexPerM2').textContent=num(metrics.capexPerM2)+' '+tt('m.perSqM');
+ $('capexRatio').textContent=Number.isFinite(metrics.payback)?metrics.payback.toFixed(1)+' '+tt('m.yr'):tt('m.capexRatioNone');
+ // The crown and the terrace. Printed separately from the rent lines because
+ // neither is rent: one is a structure that costs money and occupies height, the
+ // other is area that stopped earning. Only the LED line is income, and it is
+ // labelled as advertising where it is shown.
+ $('crownHeight').textContent=metrics.crownHeight.toFixed(1)+' m';
+ $('towerHeight').textContent=metrics.heightTotal.toFixed(1)+' m';
+ $('crownReserve').textContent=money(metrics.crownReserve);
+ $('crownCapital').textContent=money(metrics.crownCapital);
+ $('gardenArea').textContent=num(metrics.gardenArea)+' '+tt('m.perSqM');
+ $('gardenReserve').textContent=money(metrics.gardenReserve);
+ $('ledIncome').textContent=metrics.ledArea>0?money(metrics.ledRent):tt('m.ledOff');
+ if($('crownNote'))$('crownNote').textContent=tt('crown.reads.'+state.crown);
+ if($('gardenNote'))$('gardenNote').textContent=tt('garden.reads.'+state.garden);
+ if($('ledNote'))$('ledNote').textContent=metrics.ledArea>0?tt('m.ledNote'):tt('m.ledOffNote');
  $('modelName').textContent=tt('f.'+state.family)+' / '+state.floors;
- $('heightLabel').textContent=metrics.height.toFixed(1)+' m';
+ // The header states the building's height, and the building includes its crown.
+ // Reading the occupied height here while the allowance is tested on the total
+ // would put two different heights under one label.
+ $('heightLabel').textContent=metrics.heightTotal.toFixed(1)+' m';
+ // The question the cityscape answers, stated in a number: where this tower
+ // ranks against the buildings actually standing around this plot. Not a claim
+ // about the world's skylines — only about what OpenStreetMap has mapped inside
+ // the harvested radius, which the sentence says out loud.
+ if($('skylineReadout')){
+  const sk=skyline(state.city,metrics.heightTotal);
+  const el=$('skylineReadout');
+  el.hidden=!sk;
+  if(sk){
+   const vars={where:tt('sun.'+state.city),rank:sk.rank,total:sk.count,
+    tall:sk.localMax.toFixed(0),measured:Math.round(sk.measuredFraction*100)};
+   const first=document.createElement('span');first.textContent=tt('v.skyline',vars);
+   const cred=document.createElement('span');cred.className='sky-credit';
+   cred.textContent=tt('v.skycredit',vars);
+   el.replaceChildren(first,cred);
+  }
+ }
  // Sheet identification, in the sense the U.S. National CAD Standard gives it:
  // the drawing names itself so it can be referred to unambiguously.
  $('tbRef').textContent='A-101 · '+tt('f.'+state.family).toUpperCase()+' · '+state.floors+'L';
@@ -204,10 +320,13 @@ function update(){
  const d=bm.contribution>0?(metrics.contribution/bm.contribution-1)*100:NaN;
  $('delta').textContent=Number.isFinite(d)?`${d>=0?'+':''}${d.toFixed(1)}% ${tt('m.delta')}${bm.valid?'':' ('+tt('m.deltaBad')+')'}`:tt('m.deltaBad');
  if($('phoneContribution')){$('phoneContributionLabel').textContent=$('contributionLabel').textContent;$('phoneContribution').textContent=$('contribution').textContent;$('phoneDelta').textContent=Number.isFinite(d)?`${d>=0?'+':''}${d.toFixed(1)}%`:'';}
- syncPlace();
 
  $('feasibility').className=metrics.valid?'valid':'invalid';
- $('feasibility').textContent=metrics.valid?tt('m.feasible'):metrics.reasons.map(r=>tt('m.reason.'+r)).join(' · ');
+ // Two different checks answer to "does this fit the plot". This one is the
+ // form: the generated geometry against envelope, height, core and levels.
+ // The Brief desk measures area against the FAR allowance. Both name their
+ // subject, so agreement between them is never mistaken for a single verdict.
+ $('feasibility').textContent=tt('m.chk.form')+' · '+(metrics.valid?tt('m.feasible'):metrics.reasons.map(r=>tt('m.reason.'+r)).join(' · '));
 
  renderPremiums();
  $('floor').max=state.floors;
@@ -228,39 +347,6 @@ function ruleMark(fraction){
  for(let i=0;i<=10;i++){const tx=(1+158*i/10).toFixed(1);ticks+=`M${tx} ${i%5?8:4}V14`;}
  svg.innerHTML=`<path d="M1 11H159" fill="none" stroke="currentColor" stroke-width="1"/><path d="${ticks}" fill="none" stroke="currentColor" stroke-width="1"/><path d="M${x} 1V15" fill="none" stroke="currentColor" stroke-width="1.6"/>`;
  return svg;
-}
-function syncPlace(){
- const sel=$('placeCase');if(!sel||!metrics)return;
- const brief=getBriefStudy(state).inputs,locale=lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US';
- const n=v=>Math.round(v).toLocaleString(locale);
- const ids=[...PLACE_ORDER,...Object.keys(cities).filter(id=>!PLACE_ORDER.includes(id))];
- const sig=lang+'|'+ids.join(',');
- if(sel.dataset.sig!==sig){
-  sel.replaceChildren();
-  for(const id of ids){
-   const o=document.createElement('option');o.value=id;
-   const suf=PLACE_SUFFIX[id],c=CONTEXT_I18N[lang]||CONTEXT_I18N.en;
-   o.textContent=suf?tt('place.option',{country:c['country'+suf],city:c['city'+suf],neighbourhood:c['neigh'+suf],building:c['name'+suf]}):tt('place.optionNone',{country:tt('place.country.'+id),city:tt('sun.'+id)});
-   sel.append(o);
-  }
-  sel.dataset.sig=sig;
-  sel.onchange=()=>{if(cities[sel.value]){state.city=sel.value;changed()}};
- }
- if(sel.value!==state.city)sel.value=state.city;
- $('placeLabel').textContent=tt('place.label');
- const plot=brief.plot,far=brief.far,allowance=plot*far,site=CONTEXT_SITES[state.city];
- const farText=Number(far).toLocaleString(locale,{maximumFractionDigits:1});
- if(site){
-  const c=CONTEXT_I18N[lang]||CONTEXT_I18N.en,suf=PLACE_SUFFIX[state.city];
-  const height=Number.isInteger(site.height)?String(site.height):site.height.toFixed(1);
-  $('placeFacts').textContent=tt('place.facts',{country:c['country'+suf],city:c['city'+suf],neighbourhood:c['neigh'+suf],building:c['name'+suf],address:c['addr'+suf],floors:site.floors,height,gross:site.gross?tt('place.gross',{area:n(site.gross)}):'',plot:n(plot),far:farText,allowance:n(allowance),model:n(metrics.gross)})+(state.city==='shenzhen'?tt('place.caution',{height}):'');
-  const gift=$('placeGift');gift.hidden=state.city!=='shenzhen';gift.textContent=state.city==='shenzhen'?tt('place.gift'):'';
-  const src=$('placeSource'),line=$('placeSourceLine');line.hidden=false;src.href=site.source;src.textContent=tt('place.source');
- }else{
-  $('placeFacts').textContent=tt('place.none',{country:tt('place.country.'+state.city),city:tt('sun.'+state.city),plot:n(plot),far:farText,allowance:n(allowance),model:n(metrics.gross)});
-  $('placeGift').hidden=true;$('placeGift').textContent='';$('placeSourceLine').hidden=true;
- }
- $('placeEconomy').textContent=tt('place.econ',{contribution:money(metrics.contribution),rent:money(metrics.rent),envelope:money(metrics.facadeCost),structure:money(metrics.structureCost),skin:n(metrics.facade),base:econ.structureBase,mult:metrics.structureMultiplier.toFixed(2)});
 }
 function renderPremiums(){
  const b=metrics.breakdown,rows=[
@@ -343,23 +429,100 @@ const canvas=$('tower'),ctx=canvas.getContext('2d');
 function drawTower(){
  if(!metrics)return;
  const st=stack(state),total=st[st.length-1].z+st[st.length-1].h;
+ const crown=crownOf(state),chH=crown.h,ext=total+chH;
  const W=canvas.clientWidth,H=canvas.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
  if(W<2||H<2)return;
  drawn={w:Math.round(W),h:Math.round(H)};
  canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
- const scale=Math.min(Math.max(25,H-145)/(total*.96+state.span*.4),(W-65)/(state.span*2))*zoom;
+ const scale=Math.min(Math.max(25,H-145)/(ext*.96+state.span*.4),(W-65)/(state.span*2))*zoom;
  const c=Math.cos(yaw),s=Math.sin(yaw);
  const project=(x,y,z)=>{const rx=x*c-y*s,ry=x*s+y*c;return[W*.54+rx*scale,H*.80-(z*.96-ry*.36)*scale,ry-z*.04]};
  function path(pts,fill,stroke,width=1){ctx.beginPath();pts.forEach((v,i)=>{const p=project(...v);if(i)ctx.lineTo(p[0],p[1]);else ctx.moveTo(p[0],p[1])});ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke()}}
  function line(a,b,col,width=.6){ctx.beginPath();const p=project(...a),q=project(...b);ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.strokeStyle=col;ctx.lineWidth=width;ctx.stroke()}
 
- for(let i=-120;i<=120;i+=12){line([i,-120,0],[i,120,0],'#293136',.5);line([-120,i,0],[120,i,0],'#293136',.5)}
- const landArea=getBriefStudy(state).inputs.plot,landSide=Math.sqrt(landArea)/2;ctx.setLineDash([6,4]);path([[-landSide,-landSide,0],[landSide,-landSide,0],[landSide,landSide,0],[-landSide,landSide,0]],null,'#f59e0b',1.5);ctx.setLineDash([]);ctx.fillStyle='#f59e0b';ctx.font='11px "IBM Plex Mono",monospace';ctx.fillText(num(landArea)+' m²',16,H-78);
+ // Fetched here, above every use, rather than where it is first drawn. Declared
+ // at the point of use it reads as a local convenience; declared before the grid
+ // it is what the whole drawing is measured against.
+ const city=cityData(state.city);
+ const massings=city?visibleMassings(city,scale,1.4):[];
+
+ /* The bottom band is in flow now, so its height is whatever the language, the
+    width and the current figures make it. Canvas annotations are positioned in
+    pixels, so they are positioned against that measured edge rather than a
+    constant: a fixed offset prints the land area and the axis triad straight
+    through the title block the moment the sheet gets short.
+
+    "In flow" means not absolutely or fixed positioned — not "static". The band
+    has to be position:relative to paint above the out-of-flow canvas, and
+    relative is still in flow. Testing for static here quietly returned an empty
+    list and dropped footInset to zero, so the annotations would have landed on
+    top of the band they were written to clear. */
+ const bandEl=document.querySelector('.viewport');
+ const vpRect=bandEl.getBoundingClientRect();
+ const bandTop=[...bandEl.children]
+  .filter(c=>!['absolute','fixed'].includes(getComputedStyle(c).position))
+  .map(c=>c.getBoundingClientRect())
+  .filter(b=>b.height>0)
+  .map(b=>b.top-vpRect.top);
+ const footInset=bandTop.length?Math.max(0,H-Math.min(...bandTop)):0;
+
+ // Fine grid where the plot is read, coarse grid where the city is. A single
+ // 12 m grid across 700 m would be 117 lines each way and would bury the tower
+ // in ruling; a site plan gets this right by changing weight, not density.
+ const gridR=city?city.radius:120;
+ for(let i=-150;i<=150;i+=12){line([i,-150,0],[i,150,0],'#293136',.5);line([-150,i,0],[150,i,0],'#293136',.5)}
+ if(gridR>150)for(let i=Math.ceil(-gridR/100)*100;i<=gridR;i+=100){
+  if(i>-150&&i<150)continue;
+  line([i,-gridR,0],[i,gridR,0],'#1d2429',.5);line([-gridR,i,0],[gridR,i,0],'#1d2429',.5);
+ }
+ const landArea=getBriefStudy(state).inputs.plot,landSide=Math.sqrt(landArea)/2;ctx.setLineDash([6,4]);path([[-landSide,-landSide,0],[landSide,-landSide,0],[landSide,landSide,0],[-landSide,landSide,0]],null,'#f59e0b',1.5);ctx.setLineDash([]);ctx.fillStyle='#f59e0b';ctx.font='11px "IBM Plex Mono",monospace';ctx.fillText(num(landArea)+' m²',16,H-footInset-14);
  const site=state.site/2;path([[-site,-site,0],[site,-site,0],[site,site,0],[-site,site,0]],null,'#a2aca9',1);
- for(const[x,y,w,h]of[[-65,34,20,38],[48,53,22,62],[63,-42,19,27],[-50,-52,24,21]]){
-  path([[x-w/2,y-w/2,0],[x+w/2,y-w/2,0],[x+w/2,y-w/2,h],[x-w/2,y-w/2,h]],'#151b1e','#354046',.6);
-  path([[x-w/2,y-w/2,h],[x+w/2,y-w/2,h],[x+w/2,y+w/2,h],[x-w/2,y+w/2,h]],'#1b2326','#354046',.6);
-  line([x+w/2,y+w/2,0],[x+w/2,y+w/2,h],'#354046')}
+
+ /* The city. Real footprints and real heights from OpenStreetMap, harvested
+    around this plot and baked into the release. The tower is not floating in a
+    void any more: it stands on a surveyed ground with a surveyed skyline
+    around it, which is the only way to read whether the thing is too big for
+    its place.
+
+    Depth-sorted back to front and split either side of the tower, so a block
+    between the camera and the model correctly stands in front of it. The old
+    four boxes were always behind, which is why no amount of orbiting ever made
+    the composition read as a place. */
+
+ const towerHalf=(state.span/2+8)*(Math.abs(c)+Math.abs(s));
+ const cityFar=[],cityNear=[];
+ for(const m of massings){
+  const d=((m[0]+m[2])/2)*s+((m[1]+m[3])/2)*c;
+  (d>towerHalf?cityNear:cityFar).push(m);
+ }
+ cityFar.sort((a,b)=>((a[0]+a[2])/2*s+(a[1]+a[3])/2*c)-((b[0]+b[2])/2*s+(b[1]+b[3])/2*c));
+ cityNear.sort((a,b)=>((b[0]+b[2])/2*s+(b[1]+b[3])/2*c)-((a[0]+a[2])/2*s+(a[1]+a[3])/2*c));
+ // Stroke brightness carries height, so the skyline reads as a skyline: the tall
+ // ones are the ones you see first. A height inferred from a level count is
+ // drawn a shade dimmer than a surveyed one, because it is a weaker claim and
+ // the reader is entitled to know which is which.
+ // Brightness carries height, so a skyline reads as a skyline. The first ramp
+ // was dark enough that the blocks vanished into the ground plate and the tower
+ // looked like it was standing in a void again — which is the exact problem the
+ // cityscape was added to solve.
+ const inkFor=h=>h>=120?'#6c818c':h>=60?'#5a6b75':h>=25?'#495761':h>=12?'#3c4950':'#333e45';
+ function drawCity(list){
+  for(const[x1,y1,x2,y2,h]of list){
+   const ink=inkFor(h);
+   path([[x1,y1,0],[x2,y1,0],[x2,y1,h],[x1,y1,h]],'#1b242a',ink,.7);
+   path([[x1,y1,h],[x2,y1,h],[x2,y2,h],[x1,y2,h]],'#232f36',ink,.7);
+   path([[x1,y2,0],[x2,y2,0],[x2,y2,h],[x1,y2,h]],null,ink,.7);
+   if(h>=40)line([x1,y2,h],[x2,y2,h],ink,.8);
+  }
+ }
+ if(city){
+  // The harvested ground. Not a backdrop: this is the area the footprints
+  // actually cover, and its edge is where the data stops.
+  ctx.beginPath();
+  for(let i=0;i<=72;i++){const a=i/72*Math.PI*2,p=project(Math.cos(a)*city.radius,Math.sin(a)*city.radius,0);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}
+  ctx.closePath();ctx.fillStyle='#0a0d10';ctx.fill();ctx.strokeStyle='#232c32';ctx.lineWidth=1;ctx.stroke();
+  drawCity(cityFar);
+ }
 
  const n=profile(state,0).length;
  const faces=[];
@@ -374,17 +537,57 @@ function drawTower(){
   }
  }
  faces.sort((a,b)=>a.depth-b.depth);
+ // The face wears the material. It used to wear a computed grey that only
+ // encoded which of the four walls it was, which made every choice of
+ // cladding look identical from across the room.
+ const mat=materialOf(state);
  for(const f of faces){
-  let base=f.voided?20:f.retail?44:36;
-  base+=Math.round(((f.i%4)/3)*13);
-  const fill=f.voided?'#2a3236':f.retail?`rgb(${base+14},${base+9},${base})`:`rgb(${base},${base+9},${base+12})`;
-  path(f.pts,wireframe?null:fill,wireframe?(f.voided?'#4a5459':'#6a797e'):(f.voided?'#4a5459':'#6c7c8260'),wireframe?.4:.45);
+  const fill=f.voided?'#2a3236':mat.fill;
+  path(f.pts,wireframe?null:fill,wireframe?(f.voided?'#4a5459':'#6a797e'):(f.voided?'#4a5459':mat.edge+'70'),wireframe?.4:.45);
+ }
+ // Material joints: drawn on the faces that are lit, in the material's own ink.
+ if(!wireframe){
+  const cols=6,rows=Math.max(2,Math.min(14,Math.round(st.length*8/48)));
+  for(const f of faces){
+   if(f.voided)continue;
+   const o=f.pts[0],px=[f.pts[1][0]-o[0],f.pts[1][1]-o[1]],py=[f.pts[3][0]-o[0],f.pts[3][1]-o[1]];
+   for(const seg of surfacePattern(state,cols,rows)){
+    if(seg[0]==='v')line([o[0]+px[0]*seg[1],o[1]+px[1]*seg[1],o[2]],[o[0]+px[0]*seg[1]+py[0],o[1]+px[1]*seg[1]+py[1],o[2]+py[2]],mat.edge+'55',.4);
+    else if(seg[0]==='h')line([o[0]+py[0]*seg[1],o[1]+py[1]*seg[1],o[2]+py[2]*seg[1]],[o[0]+py[0]*seg[1]+px[0],o[1]+py[1]*seg[1]+px[1],o[2]+py[2]*seg[1]+px[0]*0+px[0],o[2]],mat.edge+'55',.4);
+    else line([o[0]+px[0]*seg[1],o[1]+px[1]*seg[1],o[2]],[o[0]+px[0]*seg[1]+py[0],o[1]+px[1]*seg[1]+py[1],o[2]+py[2]],mat.edge+'40',.35);
+   }
+  }
  }
 
  // level lines: the stored schedule, drawn where the schedule puts them
  for(const l of st){
   const p=profile(state,l.z/total);
   path(p.map(v=>[...v,l.z]),null,l.gfa?'#a2aca960':'#f59e0b99',l.gfa?.6:1.4);
+ }
+
+ // ── the sky terraces ──────────────────────────────────────────────────────
+ // A level that gave part of its plate to open air is drawn as a floor plate
+ // with the remainder hatched, so the reader can see which square metres were
+ // taken out and which are still for sale. A whole-floor setback draws as an
+ // empty band in the shaft with the deck edge on top of it.
+ if(!wireframe)for(const l of st){
+  if(!(l.garden>0))continue;
+  const p=profile(state,l.z/total),kept=l.frac;
+  path(p.map(v=>[...v,l.z]),'#1d2a24','#3f7d5e',.7);
+  if(kept>0){
+   // The plate that survives, inset by the share that was given away, hatched
+   // at 45° so it reads as "kept" against the empty deck beside it.
+   ctx.save();ctx.beginPath();
+   p.forEach((v,i)=>{const q=project(v[0],v[1],l.z);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});
+   ctx.closePath();ctx.clip('evenodd');
+   ctx.strokeStyle='#f59e0b70';ctx.lineWidth=.6;
+   const R=Math.max(p.reduce((a,v,i)=>Math.max(a,Math.hypot(v[0]-p[0][0],v[1]-p[0][1])),0),1);
+   for(let d=-R*2;d<R*2;d+=7){
+    const A=project(-R+d,-R,l.z),B=project(R+d,R,l.z);
+    ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(B[0],B[1]);ctx.stroke()}
+   ctx.restore();
+  }
+  path(p.map(v=>[...v,l.z]),null,'#4fae7d',1.1);
  }
 
  const sk=state.skin;
@@ -433,23 +636,92 @@ function drawTower(){
  const cc=state.core/2;
  path([[-cc,-cc,total+.2],[cc,-cc,total+.2],[cc,cc,total+.2],[-cc,cc,total+.2]],'#414d51','#a2aca9',.7);
 
+ // ── the crown ─────────────────────────────────────────────────────────────
+ // Drawn from crownPlates(), the same table the height and the reserve are
+ // computed from. A renderer that drew its own approximation could disagree with
+ // the arithmetic, and the whole value of a crown is that it spends real height.
+ if(chH>0&&crownPlates(crown).length>1){
+  const plates=crownPlates(crown);
+  const ring=f=>profile(state,1).map(v=>[v[0]*f,v[1]*f]);
+  const led=!!state.led;
+  for(let k=0;k<plates.length-1;k++){
+   const A=ring(plates[k].f),B=ring(plates[k+1].f);
+   const z0=total+plates[k].t*chH,z1=total+plates[k+1].t*chH;
+   for(let i=0;i<A.length;i++){
+    const j=(i+1)%A.length;
+    const pts=[[...A[i],z0],[...A[j],z0],[...B[j],z1],[...B[i],z1]];
+    const depth=pts.reduce((v,q)=>v+project(...q)[2]/4,0);
+    path(pts,led?'#5a4410':'#5a666b',led?'#f59e0b':'#aab4b7',led?1.3:.7);
+   }
+  }
+  const top=ring(plates[plates.length-1].f);
+  path(top.map(v=>[...v,total+chH]),led?'#5a4410':'#67737a',led?'#f59e0b':'#cbd4d6',led?1.6:1);
+ }
+ // An aviation mast carries obstruction lighting. It is drawn as a mark on the
+ // sky, not as structure, because that is the only claim being made about it.
+ if(crown.draw==='mast'&&chH>0){
+  const top=profile(state,1).map(v=>[v[0]*crownPlates(crown).at(-1).f,v[1]*crownPlates(crown).at(-1).f]);
+  const cx=top.reduce((a,v)=>[a[0]+v[0]/top.length,a[1]+v[1]/top.length],[0,0]);
+  line([cx[0],cx[1],total+chH],[cx[0],cx[1],total+chH+chH*.22],'#f59e0b',1.8);
+ }
+ // The half of the city between the camera and the model, drawn last so it
+ // stands in front of the tower rather than through it. Without this the whole
+ // city would sit behind and every orbit would look identical.
+ if(city&&cityNear.length)drawCity(cityNear);
+
  // Height dimension on the right, graduated every 50 m — the convention every
  // elevation in the world already uses. It sits in a gutter clear of the view
  // tools rather than under them. The overall figure is not repeated here: the
  // head of the viewport already states it, and saying it twice is the same
  // duplication a drawing is supposed to prevent.
+ //
+ // It measures the crown. A drawing whose dimension stops at the roof while the
+ // rail reports a taller building is a drawing that disagrees with its own
+ // figures, and the crown is precisely the part of the tower a height allowance
+ // is spent on. The roof is marked separately so the occupied height is still
+ // readable without a second dimension line.
  const gut=W>900?92:70;
- const rX=W-gut,rY=H*.80;ctx.strokeStyle='#59666b';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(rX,rY);ctx.lineTo(rX,rY-total*.96*scale);ctx.stroke();
+ const rX=W-gut,rY=H*.80;ctx.strokeStyle='#59666b';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(rX,rY);ctx.lineTo(rX,rY-ext*.96*scale);ctx.stroke();
  ctx.font='11px "IBM Plex Mono",monospace';ctx.fillStyle='#a2aca9';ctx.textAlign='right';
- for(let m=0;m<=total;m+=50){const y=rY-m*.96*scale;ctx.beginPath();ctx.moveTo(rX-5,y);ctx.lineTo(rX+4,y);ctx.stroke();ctx.fillText(m+' m',rX-9,y-4)}
- const yTop=rY-total*.96*scale;
+ // The graduation step is chosen against the space that actually exists rather
+ // than fixed at 50 m. On a short viewport 50 m ticks land 30 px apart and the
+ // figures collide with each other, which is unreadable in a way a missing label
+ // is not. Round the step up to the next 50/100/200 until the labels clear.
+ const dimH=Math.max(1,ext*.96*scale);
+ const step=dimH<190?200:dimH<420?100:50;
+ for(let m=0;m<=ext;m+=step){const y=rY-m*.96*scale;ctx.beginPath();ctx.moveTo(rX-5,y);ctx.lineTo(rX+4,y);ctx.stroke();ctx.fillText(m+' m',rX-9,y-4)}
+ const yTop=rY-ext*.96*scale;
  ctx.strokeStyle='#a2aca9';ctx.beginPath();ctx.moveTo(rX,yTop);ctx.lineTo(rX+9,yTop);ctx.stroke();
- ctx.textAlign='left';ctx.fillStyle='#f59e0b';
+ if(chH>0){const yRoof=rY-total*.96*scale;
+  ctx.strokeStyle='#f59e0b';ctx.beginPath();ctx.moveTo(rX-11,yRoof);ctx.lineTo(rX+4,yRoof);ctx.stroke();
+  ctx.fillStyle='#f59e0b';ctx.fillText(total.toFixed(0)+' m roof',rX-9,yRoof+13);ctx.fillStyle='#a2aca9'}
+ // The selected-storey label is drawn inside the gutter, never across it. It
+ // used to start at a clamped x and run rightwards from there, which on a narrow
+ // sheet put "PLAN24 · +100.8 m" straight through the height dimension.
+ //
+ // It also carries a knockout, the way a dimension is lettered on a real
+ // drawing: the label sits over the tower, and amber text straight on a curtain
+ // wall is not a label, it is noise. A solid plate in the sheet's own ground
+ // colour keeps the datum legible without moving it off the storey it names.
+ const label=LANGS.plan[lang]+(fi+1)+' · +'+(lvl.z+state.height*0).toFixed(1)+' m';
+ const lw=ctx.measureText(label).width;
  const pp=project(...slab.reduce((a,v)=>v[0]>a[0]?v:a,slab[0]),lvl.z);
+ const lx=pp[0]+12+lw<rX-14?pp[0]+12:Math.min(rX-14-lw,W-6);
+ ctx.fillStyle='#111416';
+ ctx.fillRect(lx-3,pp[1]-5-9,lw+6,13);
+ ctx.fillStyle='#f59e0b';
+ ctx.textAlign='left';ctx.fillText(label,lx,pp[1]-5);
  ctx.fillRect(pp[0],pp[1],5,5);
- ctx.fillText(LANGS.plan[lang]+(fi+1)+' · +'+(lvl.z+state.height*0).toFixed(1)+' m',Math.min(pp[0]+12,W-92),pp[1]-5);
 
- const origin=[W-60,H-65];ctx.strokeStyle='#a2aca9';ctx.fillStyle='#a2aca9';
+ /* The axis triad lives in the bottom-right corner of the sheet, which is also
+    where the view foot's right-hand label sits — "metres", or its Thai and
+    Chinese equivalents, at whatever width that language makes it. A fixed
+    W-60 therefore lands the X arm on top of the label in English and clears it
+    in Thai. Measure the label, then stand the triad to its left; the same rule
+    as footInset, applied to a sibling whose width the drawing does not control. */
+ const footLabel=[...document.querySelectorAll('.viewfoot span')].pop();
+ const labelRight=footLabel?footLabel.getBoundingClientRect().right-bandEl.getBoundingClientRect().left:W-18;
+ const origin=[Math.min(W-18,labelRight)-16,H-footInset-16];ctx.strokeStyle='#a2aca9';ctx.fillStyle='#a2aca9';
  for(const[dx,dy,label]of[[25,8,'X'],[-18,12,'Y'],[0,-26,'Z']]){ctx.beginPath();ctx.moveTo(...origin);ctx.lineTo(origin[0]+dx,origin[1]+dy);ctx.stroke();ctx.fillText(label,origin[0]+dx-4,origin[1]+dy+(dy<0?-4:13))}
 }
 let drag=null;
@@ -538,12 +810,17 @@ function finishSearch(results,plan,objective,elapsed){
 /* ── studies ──────────────────────────────────────────────────────────── */
 // Own keys only: an inherited name such as 'constructor' would otherwise pass and turn every metric into NaN.
 const own=(o,k)=>typeof k==='string'&&Object.hasOwn(o,k);
-function validState(x){return x&&own(families,x.family)&&own(levelPrograms,x.program)&&own(facadeFamilies,x.skin)&&own(systems,x.system)&&own(regimes,x.regime)
+function validState(x){return x&&own(families,x.family)&&own(levelPrograms,x.program)&&own(facadeFamilies,x.skin)&&own(MATERIALS,x.material)&&own(CROWNS,x.crown)&&own(GARDENS,x.garden)&&own(DETAILS,x.detail)&&own(systems,x.system)&&own(regimes,x.regime)
  &&validSolar({...solarDefaults,...x})&&Object.keys(schema).every(k=>Number.isFinite(k==='orientation'?(x[k]??0):x[k])&&(k==='span'?x[k]>0&&x[k]<300:(x[k]??0)>=schema[k][1]&&(x[k]??0)<=schema[k][2]))}
 // The rebrand renamed both keys. Fall back to the old ones so a language
 // choice and a study shelf saved under the previous name survive it.
 const readStore=k=>{try{return localStorage.getItem(k)}catch{return null}};
-try{const data=JSON.parse(readStore('formHypesStudies')??readStore('formYieldStudies')??'[]');studies=Array.isArray(data)?data.filter(x=>x&&validState(x.state)).slice(0,8):[]}catch{studies=[]}
+// Studies saved before the crown and the terrace existed carry no record of
+// either. Filling in the control values is the honest reading of such a study —
+// it was made with a flat roof and no terrace — and rejecting it would throw
+// away the reader's own work because the model grew two switches.
+const withDefaults=x=>{const y={...defaults,...x};if(!own(CROWNS,y.crown))y.crown='flat';if(!own(GARDENS,y.garden))y.garden='none';if(!own(DETAILS,y.detail))y.detail='drained-cavity';if(typeof y.led!=='boolean')y.led=false;return y};
+try{const data=JSON.parse(readStore('formHypesStudies')??readStore('formYieldStudies')??'[]');studies=Array.isArray(data)?data.map(s=>s&&s.state?{...s,state:withDefaults(s.state)}:s).filter(x=>x&&validState(x.state)).slice(0,8):[]}catch{studies=[]}
 function persist(){try{localStorage.setItem('formHypesStudies',JSON.stringify(studies));return true}catch{return false}}
 function renderStudies(){
  $('savedStudies').replaceChildren();
@@ -1272,16 +1549,17 @@ function download(name,content,type){
 }
 $('exportObj').onclick=()=>download('formhypes-'+state.family+'.obj',meshOBJ(state),'text/plain');
 $('exportJson').onclick=()=>download('formhypes-study.json',JSON.stringify({
- version:3,units:{length:'m',area:'m²',currency:'USD',rent:'USD/m²/year'},tier:'conceptual scenario',
+ version:3,units:{length:'m',area:'m²',currency:'USD',rent:'USD/m²/year',capex:'USD paid once'},tier:'conceptual scenario',
  author:'Dr Non',affiliation:'depa + Axiom',anniversary:'2006–2026',
  source:'Inspired by Dr Non’s MIT classmate Shouheng Chen. Embedded design knowledge after Shouheng Chen, MIT SMArchS 2006. Financial and political readings are extensions.',
  contextStudies:{ground:getLocationStudy(),fengShui:getFengStudy(),brief:getBriefStudy(state),walk:getWalkStudy()},
  regime:regimes[state.regime].label,state,metrics,createdAt:new Date().toISOString()},null,2),'application/json');
 $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
- 'family,regime,structure,floors,span_m,roof_scale,twist_deg,gross_m2,rentable_m2,corner_offices,height_m,distinctiveness,annual_rent_usd,envelope_reserve_usd,structure_reserve_usd,annual_contribution_usd',
+ 'family,regime,structure,floors,span_m,roof_scale,twist_deg,gross_m2,rentable_m2,corner_offices,height_m,distinctiveness,annual_rent_usd,envelope_reserve_usd,structure_reserve_usd,annual_contribution_usd,capex_usd,capex_per_gross_m2,capital_over_contribution_years',
  ...alternatives.map(r=>[r.state.family,r.state.regime,r.state.system,r.state.floors,r.state.span.toFixed(4),r.state.taper,r.state.twist,
   r.metrics.gross.toFixed(2),r.metrics.rentable.toFixed(2),r.metrics.corners,r.metrics.height.toFixed(2),r.metrics.distinctiveness.toFixed(4),
-  r.metrics.rent.toFixed(2),r.metrics.facadeCost.toFixed(2),r.metrics.structureCost.toFixed(2),r.metrics.contribution.toFixed(2)].join(','))
+  r.metrics.rent.toFixed(2),r.metrics.facadeCost.toFixed(2),r.metrics.structureCost.toFixed(2),r.metrics.contribution.toFixed(2),
+  r.metrics.capex.toFixed(2),r.metrics.capexPerM2.toFixed(2),(Number.isFinite(r.metrics.payback)?r.metrics.payback.toFixed(2):'')].join(','))
 ].join('\n'),'text/csv');
 
 /* ── tabs ─────────────────────────────────────────────────────────────── */

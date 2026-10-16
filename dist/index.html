@@ -15,8 +15,8 @@
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="720">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="style.css?v=92288920fb">
-<link rel="stylesheet" href="console.css?v=847e58b64d">
+<link rel="stylesheet" href="style.css?v=39957eaad5">
+<link rel="stylesheet" href="console.css?v=4d67f4feaf">
 <link rel="stylesheet" href="desks.css?v=56cca43fba">
 </head>
 <body>
@@ -39,14 +39,9 @@
 
 <main>
 
-<section id="placeContext" class="place-context" aria-labelledby="placeLabel">
-  <label id="placeLabel" for="placeCase">Place</label>
-  <select id="placeCase"></select>
-  <p id="placeFacts"></p>
-  <p id="placeGift" hidden></p>
-  <p id="placeEconomy"></p>
-  <p id="placeSourceLine" hidden><a id="placeSource" target="_blank" rel="noopener"></a></p>
-</section>
+<!-- The studio starts the page. There is deliberately no banner between here
+     and the instrument: the site dossier lives in the Place tab, the rent in
+     the right rail, and the allowance in the Brief tab. -->
 
 <!-- ── STUDIO ─────────────────────────────────────────────────────────── -->
 <section id="studio" class="tabpane on">
@@ -81,9 +76,32 @@
       <select id="skin"></select>
       <p class="note" id="skinNote"></p>
 
+      <label for="material" class="ctl" data-i18n="c.material">What it is made of</label>
+      <select id="material"></select>
+      <p class="note" id="materialNote"></p>
+      <div class="matstrip" id="matStrip" aria-hidden="true"></div>
+
+      <label for="detail" class="ctl" data-i18n="c.detail">How it is assembled</label>
+      <select id="detail"></select>
+      <p class="note" id="detailBasis"></p>
+      <div class="dsecwrap" id="detailFigure"></div>
+      <p class="note" id="detailNote"></p>
+      <dl class="spec" id="detailSpec"></dl>
+
       <label for="system" class="ctl" data-i18n="c.system">Structure</label>
       <select id="system"></select>
       <p class="note" id="systemNote"></p>
+
+      <label for="crown" class="ctl" data-i18n="c.crown">Crown</label>
+      <select id="crown"></select>
+      <p class="note" id="crownNote"></p>
+
+      <label for="garden" class="ctl" data-i18n="c.garden">Sky terrace</label>
+      <select id="garden"></select>
+      <p class="note" id="gardenNote"></p>
+
+      <label class="check" for="led"><input id="led" type="checkbox"><span data-i18n="c.led">LED advertisement surface</span></label>
+      <p class="note" id="ledNote"></p>
 
       <details class="sun-study" open><summary data-i18n="sun.title">Sun study</summary><div id="solarControls"><label for="city" data-i18n="sun.city">City</label><select id="city"></select><div class="solar-clock"><label for="solarDate"><span data-i18n="sun.date">Date</span><input id="solarDate" type="date" min="2000-01-01" max="2100-12-31"></label><label for="solarTime"><span data-i18n="sun.time">Local time</span><input id="solarTime" type="time"></label></div><div id="orientationControl"></div><p id="sunPosition" class="note" role="status"></p><p class="note" data-i18n="sun.note"></p></div></details>
       <details id="fengStudy"><summary id="fengTitle">Feng Shui playground</summary><div id="feng"></div></details>
@@ -115,6 +133,14 @@
         <span data-i18n="v.drag">Drag to orbit · ± to zoom</span>
         <span class="data" data-i18n="v.units">metres</span>
       </div>
+      <!-- Where the model ranks in the skyline it is standing in, and where that
+           skyline came from. It sits in the bottom band rather than floating
+           over the drawing: the band is in flow and the canvas measures it, so
+           this can never cover the model. As an absolutely-positioned plate it
+           printed straight across the tower's crown, which is the same mistake
+           as a dimension crossing the plan. A height inferred from a level count
+           is named as such, because it is a weaker claim than a surveyed one. -->
+      <p class="skyline-readout" id="skylineReadout"></p>
       <p id="phoneReadout" class="phone-readout"><span id="phoneContributionLabel"></span> <strong id="phoneContribution"></strong> <span id="phoneDelta"></span></p>
       <p class="mobileonly note" data-i18n="v.narrow">Built for a landscape laptop. On a narrow screen this console is cramped — rotate the device.</p>
 
@@ -133,36 +159,8 @@
       <div class="railhead"><h2 data-i18n="rail.performance">Form performance</h2><span class="data">02</span></div>
       <p class="note" data-i18n="m.scenario">Scenario estimate</p>
 
-      <div class="primarymetric">
-        <p id="contributionLabel" data-i18n="m.contribution">Annual contribution</p>
-        <strong id="contribution"></strong>
-        <p id="delta"></p>
-      </div>
-
-      <dl class="metrics">
-        <div><dt data-i18n="m.rent">Annual gross rent</dt><dd id="annualRent"></dd></div>
-        <div><dt data-i18n="m.gross">Gross floor area</dt><dd id="grossArea"></dd></div>
-        <div><dt data-i18n="m.rentable">Rentable area</dt><dd id="rentable"></dd></div>
-        <div><dt data-i18n="m.efficiency">Net / gross efficiency</dt><dd id="efficiency"></dd></div>
-        <div><dt data-i18n="m.corners">Corner offices</dt><dd id="corners"></dd></div>
-        <div><dt data-i18n="m.cornerArea">Premium office area</dt><dd id="cornerArea"></dd></div>
-        <div><dt data-i18n="m.distinct">Form distinctiveness</dt><dd id="distinct"></dd></div>
-        <div><dt data-i18n="m.clear">Clear height</dt><dd id="clearHeight"></dd></div>
-        <div><dt data-i18n="m.depth">Deepest daylight</dt><dd id="daylight"></dd></div>
-        <div class="derived"><dt data-i18n="m.skyReach">Sky reach <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="skyReach"></dd></div>
-        <div class="derived"><dt data-i18n="m.daylit">Plate within sky reach <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="daylit"></dd></div>
-        <div class="derived"><dt data-i18n="m.envelope">Envelope surface, integrated <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="facadeArea"></dd></div>
-        <div class="derived"><dt data-i18n="m.volume">Enclosed volume <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="volume"></dd></div>
-        <div class="derived"><dt data-i18n="m.frameRate">Frame cost vs reference plate <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="frameRate"></dd></div>
-        <div><dt data-i18n="m.voids">Levels surrendered to services</dt><dd id="voidLevels"></dd></div>
-        <div><dt data-i18n="m.headroom">Height allowance unused</dt><dd id="headroom"></dd></div>
-        <div><dt data-i18n="m.yield">Contribution / m² / year</dt><dd id="yield"></dd></div>
-        <div><dt data-i18n="m.facadeCost">Envelope reserve / year</dt><dd id="facadeCost"></dd></div>
-        <div><dt data-i18n="m.structureCost">Structure reserve / year</dt><dd id="structureCost"></dd></div>
-      </dl>
-
-      <div id="feasibility" role="status"></div>
-
+      <!-- Drawings first. The figures an architect reads off a sheet come before
+           the schedule; the schedule is on demand, one group at a time. -->
       <div id="premiumPanel">
         <h3 class="panelh" data-i18n="rail.rent">Where the rent comes from</h3>
         <div id="premiumBars"></div>
@@ -179,6 +177,78 @@
         <span><i class="core"></i><span data-i18n="p.legendCore">Fixed core</span></span>
       </div>
       <p class="note" id="floorStats"></p>
+
+      <div class="primarymetric">
+        <p id="contributionLabel" data-i18n="m.contribution">Annual contribution</p>
+        <strong id="contribution"></strong>
+        <p id="delta"></p>
+      </div>
+
+      <div id="feasibility" role="status"></div>
+
+      <details class="railgroup" id="grpArea">
+        <summary><span data-i18n="rail.g.area">Area and rent</span><span class="cnt">7</span></summary>
+        <dl class="metrics">
+          <div><dt data-i18n="m.rent">Annual gross rent</dt><dd id="annualRent"></dd></div>
+          <div><dt data-i18n="m.yield">Contribution / m² / year</dt><dd id="yield"></dd></div>
+          <div><dt data-i18n="m.gross">Gross floor area</dt><dd id="grossArea"></dd></div>
+          <div><dt data-i18n="m.rentable">Rentable area</dt><dd id="rentable"></dd></div>
+          <div><dt data-i18n="m.efficiency">Net / gross efficiency</dt><dd id="efficiency"></dd></div>
+          <div><dt data-i18n="m.corners">Corner offices</dt><dd id="corners"></dd></div>
+          <div><dt data-i18n="m.cornerArea">Premium office area</dt><dd id="cornerArea"></dd></div>
+        </dl>
+      </details>
+
+      <details class="railgroup" id="grpForm">
+        <summary><span data-i18n="rail.g.form">The form</span><span class="cnt">7</span></summary>
+        <dl class="metrics">
+          <div><dt data-i18n="m.distinct">Form distinctiveness</dt><dd id="distinct"></dd></div>
+          <div><dt data-i18n="m.clear">Clear height</dt><dd id="clearHeight"></dd></div>
+          <div><dt data-i18n="m.depth">Deepest daylight</dt><dd id="daylight"></dd></div>
+          <div class="derived"><dt data-i18n="m.skyReach">Sky reach <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="skyReach"></dd></div>
+          <div class="derived"><dt data-i18n="m.daylit">Plate within sky reach <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="daylit"></dd></div>
+          <div><dt data-i18n="m.voids">Levels surrendered to services</dt><dd id="voidLevels"></dd></div>
+          <div><dt data-i18n="m.headroom">Height allowance unused</dt><dd id="headroom"></dd></div>
+        </dl>
+      </details>
+
+      <details class="railgroup" id="grpSkin">
+        <summary><span data-i18n="rail.g.skin">Skin and structure</span><span class="cnt">5</span></summary>
+        <dl class="metrics">
+          <div class="derived"><dt data-i18n="m.envelope">Envelope surface, integrated <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="facadeArea"></dd></div>
+          <div class="derived"><dt data-i18n="m.volume">Enclosed volume <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="volume"></dd></div>
+          <div class="derived"><dt data-i18n="m.frameRate">Frame cost vs reference plate <span class="tag" data-i18n="m.derivedTag">derived</span></dt><dd id="frameRate"></dd></div>
+          <div><dt data-i18n="m.facadeCost">Envelope reserve / year</dt><dd id="facadeCost"></dd></div>
+          <div><dt data-i18n="m.structureCost">Structure reserve / year</dt><dd id="structureCost"></dd></div>
+        </dl>
+      </details>
+
+      <details class="railgroup" id="grpTop">
+        <summary><span data-i18n="rail.g.top">Crown and terrace</span><span class="cnt">6</span></summary>
+        <dl class="metrics">
+          <div><dt data-i18n="m.crownHeight">Crown height</dt><dd id="crownHeight"></dd></div>
+          <div><dt data-i18n="m.towerHeight">Tower height, crown included</dt><dd id="towerHeight"></dd></div>
+          <div><dt data-i18n="m.crownReserve">Crown reserve / year</dt><dd id="crownReserve"></dd></div>
+          <div><dt data-i18n="m.crownCapital">Crown structure, paid once</dt><dd id="crownCapital"></dd></div>
+          <div><dt data-i18n="m.gardenArea">Area given to open air</dt><dd id="gardenArea"></dd></div>
+          <div><dt data-i18n="m.gardenReserve">Terrace upkeep / year</dt><dd id="gardenReserve"></dd></div>
+        </dl>
+        <dl class="metrics">
+          <div><dt data-i18n="m.ledIncome">LED advertising / year</dt><dd id="ledIncome"></dd></div>
+        </dl>
+        <p class="note" id="ledNote"></p>
+      </details>
+
+      <details class="railgroup" id="grpCapital">
+        <summary><span data-i18n="rail.g.capital">Capital, paid once</span><span class="cnt">3</span></summary>
+        <dl class="metrics">
+          <div><dt data-i18n="m.capex">Capital cost, paid once</dt><dd id="capex"></dd></div>
+          <div><dt data-i18n="m.capexPerM2">Capital cost / m² of gross area</dt><dd id="capexPerM2"></dd></div>
+          <div><dt data-i18n="m.capexRatio">Capital ÷ annual contribution</dt><dd id="capexRatio"></dd></div>
+        </dl>
+        <p class="note" data-i18n="m.capexNote"></p>
+      </details>
+
       <p class="note source" data-i18n="p.cap"></p>
 
       <!-- 03b · HUMAN SCALE. What the floor area is like, not what it is worth. -->
@@ -242,5 +312,5 @@
 <dialog id="knowledgeDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="k.button">Architectural knowledge</h2><div id="knowledgeContent" role="status"></div><p class="knowledgeDownloads"><a href="knowledge/designon-knowledge.json?v=38eb5f372c" download data-i18n="k.download">Download</a><a href="knowledge/DESIGNON-LICENSE.txt?v=1950c131d0" data-i18n="k.license">License</a></p></dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="app.js?v=5fe7b8edcd"></script>
+<script type="module" src="app.js?v=e5b0956838"></script>
 </body></html>

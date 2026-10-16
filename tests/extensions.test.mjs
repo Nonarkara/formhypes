@@ -2,15 +2,22 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
-import {defaults,profile,area,families,evaluate,searchPlan,grossOf,meshOBJ} from '../dist/model.js';
+import {defaults,profile,area,families,evaluate,searchPlan,grossOf,meshOBJ,capex,facadeFamilies,stack} from '../dist/model.js';
 import {planLibrary,polyArea,polyPerimeter} from '../dist/geometry.js';
 import {cantileverPeriod,quarterWavePeriod,LC} from '../dist/location.js';
 import {angularGap,PROMPTS,PLAY} from '../dist/play.js';
 import {READER,SOURCES,ARTIFACTS} from '../dist/reader-content.js';
 import {t} from '../dist/i18n.js';
 import {solarDefaults,solarPosition,cities,facadeExposure} from '../dist/solar.js';
+import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,CROWN_RATES,crownMetrics,gardenIndices} from '../dist/crowns.js';
+import {DETAILS,DETAIL_KEYS,DETAIL_DRAWS,DETAIL_RATES,DETAIL_BASIS,detailSVG,detailSpec,deflectionAllowance,airBarrier} from '../dist/details.js';
+import {MATERIALS} from '../dist/materials.js';
 const dist=f=>readFileSync(new URL('../dist/'+f,import.meta.url),'utf8');
 const near=(a,b,eps=1e-8)=>assert.ok(Math.abs(a-b)<=eps,`${a} != ${b}`);
+// The yearly flow, written out in full. Every deduction the model applies has
+// to appear here, or a guard written against a shorter version of the equation
+// will pass while the published sentence has drifted away from the instrument.
+const flowOf=m=>m.rent+m.crownNetRent-m.facadeCost-m.structureCost-m.crownReserve-m.gardenReserve-m.detailReserve;
 
 test('eleven distinct simple CCW plan families survive arbitrary aspect and rotation',()=>{
  assert.equal(Object.keys(families).length,11);assert.deepEqual(Object.keys(families),Object.keys(planLibrary));
@@ -149,9 +156,13 @@ test('the Method dialog publishes the rent equation the model actually computes,
  for(const s of [defaults,{...defaults,family:Object.keys(families)[3],floors:30,twist:40}]){
   const m=evaluate(s),p=m.premiums,base=s.rent*s.occupancy/100;
   near(m.rent,m.rentable*base*(1+p.identity+p.columnFree+p.height-p.lowCeiling-p.depth)+m.cornerArea*base*p.corner,1e-6);
-  near(m.contribution,m.rent-m.facadeCost-m.structureCost,1e-6);
+  near(m.contribution,flowOf(m),1e-6);
  }
  for(const l of ['en','th','zh'])for(const k of ['meth.title1','meth.title2','meth.rent','meth.contrib','meth.limits'])assert.ok(typeof t[l][k]==='string'&&t[l][k].length>3,`${l} ${k}`);
+ // The dialog publishes the equation in prose. Every term the model subtracts
+ // must be named there, or the published sentence quietly stops matching the
+ // instrument that produced the number underneath it.
+ for(const l of ['en','th','zh'])for(const w of {en:['crown upkeep','garden upkeep','maintenance access'],th:['เชิงญาย','สวนลอยฟ้า','บำรุง'],zh:['塔冠维护','花园维护','维护通道']}[l])assert.ok(t[l]['meth.contrib'].includes(w),`${l} meth.contrib omits ${w}`);
  assert.match(dist('index.html'),/id="methodBtn"/);
  assert.match(dist('app.js'),/\$\('methodBtn'\)\.onclick=\(\)=>\{renderMethod\(\);\$\('method'\)\.showModal\(\)\}/);
  assert.ok(!dist('app.js').includes('obsolescence'),'stale formula text removed');
@@ -170,5 +181,372 @@ test('hygiene: vendored SunCalc is byte-pinned and the site ships its security h
 test('no module injects inline styles, which the strict CSP would block',()=>{
  for(const f of ['app.js','brief.js','walk.js','console.js','context.js','facade.js','research-reader.js','reader.js','location.js','play.js'])
   assert.ok(!/(?:createElement|\bel)\(['"]style['"]\)|setAttribute\(['"]style['"]|style="/.test(dist(f)),f);
- assert.match(dist('index.html'),/href="desks.css\?v=[a-f0-9]{10}"/);
+ assert.match(dist('index.html'),/href="desks\.css\?v=[a-f0-9]{10}"/);
+});
+
+/* The capital stock is a different quantity from the annual flow. These tests
+   hold the separation: the arithmetic must close, the rate must apply to the
+   area it names, and nothing may quietly turn one into the other. */
+
+test('capital cost closes from its four named areas and one contingency',()=>{
+ for(const s of [defaults,{...defaults,family:'star',floors:30,twist:45,system:'diagrid',skin:'diagrid'},
+                 {...defaults,family:'oval',core:9,common:6,regime:'civic'},
+                 {...defaults,crown:'post'},{...defaults,crown:'mast'}]){
+  const m=evaluate(s);
+  near(m.capex,(m.capexStructure+m.capexEnvelope+m.capexFitout+m.crownCapital+m.detailCapital)*(1+capex.contingency),1e-6);
+  // Each rate applies to the area it is named after, and to nothing else.
+  near(m.capexStructure,m.gross*capex.structure*m.structureMultiplier,1e-6);
+  near(m.capexEnvelope,m.facade*capex.envelope*facadeFamilies[s.skin].envelope*MATERIALS[s.material].envelope,1e-6);
+  near(m.capexFitout,m.rentable*capex.fitout,1e-6);
+  near(m.crownCapital,m.crownPlan*CROWN_RATES.steel,1e-6);
+  near(m.capexPerM2,m.capex/m.gross,1e-9);
+ }
+});
+
+test('the capital stock and the annual flow are never summed, and the ratio carries its year',()=>{
+ const m=evaluate(defaults);
+ // The ratio is capital divided by a yearly figure, so it is a count of years.
+ near(m.payback,m.capex/m.contribution,1e-9);
+ assert.ok(m.capex>0&&m.contribution>0);
+ // Nothing in the flow side may have absorbed a capital-sized number.
+ near(m.contribution,flowOf(m),1e-6);
+ // A building that earns nothing has no payback period. Infinity states that;
+ // NaN would render as an empty cell and read as a missing figure.
+ const dead=evaluate({...defaults,rent:20});
+ assert.ok(dead.contribution<0,'this rent must actually lose money');
+ assert.equal(dead.payback,Infinity);
+ assert.ok(Number.isFinite(dead.capex)&&dead.capex>0,'the capital cost is still owed when the rent is not');
+});
+
+test('design decisions move the capital cost the way they move the reserve',()=>{
+ const s=defaults;
+ const frame=Object.fromEntries(['column-grid','outrigger','diagrid'].map(k=>[k,evaluate({...s,system:k})]));
+ assert.ok(frame.diagrid.capexStructure>frame['column-grid'].capexStructure,'the column-free frame costs more to build');
+ assert.ok(frame.diagrid.capexStructure>frame.outrigger.capexStructure);
+ // The outrigger is NOT guaranteed to cost more than the interior grid. Its 12 m
+ // bay is wider than the grid's 8.5 m, and on a plate this size the perimeter term
+ // it removes costs more than the extra slab it spans, so it comes out cheaper.
+ // Hold that open rather than asserting an ordering the model does not have.
+ assert.ok(frame.outrigger.structureMultiplier!==frame['column-grid'].structureMultiplier);
+ // The plate's own perimeter is paid for once as well as yearly: a spiky plan of
+ // the same gross area must cost more to build than a compact one.
+ const spiky=evaluate({...s,family:'star'}),compact=evaluate({...s,family:'oval'});
+ assert.ok(spiky.capexStructure>compact.capexStructure);
+ assert.ok(spiky.capexPerM2>compact.capexPerM2);
+ // A heavier skin is priced once, on the same integrated surface the reserve uses.
+ const glassy=evaluate({...s,skin:'diagrid'}),plain=evaluate({...s,skin:'vertical-mech'});
+ assert.ok(glassy.capexEnvelope>plain.capexEnvelope);
+ near(glassy.capexEnvelope/plain.capexEnvelope,facadeFamilies.diagrid.envelope/facadeFamilies['vertical-mech'].envelope,1e-9);
+ // The regime's envelopeDiscipline is about how much attention a market pays to
+ // the skin, not what the skin costs to hang. Speculation must not make glass cheap.
+ const speculative=evaluate({...s,regime:'speculative'}),yielding=evaluate({...s,regime:'yield'});
+ near(speculative.capexEnvelope,yielding.capexEnvelope);
+ assert.notEqual(speculative.facadeCost,yielding.facadeCost,'the reserve still follows the regime');
+});
+
+/* ── the detail library ─────────────────────────────────────────────────────
+   A detail answers "how is this face held on?", which is a different question
+   from "what is it made of". The two are charged on the same square metre, so
+   the failure mode is not a missing number — it is the same metre charged
+   twice. These guards hold the separation. */
+
+test('each detail is charged on exactly the area it is named after, and no other',()=>{
+ for(const k of DETAIL_KEYS){
+  const d=DETAILS[k],basis=DETAIL_BASIS[d.system];
+  assert.ok(basis,d.system+' names no area');
+  const m=evaluate({...defaults,detail:k});
+  near(m.detailArea,basis==='facade'?m.facade:basis==='crownPlan'?m.crownPlan:m.gardenArea,1e-6);
+  assert.equal(m.detailBasis,basis);
+ }
+ // The three bases really are three different areas on a tower that has all three.
+ const m=evaluate({...defaults,crown:'post',garden:'half'});
+ assert.equal(new Set([m.facade,m.crownPlan,m.gardenArea]).size,3,'facade, crown plan and terrace must not coincide');
+});
+
+test('the material and the detail never both multiply the same square metre',()=>{
+ const s=defaults;
+ const glass=evaluate({...s,material:'float'}),granite=evaluate({...s,material:'granite'});
+ // The envelope reserve follows the material — that is the one figure it owns.
+ assert.ok(granite.facadeCost!==glass.facadeCost,'the envelope reserve must follow the material');
+ // The detail line must not. If it moved, the same integrated skin area would
+ // be charged at the product of two coefficients the reader already has on screen.
+ near(granite.detailReserve,glass.detailReserve,1e-9);
+ near(granite.detailCapital,glass.detailCapital,1e-9);
+ // And a detail is not free: it has to be able to move its own line.
+ const cheap=evaluate({...s,detail:'firestop'}),dear=evaluate({...s,detail:'outrigger-joint'});
+ assert.ok(dear.detailReserve>cheap.detailReserve);
+ near(cheap.detailReserve/dear.detailReserve,
+  (DETAIL_RATES.assembly*DETAILS.firestop.cost*DETAIL_RATES.retest/DETAILS.firestop.cycle+DETAIL_RATES.access*DETAILS.firestop.access)
+  /(DETAIL_RATES.assembly*DETAILS['outrigger-joint'].cost*DETAIL_RATES.retest/DETAILS['outrigger-joint'].cycle+DETAIL_RATES.access*DETAILS['outrigger-joint'].access),1e-9);
+});
+
+test('assembly is a stock and requalification is a flow, never added together',()=>{
+ const m=evaluate(defaults);
+ const d=DETAILS[m.detailKey];
+ // The two figures exist separately on the model, and the flow is the smaller
+ // one. Adding a paid-once assembly cost to a yearly reserve is the mistake this
+ // split exists to prevent: it inflates the wall by a number that means nothing.
+ assert.ok(m.detailCapital>m.detailReserve,'assembly labour is paid once and must exceed the annual figure');
+ assert.ok(m.detailReserve>0&&m.detailCapital>0);
+ // Each closes on its own arithmetic.
+ near(m.detailCapital,m.detailArea*DETAIL_RATES.assembly*d.cost,1e-6);
+ near(m.detailReserve,m.detailArea*(DETAIL_RATES.assembly*d.cost*DETAIL_RATES.retest/Math.max(1,d.cycle)
+  +DETAIL_RATES.access*d.access),1e-6);
+ // The capital figure reaches the capex total and the reserve reaches the flow —
+ // each through exactly one door, so neither is silently routed into the other.
+ near(m.capex,(m.capexStructure+m.capexEnvelope+m.capexFitout+m.crownCapital+m.detailCapital)*(1+capex.contingency),1e-6);
+ near(m.contribution,flowOf(m),1e-6);
+});
+
+test('a detail whose area is zero costs nothing, and the list says why',()=>{
+ /* The honest zero is a terrace detail on a tower with no terrace. The first
+    draft of this test looked for a flat crown instead and assumed its plan area
+    was zero — it is not: the roof plate is a real few hundred square metres.
+    A second draft used the key 'whole', which does not exist, so gardenOf()
+    silently read it as 'none' and the assertion passed while testing nothing. */
+ const bare=evaluate({...defaults,garden:'none',detail:'balustrade'});
+ near(bare.gardenArea,0,1e-9);near(bare.detailArea,0,1e-9);
+ near(bare.detailReserve,0,1e-9);near(bare.detailCapital,0,1e-9);
+ // Give it a terrace and the same detail suddenly costs real money: same detail,
+ // different area, which is the whole basis discipline in one comparison.
+ assert.ok(GARDENS_KEYS.includes('half')&&GARDENS_KEYS.includes('full'));
+ const planted=evaluate({...defaults,garden:'half',detail:'balustrade'});
+ assert.ok(planted.gardenArea>0&&planted.detailReserve>0);
+ // A whole-floor setback is not the absence of a terrace — it is the largest
+ // terrace there is. Every 13th floor fully open: the most area given away, the
+ // most sky gained, and the most upkeep. The sequence has to be monotone, and the
+ // balustrade has to follow the same area it is charged on.
+ const levels=['quarter','half','full'].map(g=>evaluate({...defaults,garden:g,detail:'balustrade'}));
+ assert.ok(levels[0].gardenArea<levels[1].gardenArea&&levels[1].gardenArea<levels[2].gardenArea);
+ assert.ok(levels[0].gardenReserve<levels[1].gardenReserve&&levels[1].gardenReserve<levels[2].gardenReserve);
+ for(const m of levels)near(m.detailArea,m.gardenArea,1e-6);
+ // And a crown detail is charged against the roof plate, not the skin.
+ const crown=evaluate({...defaults,detail:'parapet-coping'}),env=evaluate({...defaults,detail:'drained-cavity'});
+ assert.ok(crown.detailArea<env.detailArea,'the roof plate is smaller than the skin');
+});
+
+test('the deflection convention matches the hand calculation on both sides of the threshold',()=>{
+ // L/175 up to 4.1 m, L/240 plus 6.4 mm beyond, twice that for a cantilever.
+ // The first version of this returned L/175 plus 6.4 mm past the threshold: both
+ // halves were quoted correctly in the same file and still disagreed.
+ near(deflectionAllowance(1),1000/175,1e-9);
+ near(deflectionAllowance(4.1),4100/175,1e-9);
+ near(deflectionAllowance(6),6000/240+6.4,1e-9);
+ near(deflectionAllowance(3,true),2*3000/175,1e-9);
+ near(deflectionAllowance(6,true),2*(6000/240+6.4),1e-9);
+ // The spec figure is computed for this building's floor-to-floor height, which
+ // is a real span of the wall. It is NOT the plate's plan dimension: a 48 m
+ // plate is not a 48 m curtain wall, and L/240 of that is 206 mm of nonsense.
+ const wide=detailSpec({detail:'slab-edge',height:6}),narrow=detailSpec({detail:'slab-edge',height:3});
+ assert.ok(wide.deflection>narrow.deflection);
+ near(wide.deflection,deflectionAllowance(6),1e-9);
+ near(wide.span,6,1e-9);
+ const plate=detailSpec({detail:'slab-edge',height:4.1,span:48});
+ near(plate.deflection,deflectionAllowance(4.1),1e-9,'the plate span must not reach the deflection figure');
+ // Every displayed number carries the standard it is measured against.
+ for(const d of [wide,narrow]){
+  assert.match(d.airStandard,/ASTM E2357/);assert.match(d.uStandard,/EN 673/);assert.match(d.deflectStandard,/ASTM E330/);
+ }
+});
+
+test('the air figure is reported against the cited limit, and meets says what it means',()=>{
+ for(const k of DETAIL_KEYS){
+  const a=airBarrier({detail:k}),m=evaluate({...defaults,detail:k});
+  near(m.airRate,a.rate,1e-9);
+  assert.equal(a.limit,0.20,'the code limit being tested against is part of the claim');
+  assert.equal(a.meets,a.rate<=0.20,'meets must be the comparison it claims to be');
+  assert.equal(a.permeance,a.rate<0.02,'the E2178 material threshold is a different test from the E2357 assembly limit');
+ }
+ // No detail in the library is an air-permeable material; the distinction is
+ // kept because it is the distinction the two standards actually draw.
+ assert.ok(DETAIL_KEYS.every(k=>!airBarrier({detail:k}).permeance));
+});
+
+test('every detail is drawn, every drawing belongs to a detail, and the section is house style',()=>{
+ for(const k of DETAIL_KEYS)assert.ok(DETAIL_DRAWS.includes(DETAILS[k].draw),k+' has no section');
+ assert.equal(new Set(DETAIL_DRAWS).size,DETAIL_KEYS.length,'no drawing without a detail behind it');
+ for(const k of DETAIL_DRAWS){
+  const svg=detailSVG(k);
+  assert.match(svg,/^<svg /,k);
+  assert.ok(!/NaN|undefined|null/.test(svg),k+' emitted a broken path');
+  assert.ok(!/gradient|rx=|ry=|filter=/.test(svg),k+' broke the no-gradient sharp-corner rule');
+ }
+ // An unknown key must still return a drawing rather than an empty box.
+ assert.match(detailSVG('not-a-detail'),/^<svg /);
+});
+
+test('every detail is named and explained in all three languages',()=>{
+ for(const k of DETAIL_KEYS){
+  for(const l of ['en','th','zh']){
+   assert.ok(t[l]['dt.'+k],`${l} omits the label for ${k}`);
+   assert.ok(t[l]['dt.note.'+k],`${l} omits the reading for ${k}`);
+   // No Latin fallback in Chinese. Units and proper nouns are exempt; a whole
+   // English sentence is not.
+   if(l==='zh')assert.ok(!/[A-Za-z]{4,}\s+[A-Za-z]{4,}/.test(t[l]['dt.note.'+k]),k+' left an English sentence in the ZH note');
+  }
+ }
+ for(const l of ['en','th','zh'])for(const g of ['envelope','crown','terrace'])assert.ok(t[l]['dt.grp.'+g],`${l} omits the ${g} group heading`);
+ // The group heading is what tells the reader why picking a crown detail on a
+ // flat roof costs nothing, so it has to exist in all three.
+ assert.equal(['envelope','crown','terrace'].filter(g=>DETAIL_KEYS.some(k=>DETAILS[k].system===g)).length,3);
+});
+
+test('the capital figure is published with its exclusions, in every language',()=>{
+ for(const l of ['en','th','zh'])for(const k of ['m.capex','m.capexPerM2','m.capexRatio','m.capexRatioNone','m.capexNote','m.yr'])
+  assert.ok(typeof t[l][k]==='string'&&t[l][k].length>0,`${l} ${k}`);
+ // The year unit on the ratio must translate; a literal 'yr' in Thai is an
+ // English word wearing a Thai sentence.
+ assert.match(dist('app.js'),/tt\('m\.yr'\)/,'the year unit is hardcoded, not translated');
+ assert.notEqual(t.th['m.yr'],t.en['m.yr']);
+ // The ratio must not be sold as a payback period. It is a capital stock divided
+ // by a flow that omits operating cost, financing and tax.
+ assert.doesNotMatch(t.en['m.capexRatio'],/payback|years|yr/i,'the ratio label must carry no time claim');
+ assert.match(t.en['m.capexNote'],/not a payback period/,'the note must disclaim the payback reading');
+ assert.match(t.th['m.capexNote'],/ไม่ใช่ระยะคืนทุน/);
+ assert.match(t.zh['m.capexNote'],/不是回收年限/);
+ // The note has to name what is left out, or the number reads as a budget.
+ for(const w of ['land','financing','tax','fit-out'])assert.ok(t.en['m.capexNote'].toLowerCase().includes(w),`the capital note omits ${w}`);
+ const html=dist('index.html');
+ for(const id of ['capex','capexPerM2','capexRatio'])
+  assert.match(html,new RegExp(`id="${id}"`),`${id} is not in the metrics rail`);
+ assert.match(html,/data-i18n="m\.capexNote"/);
+ const app=dist('app.js');
+ assert.match(app,/Number\.isFinite\(metrics\.payback\)\?metrics\.payback\.toFixed\(1\)/,'an unrepayable tower must not print Infinity');
+ assert.match(app,/capex:'USD paid once'/,'the study export must declare the capital unit');
+ assert.match(app,/capex_usd,capex_per_gross_m2/,'the comparison CSV omits the capital column');
+});
+
+/* ── the crown and the terraces ────────────────────────────────────────────
+   Both features exist to be caught out. A crown that draws for free and a
+   garden that costs nothing are the two ways this module could lie, so the
+   guards below are written to fail on exactly those.                        */
+
+test('a crown spends real height and can make the tower illegal',()=>{
+ const s={...defaults,led:false};
+ const flat=evaluate({...s,crown:'flat'});
+ near(flat.crownHeight,0,1e-9);
+ // Height is not a property of the floors alone. A crown is added to it and the
+ // allowance is tested against the sum, so drawing a crown cannot quietly make
+ // an over-height tower look legal.
+ for(const k of CROWNS_KEYS){
+  const m=evaluate({...s,crown:k});
+  near(m.heightTotal,m.height+CROWNS[k].h,1e-9);
+  near(m.heightHeadroom,s.maxHeight-m.heightTotal,1e-9);
+  assert.equal(m.valid,!(m.heightTotal>s.maxHeight),`${k} validity must follow height+crown`);
+ }
+ // The Petronas-scale post is taller than this tower's allowance on its own.
+ // The model must say so rather than clamp the crown to fit.
+ const post=evaluate({...s,crown:'post'});
+ assert.ok(post.heightTotal>s.maxHeight&&!post.valid);
+ assert.ok(post.heightHeadroom<0);
+ assert.ok(post.reasons.includes('height'));
+});
+
+test('the taller the crown, the more of the allowance it eats',()=>{
+ const s={...defaults,led:false};
+ // Sorted by height, not by key order: the selector is grouped by idea, not by
+ // size, and asserting against an arbitrary order would test the table's
+ // layout rather than the model's arithmetic.
+ const byHeight=[...CROWNS_KEYS].sort((a,b)=>CROWNS[a].h-CROWNS[b].h);
+ const heads=byHeight.map(k=>evaluate({...s,crown:k}).heightHeadroom);
+ for(let i=1;i<heads.length;i++)
+  assert.ok(heads[i]<=heads[i-1]+1e-9,`${byHeight[i]} is taller than ${byHeight[i-1]} but has more headroom`);
+ assert.ok(heads[0]>heads[heads.length-1],'the set must not be flat');
+ assert.ok(heads[heads.length-1]<heads[0]);
+});
+
+test('a crown earns nothing it cannot pay for, and a mast earns nothing at all',()=>{
+ const s={...defaults,led:false};
+ // Plant and aviation crowns are pure cost. Only the observation deck carries
+ // its own rate, and it is a rate an order of magnitude below office rent.
+ for(const k of CROWNS_KEYS){
+  const m=evaluate({...s,crown:k});
+  if(CROWNS[k].use==='observation'){assert.ok(m.observationRent>0);near(m.observationRent,m.observationArea*CROWN_RATES.observation,1e-6)}
+  else near(m.observationRent,0,1e-9);
+  near(m.ledRent,0,1e-9);
+ }
+ // A crown is real steel and it is really maintained.
+ for(const k of CROWNS_KEYS){
+  const m=evaluate({...s,crown:k});
+  near(m.crownReserve,m.crownPlan*CROWNS[k].h*CROWN_RATES.linear,1e-6);
+  assert.ok(m.crownCapital>=0);
+ }
+});
+
+test('the LED surface is a marketing surface: income and running cost, no performance claim',()=>{
+ const s={...defaults,crown:'mast'};
+ const off=evaluate({...s,led:false});
+ const on=evaluate({...s,led:true});
+ near(on.ledRent,on.ledArea*CROWN_RATES.advert,1e-6);
+ near(on.ledCost,on.ledArea*CROWN_RATES.advertRun,1e-6);
+ assert.ok(on.ledArea>0&&off.ledArea===0);
+ // It must not touch height, plate, rent or daylight. A media facade is hung on
+ // a building that already exists; it is not an architectural move.
+ near(on.heightTotal,off.heightTotal,1e-9);
+ near(on.gross,off.gross,1e-9);
+ near(on.rent,off.rent,1e-9);
+ near(on.daylitFraction,off.daylitFraction,1e-12);
+ near(on.rentable,off.rentable,1e-9);
+ // And it is not free money either: the power bill is charged against the income.
+ near(on.contribution,off.contribution+on.ledRent-on.ledCost,1e-6);
+});
+
+test('a sky garden gives away area and is charged for the area it gives away',()=>{
+ const s={...defaults,crown:'flat',led:false};
+ const none=evaluate({...s,garden:'none'});
+ near(none.gardenArea,0,1e-9);
+ near(none.gardenReserve,0,1e-9);
+ let prevArea=-1,prevGross=Infinity,prevContrib=Infinity;
+ for(const g of GARDENS_KEYS){
+  const m=evaluate({...s,garden:g});
+  const frac=GARDENS[g].frac;
+  // Monotone: more terrace, less of everything.
+  assert.ok(m.gardenArea>=prevArea-1e-9,`${g}: garden area fell`);
+  assert.ok(m.gross<=prevGross+1e-9,`${g}: gross rose`);
+  assert.ok(m.contribution<=prevContrib+1e-9,`${g}: contribution rose`);
+  prevArea=m.gardenArea;prevGross=m.gross;prevContrib=m.contribution;
+  // Charged on a measured area, at the stated rate.
+  near(m.gardenReserve,m.gardenArea*CROWN_RATES.garden,1e-6);
+  if(g!=='none')assert.ok(m.gardenArea>0,`${g} must actually open a floor`);
+ }
+ // The ratio test, measured against the real plates rather than an average
+ // one: the tower tapers, so a terrace high up sits on a smaller plate than a
+ // terrace low down. Getting the fraction backwards would triple the loss and
+ // still look plausible, so this is where that inversion would be caught.
+ const q=evaluate({...s,garden:'quarter'});
+ const st=stack({...s,garden:'quarter'});
+ const total=st.reduce((a,l)=>a+l.h,0);
+ let expect=0;
+ for(const l of st)if(l.garden!=null&&l.garden>0)expect+=area(profile({...s,garden:'quarter'},l.z/total))*l.garden;
+ near(q.gardenArea,expect,1e-6);
+ assert.ok(expect>0,'the guard must be measuring something');
+});
+
+test('a whole-floor setback stops the plate and still has to be kept alive',()=>{
+ const s={...defaults,crown:'flat',led:false};
+ const m=evaluate({...s,garden:'full'});
+ assert.ok(m.gardenLevels>0,'there must be at least one level that earns nothing');
+ assert.equal(m.gardenLevels,gardenIndices({...s,garden:'full'}).length);
+ // This is the line the whole feature exists to make: the level that earns
+ // nothing is the level that still costs money every year.
+ assert.ok(m.gardenReserve>0,'a garden that earns nothing must still be paid for');
+ assert.ok(m.contribution<evaluate({...s,garden:'none'}).contribution);
+ // Garden levels must not be counted as services voids — that would relabel a
+ // terrace as a machine room.
+ const plain=evaluate({...s,garden:'none'});
+ assert.equal(m.voidLevels,plain.voidLevels);
+});
+
+test('the level schedule keeps every storey, garden or not',()=>{
+ const s={...defaults,crown:'flat'};
+ const plain=stack({...s,garden:'none'});
+ for(const g of GARDENS_KEYS){
+  const withG=stack({...s,garden:g});
+  // A terrace takes area out of a floor, never a floor out of the building.
+  // Losing storeys here would quietly change the height of every tower with a
+  // garden, which is not what a terrace does.
+  assert.equal(withG.length,plain.length,`${g} changed the number of levels`);
+  assert.ok(Math.abs(withG.reduce((a,l)=>a+l.h,0)-plain.reduce((a,l)=>a+l.h,0))<1e-9,
+   `${g} changed the building height`);
+ }
 });

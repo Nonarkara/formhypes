@@ -7,7 +7,7 @@
 // hold a parameter Chen specifies, this panel says so on screen rather than
 // approximating it quietly.
 
-import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=1653f45f3c';
+import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=e1aefac756';
 
 export const BRIEF_I18N={
 en:{
@@ -24,9 +24,11 @@ en:{
  'u.m2':'m²','u.m':'m','u.pct':'%','u.far':'FAR',
  'r.plot':'Plot area','r.far':'Floor area ratio','r.permitted':'Permitted gross floor area = plot × FAR','r.brief':'Brief, as asked','r.delivered':'Delivered by this scheme','r.consumed':'Share of the allowance consumed','r.left':'Allowance left over','r.shortfall':'Shortfall','r.plotNeeded':'Plot this brief would need at this FAR',
  'r.storeys':'Storeys','r.height':'Implied height = storeys × floor-to-floor','r.stack':'Kernel stack height, mechanical and refuge levels included','r.cap':'Height cap','r.headroom':'Headroom under the cap',
+ 'st.subj.area':'Area check',
  'st.fits':'The brief fits inside the allowance.',
  'st.over':'The brief does not fit. The shortfall above is stated in square metres. No amount of form fixes that.',
  'st.plotSmall':'At this floor area ratio the plot cannot carry the brief. The plot area that would is named above.',
+ 'st.scope':'This is floor area measured against the floor area ratio allowance. Whether the form itself sits inside the envelope, the height cap and the core is a different check, reported at the top of the studio. The two can disagree, and when they do the arithmetic is what moved.',
  'st.hOk':'Under the cap.',
  'st.hOver':'Over the cap. Take area into a podium, lower the floor plate, or raise the floor-to-floor.',
  'sch.curtain.t':'Curtain-wall core',
@@ -83,9 +85,11 @@ th:{
  'u.m2':'ตร.ม.','u.m':'ม.','u.pct':'%','u.far':'อัตราส่วนพื้นที่',
  'r.plot':'พื้นที่ผังที่ดิน','r.far':'อัตราส่วนพื้นที่','r.permitted':'พื้นที่รวมที่รับได้ = ผังที่ดิน × อัตราส่วน','r.brief':'โจทย์ตามที่ขอ','r.delivered':'สิ่งที่แบบนี้ส่งมอบได้','r.consumed':'สัดส่วนที่ใช้ไป','r.left':'สิ่งที่เหลือ','r.shortfall':'ขาด','r.plotNeeded':'ผังที่ดินที่โจทย์นี้ต้องใช้ที่อัตราส่วนนี้',
  'r.storeys':'จำนวนชั้น','r.height':'ความสูงโดยประมาณ = จำนวนชั้น × ความสูงชั้น','r.stack':'ความสูงตามชุดชั้นของโมเดล รวมชั้นเครื่องและชั้นหลุดหนี','r.cap':'เพดานความสูง','r.headroom':'ส่วนที่เหลือใต้เพดาน',
+ 'st.subj.area':'การตรวจพื้นที่',
  'st.fits':'โจทย์อยู่ในโควตาที่ได้รับ',
  'st.over':'โจทย์ไม่ลงกับโควตา ส่วนที่ขาดระบุเป็นตารางเมตรไว้ด้านบน ไม่มีรูปทรงใดช่วยได้',
  'st.plotSmall':'ที่อัตราส่วนพื้นที่นี้ ผังที่ดินรับโจทย์ไม่ได้ ขนาดผังที่ดินที่ต้องใช้ระบุไว้ด้านบน',
+ 'st.scope':'นี่คือพื้นที่ที่วัดเทียบกับโควตาตามอัตราส่วนพื้นที่ ส่วนการที่รูปทรงเองอยู่ในเขตที่ดิน เพดานความสูง และแกนกลางหรือไม่ เป็นการตรวจอีกอันหนึ่ง รายงานอยู่ด้านบนของห้องทำงาน ทั้งสองอาจไม่ตรงกัน และเมื่อไม่ตรง สิ่งที่ขยับคือตัวเลข',
  'st.hOk':'ต่ำกว่าเพดาน',
  'st.hOver':'สูงกว่าเพดาน ย้ายพื้นที่ไปโครงฐาน ลดขนาดพื้นชั้น หรือเพิ่มความสูงชั้น',
  'sch.curtain.t':'แกนกลางผิวกระจกเต็ม',
@@ -142,9 +146,11 @@ zh:{
  'u.m2':'m²','u.m':'m','u.pct':'%','u.far':'容积率',
  'r.plot':'地块面积','r.far':'容积率','r.permitted':'可建总面积 = 地块 × 容积率','r.brief':'业主要求','r.delivered':'本方案可交付','r.consumed':'已占额度','r.left':'剩余额度','r.shortfall':'缺口','r.plotNeeded':'按此容积率所需地块',
  'r.storeys':'层数','r.height':'推算高度 = 层数 × 层高','r.stack':'模型层列高度，已含设备层与避难层','r.cap':'高度上限','r.headroom':'距上限余量',
+ 'st.subj.area':'面积核算',
  'st.fits':'任务书在额度之内。',
  'st.over':'任务书放不下。上方缺口以平方米计，再多造型也解决不了。',
  'st.plotSmall':'在此容积率下，地块承载不了这份任务书。上方已列出所需地块面积。',
+ 'st.scope':'此处量的是面积与容积率额度。造型本身是否落在场地轮廓、高度上限与核心筒之内，是另一项检查，显示在工作室顶部。两者可能不一致；不一致时，动的是算术，不是造型。',
  'st.hOk':'低于上限。',
  'st.hOver':'高于上限。把面积移到底座，缩小标准层，或提高层高。',
  'sch.curtain.t':'核心筒幕墙',
@@ -334,7 +340,10 @@ export function renderBrief({lang,state,changed,onInputs}){
   ledger(c['r.shortfall'],`${num(Math.max(0,over))} ${c['u.m2']}`,over>0?'br-flag':undefined),
   ledger(c['r.plotNeeded'],`${num(far>0?r.gfa/far:0)} ${c['u.m2']}`));
  s2.append(t2b.t);
- verdict(s2,over>0?(desk.plot<r.gfa/far?c['st.plotSmall']:c['st.over']):c['st.fits'],over>0);
+ // The verdict names its own subject, because the studio header carries a
+  // second, different answer to the same question. See st.scope.
+  verdict(s2,c['st.subj.area']+' · '+(over>0?(desk.plot<r.gfa/far?c['st.plotSmall']:c['st.over']):c['st.fits']),over>0);
+  s2.append(el('p',c['st.scope'],'br-note'));
 
  /* 4 · storeys and height */
  const s3=section(c['sec.floors']);

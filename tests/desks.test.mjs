@@ -5,8 +5,11 @@ import {join} from 'node:path';
 import {defaults, profile, cornerZones, stackHeight} from '../dist/model.js';
 import {solarPosition} from '../dist/solar.js';
 import {BRIEF_I18N, renderBrief} from '../dist/brief.js';
+import {t} from '../dist/i18n.js';
 import {CONTEXT_I18N, renderContext, CONTEXT_SITES, contextShadow} from '../dist/context.js';
 import {WALK_I18N, renderWalk} from '../dist/walk.js';
+import {WORKSPACES} from '../dist/console.js';
+import {MATERIALS,MATERIAL_KEYS,materialOf,materialEnvelopeCost,surfacePattern} from '../dist/materials.js';
 
 const L = ['en', 'th', 'zh'];
 const readDist = f => readFileSync(join(new URL('../dist', import.meta.url).pathname, f), 'utf8');
@@ -209,4 +212,324 @@ test('Modulor figure is grounded and uses the same 2.26 m raised-hand scale in e
  const ys=MODULOR_CONTOURS.flat().map(p=>p[1]);assert.equal(Math.min(...ys),0);assert.equal(Math.max(...ys),2.26);
  for(const scale of [10,26,80]){const d=modulorPath((x,y)=>[100+x*scale,200-y*scale]);assert.ok(d.includes('Z'));assert.ok(!/NaN|Infinity/.test(d));}
  for(const file of ['app.js','walk.js'])assert.match(readFileSync(new URL('../dist/'+file,import.meta.url),'utf8'),/modulorPath/);
+});
+
+test('both "does this fit the plot" verdicts name what they actually measured',()=>{
+ // Two instruments answer the same question with two different numbers: the
+ // studio header measures the generated form against envelope, height, core and
+ // levels; the Brief desk measures area against the FAR allowance. Before each
+ // one named its subject, the site read as contradicting itself. Assert both
+ // labels exist, differ, are actually rendered, and that the area check states
+ // the scope of its own measurement.
+ const app=readDist('app.js'),brief=readDist('brief.js');
+ for(const l of L){
+  assert.ok(t[l]['m.chk.form']?.trim(),`${l}: the form check measures something but never names it`);
+  assert.ok(BRIEF_I18N[l]['st.subj.area']?.trim(),`${l}: the area check measures something but never names it`);
+  assert.notEqual(t[l]['m.chk.form'],BRIEF_I18N[l]['st.subj.area'],`${l}: both checks carry the same label`);
+  assert.ok(BRIEF_I18N[l]['st.scope'].length>60,`${l}: the area check states no scope`);
+ }
+ assert.match(app,/tt\('m\.chk\.form'\)\+' · '/,'the form label is not rendered');
+ assert.match(brief,/c\['st\.subj\.area'\]/,'the area label is not rendered');
+ assert.match(brief,/el\('p',c\['st\.scope'\],'br-note'\)/,'the scope note is not rendered');
+});
+
+/* A DOM small enough to read. The desk renderers were never invoked by the
+   suite — only the string "renderBrief" was checked in app.js — so a desk
+   could throw on the first line of its body and all 127 tests would stay
+   green. This stub runs them for real and reads the text back out. */
+function stubNode(tag){
+  const n={tagName:String(tag||'').toUpperCase(),childNodes:[],attrs:{},style:{},_t:'',_h:'',
+    className:'',id:'',htmlFor:'',type:'',value:'',
+    classList:{add(){},remove(){},toggle(){},contains(){return false}},
+    querySelector(){return null},closest(){return null},focus(){},click(){},
+    appendChild(c){this.childNodes.push(c);return c},
+    get children(){return this.childNodes},
+    append(...cs){for(const c of cs)this.childNodes.push(c)},
+    replaceChildren(){this.childNodes=[]},
+    contains(){return false},
+    setAttribute(k,v){this.attrs[k]=v},
+    getAttribute(k){return this.attrs[k]},
+    addEventListener(){},removeEventListener(){},
+    checkValidity(){return true},reportValidity(){return true},
+    get textContent(){return this._t+this.childNodes.map(c=>c.textContent).join('')},
+    set textContent(v){this._t=String(v);this.childNodes=[]},
+    get innerHTML(){return this._h},
+    set innerHTML(v){this._h=String(v)}};
+  return n;
+}
+function deskText(render,id,lang,override){
+  const host=stubNode('div');
+  const real=globalThis.document;
+  globalThis.document={
+    createElement:t=>stubNode(t),
+    createElementNS:(ns,t)=>stubNode(t),
+    createTextNode:t=>{const n=stubNode('#text');n.textContent=t;return n},
+    createDocumentFragment:()=>stubNode('#fragment'),
+    getElementById:k=>k===id?host:null,
+    activeElement:{id:''}};
+  try{render({lang,state:override||defaults,changed(){},onInputs(){}});return host.textContent}
+  finally{globalThis.document=real}
+}
+
+test('every desk renderer actually runs and produces text, not just a name in app.js',()=>{
+ for(const [id,fn]of [['briefDesk',renderBrief],['walkDesk',renderWalk],['contextDesk',renderContext]])
+  for(const lang of L){
+   const out=deskText(fn,id,lang);
+   assert.ok(out.length>800,`${id}/${lang}: rendered only ${out.length} chars — the renderer is not really running`);
+   assert.doesNotMatch(out,/undefined|NaN|\[object Object\]/,`${id}/${lang}: rendered junk into the page`);
+  }
+});
+
+test('the brief desk states its area verdict and its scope, in the language asked for',()=>{
+ for(const lang of L){
+  const out=deskText(renderBrief,'briefDesk',lang);
+  assert.ok(out.includes(BRIEF_I18N[lang]['st.subj.area']),`${lang}: the area check is not in the rendered desk`);
+  assert.ok(out.includes(BRIEF_I18N[lang]['st.scope']),`${lang}: the scope note is not in the rendered desk`);
+  // A key present in the table but dropped at render time is the silent
+  // regression this desk already suffered once, in the other direction.
+  assert.ok(out.includes(BRIEF_I18N[lang]['st.fits'])||out.includes(BRIEF_I18N[lang]['st.over'])
+    ||out.includes(BRIEF_I18N[lang]['st.plotSmall']),`${lang}: no area verdict reached the page`);
+ }
+});
+
+test('the Shenzhen notes moved into the Place desk instead of vanishing with the banner',()=>{
+ // place.caution and place.gift used to live in a band above every tab. The
+ // band is gone; the two sentences are about the city, so they must now
+ // render on the site they qualify — and nowhere else.
+ for(const l of L){
+  assert.ok(CONTEXT_I18N[l].shenzhenCaution?.trim(),`${l}: shenzhenCaution missing`);
+  assert.ok(CONTEXT_I18N[l].shenzhenGift?.trim(),`${l}: shenzhenGift missing`);
+ }
+ assert.match(CONTEXT_I18N.en.shenzhenCaution,/660/);
+ assert.match(CONTEXT_I18N.en.shenzhenGift,/Xiaohei/);
+ assert.match(CONTEXT_I18N.zh.shenzhenGift,/小黑/);
+ const out=deskText(renderContext,'contextDesk','en',{...defaults,city:'shenzhen'});
+ // The {0} is filled with the completed height, so match the filled sentence
+ // and the number separately — asserting on the raw template would pass on a
+ // table and fail on a page.
+ assert.match(out,/The 660 m scheme is a different proposal/, 'the 660 m caution does not render on the Shenzhen site');
+ assert.match(out,/Completed height is 599 m/, 'the completed height is not filled into the caution');
+ assert.ok(out.includes(CONTEXT_I18N.en.shenzhenGift),'the Chen gift line does not render on the Shenzhen site');
+ // And it must not leak onto any other site.
+ const bkk=deskText(renderContext,'contextDesk','en',{...defaults,city:'bangkok'});
+ assert.doesNotMatch(bkk,/Xiaohei|660 m scheme/,'Shenzhen notes leaked onto another site');
+});
+
+test('the performance rail leads with drawings and keeps the schedule on demand',()=>{
+ const html=readDist('index.html');
+ // A rail that prints its figures before the first drawing reads as a
+ // template. The two drawings an architect reads off a sheet come first.
+ assert.ok(html.indexOf('id="premiumPanel"')<html.indexOf('id="contribution"'),
+  'the rent scales must sit above the headline figure');
+ assert.ok(html.indexOf('id="plan"')<html.indexOf('id="annualRent"'),
+  'the level plan must sit above the figures');
+ // Then the figures, grouped, opened by the reader rather than printed.
+ for(const g of ['grpArea','grpForm','grpSkin','grpCapital'])
+  assert.match(html,new RegExp(`<details class="railgroup" id="${g}">`),`${g} is not collapsible`);
+ assert.doesNotMatch(html,/<details class="railgroup"[^>]*\sopen/,
+  'a rail group ships expanded — the schedule is on demand, not on the page');
+ // Every figure keeps exactly one home; moving one must not duplicate it.
+ const ids=[...html.matchAll(/<dd id="([A-Za-z]+)"/g)].map(m=>m[1]);
+ assert.equal(new Set(ids).size,ids.length,'a rail figure is declared twice');
+});
+
+test('every workspace is named by a drawing, and the word is kept for the reader',()=>{
+ const app=readDist('console.js');
+ assert.equal(WORKSPACES.length,7);
+ // A strip of six words is a menu; six marks are an instrument panel.
+ const marks=[...app.matchAll(/^\s*(?:form|brief|place|walk|facade|compare|studies):'([^']+)'/gm)].map(m=>m[1]);
+ assert.equal(marks.length,7,'every workspace needs exactly one drawn mark');
+ assert.equal(new Set(marks).size,7,'two workspaces share one mark — the strip cannot be read');
+ for(const m of marks)assert.doesNotMatch(m,/NaN|undefined/);
+ // The word does not vanish with the pixels: it stays for the accessibility
+ // tree and the hover title, in all three languages.
+ assert.match(app,/<svg class="wg"[^>]*aria-hidden="true"/,'the mark is not hidden from assistive tech');
+ assert.match(app,/<span class="wt">'\+c\.work\[i\]/,'the translated label left the page');
+ assert.match(app,/b\.title=c\.work\[i\]/,'no hover name on the mark');
+});
+
+test('twelve materials, each with the properties that move a figure',()=>{
+ const keys=MATERIAL_KEYS;
+ assert.equal(keys.length,12,'the brief was a dozen materials');
+ for(const k of keys){
+  const m=MATERIALS[k];
+  assert.ok(m.label?.trim()&&m.thesis?.trim(),`${k}: no name or precedent`);
+  assert.ok(m.vt>=0&&m.vt<=1,`${k}: visible transmittance out of range`);
+  assert.ok(m.shgc>=0&&m.shgc<=1,`${k}: solar heat gain out of range`);
+  assert.ok(m.upkeep>0&&m.cycle>0&&m.carbon>0,`${k}: a physical property is missing or not positive`);
+  assert.ok(m.envelope>0,`${k}: no cost coefficient — it would move no figure`);
+  assert.match(m.fill,/^#[0-9a-f]{6}$/i,`${k}: no colour, so the tower cannot wear it`);
+ }
+ // Opaque is opaque: a material that passes no light may not claim to.
+ for(const k of keys)if(MATERIALS[k].draw!=='curtain'&&MATERIALS[k].draw!=='cell')
+  assert.equal(MATERIALS[k].vt,0,`${k}: an opaque wall that still admits light`);
+ // The overlay moves the envelope reserve and scales with its own rate.
+ const base=100000;
+ assert.equal(materialEnvelopeCost(base,{material:'float'}),base,'the baseline must be the baseline');
+ for(const k of keys){
+  const got=materialEnvelopeCost(base,{material:k});
+  assert.ok(Math.abs(got-base*MATERIALS[k].envelope)<1e-6,`${k}: reserve does not follow its coefficient`);
+  assert.ok(got>=0,`${k}: a negative envelope reserve`);
+ }
+ // Cheapest and dearest must not be the same material.
+ const costs=keys.map(k=>MATERIALS[k].envelope);
+ assert.ok(Math.max(...costs)/Math.min(...costs)>1.4,'the materials barely differ — the choice is decoration');
+ // Each surface pattern draws something, and no two patterns are identical.
+ const pats=keys.map(k=>JSON.stringify(surfacePattern({material:k})));
+ assert.ok(pats.every(p=>p!=='[]'),'a material draws no surface at all');
+ assert.equal(new Set(pats).size>=4,true,'every material draws the same surface');
+ // The model has to know the key, or a saved study silently loses its wall.
+ assert.ok(Object.hasOwn(MATERIALS,defaults.material),'the default state names no real material');
+});
+
+test('the crown, the terrace and the LED surface are reachable and are stated in all three languages',()=>{
+ const app=readDist('app.js');
+ // Reachability. A control that is not wired is a control that lies about
+ // existing, and this file has already lost one feature that way before.
+ for(const id of ['crown','garden','led'])
+  assert.ok(app.includes(`'${id}'`)||app.includes(`"${id}"`),`${id} must be wired in app.js`);
+ assert.ok(readDist('index.html').includes('id="crown"')&&readDist('index.html').includes('id="garden"')&&readDist('index.html').includes('id="led"'),
+  'all three controls must exist in the markup');
+ // Every reading the model produces needs a name in every language. No key may
+ // fall back to English in Thai or Chinese.
+ for(const key of ['c.crown','c.garden','c.led','rail.g.top','m.crownHeight','m.towerHeight',
+   'm.crownReserve','m.crownCapital','m.gardenArea','m.gardenReserve','m.ledIncome','m.ledOff',
+   'm.ledNote','m.ledOffNote']){
+  for(const lang of ['en','th','zh'])
+   assert.ok(t[lang][key],`${lang} is missing ${key}`);
+ }
+ for(const k of ['flat','stepped','helipad','post','mast']){
+  for(const lang of ['en','th','zh']){
+   assert.ok(t[lang]['crown.'+k],`${lang} is missing crown.${k}`);
+   assert.ok(t[lang]['crown.reads.'+k],`${lang} is missing crown.reads.${k}`);
+  }
+ }
+ for(const k of ['none','quarter','half','full']){
+  for(const lang of ['en','th','zh']){
+   assert.ok(t[lang]['garden.'+k],`${lang} is missing garden.${k}`);
+   assert.ok(t[lang]['garden.reads.'+k],`${lang} is missing garden.reads.${k}`);
+  }
+ }
+ // The LED note is where the honesty lives. If either language drops it, the
+ // advertising income would read as performance income.
+ assert.match(t.en['m.ledNote'],/advertising/i);
+ assert.match(t.en['m.ledNote'],/no daylight/i);
+ assert.match(t.th['m.ledNote'],/โฆษณา/);
+ assert.match(t.zh['m.ledNote'],/广告/);
+ assert.match(t.zh['m.ledNote'],/不改变采光/);
+});
+
+test('no Latin word leaks into the Chinese or Thai crown and terrace copy',()=>{
+ // Units and proper nouns are allowed; ordinary English words are not. A
+ // missing translation that falls through to English is invisible in a test
+ // suite and obvious to a reader.
+ const allowed=/\b(m²|m3|m|USD|LED|GFA|FAR|Petronas|Kuala Lumpur|Hong Kong|Chicago|Haussmannian)\b/g;
+ for(const lang of ['th','zh']){
+  for(const key of ['c.crown','c.garden','c.led','rail.g.top','m.crownHeight','m.towerHeight',
+    'm.crownReserve','m.crownCapital','m.gardenArea','m.gardenReserve','m.ledIncome','m.ledOff',
+    'm.ledNote','m.ledOffNote',...['flat','stepped','helipad','post','mast'].map(k=>'crown.'+k),
+    ...['none','quarter','half','full'].map(k=>'garden.'+k)]){
+   const s=t[lang][key];if(!s)continue;
+   const leftover=s.replace(allowed,'').match(/[A-Za-z]{4,}/g);
+   assert.ok(!leftover,`${lang} ${key} leaks Latin: ${leftover&&leftover.join(' ')}`);
+  }
+ }
+});
+
+test('the isometric view measures the crown, not just the roof',()=>{
+ const app=readDist('app.js');
+ // The scale, the dimension line and the graduations must all be driven by the
+ // extent that includes the crown. A drawing that stops at the roof while the
+ // rail reports a taller building disagrees with its own figures.
+ assert.ok(/ext=total\+chH/.test(app),'the drawing needs a crown-inclusive extent');
+ assert.ok(app.includes('ext*.96*scale'),'the dimension must be graduated to the crown');
+ assert.ok(app.includes('m<=ext'),'graduations must run to the crown');
+ assert.ok(/heightLabel'\)\.textContent=metrics\.heightTotal/.test(app),
+  'the header height must include the crown');
+ // And the crown must be drawn from the same table the numbers come from.
+ assert.ok(app.includes('crownPlates(crown)'),'the crown must be drawn from crownPlates');
+});
+
+test('on a phone, nothing in the header may change the page height',()=>{
+ const css=readDist('console.css');
+ // The bug: the plot ledger was display:none on a phone until the scheme crossed
+ // the FAR allowance, then display:flex. Widening the base span made the header
+ // grow 62px and shoved the hero down the page — every time the reader crossed
+ // the limit. A warning must not move the drawing under a thumb that is dragging
+ // the very slider that caused it.
+ assert.ok(!/\.console-site:has\(\.console-flag\)/.test(css),
+  'the ledger must never be shown conditionally — that is what resized the page');
+ // The note carries the second copy of the sentence and is re-shown by a
+ // compound selector that outranks a bare class, so hiding it needs both.
+ assert.ok(/\.console-site-note,\s*\.console-site-note\.console-flag\{display:none\}/.test(css),
+  'the breach note must stay hidden on a phone, matched at the same specificity');
+ // The ledger is a fixed-height status line on a phone.
+ const phone=css.slice(css.indexOf('@media(max-width:600px)'));
+ const bar=phone.match(/(^|\n)\s*\.console-site\{[^}]*\}/);
+ assert.ok(bar,'the phone rule for the ledger is missing');
+ assert.ok(/height:\s*20px/.test(bar[0]),`the phone ledger must have a fixed height, got: ${bar[0]}`);
+ // And the header band itself must not be free to grow on a phone.
+ assert.ok(!/@media\(max-width:600px\)\{[^}]*header\{[^}]*height:auto/.test(css),
+  'the phone header must not be height:auto');
+});
+
+test('the sheet bottom band is one in-flow stack, not elements with guessed offsets',()=>{
+ const css=readDist('style.css'),consoleCss=readDist('console.css');
+ // The bug: the phone readout sat at a hard-coded bottom while the title block
+ // beneath it grew from one line to two on a narrow sheet, so the contribution
+ // figure was printed straight through "Concept prototype — not for
+ // construction". A fixed offset cannot know a sibling's height.
+ assert.ok(!/body\.is-console \.phone-readout\{[^}]*position:\s*absolute/.test(css),
+  'the phone readout must not be positioned by a guessed offset');
+ assert.ok(!/phone-readout\{bottom:/.test(consoleCss),
+  'console.css must not re-add a bottom offset to the phone readout');
+ // In flow means not out of flow — NOT "static". The band is position:relative so
+ // it paints above the absolute canvas, and relative is still in flow. Pinning
+ // this to the literal string "static" is what let the band become invisible
+ // behind the drawing while this test went on passing.
+ for(const sel of ['.viewport>.viewfoot','.viewport>.skyline-readout','.viewport>.titleblock']){
+  const scoped=[...css.matchAll(/([^{}]*\.viewport[^{}]*)\{([^}]*)\}/g)]
+   .filter(m=>m[1].includes('>')&&m[1].includes(sel));
+  assert.ok(scoped.length,`no .viewport rule targets ${sel}`);
+  const pos=[...scoped.map(m=>/position:\s*([a-z]+)/.exec(m[2])).filter(Boolean)];
+  assert.ok(pos.length,`${sel} sets no position at all`);
+  assert.ok(!['absolute','fixed'].includes(pos[pos.length-1][1]),
+   `${sel} is ${pos[pos.length-1][1]} — the band would stop stacking and go back to colliding`);
+ }
+ // And the drawing must read that band rather than assume a height for it.
+ const app=readDist('app.js');
+ assert.ok(app.includes('footInset'),'the canvas must measure the bottom band');
+ // The same correction here: the predicate has to accept relative, or it finds
+ // nothing and footInset silently becomes zero.
+ assert.ok(/!\['absolute','fixed'\]\.includes\(getComputedStyle\(c\)\.position\)/.test(app),
+  'the band measurement must skip out-of-flow children, not only accept static ones');
+ assert.ok(!/ctx\.fillText\(num\(landArea\)/.test(app)||/H-footInset-14/.test(app),
+  'the land-area annotation must be anchored to the measured band');
+ // Vertically it still measures the band. Horizontally it must measure too: the
+ // bottom-right corner is shared with the view foot's right-hand label, whose
+ // width is set by the language, so a fixed W-60 put the X arm on top of it in
+ // English and not in Thai.
+ const triad=/const origin=\[([^\]]*)\];ctx\.strokeStyle='#a2aca9'/.exec(app);
+ assert.ok(triad,'the axis triad origin is missing or no longer a single point');
+ assert.ok(/H-footInset-16/.test(triad[1]),
+  `the triad must clear the measured band vertically, got origin ${triad[1]}`);
+ assert.ok(!/W-60/.test(triad[1]),
+  'the triad must measure the view foot label, not sit at a fixed width — that '+
+  'offset only clears in one of the three languages');
+ assert.ok(/viewfoot span/.test(app)&&/labelRight/.test(triad[1]),
+  'the triad must be placed against the measured view foot label it has to clear');
+});
+
+test('the storey datum is knocked out of the drawing and never crosses the dimension',()=>{
+ const app=readDist('app.js');
+ // Amber text on a curtain wall is not a label. It needs a plate.
+ assert.ok(/ctx\.fillStyle='#111416';\s*ctx\.fillRect\(lx-3/.test(app),
+  'the storey datum needs a knockout plate in the sheet ground colour');
+ // And it must measure itself rather than start at a clamped x and run right.
+ assert.ok(app.includes('ctx.measureText(label)'),'the datum must measure its own width');
+ assert.ok(!/Math\.min\(pp\[0\]\+12,W-92\)/.test(app),
+  'the clamped-start datum is the bug that crossed the dimension gutter');
+ // The height graduation adapts to the space, so labels never pile up.
+ assert.ok(/const step=dimH<190\?200:dimH<420\?100:50;/.test(app),
+  'the height graduation must adapt to a short sheet');
 });

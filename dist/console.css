@@ -13,8 +13,14 @@ body:not(.is-console) .console-site,body:not(.is-console) header .mastnote{displ
 .console-site-note{display:none;font-size:11px;color:var(--muted);max-width:22ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .console-site-note.console-flag{display:inline}
 .console-nav{display:flex;gap:18px;border-bottom:1px solid var(--ink);padding:0;flex:0 0 auto;overflow-x:auto}
-.console-nav button{padding:7px 0;border:0;border-bottom:3px solid transparent;min-height:32px;white-space:nowrap;font-size:12px;background:none}
-.console-nav [aria-selected="true"]{border-bottom-color:var(--accent);font-weight:600}
+/* The word goes; the mark stays. The label is kept for the accessibility tree
+   and the hover title, so nothing is lost but the pixels. */
+.console-nav button{padding:7px 0;border:0;border-bottom:3px solid transparent;min-height:32px;white-space:nowrap;font-size:12px;background:none;display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
+.console-nav .wg{display:block;width:18px;height:18px;flex:0 0 auto}
+.console-nav .wt{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.console-nav button:hover{color:var(--ink)}
+.console-nav [aria-selected="true"]{border-bottom-color:var(--accent);font-weight:600;color:var(--ink)}
+.console-nav [aria-selected="true"] .wg{color:var(--accent)}
 .console-rail-nav{display:none}
 body.is-console .studio{flex:1;min-height:0;height:auto;grid-template-columns:220px minmax(0,1fr) 300px;overflow:hidden;border:0}
 body.is-console .studio>.viewport{height:100%;min-height:0!important;order:0;overflow:hidden}
@@ -76,7 +82,26 @@ body.is-console .mobileonly{display:none}
  body.is-console .form-atlas{grid-template-columns:repeat(4,minmax(0,1fr))}
  .console-dock .wk-figwrap svg{min-width:0}
 }
-@media(max-width:600px){body.is-console .console-site{grid-column:1 / -1;grid-row:3;padding-top:4px}}
+@media(max-width:600px){
+ /* The phone header is a fixed band, because the tower has to keep the screen.
+    The plot ledger therefore collapses to its status line and that line is
+    ALWAYS present at a fixed height. It used to be hidden until the scheme
+    crossed the allowance and then appear — which resized the header by 62px and
+    shoved the hero down the page every time the base span pushed the tower over
+    the FAR limit. A warning that moves the drawing under the reader's hand while
+    they drag a slider is worse than no warning. Nothing in the header may now
+    change its height on a phone. */
+ body.is-console .console-site{grid-column:1 / -1;grid-row:3;padding-top:4px}
+ .console-site{display:flex;flex:1 0 100%;order:3;height:20px;align-items:center;gap:0;border-left:0;padding:0 0 4px;overflow:hidden}
+ .console-site .console-field{display:none}
+ /* Both selectors, deliberately: `.console-site-note.console-flag` outranks a
+    bare class, so hiding the note with the weaker selector lets the sentence
+    reappear the moment the scheme breaches — which is the same page jump this
+    rule exists to remove, one element further down. */
+ .console-site-note,.console-site-note.console-flag{display:none}
+ .console-capacity,.console-capacity.console-flag{display:inline;font-size:10.5px;line-height:20px;color:var(--muted);border-left:0;padding-left:0}
+ .console-capacity.console-flag{color:var(--ink);border-left:2px solid var(--accent);padding-left:6px}
+}
 @media(max-width:430px){.console-field select{width:112px}.console-field input{width:70px}.console-site{gap:4px 10px}.console-nav{gap:16px}}
 .console-rail-nav[hidden]{display:none}
 .facade-desk h2{font-size:16px;margin:0 0 8px}.facade-desk>p{font-size:12px;line-height:1.65;max-width:78ch}
@@ -103,8 +128,9 @@ body.is-console [hidden]{display:none!important}
 /* Phone: one tool row under a 44px header. The tower keeps the screen.
    Base, then floors, then the live contribution on the sheet. */
 @media(max-width:600px){
- .console-site{display:none}
- .console-site:has(.console-flag){display:flex;padding:4px 0}
+ /* The ledger is always on a phone (see the fixed-height rule further down), so
+    the breach can turn it amber instead of materialising a bar under the header. */
+ .console-site-note{display:none}
  .console-rail-nav{display:none}
  .console-nav{gap:16px}
  .console-nav button{min-height:44px;padding:0;display:inline-flex;align-items:center}
@@ -121,7 +147,8 @@ body.is-console [hidden]{display:none!important}
  body.is-console .form-atlas{display:flex;overflow-x:auto;gap:8px;margin:0 0 4px;padding-bottom:2px}
  body.is-console .form-atlas button{flex:0 0 64px;min-width:44px;min-height:64px}
  body.is-console .titleblock{padding:4px 12px}
- body.is-console .phone-readout{bottom:42px}
+ /* The readout is now in flow directly above the title block, so it no longer
+    needs an offset that has to guess the block's height. */
  body.is-console .viewfoot{display:none}
  .searchcontrols{flex-direction:column;align-items:stretch;width:100%;gap:8px}
  .searchcontrols label{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;white-space:normal}
