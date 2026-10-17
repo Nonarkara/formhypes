@@ -474,15 +474,30 @@ export function renderSite({lang,state,changed}){
   sun:{altitude:sun.altitude,azimuth:sun.azimuth}});
 
  const body=wrap('st-body');
+ /* THE TWO DRAWINGS SHARE ONE COLUMN, AND THE NUMBERS GET THE RAIL.
+
+    Side by side, a 2.6:1 landscape is short and a ten-row fact list is tall, so
+    the landscape alone left the bottom-left of the sheet empty — the same
+    imbalance one level down. Both drawings are of the same lot: one is what it
+    stands in, the other is what it would see. Stacked in the figure column they
+    are about half the height of the rail they sit beside, and the composition
+    closes. */
+ const figCol=wrap('st-figcol');
  const fig=wrap('st-fig');
  const scene=makeScene({radius:ground.meta.radius,towerH});
- // The seat was decided in plotFacts, from the same call that produced the
- // numbers below. The drawing draws that seat rather than choosing its own,
- // because the version where the renderer placed the tower itself produced a
- // building on one spot and an appraisal of a different one.
  fig.innerHTML=landscapeSVG({ground,city:survey,plot,tower:facts.seated.pts,towerH,scene,
   labels:{aria:c['st.title']+' · '+ground.meta.label}});
- body.append(fig);
+ figCol.append(fig);
+
+ // The sky section, drawn from the same 72 bearings the percentage above was
+ // computed from — so the shape and the number cannot disagree.
+ const sky=wrap('st-sky');
+ const skyFig=wrap('st-fig');
+ skyFig.innerHTML=skyViewSVG({skyline:facts.skyline,svf:facts.svf,
+  labels:{title:c['st.skyTitle'],value:`${num(facts.svf*100,0)}%`,aria:c['st.skyTitle']}});
+ sky.append(skyFig,el('p',c['st.skyNote']));
+ figCol.append(sky);
+ body.append(figCol);
 
  const side=wrap('st-side');
  const pick=document.createElement('select');pick.className='st-pick';pick.id='siteLot';
@@ -497,7 +512,11 @@ export function renderSite({lang,state,changed}){
  side.append(pick);
 
  const dl=el('dl');dl.className='st-rows';
- const kv=(k,v)=>{if(v===null||v===undefined||v==='')return;dl.append(el('dt',k),el('dd',v))};
+ // Each pair is wrapped in its own box. Without that, the grid below has no way
+ // to know which dd belongs to which dt, and can put a label in one cell with
+ // its number in the next — which is the one thing this layout is for.
+ const kv=(k,v)=>{if(v===null||v===undefined||v==='')return;
+  const row=el('div');row.className='st-row';row.append(el('dt',k),el('dd',v));dl.append(row)};
  const n=(v,d=1)=>num(v,d);
  kv(c['st.area'],`${n(facts.area)} ${c['st.lot']}`);
  kv(c['st.coverage'],`${num(facts.coverage*100,0)}%`);
@@ -525,15 +544,6 @@ export function renderSite({lang,state,changed}){
  side.append(dl);
  body.append(side);
  host.append(body);
-
- // The sky section, drawn from the same 72 bearings the percentage above was
- // computed from — so the shape and the number cannot disagree.
- const sky=wrap('st-sky');
- const skyFig=wrap('st-fig');
- skyFig.innerHTML=skyViewSVG({skyline:facts.skyline,svf:facts.svf,
-  labels:{title:c['st.skyTitle'],value:`${num(facts.svf*100,0)}%`,aria:c['st.skyTitle']}});
- sky.append(skyFig,el('p',c['st.skyNote']));
- host.append(sky);
 
  const src=el('p',c['st.source']);src.className='st-source';host.append(src);
 }

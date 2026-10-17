@@ -207,19 +207,70 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
    dark; the numbers sit beside it on the panel, not on top of it. */
 .st-head h3{margin:0 0 4px;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);font-weight:600}
 .st-head p{margin:0 0 12px;max-width:62ch;font-size:19px;line-height:1.4;color:var(--ink)}
-.st-body{display:flex;flex-wrap:wrap;gap:12px 34px;align-items:flex-start;margin:0 0 14px}
-.st-fig{flex:0 0 auto;line-height:0}
-.st-fig svg{display:block;width:760px;height:auto;max-width:100%}
-.st-side{flex:0 1 auto;min-width:0;max-width:340px}
+/* THE DRAWING IS FLUID, AND THE NUMBERS ARE AN INSTRUMENT BESIDE IT — NOT A
+   CAPTION UNDER IT.
+
+   `.st-fig` used to be `flex:0 0 auto` with the SVG at a fixed 760px and
+   `max-width:100%`. That is circular and it constrained nothing: an auto flex
+   basis takes its width from its content, so the figure was already 760px wide
+   and the percentage resolved against that. The drawing overflowed its panel at
+   every desktop width — this panel measures 414 to 614px inside the console —
+   and `flex-wrap` then pushed the numbers into a narrow ribbon underneath with
+   two thirds of the sheet blank. The imbalance in the screenshot was never a
+   colour or a spacing decision; it was a circle.
+
+   So the figure gets a real flex basis and the SVG fills it, and the number rail
+   is a fixed column held against the right edge with a rule between them. The
+   rule is not decoration: these are measurements of a lot, not labels on the
+   drawing, and a line between the two is what stops a reader binding "84%" to
+   a shape in the picture rather than to the ground it came from. */
+.st-body{display:flex;flex-wrap:wrap;gap:14px 40px;align-items:flex-start;justify-content:space-between;margin:0 0 14px}
+/* The figure column carries the flex basis, because it now holds both drawings.
+   It has to be the column and not the individual figures: two children, one of
+   which must be allowed to fill it. */
+.st-figcol{flex:1 1 360px;min-width:0;max-width:580px;display:flex;flex-direction:column;gap:14px}
+.st-fig{flex:0 0 auto;min-width:0;max-width:none;line-height:0}
+.st-fig svg{display:block;width:100%;height:auto}
+.st-side{flex:0 0 250px;max-width:250px;padding-left:20px;border-left:1px solid var(--line)}
 .st-pick{display:block;width:100%;margin:0 0 12px;padding:5px 6px;border:1px solid var(--line);border-radius:0;background:var(--paper);color:var(--ink);font:13px var(--mono)}
-.st-rows{margin:0}
+/* Each pair is its own box, so a grid column can never put a label in one cell
+   and its number in the next. The <div> inside <dl> is valid HTML and is the
+   only way to group a dt/dd pair without changing what the list means.
+
+   The grid is what stops the stacked layout from becoming a tall thin ribbon of
+   numbers under a wide drawing — the second half of the imbalance. Each row is
+   its own grid item, so the block under the picture is as wide as the picture. */
+.st-rows{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:9px 26px}
+.st-row{display:flex;flex-direction:column;min-width:0}
 .st-rows dt{font-size:11px;color:var(--muted);line-height:1.5}
-.st-rows dd{margin:0 0 5px;font:600 13px var(--mono);color:var(--ink);letter-spacing:-.01em}
-.st-sky{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:flex-start;border-top:1px solid var(--line);padding-top:12px}
-.st-sky .st-fig svg{width:420px}
-.st-sky p{margin:0;flex:1 1 200px;max-width:40ch;font-size:12px;line-height:1.55;color:var(--muted);align-self:center}
+.st-rows dd{margin:0;font:600 13px var(--mono);color:var(--ink);letter-spacing:-.01em}
+/* Inside the figure column the sky section is a stack, not a pair: the column is
+   narrow, and a chart with a note beside it would wrap the note under anyway.
+   The section keeps its rule so the two drawings read as two sheets. */
+.st-sky{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:12px;min-width:0}
+.st-sky p{margin:0;max-width:54ch;font-size:12px;line-height:1.55;color:var(--muted)}
 .sx-s{font:9.5px var(--mono);fill:var(--muted)}
 .st-source{margin:12px 0 0;font-size:9.5px;line-height:1.6;color:var(--faint)}
 .st-warn{border:1px solid var(--accent);border-left-width:3px;padding:10px 14px;margin:0 0 12px}
 .st-warn p{margin:0;font-size:13px;line-height:1.5;color:var(--ink)}
-@media(max-width:900px){.st-fig svg{width:340px}.st-side{max-width:none}.st-head p{font-size:17px}}
+/* WHICH LAYOUT APPLIES IS A QUESTION ABOUT THE PANEL, NOT THE WINDOW.
+
+   Inside the console this desk panel measures 414 to 614px on a desktop
+   viewport and 864px on a narrow one, because the console's own rail comes and
+   goes and takes the width with it. A viewport media query therefore keys off
+   the wrong number, and gets it exactly backwards: it stacks at 1440px where
+   the panel is narrow, and would sit side by side at 900px where the panel is
+   wide. This asks the panel instead. */
+#siteDesk{container-type:inline-size}
+@container (max-width:680px){
+ .st-body{gap:14px}
+ .st-figcol{flex:1 1 100%;max-width:none}
+ /* The rail goes full width when it wraps, and its rule turns with it — a
+    vertical rule on a full-width block would be a line hanging off the drawing
+    with nothing to divide. The fact rows then lay out across the whole sheet
+    instead of standing in a narrow ribbon under a wide picture, which is the
+    other half of the imbalance. */
+ .st-side{flex:1 1 100%;max-width:none;border-left:0;border-top:1px solid var(--line);padding:12px 0 0}
+ .st-pick{max-width:320px}
+}
+@media(max-width:900px){.st-head p{font-size:17px}}

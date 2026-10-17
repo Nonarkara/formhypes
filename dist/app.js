@@ -18,7 +18,7 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=3
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=07c524befa';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=26a9b41c9c';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=54f76352d0';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=df877da51e';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';

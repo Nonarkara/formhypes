@@ -642,6 +642,70 @@ test('a crescent lot still gets the building centred on something solid',()=>{
   'the building is seated in the courtyard');
  assert.equal(placed.holds,true,'a 16 m plate fits easily on a 60 × 20 arm');
 });
+test('the drawing is fluid, so it cannot overflow the panel it sits in',()=>{
+ /* `.st-fig` was `flex:0 0 auto` with the SVG at a fixed 760px and
+    `max-width:100%`. That is circular: an auto flex basis takes its width from
+    its content, so the figure was already 760px wide and the percentage
+    resolved against that. The drawing overflowed its panel at every desktop
+    width — this panel measures 414 to 614px inside the console — and wrap then
+    pushed the number rail into a narrow ribbon underneath with two thirds of the
+    sheet blank. The reader saw an unbalanced page; the cause was a circle.
+
+    Asserted on the shipped CSS: a figure with no basis, or an SVG with a fixed
+    pixel width, is the two ways back into it. */
+ const css=read('desks.css');
+ // Anchored to the start of a line, not to "after a closing brace": the rule
+ // being looked for here can sit directly under a comment, which is exactly
+ // where an explanatory one goes.
+ const rule=sel=>{
+  const m=new RegExp('^\\s*'+sel.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\{([^}]*)\\}','m').exec(css);
+  assert.ok(m,`no rule for ${sel} in desks.css`);
+  return m[1];
+ };
+ const fig=rule('.st-figcol'),svg=rule('.st-fig svg'),body=rule('.st-body');
+ assert.match(fig,/flex:\s*1 1/,`the figure column has no flex basis (${fig.trim()}) — max-width on its child cannot constrain it`);
+ assert.doesNotMatch(svg,/width:\s*\d+px/,
+  `the SVG is at a fixed pixel width (${svg.trim()}); it must fill its figure instead`);
+ assert.match(svg,/width:\s*100%/,'the SVG does not fill its figure');
+ // And the numbers must be held apart from the drawing, not stacked under it
+ // by accident: an explicit rail against the far edge with a rule between.
+ assert.match(body,/justify-content:\s*space-between/,
+  'the body does not push the two instruments to opposite edges');
+ const side=rule('.st-side');
+ assert.match(side,/border-left:\s*1px solid/,`the number rail has no rule separating it from the drawing (${side.trim()})`);
+ // And when it stacks, the rule has to turn, or it hangs off the drawing's edge.
+ // The stacking rule is a CONTAINER query, not a media query: inside the console
+// this panel is 414..614px on a desktop viewport and 864px on a narrow one,
+// because the console's own rail comes and goes. A viewport query keys off the
+// wrong number and gets it exactly backwards.
+ assert.match(css,/#siteDesk\{[^}]*container-type:\s*inline-size/,
+  'the desk panel is not a query container, so the layout cannot react to its own width');
+ const narrow=/@container\s*\(max-width:\s*680px\)\{([\s\S]*?)\n\}/.exec(css);
+ assert.ok(narrow,'there is no container query for the stand-here desk');
+ assert.match(narrow[1],/border-left:\s*0/,'the stacked layout keeps a vertical rule that now dangles');
+ assert.match(narrow[1],/border-top:\s*1px solid/,'the stacked layout draws no rule between the two instruments');
+ assert.match(narrow[1],/\.st-side\{[^}]*flex:\s*1 1 100%/,
+  'the number rail keeps its 250px when it wraps, so it stands in a ribbon beside a full-width picture');
+ // The number pairs are boxed, so a grid column cannot split one.
+ const ctx=read('context.js');
+ assert.match(ctx,/row\.className='st-row'/,`the label and its number are appended unwrapped (${/row\.className/.test(ctx)?'':''})`);
+ const desk=read('desks.css');
+ assert.match(desk,/\.st-rows\{[^}]*display:grid/,
+  'the fact rows are not a grid, so they stack into a ribbon under a wide drawing');
+ // And both drawings live in the figure column. Side by side a 2.6:1 landscape
+ // is short and a ten-row rail is tall, so the landscape alone left the bottom
+ // left of the sheet empty — the same imbalance one level down. Stacked in the
+ // column the two are about half the height of the rail beside them.
+ const col=rule('.st-figcol');
+ assert.match(col,/flex-direction:\s*column/,'the figure column does not stack its two drawings');
+ const ctxSite=read('context.js');
+ assert.match(ctxSite,/figCol\.append\(sky\)/,
+  'the sky section is appended to the sheet rather than to the figure column, so it sits under both instruments instead of beside one');
+ assert.match(ctxSite,/body\.append\(figCol\)/,'the figure column is never appended to the body');
+ assert.doesNotMatch(ctxSite,/host\.append\(sky\)/,
+  'the sky section is appended to the desk host, which puts it back below the number rail');
+});
+
 test('the site module and its data are inside the release graph',()=>{
  const rel=readFileSync(new URL('../scripts/release-id.mjs',import.meta.url),'utf8');
  assert.match(rel,/ground\.data\.js/,'the harvested ground can change without moving a stamp');
