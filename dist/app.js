@@ -7,7 +7,7 @@ import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
 import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,crownOf,gardenOf,crownPlates} from './crowns.js?v=b0141b99a4';
-import {cityData,skyline,visibleMassings,ringArea} from './cityscape.js?v=04a51ce916';
+import {cityData,skyline,visibleMassings,ringArea} from './cityscape.js?v=d542049f94';
 import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=1df95d7e5e';
 import {coreOf,coreSVG,CORE_SRC} from './core.js?v=e98b022d2a';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
@@ -18,13 +18,13 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=3
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=07c524befa';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=26a9b41c9c';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=df877da51e';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=a751571d18';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=f631563c95';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=9fd8a216d4';
 import {WORKSPACES} from './console.js?v=290e925d13';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
@@ -288,7 +288,9 @@ function update(){
  $('ledIncome').textContent=metrics.ledArea>0?money(metrics.ledRent):tt('m.ledOff');
  if($('crownNote'))$('crownNote').textContent=tt('crown.reads.'+state.crown);
  if($('gardenNote'))$('gardenNote').textContent=tt('garden.reads.'+state.garden);
- if($('ledNote'))$('ledNote').textContent=metrics.ledArea>0?tt('m.ledNote'):tt('m.ledOffNote');
+ const ledTxt=metrics.ledArea>0?tt('m.ledNote'):tt('m.ledOffNote');
+ if($('ledNote'))$('ledNote').textContent=ledTxt;
+ if($('ledRailNote'))$('ledRailNote').textContent=ledTxt;
  $('modelName').textContent=tt('f.'+state.family)+' / '+state.floors;
  // The header states the building's height, and the building includes its crown.
  // Reading the occupied height here while the allowance is tested on the total
@@ -655,7 +657,7 @@ function drawTower(){
    const o=f.pts[0],px=[f.pts[1][0]-o[0],f.pts[1][1]-o[1]],py=[f.pts[3][0]-o[0],f.pts[3][1]-o[1]];
    for(const seg of surfacePattern(state,cols,rows)){
     if(seg[0]==='v')line([o[0]+px[0]*seg[1],o[1]+px[1]*seg[1],o[2]],[o[0]+px[0]*seg[1]+py[0],o[1]+px[1]*seg[1]+py[1],o[2]+py[2]],mat.edge+'55',.4);
-    else if(seg[0]==='h')line([o[0]+py[0]*seg[1],o[1]+py[1]*seg[1],o[2]+py[2]*seg[1]],[o[0]+py[0]*seg[1]+px[0],o[1]+py[1]*seg[1]+px[1],o[2]+py[2]*seg[1]+px[0]*0+px[0],o[2]],mat.edge+'55',.4);
+    else if(seg[0]==='h')line([o[0]+py[0]*seg[1],o[1]+py[1]*seg[1],o[2]+py[2]*seg[1]],[o[0]+py[0]*seg[1]+px[0],o[1]+py[1]*seg[1]+px[1],o[2]+py[2]*seg[1]],mat.edge+'55',.4);
     else line([o[0]+px[0]*seg[1],o[1]+px[1]*seg[1],o[2]],[o[0]+px[0]*seg[1]+py[0],o[1]+px[1]*seg[1]+py[1],o[2]+py[2]],mat.edge+'40',.35);
    }
   }
@@ -1172,18 +1174,19 @@ function trioPlate(){
  for(const t of T)if(!t.zones)t.zones=fourCorners(t.half,12);
 
  const rows=el('div','trio');
- for(const t of T){
+ for(const [idx,t] of T.entries()){
+  const patId=`hatch3-${idx}`;
   const ns=svgEl('svg',{viewBox:'0 0 220 232'});
   for(let i=20;i<200;i+=20)ns.appendChild(svgEl('path',{d:`M${i} 14 V196 M14 ${i} H206`,stroke:'#dcdeda','stroke-width':'.5'}));
   const defs=svgEl('defs');
-  const pat=svgEl('pattern',{id:'hatch3',width:'5',height:'5',patternUnits:'userSpaceOnUse'});
+  const pat=svgEl('pattern',{id:patId,width:'5',height:'5',patternUnits:'userSpaceOnUse'});
   pat.appendChild(svgEl('path',{d:'M0,5 L5,0',stroke:'#8b918d','stroke-width':'.7'}));
   defs.appendChild(pat);ns.appendChild(defs);
 
   ns.appendChild(svgEl('polygon',{points:pts(t.outline),fill:'#eef0ec',stroke:'#191c1b','stroke-width':'1.4'}));
   if(t.grid)for(const g of t.grid)
    ns.appendChild(svgEl('path',{d:`M${g[0]} ${g[1]} L${g[2]} ${g[3]}`,stroke:'#8b918d','stroke-width':'.6'}));
-  if(t.core)ns.appendChild(svgEl('polygon',{points:pts(t.core),fill:'url(#hatch3)',stroke:'#585e5b','stroke-width':'.8'}));
+  if(t.core)ns.appendChild(svgEl('polygon',{points:pts(t.core),fill:`url(#${patId})`,stroke:'#585e5b','stroke-width':'.8'}));
   for(const z of t.zones)ns.appendChild(svgEl('polygon',{points:pts(z),fill:'#f59e0b',stroke:'#191c1b','stroke-width':'.5'}));
 
   // overall dimension, witness lines off the plate — AGS Appendix D practice

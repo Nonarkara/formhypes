@@ -103,3 +103,26 @@ test('every sub-tab has a button, in all three languages, and no panel is orphan
  // Every panel must also be reachable by id, or it renders but never opens.
  for(const p of declared)assert.match(src,new RegExp(`hidden=place!==${declared.indexOf(p)}`),`${p} is never unhidden`);
 });
+
+test('every id in index.html is unique and every local module import carries a valid content stamp',()=>{
+ const html=read('index.html');
+ const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
+ const seen=new Set(),dups=[];
+ for(const id of ids){if(seen.has(id))dups.push(id);seen.add(id)}
+ assert.deepEqual(dups,[],`duplicate id attributes in index.html: ${dups.join(', ')}`);
+ // Every ES module import in dist/*.js must carry a 10-hex content stamp
+ // matching the target file's sha256 — no unstamped imports (which cause double
+ // module execution) and no @CITYSCAPE@ placeholder tokens.
+ const jsFiles=['app.js','areasplit.js','brief.js','cityscape.js','cityscape.data.js','console.js','context.js','core.js','crowns.js','details.js','facade.js','geometry.js','ground.data.js','i18n.js','lens.js','location.js','manual.js','manual-text.js','materials.js','model.js','modulor.js','play.js','reader.js','reader-content.js','research.js','research-reader.js','research-tracks.js','schema.js','site.js','solar.js','walk.js'];
+ for(const f of jsFiles){
+  const src=read(f);
+  assert.doesNotMatch(src,/@CITYSCAPE@/,`${f} still contains an unstamped @CITYSCAPE@ placeholder`);
+  for(const [,spec] of src.matchAll(/\bfrom\s+['"](\.[^'"]+)['"]/g)){
+   const m=/^\.\/([\w./-]+\.js)\?v=([a-f0-9]{10})$/.exec(spec);
+   assert.ok(m,`${f} imports '${spec}' without a 10-char sha256 ?v= stamp`);
+   const actual=createHash('sha256').update(readFileSync(new URL('../dist/'+m[1],import.meta.url))).digest('hex').slice(0,10);
+   assert.equal(m[2],actual,`${f} stamps ${m[1]} as ${m[2]}, actual sha256 is ${actual}`);
+  }
+ }
+});
+

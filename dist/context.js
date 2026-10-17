@@ -8,7 +8,7 @@ import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposur
 import {lensOf,lensSVG,lensFormula,LENS_KEY,LIFE_YEARS} from './lens.js?v=2949cf8b98';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
 import {CITYSCAPE} from './cityscape.data.js?v=fb3efe9e16';
-import {parseGround,parseCity,plotCandidates,plotFacts,plateOnPlot,landscapeSVG,skyViewSVG,makeScene} from './site.js?v=e4d4c65cc9';
+import {parseGround,parseCity,plotCandidates,plotFacts,plateOnPlot,landscapeSVG,skyViewSVG,makeScene} from './site.js?v=7cb1769785';
 // The lens strings live in the shared translation file, not in this desk's own
 // dictionary: they are the same words the reader has already met in the rail,
 // and a second copy is a second thing to drift.

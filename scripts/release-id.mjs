@@ -80,8 +80,12 @@ for (const f of [...SHARED, ...MEDIA]) ids[f] = sha(await readFile(join(DIST, f)
 
 const solar = stamp(await read('solar.js'), ['./vendor/suncalc.js'], ids);
 await write('solar.js', solar);ids['solar.js']=sha(solar);
+const cityscape = stamp(await read('cityscape.js'), ['./cityscape.data.js'], ids);
+await write('cityscape.js', cityscape);ids['cityscape.js']=sha(cityscape);
 const model = stamp(await read('model.js'), ['./geometry.js','./solar.js','./crowns.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js'], ids);
 await write('model.js', model);ids['model.js']=sha(model);
+const manual = stamp(await read('manual.js'), ['./schema.js','./manual-text.js','./model.js'], ids);
+await write('manual.js', manual);ids['manual.js']=sha(manual);
 
 for(const f of DESKS){const src=stamp(await read(f), ['./modulor.js','./model.js','./solar.js','./geometry.js','./lens.js','./site.js','./ground.data.js','./cityscape.data.js','./i18n.js',...MEDIA], ids);await write(f,src);ids[f]=sha(src)}
 

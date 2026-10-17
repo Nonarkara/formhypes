@@ -355,7 +355,9 @@ export function azimuthSpan(ring,ox,oy){
    const g=(s[(i+1)%s.length]-s[i]+Math.PI*2)%(Math.PI*2);
    if(g>gap){gap=g;gi=i}
   }
-  return {start:s[(gi+1)%s.length], width:Math.PI*2-gap, contains:pointInRing(ox,oy,ring)};
+  const rawStart=s[(gi+1)%s.length];
+  const start=((rawStart%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+  return {start, width:Math.PI*2-gap, contains:pointInRing(ox,oy,ring)};
 }
 
 export function skyViewFactor(ox,oy,blocks,skip){
@@ -372,7 +374,7 @@ export function skyViewFactor(ox,oy,blocks,skip){
    const span=width/(Math.PI*2)*SKY_BINS;
    const n=Math.max(1,Math.ceil(span));
    for(let k=0;k<=n;k++){
-    const bin=Math.floor(a0+span*k/n)%SKY_BINS;
+    const bin=((Math.floor(a0+span*k/n)%SKY_BINS)+SKY_BINS)%SKY_BINS;
     if(alpha>skyline[bin])skyline[bin]=alpha;
    }
   }

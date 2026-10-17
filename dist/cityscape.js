@@ -1,4 +1,4 @@
-import {CITYSCAPE,CITY_KEYS} from './cityscape.data.js?v=@CITYSCAPE@';
+import {CITYSCAPE,CITY_KEYS} from './cityscape.data.js?v=fb3efe9e16';
 export {CITY_KEYS};
 
 /* The city around the plot, from OpenStreetMap. Footprints and heights are real

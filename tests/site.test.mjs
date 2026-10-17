@@ -126,6 +126,18 @@ test('sky view factor is one on open ground and falls as the city closes in',()=
  const {skyline}=S.skyViewFactor(0,0,ring);
  assert.equal(skyline.length,72);
  assert.ok(skyline.every(v=>v>=0&&v<=Math.PI/2),'a skyline elevation left the hemisphere');
+ // A building due West (-x) must block the exact same sky fraction as an
+ // identical building due East (+x), and populate the Western skyline bins
+ // (36..71). Because atan2(x,y) is negative for x < 0, a raw `% 72` remainder
+ // indexes negative elements on the Float64Array and drops the entire Western
+ // hemisphere.
+ const eastBlock={h:180,pts:[[30,-10],[50,-10],[50,10],[30,10]]};
+ const westBlock={h:180,pts:[[-50,-10],[-30,-10],[-30,10],[-50,10]]};
+ const eastRes=S.skyViewFactor(0,0,[eastBlock]);
+ const westRes=S.skyViewFactor(0,0,[westBlock]);
+ assert.ok(eastRes.svf<1&&westRes.svf<1,'a 180 m block 30 m away must reduce SVF in both hemispheres');
+ assert.ok(Math.abs(eastRes.svf-westRes.svf)<1e-12,`West block SVF (${westRes.svf}) differs from East block SVF (${eastRes.svf})`);
+ assert.ok(westRes.skyline.slice(36,72).some(v=>v>0),'Western hemisphere block left skyline bins 36..71 empty');
 });
 
 test('the observation point is inside the plot, even when the plot is not convex',()=>{
