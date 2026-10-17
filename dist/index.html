@@ -15,7 +15,7 @@
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="720">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="style.css?v=0fd816c706">
+<link rel="stylesheet" href="style.css?v=ae1dceb9f0">
 <link rel="stylesheet" href="console.css?v=be44cec151">
 <link rel="stylesheet" href="desks.css?v=b844645a84">
 </head>
@@ -25,9 +25,19 @@
      hairlines, so the drawing below gets the screen. -->
 <header>
   <a href="#studio" class="brand" title="FormHypes — by Dr Non at depa + Axiom; inspired by his MIT classmate Shouheng Chen, 2006–2026" aria-label="FormHypes — by Dr Non at depa + Axiom; inspired by his MIT classmate Shouheng Chen, 2006–2026"><span class="b-form">Form</span><span class="b-hypes">Hypes</span> <span class="b-cred">inspired by <i>SHDT</i></span></a>
+  <!-- The two destinations are drawn, not just named. Studio is the object this
+       site is about — the cruciform plate with its core — so the switch carries
+       the product's own plan rather than an icon borrowed from a font. Research
+       is a page. Both are 1px outlines in the ink they inherit, so they change
+       weight with the label instead of sitting on top of it as two colours.
+
+       The label lives in a child span on purpose. The i18n pass writes
+       textContent, so a data-i18n on the anchor itself would delete the drawing
+       on the first language change — which is the sort of defect that only
+       shows in Thai. -->
   <nav class="tabs" aria-label="Sections">
-    <a href="#studio" data-tab="studio" aria-selected="true" class="on" data-i18n="nav.studio">Studio</a>
-    <a href="#research" data-tab="research" aria-selected="false" data-i18n="nav.research">Research</a>
+    <a href="#studio" data-tab="studio" aria-selected="true" class="on"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5.5 1.5h5v4h4v5h-4v4h-5v-4h-4v-5h4z"/><path class="ic-core" d="M6.5 6.5h3v3h-3z"/></svg><span data-i18n="nav.studio">Studio</span></a>
+    <a href="#research" data-tab="research" aria-selected="false"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 1.5h6l3 3v10h-9z"/><path d="M9.5 1.5v3h3"/><path d="M5.5 8h5M5.5 10.5h5M5.5 13h3"/></svg><span data-i18n="nav.research">Research</span></a>
   </nav>
   <div class="langs" role="group" aria-label="Language"></div>
   <div class="actions">

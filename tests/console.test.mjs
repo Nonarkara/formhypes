@@ -266,3 +266,51 @@ test('every module in dist is reachable from the page, so nothing is orphaned',(
  assert.deepEqual(orphans,[],
   `these modules sit in dist but nothing on the page can reach them, so they are dead code wearing a valid stamp: ${orphans.join(', ')}`);
 });
+
+/* The top switch is two drawings, and both halves of that are fragile.
+
+   The glyphs live inside the anchor, next to a <span> carrying the label. The
+   i18n pass writes textContent over every [data-i18n] node, so putting the key
+   back on the anchor would delete the drawing on the first language switch —
+   in Thai, at the second click, and never in the English build anyone checks
+   first. The key belongs on the child.
+
+   And the active marker is a 2px rule in the accent, not an inset box-shadow.
+   This stylesheet spends no shadows anywhere, so one here is both a style
+   violation and evidence that the line was drawn by a different hand than the
+   rest of the header. */
+test('the section switch is drawn, and survives the language pass',()=>{
+ const html=read('index.html');
+ const nav=/<nav class="tabs"([\s\S]*?)<\/nav>/.exec(html);
+ assert.ok(nav,'the .tabs nav is missing from index.html');
+ const links=[...nav[1].matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)];
+ assert.equal(links.length,2,`the switch declares ${links.length} destinations, expected 2`);
+ for(const [,attrs,inner] of links){
+  assert.match(inner,/<svg[^>]*class="ic"/,
+   'a section switch entry has no drawing — the menu is text again');
+  assert.match(inner,/<span data-i18n="nav\./,
+   'the label must live in its own span, beside the drawing rather than under it');
+  assert.ok(!/data-i18n=/.test(attrs),
+   'data-i18n sits on the anchor itself: the i18n pass writes textContent and '+
+   'will delete the glyph the first time the language changes');
+  // The glyph is decorative. The link's accessible name comes from the label,
+  // so a screen reader announces "Studio" rather than "graphic".
+  assert.match(inner,/aria-hidden="true"/,
+   'the drawing must be hidden from assistive tech; the label carries the name');
+ }
+ const app=read('app.js');
+ assert.match(app,/\[data-i18n\]'\)\.forEach\(n=>\{n\.textContent=/,
+  'the i18n pass no longer writes textContent — re-derive whether the glyph '+
+  'survives a language switch before trusting this guard');
+});
+
+test('the active section is marked with a rule, not a shadow',()=>{
+ const css=read('style.css');
+ const tab=/\.tabs a\.on\{([^}]*)\}/.exec(css);
+ assert.ok(tab,'the .tabs a.on rule is missing');
+ assert.match(tab[1],/border-bottom-color:\s*var\(--accent\)/,
+  `the active section is not marked with the accent rule, got: ${tab[1].trim()}`);
+ assert.ok(!/box-shadow/.test(tab[1]),
+  'the active section uses a box-shadow; this stylesheet has none, and a rule '+
+  'is what the rest of the header is drawn with');
+});
