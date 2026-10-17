@@ -314,3 +314,46 @@ test('the active section is marked with a rule, not a shadow',()=>{
   'the active section uses a box-shadow; this stylesheet has none, and a rule '+
   'is what the rest of the header is drawn with');
 });
+
+/* The workspace switcher, and the value ladder under the city.
+
+   The strip used to clip every label to nothing — `clip:rect(0 0 0 0)` on a 1px
+   box — and leave nine 18px marks to carry nine meanings alone. Two of the
+   marks were the same picture at that size. A mark earns its place by being
+   legible; hiding the word is not how you make it legible, and the reader was
+   left hovering nine buttons to find out what they did.
+
+   So: every entry carries its name, and no two marks are the same drawing. */
+test('every workspace in the switcher shows its name, not just a mark',()=>{
+ const css=read('console.css');
+ const blocks=[...css.matchAll(/@media\(max-width:(\d+)px\)\{((?:[^{}]|\{[^{}]*\})*)\}/g)];
+ // The label is hidden on a narrow sheet on purpose — there the icon is all
+ // that fits — and shown everywhere else. Both states have to exist, or the
+ // guard passes on a strip with no labels at any width.
+ const desktopRule=/\.console-nav \.wt\{([^}]*)\}/.exec(css.replace(/@media[^}]*\{(?:[^{}]|\{[^{}]*\})*\}/g,''));
+ assert.ok(desktopRule,'there is no .console-nav .wt rule outside a media query');
+ assert.ok(!/clip\s*:\s*rect/.test(desktopRule[1])&&!/width:\s*1px/.test(desktopRule[1]),
+  `the workspace label is clipped away on a desktop sheet: ${desktopRule[1].trim()}`);
+ const narrow=blocks.filter(b=>parseInt(b[1],10)<=600).map(b=>b[2]).join('\n');
+ assert.match(narrow,/\.console-nav \.wt\{[^}]*clip\s*:\s*rect/,
+  'the narrow sheet no longer drops the label — nine marks with no names is '+
+  'what this guard exists to prevent');
+ const js=read('console.js');
+ const glyphs=/WORK_GLYPHS=\{([\s\S]*?)\};/.exec(js);
+ assert.ok(glyphs,'WORK_GLYPHS is missing from console.js');
+ const entries=[...glyphs[1].matchAll(/(\w+)\s*:\s*'([^']*)'/g)];
+ assert.equal(entries.length,9,`the switcher declares ${entries.length} marks, expected 9`);
+ const seen=new Map();
+ for(const [,k,v] of entries){
+  assert.ok(!seen.has(v),`"${k}" and "${seen.get(v)}" are the same drawing; at 18px they were one mark`);
+  seen.set(v,k);
+ }
+ // And the button must actually carry both halves. Compared within the single
+ // statement that builds it — a distance limit between the two halves would
+ // break the first time an attribute was added to the svg.
+ const build=js.split('\n').find(l=>l.includes('class="wg"'));
+ assert.ok(build,'nothing in console.js builds the workspace mark');
+ assert.ok(build.includes('<span class="wt">'),
+  'the workspace button drops its label span, so the visible name and the '+
+  'accessible name can drift apart or the label can disappear on its own');
+});

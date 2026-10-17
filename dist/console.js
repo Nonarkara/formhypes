@@ -27,16 +27,20 @@ const WORK_GLYPHS={
  brief:'<path d="M4 2h8l4 4v12H4z"/><rect x="7" y="9" width="7" height="5"/><path d="M7 5.5h4"/>',
  // the core in section: two lift shafts, a car in one, the stair beside them
  core:'<path d="M4 2v16M10 2v16M16 2v16"/><rect x="4.6" y="5.5" width="4.8" height="3.4"/><path d="M16.6 15.4l2.8-1.3M16.6 11.8l2.8-1.3M16.6 8.2l2.8-1.3"/>',
- // a wall build-up in section: outer leaf, drained cavity, inner leaf
- detail:'<path d="M4 2v16M7.5 2v16M12.5 2v16M16 2v16"/><path d="M7.5 7.6h5M7.5 12.4h5"/>',
+ // a wall build-up in section: two leaves with a hatched cavity between them,
+ // and the outside face marked. It used to be four verticals with two rungs —
+ // which is, at 18px, the same picture `compare` draws. Two parallel leaves and
+ // a diagonal hatch say "section through a wall" in a way four bars never do.
+ detail:'<path d="M5.5 2.5v15M14.5 2.5v15"/><path d="M5.5 4.6h9M5.5 15.4h9"/><path d="M8.2 7.4l3.6 3.4M8.2 11.6l3.6-3.4"/>',
  // a site: the marker dropped on its own parcel
  place:'<path d="M10 17.6S4.4 10.5 4.4 7.3a5.6 5.6 0 1 1 11.2 0c0 3.2-5.6 10.3-5.6 10.3z"/><path d="M10 5.1a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6z"/>',
  // one-point perspective from eye height: ground, a receding bay, a figure in it
  walk:'<path d="M1 16.5h18"/><path d="M4.5 16.5 10 9.5l5.5 7"/><circle cx="10" cy="7" r="2"/><path d="M10 9v7.5"/>',
  // curtain wall: two mullions, one transom
  facade:'<rect x="3" y="4" width="14" height="12"/><path d="M7.7 4v12M12.3 4v12M3 10h14"/>',
- // alternatives held to one area: four bars off one baseline
- compare:'<path d="M2 16.5h16"/><path d="M4.5 16.5V9M8.5 16.5V5M12.5 16.5v-3M16.5 16.5V7"/>',
+ // alternatives held to one area: four bars off one baseline, each stepped off
+ // the last so the set reads as a ranking rather than a fence
+ compare:'<path d="M2 17h16"/><path d="M4 17V10M8 17V6M12 17v-3.5M16 17V8"/>',
  // the shelf: two studies, one behind the other
  studies:'<rect x="2.5" y="10" width="12" height="7"/><rect x="5.5" y="3" width="12" height="7"/>'};
 export function workspaceForTarget(id){return ({briefPanel:'brief',walkPanel:'walk',contextPanel:'place',sitePanel:'place',locationDesk:'place',exploreTitle:'compare',searchResults:'compare',savedStudies:'studies',facadeDesk:'facade',coreFigure:'core',coreFacts:'core',detailFigure:'detail',detailSpec:'detail'})[id]||'form'}

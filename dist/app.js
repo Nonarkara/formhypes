@@ -1,4 +1,4 @@
-import {mountConsole} from './console.js?v=290e925d13';
+import {mountConsole} from './console.js?v=5a98b104b5';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=e1aefac756';
@@ -25,7 +25,7 @@ import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=9fd8a216d4';
-import {WORKSPACES} from './console.js?v=290e925d13';
+import {WORKSPACES} from './console.js?v=5a98b104b5';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -488,9 +488,29 @@ function drawTower(){
  if(W<2||H<2)return;
  drawn={w:Math.round(W),h:Math.round(H)};
  canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
- const scale=Math.min(Math.max(25,H-145)/(ext*.96+state.span*.4),(W-65)/(state.span*2))*zoom;
+ /* The sheet is a field with a margin at the top and a title band at the foot,
+    and the model is fitted into the field — not into the viewport and then hung
+    from 80% of the whole thing.
+
+    That distinction was the headroom bug. Reserving the foot and anchoring to
+    H*.80 of the FULL height put the crown 24px below the top edge on a 924px
+    sheet, so it read as cramped, and on a short sheet the crown ran off the top
+    entirely — the ground plate reaches y=0 at every column, because it is the
+    disc, not the sky, that fills the upper sheet. Two margins that never met:
+    the fit thought it had H-145 to work in and the composition spent the
+    difference on a gap under the base that the band then covers anyway.
+
+    So the field is stated, the model is scaled to fill exactly that field, and
+    the base is placed from the top margin rather than from a fraction of the
+    sheet. baseY is derived, not chosen: it is the head margin plus however much
+    height the model actually occupies above the ground. */
+ const HEAD=Math.max(30,Math.round(H*.10));
+ const FOOT=150;
+ const fieldH=Math.max(120,H-HEAD-FOOT);
+ const scale=Math.min(fieldH/(ext*.96+state.span*.4),(W-65)/(state.span*2))*zoom;
+ const baseY=HEAD+ext*.96*scale;
  const c=Math.cos(yaw),s=Math.sin(yaw);
- const project=(x,y,z)=>{const rx=x*c-y*s,ry=x*s+y*c;return[W*.54+rx*scale,H*.80-(z*.96-ry*.36)*scale,ry-z*.04]};
+ const project=(x,y,z)=>{const rx=x*c-y*s,ry=x*s+y*c;return[W*.54+rx*scale,baseY-(z*.96-ry*.36)*scale,ry-z*.04]};
  function path(pts,fill,stroke,width=1){ctx.beginPath();pts.forEach((v,i)=>{const p=project(...v);if(i)ctx.lineTo(p[0],p[1]);else ctx.moveTo(p[0],p[1])});ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke()}}
  function line(a,b,col,width=.6){ctx.beginPath();const p=project(...a),q=project(...b);ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.strokeStyle=col;ctx.lineWidth=width;ctx.stroke()}
 
@@ -607,22 +627,56 @@ function drawTower(){
     the vector ninety degrees out, and a box then shows the wrong pair of walls
     — invisible on a symmetric shape, wrong on an L. */
  const viewDir=[s,c];
- /* Two things are wrong with a flat fill. Every wall took the same tone, so a
-    notched footprint drew as one black shape with lines on it and the plan
-    shape was invisible; and that tone sat so close to the ground plate that
-    the buildings read as holes cut in the drawing rather than solids standing
-    on it. A flat light/shade split by facing direction fixes both, and it is
-    the same three-tone treatment the tower itself uses — no gradient, just a
-    step per orientation, which is drafting rather than airbrush. */
+ /* Three things were wrong with a flat fill, and the third is why the context
+    read as tables and chairs.
+
+    One: every wall took the same tone, so a notched footprint drew as one black
+    shape with lines on it and the plan shape was invisible.
+    Two: that tone sat so close to the ground plate that the buildings read as
+    holes cut in the drawing rather than solids standing on it.
+    Three: the value ladder ran the wrong way. The shaded wall was #121920
+    against a #0a0d10 plate — eight values — so half of every building dissolved
+    into the ground, while the roof was the brightest thing in the scene. A lit
+    horizontal rectangle floating in the dark with a dark mass beneath it is a
+    table, and that is exactly what the city looked like.
+
+    So the ladder runs the right way and is evenly stepped: three wall values,
+    all clearly above the plate, and a roof that is a lid rather than the
+    brightest object on the sheet. A building reads as a building when its
+    silhouette sits clear of the ground and its faces step in value. No
+    gradients — a step per orientation, which is drafting rather than airbrush,
+    and the same three-tone treatment the tower itself uses. */
  const LIGHT=[-0.55,-0.84];                       // front-left, in world metres
- const toneFor=dot=>dot>.35?'#2b3843':dot<-.35?'#121920':'#1e2830';
- const roofTone=h=>h>=120?'#33414c':h>=60?'#2b3843':'#243039';
+ const WALL_LIT='#3c4a56',WALL_MID='#2b3742',WALL_SHADE='#1e262e';
+ const ROOF_HI='#414e59',ROOF_LO='#333e47';
+ const SHADOW='#10151a';
+ const toneFor=dot=>dot>.18?WALL_LIT:dot<-.18?WALL_SHADE:WALL_MID;
+ const roofTone=h=>h>=120?ROOF_HI:ROOF_LO;
+ const BAND='#54626e';
+ // Shrink a ring toward its own centroid by a distance that cannot invert it.
+ // Used for the parapet: a roof edge with thickness, so the top of a building
+ // is a lid and not a decal.
+ const inset=(ring,d)=>{let cx=0,cy=0;for(const p of ring){cx+=p[0];cy+=p[1]}cx/=ring.length;cy/=ring.length;
+  return ring.map(([x,y])=>{const dx=x-cx,dy=y-cy,l=Math.hypot(dx,dy)||1,k=Math.min(d,l*.2)/l;
+   return[x-dx*k,y-dy*k]})};
  function drawCity(list){
   for(const b of list){
    const h=b.h,ink=inkFor(h);
    let ring=b.ring;
    if(ringArea(ring)<0)ring=[...ring].reverse();
-   // Roof cap first, so the walls that meet it are drawn over it.
+   /* A contact shadow on the plate. Without it a mass meets the ground on a
+      hard edge and hovers — the other half of what made the city look like
+      furniture. The light direction is the same one that already decides which
+      wall is lit, so the shadow agrees with the shading instead of being
+      decoration laid on top of it. It is a drawing convention, not a solar
+      calculation: the sun position in this model is the sun-study desk's, and
+      this sheet has no date. */
+   const lx=-LIGHT[0],ly=-LIGHT[1],ln=Math.hypot(lx,ly)||1;
+   const off=h*.16;
+   path(ring.map(([x,y])=>[x+lx/ln*off,y+ly/ln*off,0]),SHADOW,null,0);
+   // Roof first, then the walls that meet it, so the parapet sits on the edge.
+   const parapet=Math.min(1.6,state.span*.03);
+   path(inset(ring,parapet).map(([x,y])=>[x,y,h]),roofTone(h),null,0);
    path(ring.map(([x,y])=>[x,y,h]),roofTone(h),ink,.7);
    for(let i=0;i<ring.length;i++){
     const a=ring[i],d=ring[(i+1)%ring.length];
@@ -630,19 +684,63 @@ function drawTower(){
     const nx=ey,ny=-ex;                          // outward normal, ccw ring
     if(nx*viewDir[0]-ny*viewDir[1]>=0)continue;  // faces away: not drawn
     const lit=(nx*LIGHT[0]+ny*LIGHT[1])/(Math.hypot(nx,ny)||1);
-    path([[a[0],a[1],0],[d[0],d[1],0],[d[0],d[1],h],[a[0],a[1],h]],toneFor(lit),ink,.7);
+    const tone=toneFor(lit);
+    path([[a[0],a[1],0],[d[0],d[1],0],[d[0],d[1],h],[a[0],a[1],h]],tone,ink,.7);
+    /* Storey texture. Spacing is taken from the building's own height so the
+       bands are even on a 40 m shed and on a 200 m tower, which is what makes a
+       wall read as a wall with depth rather than a filled polygon. It is a
+       graphic texture, not a floor count: nothing in the harvested data carries
+       storeys, and claiming a height in floors would be a number nobody sourced.
+       Only on faces tall enough on screen to carry it. */
+    if(h*scale>46){
+     const step=Math.max(3,h/Math.max(1,Math.round(h/4)));
+     ctx.strokeStyle=BAND;ctx.lineWidth=.5;
+     for(let z=step;z<h;z+=step){
+      const p=project(a[0],a[1],z),q=project(d[0],d[1],z);
+      ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.stroke();
+     }
+    }
+    /* Vertical articulation on a wide face. Horizontal banding alone leaves a
+       130 m facade as one unmodulated plane, and a wide unmodulated plane with
+       a light top is exactly a tabletop. Bays are spaced in metres like the
+       bands, so a long block reads as a long building rather than a bench.
+       Same caveat as the bands: a graphic rhythm, not a curtain-wall schedule. */
+    const wlen=Math.hypot(ex,ey);
+    if(wlen*scale>54){
+     const bay=Math.max(6,wlen/Math.max(1,Math.round(wlen/9)));
+     ctx.strokeStyle=BAND;ctx.lineWidth=.5;
+     for(let s=bay;s<wlen;s+=bay){
+      const t=s/wlen,mx=a[0]+ex*t,my=a[1]+ey*t;
+      const p=project(mx,my,0),q=project(mx,my,h);
+      ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.stroke();
+     }
+    }
    }
+   /* Ground contact. Without it the wall runs into the plate with no edge and
+      the building hovers; with it the building stands. */
+   path(ring.map(([x,y])=>[x,y,0]),null,ink,.7);
    // A coping line on the tall ones, so a roof edge reads against the sky and
    // not as a smear of fill.
    if(h>=40)path(ring.map(([x,y])=>[x,y,h]),null,ink,.8);
   }
  }
  if(city){
+  /* The ground has to be a value between the sky and the walls, or the city
+     floats. It was #0a0d10 against a #111416 page background — four values
+     DARKER than the sky behind it, so the plate was invisible and every
+     building stood on nothing. That is half of "tables and chairs": a lit slab
+     in the dark with no ground to explain what holds it up.
+
+     Sky first, then plate, then buildings, then the amber tower. Four steps,
+     no gradients, and the tower the only thing on the sheet with any colour
+     in it. */
+  ctx.fillStyle='#0b0e11';
+  ctx.fillRect(0,0,W,H);
   // The harvested ground. Not a backdrop: this is the area the footprints
   // actually cover, and its edge is where the data stops.
   ctx.beginPath();
   for(let i=0;i<=72;i++){const a=i/72*Math.PI*2,p=project(Math.cos(a)*city.radius,Math.sin(a)*city.radius,0);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}
-  ctx.closePath();ctx.fillStyle='#0a0d10';ctx.fill();ctx.strokeStyle='#232c32';ctx.lineWidth=1;ctx.stroke();
+  ctx.closePath();ctx.fillStyle='#161c22';ctx.fill();ctx.strokeStyle='#2b353d';ctx.lineWidth=1;ctx.stroke();
   drawCity(cityFar);
  }
 
@@ -803,7 +901,7 @@ function drawTower(){
  // is spent on. The roof is marked separately so the occupied height is still
  // readable without a second dimension line.
  const gut=W>900?92:70;
- const rX=W-gut,rY=H*.80;ctx.strokeStyle='#59666b';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(rX,rY);ctx.lineTo(rX,rY-ext*.96*scale);ctx.stroke();
+ const rX=W-gut,rY=baseY;ctx.strokeStyle='#59666b';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(rX,rY);ctx.lineTo(rX,rY-ext*.96*scale);ctx.stroke();
  ctx.font='11px "IBM Plex Mono",monospace';ctx.fillStyle='#a2aca9';ctx.textAlign='right';
  // The graduation step is chosen against the space that actually exists rather
  // than fixed at 50 m. On a short viewport 50 m ticks land 30 px apart and the

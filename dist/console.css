@@ -12,12 +12,17 @@ body:not(.is-console) .console-site,body:not(.is-console) header .mastnote{displ
 .console-field select{margin:0;width:124px;min-height:28px}
 .console-site-note{display:none;font-size:11px;color:var(--muted);max-width:22ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .console-site-note.console-flag{display:inline}
-.console-nav{display:flex;gap:18px;border-bottom:1px solid var(--ink);padding:0;flex:0 0 auto;overflow-x:auto}
-/* The word goes; the mark stays. The label is kept for the accessibility tree
-   and the hover title, so nothing is lost but the pixels. */
-.console-nav button{padding:7px 0;border:0;border-bottom:3px solid transparent;min-height:32px;white-space:nowrap;font-size:12px;background:none;display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
-.console-nav .wg{display:block;width:18px;height:18px;flex:0 0 auto}
-.console-nav .wt{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.console-nav{display:flex;gap:2px;border-bottom:1px solid var(--ink);padding:0;flex:0 0 auto;overflow-x:auto}
+/* The word stays. This used to clip the label to nothing and leave nine 18px
+   marks to carry nine meanings on their own — and two of the marks were the
+   same picture, so the strip could not be read at all without hovering. A mark
+   earns its place by being legible; it does not earn the label by being hidden.
+   On a narrow sheet the labels go again, because there the icons are the only
+   thing that fits — and the title attribute still names them. */
+.console-nav button{padding:6px 11px;border:0;border-bottom:3px solid transparent;min-height:34px;
+ white-space:nowrap;font-size:11px;background:none;display:inline-flex;align-items:center;gap:7px;color:var(--muted)}
+.console-nav .wg{display:block;width:21px;height:21px;flex:0 0 auto}
+.console-nav .wt{letter-spacing:.04em}
 .console-nav button:hover{color:var(--ink)}
 .console-nav [aria-selected="true"]{border-bottom-color:var(--accent);font-weight:600;color:var(--ink)}
 .console-nav [aria-selected="true"] .wg{color:var(--accent)}
@@ -144,8 +149,11 @@ body.is-console [hidden]{display:none!important}
     the breach can turn it amber instead of materialising a bar under the header. */
  .console-site-note{display:none}
  .console-rail-nav{display:none}
- .console-nav{gap:16px}
- .console-nav button{min-height:44px;padding:0;display:inline-flex;align-items:center}
+ .console-nav{gap:5px}
+ .console-nav .wt{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+ /* Nine marks plus their padding have to fit a 374px rail without a sideways
+    scroll, so the phone keeps the icon and drops everything the icon is not. */
+ .console-nav button{min-height:44px;padding:0 7px;display:inline-flex;align-items:center}
  #console-tab-form{order:1}#console-tab-compare{order:2}#console-tab-brief{order:3}#console-tab-place{order:4}#console-tab-walk{order:5}#console-tab-facade{order:6}#console-tab-studies{order:7}#console-tab-core{order:8}#console-tab-detail{order:9}
  body.is-console .studio[data-task="form"]{grid-template-rows:minmax(260px,1.45fr) minmax(168px,.62fr)}
  body.is-console .studio[data-task="form"]>.controls{display:flex;flex-direction:column}

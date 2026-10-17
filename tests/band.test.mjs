@@ -240,3 +240,58 @@ test('annotations clear the band by the band inset, never by one row of it',()=>
   'rectangle — that row is display:none on a narrow screen, where its rect is '+
   'zero and a Math.max floor silently becomes the anchor');
 });
+
+/* Three defects the render kept, and a geometry audit kept calling clean.
+
+   Headroom: the fit reserved the title band and then hung the model from 80% of
+   the FULL sheet height, so the crown landed 24px from the top on a 924px sheet
+   and ran off it entirely on a short one. The band inset was measured, the
+   annotations were measured, and nothing measured the gap above the model.
+
+   The plate: the ground was #0a0d10 against a #111416 page background — four
+   values DARKER than the sky behind it — so it was invisible and every building
+   stood on nothing. Combined with a roof that was the brightest tone on the
+   model, that is a lit slab floating in the dark, which is a table.
+
+   Both are value and offset claims, so both are asserted as values. */
+test('the model is fitted to a field with a real margin at the top',()=>{
+ const src=drawTower();
+ const head=/const HEAD=Math\.max\((\d+),Math\.round\(H\*([\d.]+)\)\)/.exec(src);
+ assert.ok(head,'drawTower declares no head margin, so the crown floats against the sheet edge');
+ const [,floor,frac]=head;
+ const pct=parseFloat(frac)*100;
+ assert.ok(pct>=7,`the top margin is ${pct}% of the sheet — it read as cramped at 7% and below`);
+ assert.ok(parseInt(floor,10)>=26,'the head margin has no floor, so a short sheet collapses it to nothing');
+ // And the base is derived from that margin, not chosen as a fraction of the
+ // whole sheet — that fraction was the original bug, in a different costume.
+ assert.match(src,/const baseY=HEAD\+ext\*\.96\*scale/,
+  'the model base is not derived from the head margin');
+ assert.ok(!/H\*\.80/.test(src),
+  'the model is still hung from a fraction of the full sheet height, which is '+
+  'what put the crown against the top edge');
+});
+
+test('the sheet stacks sky, ground and wall in that order',()=>{
+ const src=drawTower();
+ const hex=/'#([0-9a-f]{6})'/gi;
+ const named={};
+ for(const key of ['WALL_LIT','WALL_MID','WALL_SHADE','ROOF_HI','ROOF_LO','SHADOW'])
+  named[key]=new RegExp(key+"='#([0-9a-f]{6})'",'i').exec(src);
+ for(const [k,v] of Object.entries(named))assert.ok(v,`${k} is not declared in drawTower`);
+ const lum=h=>{const n=parseInt(h,16);return 0.2126*(n>>16&255)+0.7152*(n>>8&255)+0.0722*(n&255)};
+ const sky=/ctx\.fillStyle='#([0-9a-f]{6})';[\s\S]{0,40}ctx\.fillRect\(0,0,W,H\)/.exec(src);
+ const plate=/ctx\.closePath\(\);ctx\.fillStyle='#([0-9a-f]{6})';ctx\.fill\(\)/.exec(src);
+ assert.ok(sky,'the sheet paints no sky before the ground');
+ assert.ok(plate,'the ground plate is not filled where it is stroked');
+ // Sky darkest, then the plate, then the darkest wall. This order is the whole
+ // reason the city stopped looking like furniture: an invisible ground under a
+ // roof that outshone its own walls is a table, not a street.
+ const L=lum,order=[L(sky[1]),L(plate[1]),L(named.WALL_SHADE[1]),L(named.WALL_MID[1]),L(named.WALL_LIT[1])];
+ assert.ok(order[0]<order[1],`the plate (${order[1].toFixed(0)}) is not lighter than the sky (${order[0].toFixed(0)}) — the ground vanishes`);
+ assert.ok(order[1]<order[2],`the darkest wall (${order[2].toFixed(0)}) is not lighter than the plate (${order[1].toFixed(0)}) — buildings dissolve into the ground`);
+ assert.ok(order[3]<order[4],'the lit and mid walls are not two distinguishable steps');
+ // The roof must not outshine the lit wall, or the top of every building is a
+ // bright plane over a dark mass.
+ assert.ok(L(named.ROOF_LO[1])<L(named.WALL_LIT[1]),
+  'the roof is brighter than the sunlit wall — that is the tabletop');
+});
