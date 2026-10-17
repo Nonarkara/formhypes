@@ -1,11 +1,15 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import {readFileSync,readdirSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {CONSOLE_TEXT,WORKSPACES,workspaceForTarget,siteLedger} from '../dist/console.js';
 import {FACADE_TEXT,facadeFrame,facadeDiagram} from '../dist/facade.js';
 import {defaults,families,grossOf} from '../dist/model.js';
 import {getBriefStudy,setBriefInputs} from '../dist/brief.js';
+
+/* Every module's source, for the guards that must span all of dist rather than
+   the one file they happen to be written next to. */
+const jsSources=()=>readdirSync(new URL('../dist/',import.meta.url)).filter(f=>f.endsWith('.js')).map(f=>readFileSync(new URL('../dist/'+f,import.meta.url),'utf8'));
 const near=(a,b,e=1e-8)=>assert.ok(Math.abs(a-b)<e,`${a} != ${b}`);
 const read=f=>readFileSync(new URL('../dist/'+f,import.meta.url),'utf8');
 test('land/FAR setters validate atomically and preserve the actual geometry ledger',()=>{
@@ -113,16 +117,152 @@ test('every id in index.html is unique and every local module import carries a v
  // Every ES module import in dist/*.js must carry a 10-hex content stamp
  // matching the target file's sha256 — no unstamped imports (which cause double
  // module execution) and no @CITYSCAPE@ placeholder tokens.
- const jsFiles=['app.js','areasplit.js','brief.js','cityscape.js','cityscape.data.js','console.js','context.js','core.js','crowns.js','details.js','facade.js','geometry.js','ground.data.js','i18n.js','lens.js','location.js','manual.js','manual-text.js','materials.js','model.js','modulor.js','play.js','reader.js','reader-content.js','research.js','research-reader.js','research-tracks.js','schema.js','site.js','solar.js','walk.js'];
+ //
+ // THE FILE LIST IS READ FROM THE DIRECTORY, NOT TYPED IN. It was a literal
+ // list of thirty-one names, which is a guard that stops guarding the moment
+ // anything is added: module thirty-two is not checked, and the failure is
+ // silent because the loop simply never visits it. That is the same shape as
+ // the bug this very guard was written for — a second, unstamped copy of a
+ // module arriving because nobody's list knew about it.
+ //
+ // Read from disk, the guard cannot go stale. The only way to skip a file is to
+ // take it out of dist, which is the thing you were trying to do.
+ const jsFiles=readdirSync(new URL('../dist/',import.meta.url)).filter(f=>f.endsWith('.js')).sort();
+ assert.ok(jsFiles.length>25,`only ${jsFiles.length} modules found in dist — the directory read is wrong`);
  for(const f of jsFiles){
   const src=read(f);
-  assert.doesNotMatch(src,/@CITYSCAPE@/,`${f} still contains an unstamped @CITYSCAPE@ placeholder`);
-  for(const [,spec] of src.matchAll(/\bfrom\s+['"](\.[^'"]+)['"]/g)){
+  assert.doesNotMatch(src,/@[A-Z_]+@/,`${f} still contains an unstamped @PLACEHOLDER@ token`);
+  for(const [,spec] of src.matchAll(/\bfrom\s*['"](\.[^'"]+)['"]/g)){
    const m=/^\.\/([\w./-]+\.js)\?v=([a-f0-9]{10})$/.exec(spec);
    assert.ok(m,`${f} imports '${spec}' without a 10-char sha256 ?v= stamp`);
    const actual=createHash('sha256').update(readFileSync(new URL('../dist/'+m[1],import.meta.url))).digest('hex').slice(0,10);
    assert.equal(m[2],actual,`${f} stamps ${m[1]} as ${m[2]}, actual sha256 is ${actual}`);
   }
  }
+ // The stamp is only worth something if it is derived from the bytes that will
+ // actually be served. Two files hashing to the same ten hex characters would
+ // pass every check above while the browser fetched a stale copy.
+ for(const f of jsFiles.filter(f=>f.endsWith('.data.js'))){
+  const stamped=read(f);
+  assert.ok(stamped.length>0,`${f} is empty`);
+ }
 });
 
+test('every metric row in a rail group is counted, and every output is written to',()=>{
+ /* Two defects of the same family, both of which look fine on screen because
+    the browser does not complain about either.
+
+    A `<details class="railgroup">` carries a badge saying how many rows it
+    holds. That number is typed into the markup by hand and it drifted: the
+    group said 6 and held 7. Nothing counts it, so it is a fact about the page
+    that nobody maintains.
+
+    And a metric `<dd>` or a note `<p>` that nothing writes to is not an error
+    at all — it is an empty element that was always empty. The `ledNote`
+    collision hid exactly this: two elements shared one id, the writer reached
+    the first, and the second sat permanently blank with nothing to report it.
+
+    So: the badge must equal the rows, and every output element must have
+    something in the code that writes to it. */
+ const html=read('index.html');
+ const groups=[...html.matchAll(/<details class="railgroup" id="(\w+)">([\s\S]*?)<\/details>/g)];
+ assert.ok(groups.length>=5,`only ${groups.length} rail groups in the markup — the pattern is wrong`);
+ for(const [,id,body] of groups){
+  const badge=/<span class="cnt">(\d+)<\/span>/.exec(body);
+  assert.ok(badge,`${id} has no count badge`);
+  const rows=(body.match(/<dd id=/g)||[]).length;
+  assert.equal(+badge[1],rows,
+   `${id} says it holds ${badge[1]} rows and holds ${rows} — the badge is a claim, not a count`);
+ }
+ // Every LEAF output must be written by something. Leaf, because a container is
+// written through its children — `<p id="phoneReadout">` holds three spans and
+// nothing writes to the `<p>` itself, which is correct, and a guard that flagged
+// it would be crying wolf on the first element it met.
+ const all=jsSources().join('\n');
+ const outs=[...html.matchAll(/<(dd|p)\b[^>]*\bid="([\w-]+)"[^>]*>([\s\S]*?)<\/\1>/g)]
+  .filter(m=>!/<[a-z]/i.test(m[3]))
+  .map(m=>m[2]);
+ assert.ok(outs.length>40,`only ${outs.length} leaf output elements found — the pattern is wrong`);
+ const unwritten=outs.filter(id=>
+  !new RegExp(`\\$\\('${id}'\\)|getElementById\\('${id}'\\)|#${id}\\b`).test(all));
+ assert.deepEqual(unwritten,[],
+  `these output elements are declared but nothing ever writes to them, so they are permanently blank: ${unwritten.join(', ')}`);
+});
+
+/* The Z-axis of a facade joint is invisible until it is wrong: a horizontal
+   joint that drifts in z looks like a slightly crooked line on a small panel,
+   not like an error. And the 3D canvas draws it, so no amount of looking at the
+   DOM finds it. The expression is asserted instead — the second endpoint of a
+   horizontal run must keep the same storey height as the first, because a
+   horizontal line by definition does not climb.
+
+   The version that shipped added an X COORDINATE to the z component, which
+   tilted every horizontal joint diagonally across the panel. */
+test('a horizontal facade joint stays at one storey height',()=>{
+ const src=read('app.js');
+ const call=/seg\[0\]==='h'\)line\(([\s\S]*?),mat\.edge/.exec(src);
+ assert.ok(call,'no horizontal joint line call found');
+ // Split the two endpoints at bracket depth zero. A regex like \[([^\]]+)\]
+ // cannot do this: the coordinates contain seg[1], so the first bracket closes
+ // the capture inside the first term and the pattern never matches at all.
+ const arg=call[1],ends=[];
+ let depth=0,start=-1;
+ for(let i=0;i<arg.length;i++){
+  if(arg[i]==='['){if(depth===0)start=i;depth++}
+  else if(arg[i]===']'){depth--;if(depth===0&&start>=0){ends.push(arg.slice(start,i+1));start=-1}}
+ }
+ assert.equal(ends.length,2,`a joint line takes two points; found ${ends.length}`);
+ // The storey height of a point is the term beginning o[2], up to the next
+ // top-level comma.
+ const zOf=end=>{
+  const i=end.indexOf('o[2]');
+  if(i<0)return null;
+  let d=0;
+  for(let j=i;j<end.length;j++){
+   if(end[j]==='[')d++;
+   else if(end[j]===']')d--;
+   else if(end[j]===','&&d===0)return end.slice(i,j);
+  }
+  return end.slice(i);
+ };
+ const [a,b]=ends.map(zOf);
+ assert.ok(a&&b,'a joint endpoint has no explicit storey height');
+ assert.equal(a,b,
+  `the two ends of a horizontal joint are at ${a} and ${b} — a horizontal line that climbs is a tilted one`);
+ // And nothing in-plane may reach the height slot.
+ for(const z of [a,b])
+  assert.doesNotMatch(z,/px\[|py\[[01]\]\*/,`a horizontal joint mixes an in-plane vector into its storey height: ${z}`);
+});
+
+
+test('every module in dist is reachable from the page, so nothing is orphaned',()=>{
+ /* A module can sit in dist and be perfectly valid — it parses, it carries a
+    correct stamp, nothing in it is broken — while no page ever loads it. The
+    importer of module 32 is the importer of module 31, and when someone adds a
+    file and forgets the line above it, nothing fails. The file is then dead
+    code that reads as live code, which is the worst kind of both.
+
+    So the graph is walked for real: from the one <script type="module"> in the
+    markup, following every relative import transitively, and every file in
+    dist must be reached. A dynamic import() would escape the walk, so the walk
+    collects those too and fails loudly rather than silently under-counting. */
+ const html=read('index.html');
+ const dist=new URL('../dist/',import.meta.url);
+ const all=readdirSync(dist).filter(f=>f.endsWith('.js')).sort();
+ const entries=[...html.matchAll(/<script[^>]*\ssrc="\.?\/?([\w.-]+\.js)/g)].map(m=>m[1]);
+ assert.ok(entries.length>=1,'no module entry point in index.html');
+ const seen=new Set(),queue=[...entries],dynamic=[];
+ while(queue.length){
+  const f=queue.pop();
+  if(seen.has(f)||!all.includes(f))continue;
+  seen.add(f);
+  const src=readFileSync(new URL('../dist/'+f,import.meta.url),'utf8');
+  for(const [,spec] of src.matchAll(/\bfrom\s*['"]\.\/([\w./-]+\.js)/g))queue.push(spec);
+  for(const [,spec] of src.matchAll(/\bimport\(\s*['"]\.\/([\w./-]+\.js)/g))dynamic.push(f+' -> '+spec);
+ }
+ assert.deepEqual(dynamic,[],
+  `these load through a dynamic import, which this reachability walk does not follow: ${dynamic.join(', ')}`);
+ const orphans=all.filter(f=>!seen.has(f));
+ assert.deepEqual(orphans,[],
+  `these modules sit in dist but nothing on the page can reach them, so they are dead code wearing a valid stamp: ${orphans.join(', ')}`);
+});
