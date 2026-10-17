@@ -280,6 +280,28 @@ tbody tr:hover{background:var(--panel)}
 .searchsummary{font-size:11px;color:var(--muted);margin-top:10px}
 .win{background:#fdf3e0}
 
+/* ── study figures ────────────────────────────────────────────────────────
+   Drawn from the same candidate array the table was picked from. No fills
+   that are not data: the only colour in either figure is the amber cell and
+   the amber mark, both of which mean "best". */
+.study-fig{margin:22px 0 0;padding-top:18px;border-top:2px solid var(--ink)}
+.study-fig figcaption{font-size:12.5px;font-weight:600;letter-spacing:-.005em}
+.study-fig .note{margin:4px 0 10px;color:var(--muted);font-size:10.5px;max-width:62ch}
+.study-fig svg{display:block;width:100%;height:auto}
+.study-band{cursor:pointer}
+.study-band:hover path{stroke:var(--ink)}
+.study-band:focus{outline:none}
+.study-band:focus-visible path:first-child{stroke:var(--ink);stroke-width:3}
+.lattice{display:grid;gap:2px;margin-top:2px}
+.lattice-row{display:grid;grid-template-columns:42px repeat(4,1fr);gap:2px}
+.lattice-lab{font-family:var(--mono);font-size:10.5px;color:var(--muted);display:flex;align-items:center}
+.lattice-tick{font-family:var(--mono);font-size:10px;color:var(--faint);text-align:center;padding-top:3px}
+.lattice-cell{height:26px;border:1px solid var(--line);font-family:var(--mono);font-size:10.5px;
+ padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lattice-cell.best{border-color:var(--ink);font-weight:600}
+.lattice-cell:hover{border-color:var(--ink)}
+.lattice-cell:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
 .studies{padding:22px 0;display:grid;grid-template-columns:244px 1fr;gap:24px}
 .studies h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em}
 .studies p{margin:5px 0 0;color:var(--muted);font-size:11px}

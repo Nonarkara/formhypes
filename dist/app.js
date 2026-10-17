@@ -2,7 +2,8 @@ import {mountConsole} from './console.js?v=5a98b104b5';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=e1aefac756';
-import{t,langs,langMeta,translator}from'./i18n.js?v=eec1eefc88';
+import{familyResponse,lattice}from'./explore.js?v=8c5cd1b87e';
+import{t,langs,langMeta,translator}from'./i18n.js?v=09df3b6a32';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
@@ -18,7 +19,7 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=3
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=07c524befa';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=74a9ea4f03';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=5c6a0e8d98';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=724407455f';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
@@ -32,6 +33,10 @@ const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en
 const num=v=>Math.round(v).toLocaleString(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US');
 
 let state={...defaults},metrics,alternatives=[],yaw=-.65,zoom=1,wireframe=false,studies=[],knowledgePack,unknownRegime=null;
+// The run is kept, not just its rows, so a language change can redraw the
+// result in place instead of leaving the table in whichever language the
+// search happened to be launched in.
+let searchRun=null,exploreFamily=null;
 let drawn={w:0,h:0},pendingRaf=false;
 
 // [i18n key, min, max, step, unit] lives in schema.js now — the manual
@@ -70,6 +75,10 @@ function setLang(l){
  buildLangButtons();buildSelectors();buildRanges();sync();
  renderResearch();renderMethod();renderStudies();
  update();
+ // The search result is DOM built from tt(), so it has to be redrawn when tt()
+ // changes. Redraw, never re-run: the numbers are language-independent and
+ // re-running would make a language click look like a new study.
+ if(searchRun)renderSearch();
  measureChrome(); // Thai and Chinese wrap the masthead differently; re-measure.
  try{localStorage.setItem('formHypesLang',l)}catch{}
 }
@@ -215,7 +224,7 @@ function sync(){
 function toast(msg){$('toast').textContent=msg;$('toast').classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('on'),4200)}
 function changed(){
  searchToken++; // a search still running was computed for the old state; drop it
- alternatives=[];
+ alternatives=[];searchRun=null;
  $('searchResults').innerHTML=`<div class="empty"><span class="data">${tt('s.sum')} ${searchPlan(state).examined}</span><p>${tt('s.changed')}</p></div>`;
  update();
 }
@@ -1017,8 +1026,20 @@ function runSearch(){
  slice();
 }
 
+function applyCandidate(candidate){
+ state={...candidate.state};update();toast(tt('s.applied'));
+ $('studio').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+}
 function finishSearch(results,plan,objective,elapsed){
  alternatives=rank(results);
+ searchRun={plan,objective,elapsed};
+ renderSearch();
+}
+// Split from the run so a language change redraws exactly the same numbers
+// instead of recomputing them: the candidates are language-independent, only
+// the words around them are not.
+function renderSearch(){
+ const {plan,objective,elapsed}=searchRun;
  const seen=new Set();
  const rows=alternatives.filter(r=>{if(seen.has(r.state.family))return false;seen.add(r.state.family);return true}).slice(0,5);
  if(!rows.length){$('searchResults').innerHTML=`<div class="empty"><p>${tt('s.none')}</p></div>`;toast(tt('s.none'));return}
@@ -1028,7 +1049,7 @@ function finishSearch(results,plan,objective,elapsed){
   .map(h=>`<th scope="col">${h}</th>`).join('')+'</tr></thead><tbody>';
  rows.forEach((r,i)=>{
   const d=r.metrics.contribution-metrics.contribution;
-  html+=`<tr class="${r===best?'win':''}"><td>${i+1} / ${families[r.state.family]}</td>`
+  html+=`<tr class="${r===best?'win':''}"><td>${i+1} / ${tt('fs.'+r.state.family)}</td>`
    +`<td class="numeric">${r.state.taper.toFixed(2)} / ${r.state.twist}°</td>`
    +`<td class="numeric">${num(r.metrics.gross)}</td>`
    +`<td class="numeric">${num(r.metrics.rentable)}</td>`
@@ -1040,11 +1061,20 @@ function finishSearch(results,plan,objective,elapsed){
  });
  html+=`</tbody></table></div><p class="searchsummary">${plan.examined} ${tt('s.tested')} / ${alternatives.length} ${tt('s.feasible')} / ${plan.examined-alternatives.length} ${tt('s.rejected')}. ${tt('s.target')} ${num(plan.target)} m². ${tt('s.best')} “${$('objective').selectedOptions[0].textContent}”${plan.heightVariants>1?' · 2 '+tt('s.heightVariant'):''} · ${elapsed.toFixed(0)} ms</p>`;
  $('searchResults').innerHTML=html;
- document.querySelectorAll('[data-candidate]').forEach(b=>b.onclick=()=>{
-  state={...rows[Number(b.dataset.candidate)].state};update();toast(tt('s.applied'));
-  $('studio').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
- });
-};
+ document.querySelectorAll('[data-candidate]').forEach(b=>b.onclick=()=>applyCandidate(rows[Number(b.dataset.candidate)]));
+ drawStudy();
+}
+// The table ranks five rows. These draw the whole run the table was selected
+// from, so a reader can see how much of the spread is family and how much is
+// roof scale — and can put a finger on any cell the search actually visited.
+function drawStudy(){
+ const host=$('searchResults');if(!host||!alternatives.length||!searchRun)return;
+ [...host.querySelectorAll('.study-fig')].forEach(n=>n.remove());
+ if(!Object.hasOwn(families,exploreFamily))exploreFamily=state.family;
+ host.append(familyResponse(alternatives,{contribution:metrics.contribution,family:state.family},tt,lang,
+  {selected:exploreFamily,onPick:f=>{exploreFamily=f;drawStudy()}}));
+ host.append(lattice(alternatives,exploreFamily,tt,lang,applyCandidate));
+}
 
 /* ── studies ──────────────────────────────────────────────────────────── */
 // Own keys only: an inherited name such as 'constructor' would otherwise pass and turn every metric into NaN.
