@@ -8,11 +8,11 @@ import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposur
 import {lensOf,lensSVG,lensFormula,LENS_KEY,LIFE_YEARS} from './lens.js?v=2949cf8b98';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
 import {CITYSCAPE} from './cityscape.data.js?v=fb3efe9e16';
-import {parseGround,parseCity,plotCandidates,plotFacts,landscapeSVG,skyViewSVG,makeScene} from './site.js?v=9f5f1ac44f';
+import {parseGround,parseCity,plotCandidates,plotFacts,plateOnPlot,landscapeSVG,skyViewSVG,makeScene} from './site.js?v=e4d4c65cc9';
 // The lens strings live in the shared translation file, not in this desk's own
 // dictionary: they are the same words the reader has already met in the rail,
 // and a second copy is a second thing to drift.
-import {t as I18N} from './i18n.js?v=cc2f147884';
+import {t as I18N} from './i18n.js?v=e64a19b1a6';
 
 // Empire Tower 58F / 227 m / 1999, floor plate ≈3,000 m² and a 2.60 m Grade A
 // clear-height benchmark for Bangkok; Dayabumi Complex 35F / 157 m / 1984;
@@ -451,11 +451,11 @@ export function renderSite({lang,state,changed}){
  if(siteCity!==cityKey){siteCity=cityKey;siteLot=0}
  host.replaceChildren();
 
- const ground=parseGround(cityKey,GROUND),survey=parseCity(cityKey,CITYSCAPE);
+ const ground=parseGround(cityKey,GROUND,GROUND_ROAD_M),survey=parseCity(cityKey,CITYSCAPE);
  if(!ground||!survey){return}
 
  const plate=profile(state,0), plateArea=area(plate), towerH=stackHeight(state)||0;
- const plots=plotCandidates(survey,ground,plateArea);
+ const plots=plotCandidates(survey,ground,plate);
  const head=wrap('st-head');
  head.append(el('h3',c['st.title']),el('p',txt(c['st.lead'],ground.meta.label)));
  host.append(head);
@@ -470,13 +470,17 @@ export function renderSite({lang,state,changed}){
  siteLot=Math.max(0,Math.min(siteLot,plots.length-1));
  const plot=plots[siteLot];
  const sun=solarPosition({...solarDefaults,...state});
- const facts=plotFacts(plot,{ground,buildings:survey.buildings,towerH,plateArea,
+ const facts=plotFacts(plot,{ground,buildings:survey.buildings,towerH,plate,plateArea,
   sun:{altitude:sun.altitude,azimuth:sun.azimuth}});
 
  const body=wrap('st-body');
  const fig=wrap('st-fig');
  const scene=makeScene({radius:ground.meta.radius,towerH});
- fig.innerHTML=landscapeSVG({ground,city:survey,plot,tower:plate,towerH,scene,
+ // The seat was decided in plotFacts, from the same call that produced the
+ // numbers below. The drawing draws that seat rather than choosing its own,
+ // because the version where the renderer placed the tower itself produced a
+ // building on one spot and an appraisal of a different one.
+ fig.innerHTML=landscapeSVG({ground,city:survey,plot,tower:facts.seated.pts,towerH,scene,
   labels:{aria:c['st.title']+' · '+ground.meta.label}});
  body.append(fig);
 
@@ -494,16 +498,30 @@ export function renderSite({lang,state,changed}){
 
  const dl=el('dl');dl.className='st-rows';
  const kv=(k,v)=>{if(v===null||v===undefined||v==='')return;dl.append(el('dt',k),el('dd',v))};
- const n=v=>f2(v);
+ const n=(v,d=1)=>num(v,d);
  kv(c['st.area'],`${n(facts.area)} ${c['st.lot']}`);
- kv(c['st.coverage'],`${f2(facts.coverage*100,0)}%`);
- kv(c['st.width'],`${f2(facts.width,1)} m`);
- kv(c['st.frontage'],facts.frontage>0?`${f2(facts.frontage,0)} m`:'—');
- kv(c['st.street'],facts.nearestRoad===null?'—':`${GROUND_ROAD_M[facts.nearestRoad]} m · ${f2(facts.nearestRoadDist,0)} m`);
- kv(c['st.neighbour'],facts.neighbourMax>0?`${f2(facts.neighbourMax,0)} m · ${facts.neighbourCount}`:'');
- kv(c['st.ratio'],facts.heightRatio===null?'—':`${f2(facts.heightRatio,2)}×`);
- kv(c['st.sky'],`${f2(facts.svf*100,0)}%`);
- kv(c['st.shadow'],`${f2(facts.shadowReach,0)} m · ${txt(c['st.caught'],facts.shadowCaught)}`);
+ kv(c['st.coverage'],`${num(facts.coverage*100,0)}%`);
+ kv(c['st.width'],`${num(facts.width,1)} m`);
+ // An em dash means the ground data has no street anywhere near this lot. A
+ // measured zero means the lot genuinely fronts nothing — a compound set back
+ // from the road — and collapsing that into a dash reads as missing data on a
+ // row where the answer is real.
+ const frontStr=facts.nearestRoad===null?'—'
+   :facts.frontage>0?`${num(facts.frontage,0)} m`:'0 m';
+ kv(c['st.frontage'],frontStr);
+ kv(c['st.street'],facts.nearestRoad===null?'—':`${GROUND_ROAD_M[facts.nearestRoad]} m · ${num(facts.nearestRoadDist,0)} m`);
+ kv(c['st.neighbour'],facts.neighbourMax>0?`${num(facts.neighbourMax,0)} m · ${facts.neighbourCount}`:'');
+ kv(c['st.ratio'],facts.heightRatio===null?'—':`${num(facts.heightRatio,2)}×`);
+ // What fraction of the plate is actually standing on the lot. Not one of the
+ // 745 harvested lots can take a 48 m cruciform, so this row is usually a
+ // partial number — and it is the row that stops the drawing above from being a
+ // picture of a building hanging over its own site with no note attached.
+ kv(c['st.fit'],`${num(facts.fit*100,0)}%`);
+ kv(c['st.sky'],`${num(facts.svf*100,0)}%`);
+ // The label carries {0} for the sun's altitude and arrived unfilled, so the row
+ // read "Shadow at {0}° sun". A shadow length printed without the sun it belongs
+ // to is not a measurement, it is a number.
+ kv(txt(c['st.shadow'],num(sun.altitude,0)),`${num(facts.shadowReach,0)} m · ${txt(c['st.caught'],facts.shadowCaught)}`);
  side.append(dl);
  body.append(side);
  host.append(body);
@@ -513,9 +531,15 @@ export function renderSite({lang,state,changed}){
  const sky=wrap('st-sky');
  const skyFig=wrap('st-fig');
  skyFig.innerHTML=skyViewSVG({skyline:facts.skyline,svf:facts.svf,
-  labels:{title:c['st.skyTitle'],value:`${f2(facts.svf*100,0)}%`,aria:c['st.skyTitle']}});
+  labels:{title:c['st.skyTitle'],value:`${num(facts.svf*100,0)}%`,aria:c['st.skyTitle']}});
  sky.append(skyFig,el('p',c['st.skyNote']));
  host.append(sky);
 
  const src=el('p',c['st.source']);src.className='st-source';host.append(src);
 }
+
+/* The stand-here desk needs a title in each language under the same key shape
+   the desk registry reads. renderDesks() in app.js renders a panel only when it
+   is open, and only panels it has a toggle listener for; a panel with neither
+   sits there closed forever and renders nothing. */
+export const SITE_I18N={en:{title:'Stand here'},th:{title:'ตั้งตรงนี้'},zh:{title:'落位'}};

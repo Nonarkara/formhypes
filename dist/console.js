@@ -67,7 +67,12 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
  // exactly one home. Leaving a copy behind would mean two elements with one id.
  moveDesk($('coreDesk'),panels.core);moveDesk($('detailDesk'),panels.detail);
  const placeNav=node('div','console-subnav');panels.place.append(placeNav,$('locationDesk'),$('contextPanel'),$('sitePanel'));
- const placeButtons=[0,1].map(i=>{const b=node('button');b.type='button';b.onclick=()=>{place=i;show('place')};placeNav.append(b);return b});
+ // One button per panel in `site`, and the count is read from the panels rather
+ // than typed as [0,1]: a label array that grew to three while this said two
+ // deployed cleanly, passed every test, and shipped a third tab with no button to
+ // open it. The panels list is the source of truth.
+ const placePanels=[$('locationDesk'),$('contextPanel'),$('sitePanel')];
+ const placeButtons=placePanels.map((_,i)=>{const b=node('button');b.type='button';b.onclick=()=>{place=i;show('place')};placeNav.append(b);return b});
  const facade=node('div');facade.id='facadeDesk';panels.facade.append(facade);
  panels.compare.append(studio.querySelector('.explore'));panels.studies.append(studio.querySelector('.studies'));
  // The existing atlas is already wired to the real model. Make it the chooser.

@@ -73,3 +73,33 @@ test('new console, facade and book excerpt take part in the release dependency g
  const css=read('console.css');assert.match(css,/body\.is-console\{height:100dvh;overflow:hidden\}/);assert.match(css,/body\.is-console header\{height:40px/);assert.doesNotMatch(css,/gradient\(|box-shadow|border-radius/);
  assert.match(read('console.js'),/step='any'/);assert.match(read('brief.js'),/br-plot[\s\S]{0,40}'any'/);
 });
+
+test('every sub-tab has a button, in all three languages, and no panel is orphaned',()=>{
+ /* The stand-here desk shipped with three labels in every language and TWO
+    buttons, because the button count was a hard-coded [0,1] while the panel list
+    had grown to three. Nothing failed: the extra panel was appended, hidden by
+    `place!==2`, and unreachable because no button set `place=2`. It deployed,
+    it passed 222 tests, and it was invisible.
+
+    So this reads the COUNT off the panels and compares it with the label
+    arrays in the shipped strings — the two things that have to agree. */
+ const src=readFileSync(new URL('../dist/console.js',import.meta.url),'utf8');
+ const panels=[...src.matchAll(/\$\('(\w+)'\)/g)].map(m=>m[1]);
+ const placePanels=/placePanels=\[([^\]]+)\]/.exec(src);
+ assert.ok(placePanels,'the Place desk no longer declares its panel list');
+ const declared=[...placePanels[1].matchAll(/\$\('(\w+)'\)/g)].map(m=>m[1]);
+ const buttons=/placeButtons=placePanels\.map/.test(src)
+  ?declared.length
+  :+/placeButtons=\[([^\]]+)\]/.exec(src)[1].split(',').length;
+ assert.equal(buttons,declared.length,
+  `${buttons} button(s) for ${declared.length} panel(s): ${declared.join(', ')}`);
+ for(const l of['en','th','zh']){
+  const labels=CONSOLE_TEXT[l].site;
+  assert.ok(Array.isArray(labels),`${l}: the Place desk has no sub-tab labels`);
+  assert.equal(labels.length,declared.length,
+   `${l} names ${labels.length} sub-tabs for ${declared.length} panels`);
+  for(const s of labels)assert.ok(String(s).trim().length>1,`${l} has an unnamed sub-tab`);
+ }
+ // Every panel must also be reachable by id, or it renders but never opens.
+ for(const p of declared)assert.match(src,new RegExp(`hidden=place!==${declared.indexOf(p)}`),`${p} is never unhidden`);
+});

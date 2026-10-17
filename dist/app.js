@@ -1,8 +1,8 @@
-import {mountConsole} from './console.js?v=6b3461d3d5';
+import {mountConsole} from './console.js?v=290e925d13';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=e1aefac756';
-import{t,langs,langMeta,translator}from'./i18n.js?v=cc2f147884';
+import{t,langs,langMeta,translator}from'./i18n.js?v=e64a19b1a6';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
@@ -18,14 +18,14 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=3
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=07c524befa';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=26a9b41c9c';
-import {CONTEXT_I18N, renderContext} from './context.js?v=4266d68c03';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=54f76352d0';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=f631563c95';
-import {WORKSPACES} from './console.js?v=6b3461d3d5';
+import {WORKSPACES} from './console.js?v=290e925d13';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -221,7 +221,7 @@ function changed(){
 }
 
 /* ── update ───────────────────────────────────────────────────────────── */
-const DESKS=[['brief',BRIEF_I18N,renderBrief],['walk',WALK_I18N,renderWalk],['context',CONTEXT_I18N,renderContext]];
+const DESKS=[['brief',BRIEF_I18N,renderBrief],['walk',WALK_I18N,renderWalk],['context',CONTEXT_I18N,renderContext],['site',SITE_I18N,renderSite]];
 function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textContent=dict[lang].title;if($(id+'Panel').open)render({lang,state,changed:applyDeskPatch,onInputs:()=>{consoleUI?.render();drawTower()}})}}
 for(const [id]of DESKS)$(id+'Panel').addEventListener('toggle',()=>{if($(id+'Panel').open)renderDesks()});
 function applyDeskPatch(patch){
