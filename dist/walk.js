@@ -140,6 +140,21 @@ export function street(state,t,view){
  const W=1000,H=620,cx=W/2,cy=Math.round(H*.46);
  const n=Math.max(1,state.floors|0),total=stackHeight(state,n)||1;
  const d=view.d,look=view.look*DTR,cs=Math.cos(look),sn=Math.sin(look);
+ // Walking in means two things beyond standing still and looking up: where you
+ // are standing across the road, and which way you are facing. Without them the
+ // street view had one reachable place in the world — the axis, dead centre.
+ // So the camera takes a lateral offset and a heading, and every point passes
+ // through ONE projector, because the auto-fit and the drawing have to agree
+ // about where things are: a fit computed on a different camera than the one
+ // that draws produces a correctly-projected drawing inside a wrongly-placed
+ // frame, which looks like a lens bug and is not one.
+ const ox=view.across||0,yaw=(view.turn||0)*DTR,cyw=Math.cos(yaw),syw=Math.sin(yaw);
+ const proj=(X,Y,Z,minF)=>{
+  const px=X-ox,pz=Z+d;
+  const rx=px*cyw+pz*syw,rz=-px*syw+pz*cyw;
+  const ry=Y-EYE,fw=ry*sn+rz*cs;
+  return fw<minF?null:[rx/fw,(ry*cs-rz*sn)/fw];
+ };
  const p0=profile(state,0),len=p0.length;
  const c0=[0,1].map(k=>p0.reduce((a,p)=>a+p[k],0)/len);
  // The corner to stand opposite is the one whose two faces both recede most
@@ -155,8 +170,7 @@ export function street(state,t,view){
  // Rotate the site frame so this corner sits at the origin and the axis away
  // from the viewer is +Z; the camera then sits at exactly (0,-d).
  const TP=q=>{const x=q[0]-V[0],z=q[1]-V[1],ax=-ux/lu,az=-uy/lu;return [x*az-z*ax,x*ax+z*az]};
- const raw=(X,Y,Z)=>{const ry=Y-EYE,rz=Z+d,fw=ry*sn+rz*cs;
-  return fw<3?null:[X/fw,(ry*cs-rz*sn)/fw]};
+ const raw=(X,Y,Z)=>proj(X,Y,Z,3);
  const fit=[];
  const see=(X,Y,Z)=>{const r=raw(X,Y,Z);if(r)fit.push(r)};
  const levels=[{z:0,pts:p0.map(TP)}];
@@ -177,10 +191,16 @@ export function street(state,t,view){
  [...kn,...kf,...nA.flatMap(l=>l.pts),...nB.flatMap(l=>l.pts)].forEach(q=>{see(q[0],0,q[1]);see(q[0],Math.max(nhA,nhB),q[1])});
  const rm=Math.max(...fit.map(r=>Math.abs(r[0])))||1,um=Math.max(...fit.map(r=>Math.abs(r[1])))||1;
  const minX=Math.min(...fit.map(r=>r[0])),maxX=Math.max(...fit.map(r=>r[0])),minY=Math.min(...fit.map(r=>r[1])),maxY=Math.max(...fit.map(r=>r[1]));
- const f=Math.min(.92*W/Math.max(.001,maxX-minX),.9*H/Math.max(.001,maxY-minY));
+ // Fitting to whatever the turn throws into frame produced a 166° lens — wider
+ // than a fisheye, and a number no drawing can justify. So the frame is fitted
+ // but never wider than a real architectural wide angle; past that the scene
+ // leaves the sheet instead of distorting to stay on it. The cap is stated in
+ // the note, because a lens angle you cannot see is a claim, not a measurement.
+ const LENS_CAP=110*DTR;
+ const f=Math.max(Math.min(.92*W/Math.max(.001,maxX-minX),.9*H/Math.max(.001,maxY-minY)),(H/2)/Math.tan(LENS_CAP/2));
  const frameX=W/2-f*(maxX+minX)/2,frameY=H/2+f*(maxY+minY)/2;
- const cam={x:0,z:-d,P:(X,Y,Z)=>{const ry=Y-EYE,rz=Z+d,fw=ry*sn+rz*cs;
-  return fw<.6?null:[frameX+X/fw*f,frameY-((ry*cs-rz*sn)/fw)*f]}};
+ const cam={x:ox,z:-d,P:(X,Y,Z)=>{const r=proj(X,Y,Z,.6);
+  return r?[frameX+r[0]*f,frameY-r[1]*f]:null}};
  const segment=(a,b,cls)=>{const A=cam.P(...a),B=cam.P(...b);return A&&B?`<path class="${cls}" fill="none" d="M${A.join(' ')}L${B.join(' ')}"/>`:''};
  let o='';
  o+=`<rect class="wk-sky" width="${W}" height="${H}"/>`;
@@ -210,7 +230,14 @@ export function street(state,t,view){
  [[out(A[1],uA,FOOT),2],[out(A[1],uA,FOOT+ROAD*.5),3],[nA[0].pts[2],4],[nB[0].pts[2],5],[fp,6]]
   .forEach(([q,k])=>{const r=cam.P(q[0],0,q[1]);if(!r)return;
    o+=`<circle class="wk-pin" cx="${num(r[0],1)}" cy="${num(r[1],1)}" r="10"/><text class="wk-pin-t" x="${num(r[0],1)}" y="${num(r[1]+4,1)}" text-anchor="middle">${k}</text>`});
- return {svg:o,elev:Math.atan2(total-EYE,d)/DTR,lens:2*Math.atan(H/2/f)/DTR,mpp:(d*cs-EYE*sn)/f,total};
+ // The angle to the top and the scale at the near corner both depend on how far
+ // the reader actually is from the corner being measured. Standing off the axis
+ // makes that distance hypot(off, d), not d — and a figure that keeps reporting
+ // the on-axis distance after you have walked sideways is a wrong number, not a
+ // rounded one. Turning does not enter here: it rotates the view, it does not
+ // move the reader.
+ const hd=Math.hypot(ox,d)||1;
+ return {svg:o,elev:Math.atan2(total-EYE,hd)/DTR,lens:2*Math.atan(H/2/f)/DTR,mpp:(hd*cs-EYE*sn)/f,total};
 }
 
 export const WALK_I18N={
@@ -225,7 +252,7 @@ en:{title:'Human-eye view',tier:'Two perspective constructions projected from th
  svNote:'The 0.95 m services zone is a diagrammatic allowance, not a coordinated services design.',
  slab:'Floor slab',ceiling:'Ceiling',plenum:'Plenum',duct:'Supply duct',pipes:'Sprinkler and drainage',tray:'Cable tray',glazing:'Curtain wall',
  bays:'Mullion bays across the plate at a 1.5 m module',beyond:'Services continue past the cut and are not visible from the floor',
- dist:'Distance from facade',look:'Look-up angle',reset:'Reset view',towerH:'Tower height',levels:'Levels drawn',scale:'Scale at the near corner',
+ dist:'Distance from facade',look:'Look-up angle',across:'Where you stand across the road',turn:'Turn from the corner',reset:'Reset view',towerH:'Tower height',levels:'Levels drawn',scale:'Scale at the near corner',
  kerb:'Kerb',road:'Road edge',flank:'Flanking buildings',subtend:'Angle to the top above the horizon',
  flankNote:'Neighbouring heights and the 17.2 m footway plus road are diagrammatic, not surveyed.',
  pitchNote:'Look-up tilts the camera about its own axis; the principal point stays at the centre of the sheet.',
@@ -242,7 +269,7 @@ th:{title:'มุมมองระดับสายตา',tier:'ภาพท�
  svNote:'โซนงานระบบ 0.95 ม. เป็นค่าสมมติเชิงแผนภาพ ไม่ใช่งานระบบที่ออกแบบประสานกันแล้ว',
  slab:'พื้นคอนกรีต',ceiling:'ฝ้าเพดาน',plenum:'ช่องเหนือฝ้าเพดาน',duct:'ท่อส่งลม',pipes:'ท่อสปริงเกลอร์และท่อระบาย',tray:'รางสาย',glazing:'ผนังกระจก',
  bays:'ช่องกระจกตามความกว้างพื้นที่ชั้น ขนาดมาตรฐาน 1.5 ม.',beyond:'งานระบบยื่นผ่านแนวตัดไป และมองไม่เห็นจากระดับพื้น',
- dist:'ระยะจากแนวอาคาร',look:'มุมที่เงยหน้าขึ้น',reset:'คืนค่ามุมมอง',towerH:'ความสูงอาคาร',levels:'จำนวนชั้นที่แสดง',scale:'มาตราส่วนที่มุมใกล้',
+ dist:'ระยะจากแนวอาคาร',look:'มุมที่เงยหน้าขึ้น',across:'ตำแหน่งที่ยืนข้ามถนน',turn:'หมุนจากมุมอาคาร',reset:'คืนค่ามุมมอง',towerH:'ความสูงอาคาร',levels:'จำนวนชั้นที่แสดง',scale:'มาตราส่วนที่มุมใกล้',
  kerb:'ขอบทาง',road:'ขอบถนน',flank:'อาคารข้างเคียง',subtend:'มุมถึงยอดอาคารเหนือเส้นขอบฟ้า',
  flankNote:'ความสูงอาคารข้างเคียงและความกว้างทางเดินร่วมถนนรวม 17.2 ม. เป็นค่าสมมติเชิงแผนภาพ ไม่ได้สำรวจจริง',
  pitchNote:'การเงยหน้าขึ้นจะหมุนกล้องรอบแกนตัวเอง ขณะที่จุดหลักยังคงอยู่กลางกระดาษ',
@@ -259,7 +286,7 @@ zh:{title:'人视视角',tier:'两幅由实时模型几何投影得出的透视�
  svNote:'0.95 米的设备区是图示预留，不是协调完成的服务设计。',
  slab:'楼板',ceiling:'吊顶',plenum:'吊顶上方夹层',duct:'送风管',pipes:'喷淋管与排水管',tray:'电缆桥架',glazing:'幕墙',
  bays:'楼层宽度上的幕墙分格，采用 1.5 米模数',beyond:'设备在剖切面之外继续，站在地面看不见',
- dist:'距外墙距离',look:'仰角',reset:'复位视角',towerH:'塔楼高度',levels:'所绘层数',scale:'近角处比例',
+ dist:'距外墙距离',look:'仰角',across:'你在路对面的位置',turn:'相对角点的转向',reset:'复位视角',towerH:'塔楼高度',levels:'所绘层数',scale:'近角处比例',
  kerb:'路缘',road:'路缘线',flank:'相邻建筑',subtend:'塔顶高出地平线的角度',
  flankNote:'相邻建筑高度与人行道加路面合计 17.2 米均为图示假设，并非实测。',
  pitchNote:'仰角只让镜头绕自身轴线旋转，主点仍固定在图纸中央。',
@@ -267,7 +294,7 @@ zh:{title:'人视视角',tier:'两幅由实时模型几何投影得出的透视�
  benchmarkText:'曼谷帝国大厦 — 公布的净高为 2.60 米。那是另一栋建筑的实测数据，仅作基准引用，并非本模型的结果。'}
 };
 
-const view={d:46,look:16};
+const view={d:46,look:16,across:0,turn:0};
 export function renderWalk({lang,state,changed}){
  const c=WALK_I18N[lang]||WALK_I18N.en,t=k=>ph(c[k]);
  const host=document.getElementById('walkDesk');
@@ -296,7 +323,7 @@ export function renderWalk({lang,state,changed}){
  A.append(el('p',t('bays')+' · '+t('beyond'),'wk-note'));
  // B · street
  let currentStreet=sa;
- const capB=()=>`${t('subtend')} ${num(currentStreet.elev,1)}° · ${t('dist')} ${num(view.d,0)} m · ${t('towerH')} ${num(currentStreet.total,1)} m · ${t('levels')} ${state.floors} · ${t('kerb')} 0.15 m · ${t('road')} 14.0 m · ${t('scale')} 1 px ≈ ${num(currentStreet.mpp,3)} m · ${t('lens')} ${num(currentStreet.lens,0)}°`;
+ const capB=()=>`${t('subtend')} ${num(currentStreet.elev,1)}° · ${t('dist')} ${num(view.d,0)} m · ${t('across')} ${num(view.across,0)} m · ${t('turn')} ${num(view.turn,0)}° · ${t('towerH')} ${num(currentStreet.total,1)} m · ${t('levels')} ${state.floors} · ${t('kerb')} 0.15 m · ${t('road')} 14.0 m · ${t('scale')} 1 px ≈ ${num(currentStreet.mpp,3)} m · ${t('lens')} ${num(currentStreet.lens,0)}°`;
  const B=el('section',undefined,'wk-sec');
  B.append(el('h3',t('street'),'wk-h'),el('p',t('two'),'wk-note'),el('p',t('none'),'wk-note'));
  const ctl=el('div');ctl.className='wk-ctl';
@@ -312,8 +339,23 @@ export function renderWalk({lang,state,changed}){
  const fig=figure(sa.svg,t('street')+' · '+t('flank'),capB());
  slider('dist',t('dist'),'d',20,140,2,' m',v=>view.d=v);
  slider('look',t('look'),'look',0,42,1,'°',v=>view.look=v);
+ // Where you stand and which way you face. Together with distance and look-up
+ // these four are the whole of standing somewhere: two sliders let you only
+ // ever be on the axis, which is a section drawing wearing a perspective's
+ // clothes. The lateral offset runs across the carriageway, so its range is the
+ // footway plus the road, not an arbitrary number.
+ //
+ // The turn stops at 25°, and that is a measurement rather than a preference.
+ // The frame is fitted to the whole scene, so rotating hard swings the tower
+ // off the sheet entirely: at 70° it sits 2714 units to one side of a 1000-wide
+ // viewBox, and by 35° the subject is already at the frame edge. Twenty-five
+ // degrees is where the drawing still reads as a building you are standing
+ // across the road from. A control that can drive its own drawing off the page
+ // is not a control, it is a way to produce an empty rectangle.
+ slider('across',t('across'),'across',-24,24,1,' m',v=>view.across=v);
+ slider('turn',t('turn'),'turn',-25,25,1,'°',v=>view.turn=v);
  const reset=el('button',t('reset'),'wk-btn');reset.type='button';
- reset.onclick=()=>{view.d=46;view.look=16;renderWalk({lang,state,changed})};
+ reset.onclick=()=>{view.d=46;view.look=16;view.across=0;view.turn=0;renderWalk({lang,state,changed})};
  ctl.append(reset,el('p',t('pitchNote')+' '+t('flankNote')));
  B.append(ctl,fig);
  B.append(key([['1',t('towerH')],['2',t('kerb')],['3',t('road')],['4',t('flank')],['5',t('levels')],['6',t('figure')]]));
@@ -329,8 +371,8 @@ export function renderWalk({lang,state,changed}){
 Object.assign(WALK_I18N.en,{two:'The street view projects the current tower profiles and slab stack. The interior is a schematic rectangular bay sized from the middle occupied profile and its actual storey height; partitions and services are illustrative.',benchmarkText:'Reference only: a 2.60 m clear-height example. This figure has not been verified in the owner source and is not used to size this model.'});
 Object.assign(WALK_I18N.th,{two:'ภาพถนนฉายจากผังและชุดชั้นจริง ภายในเป็นห้องช่วงสี่เหลี่ยมสมมติ ใช้ขนาดจากผังชั้นใช้งานกลางตึกและความสูงชั้นจริง ผนังกั้นและระบบเป็นภาพอธิบาย',benchmarkText:'ตัวอย่างอ้างอิงเท่านั้น: ความสูงใส 2.60 ม. ยังไม่ยืนยันจากเอกสารเจ้าของอาคาร และไม่ได้ใช้กำหนดขนาดโมเดลนี้'});
 Object.assign(WALK_I18N.zh,{two:'街道视图投影当前塔楼轮廓和楼层栈。室内是示意矩形开间，尺寸取自中部使用楼层轮廓及实际层高，隔墙和设备仅作说明。',benchmarkText:'仅供对照：2.60 米净高示例，尚未由业主资料核实，也未用于确定本模型尺寸。'});
-Object.assign(WALK_I18N.en,{pitchNote:'Look-up tilts the eye-level camera. Framing and lens adapt to keep the schematic tower and context on the sheet.',scale:'Horizontal scale at near corner'});
-Object.assign(WALK_I18N.th,{pitchNote:'มุมเงยหมุนกล้องระดับสายตา การจัดกรอบและเลนส์ปรับให้เห็นตึกกับบริบทสมมติในภาพ',scale:'มาตราส่วนแนวนอนที่มุมใกล้'});
-Object.assign(WALK_I18N.zh,{pitchNote:'仰角转动视高处的相机，取景与镜头自适应，使示意塔楼和环境保留在图中。',scale:'近端转角的水平比例'});
+Object.assign(WALK_I18N.en,{pitchNote:'Distance, look-up, where you stand across the road and which way you face are four independent placements, and framing and lens adapt to all four so the drawing stays on the sheet. The frame is recomputed to fit what is in view, so this is not a fixed-lens photograph, and it is never wider than 110° — turn far enough and part of the scene leaves the sheet rather than distorting to stay on it.',scale:'Horizontal scale at near corner'});
+Object.assign(WALK_I18N.th,{pitchNote:'ระยะ มุมเงยหน้า ตำแหน่งที่ยืนข้ามถนน และทิศที่หันหน้า เป็นการวางตำแหน่งที่อิสระสี่แบบ การจัดกรอบและเลนส์จึงปรับตามทั้งสี่ค่าเพื่อให้ภาพอยู่บนกระดาษ และเพราะกรอบภาพคำนวณใหม่ตามสิ่งที่อยู่ในสายตา จึงไม่ใช่ภาพถ่ายด้วยเลนส์คงที่ โดยกรอบจะกว้างไม่เกิน 110° หมุนมากเกินไปภาพบางส่วนจะออกนอกกระดาษ แทนที่จะบิดเพื่อยัดอยู่',scale:'มาตราส่วนแนวนอนที่มุมใกล้'});
+Object.assign(WALK_I18N.zh,{pitchNote:'距离、仰角、你在路对面的位置、以及面朝的方向，是四个互相独立的取景位置；取景与镜头会随四者一起调整，使图形始终留在图纸上。画框按视野内内容重新计算，因此这不是固定镜头的照片；画框最宽不超过 110°，转得过头时部分场景会移出图纸，而不是扭曲以留在图上。',scale:'近端转角的水平比例'});
 
 export function getWalkStudy(){return {view:{...view},eyeHeight:EYE,servicesZone:SV,tier:'schematic perspective, not coordinated interior or surveyed context'}}

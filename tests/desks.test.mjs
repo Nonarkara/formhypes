@@ -556,3 +556,49 @@ test('the storey datum is knocked out of the drawing and never crosses the dimen
  assert.ok(/const step=dimH<190\?200:dimH<420\?100:50;/.test(app),
   'the height graduation must adapt to a short sheet');
 });
+
+/* Walking in means four independent placements, and each one has to reach the
+   geometry — not just the slider label.
+
+   The failure this guards is specific and was already paid for once: the camera
+   took a lateral offset for the drawing while `elev` and `mpp` still divided by
+   the on-axis distance `d`. The picture moved and the numbers did not, so the
+   caption reported the angle to a corner the reader was no longer standing
+   opposite. These assertions are on the emitted function, because that is where
+   the lie lived. */
+test('standing off the axis changes the measurement, and turning does not',()=>{
+ const s={...defaults,floors:24,program:'custom',height:4};
+ const at=(over)=>street(s,k=>k,{d:46,look:16,across:0,turn:0,...over});
+ const axis=at({});
+ // Stepping sideways increases the true distance to the corner, so the angle it
+ // subtends must fall. Unchanged numbers here are the bug, not a rounding.
+ assert.ok(at({across:24}).elev<axis.elev,'standing 24 m across did not reduce the subtended angle');
+ // And it is symmetric: the same distance either way is the same distance.
+ near(at({across:24}).elev,at({across:-24}).elev);
+ assert.ok(at({across:24}).mpp!==axis.mpp,'the near-corner scale did not follow the reader');
+ // Turning rotates the view; it does not walk the reader anywhere.
+ near(at({turn:25}).elev,axis.elev);
+ near(at({turn:25}).total,axis.total);
+ // And the four stay independent: changing one must not move another's value.
+ near(at({turn:25}).elev,at({across:0,turn:-25}).elev);
+ // Distance still works the way it did before any of this.
+ near(street(s,k=>k,{d:46,look:16}).elev,axis.elev);
+ // And the drawing itself has to follow the reader. The numbers above can stay
+ // correct while the picture quietly stops moving — which is what happens if the
+ // projector forgets the offset but the measurement keeps it — so assert on the
+ // emitted SVG, not on a derived value.
+ assert.notEqual(at({across:24}).svg,axis.svg,'the drawing does not move when the reader steps across the road');
+ assert.notEqual(at({turn:25}).svg,axis.svg,'the drawing does not turn when the reader turns');
+ assert.notEqual(street(s,k=>k,{d:60,look:16}).svg,axis.svg,'the drawing does not change with distance');
+});
+
+test('the street frame never reports a lens no drawing could have',()=>{
+ const s={...defaults,floors:24,program:'custom',height:4};
+ for(const turn of [-25,0,25])for(const across of [-24,0,24])for(const look of [0,42]){
+  const v=street(s,k=>k,{d:46,look,across,turn});
+  assert.ok(Number.isFinite(v.lens)&&v.lens>0,`lens ${v.lens} at turn ${turn} across ${across}`);
+  // The cap stated in the note. A fisheye number here is a claim the geometry
+  // cannot support, and turning used to produce exactly that.
+  assert.ok(v.lens<=110+1e-9,`lens ${v.lens.toFixed(1)}° exceeds the stated 110° cap (turn ${turn}, across ${across})`);
+ }
+});
