@@ -2,7 +2,7 @@ import {mountConsole} from './console.js?v=290e925d13';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=e1aefac756';
-import{t,langs,langMeta,translator}from'./i18n.js?v=e64a19b1a6';
+import{t,langs,langMeta,translator}from'./i18n.js?v=eec1eefc88';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
@@ -18,7 +18,7 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=3
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=07c524befa';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=26a9b41c9c';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=a751571d18';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=5c6a0e8d98';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
@@ -520,6 +520,24 @@ function drawTower(){
   .map(b=>b.top-vpRect.top);
  const footInset=bandTop.length?Math.max(0,H-Math.min(...bandTop)):0;
 
+ /* The band is in flow, so the footer is laid out over the bottom of the canvas
+    box. The stylesheet lifts it above the drawing — which makes the text
+    readable and does nothing else. Nothing stopped the *ink* at the band: the
+    ground plate, the city and the tower all painted straight through it. So the
+    footer was clean only until you touched the model. Dragging the orbit put the
+    tower's base behind the credit line, and zooming out put it behind the title
+    block; on a phone, where the band is tall and so is the tower, they collided
+    outright with no interaction at all.
+
+    Two halves of one bug, and only one of them was ever fixed. Lifting solves the
+    z-order. Clipping solves the ink, and the clip has to be bounded by the same
+    measured edge, or it reintroduces the fixed-offset bug the measurement exists
+    to prevent. A sheet has a drawing field and a title band; the band is paper. */
+ ctx.save();
+ ctx.beginPath();
+ ctx.rect(0,0,W,H-footInset);
+ ctx.clip();
+
  // Fine grid where the plot is read, coarse grid where the city is. A single
  // 12 m grid across 700 m would be 117 lines each way and would bury the tower
  // in ruling; a site plan gets this right by changing weight, not density.
@@ -817,20 +835,35 @@ function drawTower(){
  ctx.textAlign='left';ctx.fillText(label,lx,pp[1]-5);
  ctx.fillRect(pp[0],pp[1],5,5);
 
- /* The axis triad lives in the bottom-right corner of the sheet, which is also
-    where the view foot's right-hand label sits — "metres", or its Thai and
-    Chinese equivalents, at whatever width that language makes it. So both
-    corners of the placement are read rather than assumed: left of the measured
-    label, and clear above the measured foot row. A constant cleared the label
-    in English and not in Thai, and shared the row in all three. Same rule as
-    footInset, applied to a sibling whose size the drawing does not control. */
+ /* The axis triad lives in the bottom-left of the drawing field — the field is
+    what ends where the footer band begins, so "bottom" here means the same thing
+    it means to the clip.
+
+    Anchoring it to the view foot's row instead looked right in English and broke
+    the moment that row was hidden. On a narrow screen the console hides it, its
+    rect collapses to zero, `footR.top - vpRect.top - 26` goes negative, and the
+    Math.max floor silently threw the triad into the top-left corner — where X
+    printed straight across the View button. A floor substituted for a
+    measurement that was not there, so nothing reported a problem: the numbers
+    were valid, just anchored to nothing.
+
+    The band is already measured for footInset, and it is measured across every
+    in-flow child, so it is right whether or not any single row happens to be on
+    screen. The right-hand label is still avoided when it exists and dropped for
+    the left margin when it does not — the ruler owns the right edge, so guessing
+    right is how the triad ends up under the scale. */
+ const fieldBottom=H-footInset;
  const footEl=document.querySelector('.viewfoot');
- const footR=(footEl||bandEl).getBoundingClientRect();
- const footLabel=footEl&&[...footEl.querySelectorAll('span')].pop();
- const labelLeft=footLabel?footLabel.getBoundingClientRect().left:vpRect.right-60;
- const origin=[Math.max(24,labelLeft-vpRect.left-40),Math.max(40,footR.top-vpRect.top-26)];
+ const footShown=footEl&&getComputedStyle(footEl).display!=='none';
+ const footLabel=footShown?[...footEl.querySelectorAll('span')].pop():null;
+ const labelLeft=footLabel?footLabel.getBoundingClientRect().left:vpRect.left+24;
+ const origin=[Math.max(24,labelLeft-vpRect.left-40),Math.max(40,fieldBottom-26)];
  ctx.strokeStyle='#a2aca9';ctx.fillStyle='#a2aca9';
  for(const[dx,dy,label]of[[25,8,'X'],[-18,12,'Y'],[0,-26,'Z']]){ctx.beginPath();ctx.moveTo(...origin);ctx.lineTo(origin[0]+dx,origin[1]+dy);ctx.stroke();ctx.fillText(label,origin[0]+dx-4,origin[1]+dy+(dy<0?-4:13))}
+ ctx.restore();
+ /* The rule where the drawing field ends. The sheet draws it rather than the
+    footer, because the footer is sometimes hidden and the field edge never is. */
+ if(footInset>0){ctx.fillStyle='#2c3438';ctx.fillRect(0,fieldBottom,W,1)}
 }
 let drag=null;
 canvas.onpointerdown=e=>{drag={x:e.clientX};canvas.setPointerCapture(e.pointerId)};

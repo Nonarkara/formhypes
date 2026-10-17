@@ -509,18 +509,35 @@ test('the sheet bottom band is one in-flow stack, not elements with guessed offs
   'the band measurement must skip out-of-flow children, not only accept static ones');
  assert.ok(!/ctx\.fillText\(num\(landArea\)/.test(app)||/H-footInset-14/.test(app),
   'the land-area annotation must be anchored to the measured band');
- // Vertically it must measure the band, and horizontally the sibling it shares
- // the corner with — that label's width is set by the language, so a constant
- // cleared it in English and not in Thai.
+ // Horizontally it must clear the sibling it shares the corner with — that
+ // label's width is set by the language, so a constant cleared it in English and
+ // not in Thai.
+ //
+ // Vertically it used to be required to measure `.viewfoot`'s own row, and this
+ // assertion enforced that. It was wrong, and enforcing it kept a real defect
+ // alive: the console hides .viewfoot on a narrow screen, so its rectangle
+ // collapses to zero, the expression goes negative, and the Math.max floor
+ // silently became the anchor — throwing the triad into the top-left corner with
+ // X printed across the View button. Measuring one row is not measuring the
+ // band; it is measuring an element that can be absent. footInset is derived
+ // from every in-flow child, so it is correct whether or not any one of them is
+ // on screen. The horizontal label is still cleared, but only when it exists.
  const triad=/const origin=\[([^\]]*)\];\s*ctx\.strokeStyle='#a2aca9'/.exec(app);
  assert.ok(triad,'the axis triad origin is missing or no longer a single point');
- assert.ok(/labelLeft/.test(triad[1])&&/footR/.test(triad[1]),
-  `the triad must be placed against the measured view foot label and row, got ${triad[1]}`);
+ assert.ok(/labelLeft/.test(triad[1])&&/fieldBottom/.test(triad[1]),
+  `the triad must be placed against the measured view foot label and the band `+
+  `edge, got ${triad[1]}`);
+ assert.ok(!/footR/.test(triad[1]),
+  'the triad must not take its vertical placement from a single band row — '+
+  'that row is display:none on a narrow screen, where a Math.max floor becomes '+
+  'the anchor and lands the triad on the view tools');
  assert.ok(!/W-60/.test(triad[1]),
   'the triad must measure the view foot label, not sit at a fixed width — that '+
   'offset only clears in one of the three languages');
  assert.ok(/viewfoot span|footEl\.querySelectorAll\('span'\)/.test(app),
   'the triad must read the view foot label it has to clear');
+ assert.ok(/footEl&&getComputedStyle\(footEl\)\.display!=='none'/.test(app),
+  'the view foot label may only be measured when it is actually displayed');
  // And it still has to clear the band: the land-area label proves footInset is
  // still measured and still used, rather than quietly replaced.
  assert.ok(/H-footInset-14/.test(app),'the land-area label must still clear the measured band');

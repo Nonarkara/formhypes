@@ -70,7 +70,6 @@ body.is-console .form-atlas svg{height:22px;width:22px;margin:0}
 .console-workspace[data-workspace="detail"] .dsecwrap{padding:8px;margin:4px 0 10px}
 .console-workspace[data-workspace="detail"] .spec{font-size:12.5px}
 .console-workspace[data-workspace="detail"] .spec dd{font-size:12.5px}
-body.is-console .mobileonly{display:none}
 @media(max-width:1180px){
  body.is-console header{height:auto;flex-wrap:wrap;overflow:visible}
  body.is-console .console-site{flex:1 0 100%;order:3;border-left:0;padding:4px 0 6px}

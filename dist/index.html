@@ -15,8 +15,8 @@
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="720">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="style.css?v=330572b70b">
-<link rel="stylesheet" href="console.css?v=2330a00749">
+<link rel="stylesheet" href="style.css?v=0fd816c706">
+<link rel="stylesheet" href="console.css?v=be44cec151">
 <link rel="stylesheet" href="desks.css?v=b844645a84">
 </head>
 <body>
@@ -132,15 +132,18 @@
         <span class="data" data-i18n="v.units">metres</span>
       </div>
       <!-- Where the model ranks in the skyline it is standing in, and where that
-           skyline came from. It sits in the bottom band rather than floating
-           over the drawing: the band is in flow and the canvas measures it, so
-           this can never cover the model. As an absolutely-positioned plate it
-           printed straight across the tower's crown, which is the same mistake
-           as a dimension crossing the plan. A height inferred from a level count
-           is named as such, because it is a weaker claim than a surveyed one. -->
+           skyline came from. In flow with the rest of the sheet footer, so it
+           cannot collide with the rows around it. It CAN still be drawn on: the
+           canvas is absolutely positioned across the whole sheet, so the drawing
+           is clipped to the field above this band in app.js?v=593a7fd9a5 Being in flow was
+           never sufficient on its own, and a comment claiming it was hid that
+           for as long as it stood — orbit the model and the tower went behind
+           the credit line. As an absolutely positioned plate it printed across
+           the crown instead, which is the same mistake as a dimension crossing
+           the plan. A height inferred from a level count is named as such,
+           because it is a weaker claim than a surveyed one. -->
       <p class="skyline-readout" id="skylineReadout"></p>
       <p id="phoneReadout" class="phone-readout"><span id="phoneContributionLabel"></span> <strong id="phoneContribution"></strong> <span id="phoneDelta"></span></p>
-      <p class="mobileonly note" data-i18n="v.narrow">Built for a landscape laptop. On a narrow screen this console is cramped — rotate the device.</p>
 
       <!-- A title block is not decoration: it is where the drawing says what
            it is and what it is not. -->
@@ -358,5 +361,5 @@
 <dialog id="knowledgeDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="k.button">Architectural knowledge</h2><div id="knowledgeContent" role="status"></div><p class="knowledgeDownloads"><a href="knowledge/designon-knowledge.json?v=38eb5f372c" download data-i18n="k.download">Download</a><a href="knowledge/DESIGNON-LICENSE.txt?v=1950c131d0" data-i18n="k.license">License</a></p></dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="app.js?v=711d876c87"></script>
+<script type="module" src="app.js?v=593a7fd9a5"></script>
 </body></html>

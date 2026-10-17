@@ -144,11 +144,15 @@ input[type=range]::-moz-range-thumb{width:3px;height:18px;background:var(--accen
 .viewport>.viewfoot{padding:0 18px 2px}
 .viewhead{position:absolute;top:12px;left:18px;right:18px;display:flex;justify-content:space-between;color:var(--dim);z-index:2;pointer-events:none}
 /* Where the model ranks in the skyline it is standing in, and where that
-   skyline came from. It lives in the bottom band, which is in flow: the canvas
-   measures the band and anchors its own annotations to it, so a line of text
-   here cannot cover the model. Two lines — the claim, then its source — with a
-   rule between them, because the source is not decoration on the claim.
-   A height inferred from a level count is named as such. */
+   skyline came from. Two lines — the claim, then its source — with a rule
+   between them, because the source is not decoration on the claim.
+   A height inferred from a level count is named as such.
+
+   Being in flow stops this row colliding with its neighbours. It does not stop
+   the drawing underneath it: the canvas is absolute and spans the whole sheet,
+   so the drawing has to be clipped to the field above this band (app.js, in
+   drawTower) or its ink shows through the credit line. The two halves are one
+   bug — lifting the band fixes the z-order, and only the clip fixes the ink. */
 .skyline-readout{margin:0 0 6px;padding:0 0 0 9px;border-left:2px solid var(--accent);
  color:var(--dim);font-family:var(--mono);font-size:10px;line-height:1.5}
 .skyline-readout .sky-credit{display:block;color:var(--faint)}
@@ -165,8 +169,14 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 .viewtools button:hover{background:#2b3438;border-color:#5c686e;color:#fff}
 .viewtools button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--ink)}
 .viewtools button[aria-pressed="true"] .ic{color:var(--ink)}
-.viewfoot{position:absolute;bottom:48px;left:18px;right:18px;display:flex;justify-content:space-between;color:#7d8783;pointer-events:none}
-.mobileonly{display:none}
+/* The view foot is in flow with the rest of the band. It used to carry
+   `bottom:48px` from when it was absolutely positioned — and under
+   position:relative that is not a leftover, it is a live instruction: it shifts
+   the row 48px down from its place in the flow, leaving a dead strip of sheet
+   above the footer and pushing the row into the drawing. It read as a harmless
+   no-op in the stylesheet and moved the footer every frame. The band is a stack
+   now; a row in a stack takes its own offset from its neighbours. */
+.viewfoot{display:flex;justify-content:space-between;color:#7d8783;pointer-events:none}
 /* A title block is where a drawing declares what it is and is not. A real one is
    a fixed grid of cells that never reflows — so this one holds its band and
    truncates, rather than wrapping out through the bottom of the sheet. */
@@ -189,8 +199,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 .titleblock .b-cred{display:none}
 @media(max-width:560px){.titleblock .b-cred,.titleblock .tb-sheet,.titleblock .tb-by{display:none}
  .titleblock{height:auto;flex-wrap:wrap;row-gap:3px;padding:5px 18px}
- .tb-ref{flex-basis:100%;margin-left:0;padding-left:0}
- .viewfoot{bottom:50px}}
+ .tb-ref{flex-basis:100%;margin-left:0;padding-left:0}}
 
 /* ── schedule · a column of figures, set tight ────────────────────────── */
 .primarymetric{border-bottom:2px solid var(--ink);padding:6px 0 10px;margin:0 0 10px}
@@ -511,7 +520,7 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 @media(min-width:1700px){.studio{grid-template-columns:236px minmax(0,1fr) 324px}}
 @media(max-width:1100px){.masthead .mastnote{grid-row:2;grid-column:1/-1;justify-self:start}.studio{grid-template-columns:210px minmax(0,1fr) 280px}}
 @media(max-width:900px){header{height:auto;min-height:44px;gap:4px 12px;padding:4px 12px}.studio{grid-template-columns:1fr}.viewport{order:-1;min-height:64dvh}.controls,.results{max-height:none;overflow:visible}.brand .b-cred{font-size:9px;margin-left:6px}.masthead .mastnote{white-space:normal}.actions{padding-left:8px}.tabs{gap:12px}.langs{gap:10px}}
-@media(max-width:600px){header{display:flex;flex-wrap:nowrap;align-items:center;height:44px;min-height:44px;padding:0 4px;gap:4px;overflow:hidden}.brand{font-size:12px;letter-spacing:0;flex:0 1 auto;min-width:0}.brand .b-cred{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.langs{margin-left:auto;gap:0}.tabs{gap:0}.tabs a{letter-spacing:.04em;padding:0 5px;font-size:11px;white-space:nowrap}header .actions{display:none}.masthead h1{font-size:15px}.masthead{padding:5px 0;row-gap:2px}.mobileonly{display:none}.viewport{min-height:66dvh}.searchcontrols{flex-direction:column;align-items:stretch;width:100%}.searchcontrols button{flex:none;width:100%;min-height:44px}.searchcontrols select{width:100%;max-width:none;min-width:0;padding-right:28px}.searchcontrols label{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;white-space:normal;font-size:11px;color:var(--muted)}.brand .b-cred{letter-spacing:0}.viewtools{top:32px}.viewtools button{font-size:11px;min-width:44px;min-height:44px}button,select{min-height:32px}.textlink{min-height:36px}}
+@media(max-width:600px){header{display:flex;flex-wrap:nowrap;align-items:center;height:44px;min-height:44px;padding:0 4px;gap:4px;overflow:hidden}.brand{font-size:12px;letter-spacing:0;flex:0 1 auto;min-width:0}.brand .b-cred{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.langs{margin-left:auto;gap:0}.tabs{gap:0}.tabs a{letter-spacing:.04em;padding:0 5px;font-size:11px;white-space:nowrap}header .actions{display:none}.masthead h1{font-size:15px}.masthead{padding:5px 0;row-gap:2px}.viewport{min-height:66dvh}.searchcontrols{flex-direction:column;align-items:stretch;width:100%}.searchcontrols button{flex:none;width:100%;min-height:44px}.searchcontrols select{width:100%;max-width:none;min-width:0;padding-right:28px}.searchcontrols label{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;white-space:normal;font-size:11px;color:var(--muted)}.brand .b-cred{letter-spacing:0}.viewtools{top:32px}.viewtools button{font-size:11px;min-width:44px;min-height:44px}button,select{min-height:32px}.textlink{min-height:36px}}
 @media(pointer:coarse){button,select,.tabs a,.langs button,.viewtools button{min-height:44px}.solar-clock input,summary{min-height:44px}.textlink{min-height:44px}.actions button,.langs button,.viewtools button,.tabs a{min-width:44px}.langs{gap:0}input[type=range],input[type=number],.mechanics-inputs input[type=number]{min-height:44px}}
 .brand .b-cred i{color:var(--muted);font-weight:600;letter-spacing:0}
 @media(min-width:901px){.controls,.results{max-height:calc(100dvh - var(--chrome));overflow-y:auto}}
