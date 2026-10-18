@@ -9,6 +9,8 @@ import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
 import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,crownOf,gardenOf,crownPlates} from './crowns.js?v=b0141b99a4';
 import {cityData,skyline,visibleMassings,ringArea} from './cityscape.js?v=d542049f94';
+import {parseGround} from './site.js?v=7cb1769785';
+import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
 import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=1df95d7e5e';
 import {coreOf,coreSVG,CORE_SRC} from './core.js?v=e98b022d2a';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
@@ -679,6 +681,45 @@ function drawTower(){
  const inset=(ring,d)=>{let cx=0,cy=0;for(const p of ring){cx+=p[0];cy+=p[1]}cx/=ring.length;cy/=ring.length;
   return ring.map(([x,y])=>{const dx=x-cx,dy=y-cy,l=Math.hypot(dx,dy)||1,k=Math.min(d,l*.2)/l;
    return[x-dx*k,y-dy*k]})};
+ /* The harvested ground, on the plate the massings stand on.
+
+   Order is areas first, then the network on top of them: green, water, the
+   wide carriageways, then the streets. A road drawn under a park reads as a
+   road through it, which is the opposite of what the data says.
+
+   Hierarchy is carried by line weight, not by a second colour. GROUND_ROAD_M
+   runs 22 m down to 5 m, so a six-lane road and a service lane differ by five
+   times the width and need no extra value to be told apart — and every one of
+   them stays below the shadowed wall, which a brighter "major road" would not. */
+ /* One decode per city, kept: the ground is the same every time the tower is
+   nudged, and re-splitting a few hundred records on every pointer move is the
+   kind of cost that makes an orbit feel cheap and then not. */
+const groundCache=new Map();
+function groundOf(city){
+ if(groundCache.has(city))return groundCache.get(city);
+ const g=parseGround(city,GROUND,GROUND_ROAD_M);
+ groundCache.set(city,g||null);return g;
+}
+const GROUND_GREEN='#151c1b',GROUND_WATER='#152029',GROUND_ROAD='#1c242c';
+ function drawGround(){
+  const g=groundOf(state.city);if(!g)return;
+  const flat=poly=>poly.map(([x,y])=>[x,y,0]);
+  // water and green arrive as {pts}, not as bare point lists.
+  for(const p of g.green)path(flat(p.pts),GROUND_GREEN,null,0);
+  for(const p of g.water)path(flat(p.pts),GROUND_WATER,null,0);
+  // A way with a width tag in the harvest is a carriageway polygon, not a
+  // line. Filling it is what puts the big boulevards in the drawing.
+  for(const w of g.ways)path(flat(w.pts),GROUND_ROAD,null,0);
+  ctx.strokeStyle=GROUND_ROAD;ctx.lineJoin='round';ctx.lineCap='round';
+  for(const r of g.roads){
+   const w=Math.max(.4,Math.min(3.2,(g.roadW[r.cls]??6)*scale));
+   if(r.pts.length<2)continue;
+   ctx.beginPath();
+   for(let i=0;i<r.pts.length;i++){const p=project(r.pts[i][0],r.pts[i][1],0);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}
+   ctx.lineWidth=w;ctx.stroke();
+  }
+  ctx.lineJoin='miter';ctx.lineCap='butt';
+ }
  function drawCity(list){
   for(const b of list){
    const h=b.h,ink=inkFor(h);
@@ -756,11 +797,26 @@ function drawTower(){
      in it. */
   ctx.fillStyle='#0b0e11';
   ctx.fillRect(0,0,W,H);
-  // The harvested ground. Not a backdrop: this is the area the footprints
-  // actually cover, and its edge is where the data stops.
-  ctx.beginPath();
-  for(let i=0;i<=72;i++){const a=i/72*Math.PI*2,p=project(Math.cos(a)*city.radius,Math.sin(a)*city.radius,0);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}
-  ctx.closePath();ctx.fillStyle='#161c22';ctx.fill();ctx.strokeStyle='#2b353d';ctx.lineWidth=1;ctx.stroke();
+  /* The plate was still only a disc of flat fill, which is the rest of the
+     complaint: a black coin. The harvested ground was already in the bundle —
+     207 streets, 27 carriageways, 11 water bodies and 96 green areas for
+     Bangkok alone, decoded by the very parseGround the Place desk uses — and
+     the tower sheet was simply not reading it. So it is drawn here, through
+     the same projection the massings use, so the blocks they stand on are the
+     blocks that were harvested rather than an invented ground.
+
+     Values by measured relative luminance, not by eye: sky .0043, plate
+     .0089, green .0107, water .0135, road .0169, darkest wall .0186. The
+     ground is lightened from #161c22 to #121820 to buy the room the streets
+     need, and every one of them stays under the shadowed wall, so the value
+     ladder still runs sky -> ground -> walls -> roof without a break. */
+  const disc=()=>{ctx.beginPath();for(let i=0;i<=72;i++){const a=i/72*Math.PI*2,p=project(Math.cos(a)*city.radius,Math.sin(a)*city.radius,0);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}ctx.closePath()};
+  disc();ctx.fillStyle='#121820';ctx.fill();
+  // Clipped to the plate, so a road that runs off the data ends at the data.
+  ctx.save();disc();ctx.clip();
+  drawGround();
+  ctx.restore();
+  disc();ctx.strokeStyle='#2b353d';ctx.lineWidth=1;ctx.stroke();
   drawCity(cityFar);
  }
 

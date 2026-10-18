@@ -280,9 +280,23 @@ test('the sheet stacks sky, ground and wall in that order',()=>{
  for(const [k,v] of Object.entries(named))assert.ok(v,`${k} is not declared in drawTower`);
  const lum=h=>{const n=parseInt(h,16);return 0.2126*(n>>16&255)+0.7152*(n>>8&255)+0.0722*(n&255)};
  const sky=/ctx\.fillStyle='#([0-9a-f]{6})';[\s\S]{0,40}ctx\.fillRect\(0,0,W,H\)/.exec(src);
- const plate=/ctx\.closePath\(\);ctx\.fillStyle='#([0-9a-f]{6})';ctx\.fill\(\)/.exec(src);
+ // Read the plate out of the fill, not out of the sentence before it. This used
+ // to require `closePath();fillStyle=…;fill()` as three adjacent statements, so
+ // factoring the disc into a helper broke a guard whose actual claim — the
+ // value ladder — was still true. The claim is the values.
+ const plate=/(?:closePath\(\)|disc\(\));ctx\.fillStyle='#([0-9a-f]{6})';ctx\.fill\(\)/.exec(src);
  assert.ok(sky,'the sheet paints no sky before the ground');
- assert.ok(plate,'the ground plate is not filled where it is stroked');
+ assert.ok(plate,'the ground plate is not filled');
+ // The ground carries four tones now that the harvested streets are on it.
+ // All of them sit between the sky and the shadowed wall, and none of them is
+ // allowed to invent a brighter step to signal importance — hierarchy is line
+ // weight, so a "major road" cannot climb above the buildings it runs between.
+ const tones={};
+ for(const key of['GROUND_GREEN','GROUND_WATER','GROUND_ROAD']){
+  const m=new RegExp(key+"='#([0-9a-f]{6})'",'i').exec(src);
+  assert.ok(m,`${key} is not declared next to the plate it belongs to`);
+  tones[key]=m[1];
+ }
  // Sky darkest, then the plate, then the darkest wall. This order is the whole
  // reason the city stopped looking like furniture: an invisible ground under a
  // roof that outshone its own walls is a table, not a street.
@@ -290,8 +304,53 @@ test('the sheet stacks sky, ground and wall in that order',()=>{
  assert.ok(order[0]<order[1],`the plate (${order[1].toFixed(0)}) is not lighter than the sky (${order[0].toFixed(0)}) — the ground vanishes`);
  assert.ok(order[1]<order[2],`the darkest wall (${order[2].toFixed(0)}) is not lighter than the plate (${order[1].toFixed(0)}) — buildings dissolve into the ground`);
  assert.ok(order[3]<order[4],'the lit and mid walls are not two distinguishable steps');
+ for(const [k,v]of Object.entries(tones)){
+  assert.ok(L(v)>L(plate[1]),`${k} (${L(v).toFixed(0)}) is not lighter than the plate (${L(plate[1]).toFixed(0)}) — it disappears into it`);
+  assert.ok(L(v)<L(named.WALL_SHADE[1]),`${k} (${L(v).toFixed(0)}) is not darker than the shadowed wall (${L(named.WALL_SHADE[1]).toFixed(0)}) — a street competing with a building`);
+ }
+ // The ground has to say something: three tones all within one step of each
+ // other is a plate with a texture nobody can see.
+ const spread=Math.max(...Object.values(tones).map(L))-Math.min(...Object.values(tones).map(L));
+ assert.ok(spread>3,`the ground tones span only ${spread.toFixed(1)} — the streets will not read`);
  // The roof must not outshine the lit wall, or the top of every building is a
  // bright plane over a dark mass.
  assert.ok(L(named.ROOF_LO[1])<L(named.WALL_LIT[1]),
   'the roof is brighter than the sunlit wall — that is the tabletop');
+});
+
+test('the ground is the harvested street network, drawn through the tower projection',async()=>{
+  const {GROUND,GROUND_ROAD_M}=await import('../dist/ground.data.js');
+  const {parseGround}=await import('../dist/site.js');
+  const {cities}=await import('../dist/solar.js');
+  const src=drawTower();
+  // Every city the sheet can draw a plate for has to carry ground. A city with
+  // an empty disc is the black coin this was written to remove.
+  for(const city of Object.keys(cities)){
+   const g=parseGround(city,GROUND,GROUND_ROAD_M);
+   assert.ok(g,`${city} has no harvested ground`);
+   assert.ok(g.roads.length>20,`${city} has only ${g.roads.length} streets`);
+   assert.ok(g.roadW.length===GROUND_ROAD_M.length&&g.roadW[0]>g.roadW[g.roadW.length-1],
+     `${city}: road widths must run widest to narrowest or the hierarchy is noise`);
+  }
+  // The shape the drawer actually indexes. green and water are {pts} records,
+  // not bare point lists — getting this wrong threw a TypeError in the canvas
+  // and the plate came back black, which is the bug dressed as a feature.
+  assert.match(src,/for\(const p of g\.green\)path\(flat\(p\.pts\)/);
+  assert.match(src,/for\(const p of g\.water\)path\(flat\(p\.pts\)/);
+  assert.match(src,/for\(const r of g\.roads\)[\s\S]{0,200}project\(r\.pts\[i\]\[0\],r\.pts\[i\]\[1\],0\)/);
+  // Areas first, network on top: a road under a park reads as a road through it.
+  const gi=src.indexOf('for(const p of g.green)'),wi=src.indexOf('for(const p of g.water)'),
+        yi=src.indexOf('for(const w of g.ways)'),ri=src.indexOf('for(const r of g.roads)');
+  for(const i of[gi,wi,yi,ri])assert.ok(i>0,'the ground is missing one of its four layers');
+  assert.ok(gi<wi&&wi<yi&&yi<ri,`ground layers are out of order: green ${gi}, water ${wi}, ways ${yi}, roads ${ri}`);
+  // Hierarchy is line weight, drawn from the real road width in metres.
+  assert.match(src,/g\.roadW\[r\.cls\]\?\?6\)\*scale/);
+  // Clipped to the plate, so a street that runs off the data ends at the data.
+  assert.match(src,/ctx\.save\(\);disc\(\);ctx\.clip\(\);[\s\S]{0,40}drawGround\(\);[\s\S]{0,40}ctx\.restore\(\)/);
+  // And the decode is kept, not redone on every pointer move. Checking only
+  // that a cache is declared let a mutation pass that kept the declaration and
+  // deleted the lookup — the memo would exist and never be read.
+  assert.match(src,/const groundCache=new Map\(\)/);
+  assert.match(src,/groundCache\.has\(city\)\)return groundCache\.get\(city\)/);
+  assert.match(src,/groundCache\.set\(city,g\|\|null\);return g/);
 });

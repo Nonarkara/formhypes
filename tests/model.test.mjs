@@ -803,3 +803,30 @@ test('the museum run is seven dated stops in order, each with its own drawing', 
   assert.match(readDist('app.js'), /if\(blk\?\.kind==='timeline'\)s\.append\(timelinePlate\(\)\)/);
   assert.match(readDist('app.js'), /if\(kind==='frame'\)/);
 });
+
+test('every module app.js imports is reachable by the stamping script', () => {
+  /* A pin that hashes correctly today can still be a dead edge: if app.js
+     imports a module no stamp list names, nothing ever rewrites that pin, and
+     the day the module changes the suite goes red with no way to fix it —
+     rerunning the script cannot, because the edge is not in the graph. So the
+     claim is not "is the pin fresh" but "would the script ever move it". */
+  const script = readFileSync(new URL('../scripts/release-id.mjs', import.meta.url), 'utf8');
+  /* IN_APP specifically, not "somewhere in the script". Both modules were
+     already in SHARED — so they were hashed every run and a guard that looked
+     for the name anywhere said they were covered, while nothing ever rewrote
+     app.js's pin to them. The list that is stamped INTO app.js is the only one
+     that can move this pin. */
+  const inApp = [.../const IN_APP\s*=\s*\[([\s\S]*?)\]/.exec(script)[1].matchAll(/'([^']+)'/g)]
+    .map(([, ref]) => ref);
+  const strip = ref => ref.replace(/^\.\//, '').replace(/\?v=[a-f0-9]+$/, '');
+  const known = new Set(inApp.map(strip));
+  const app = readDist('app.js');
+  const seen = new Set();
+  for (const m of app.matchAll(/from\s*'(\.\/[^']+)'/g)) seen.add(strip(m[1]));
+  for (const m of app.matchAll(/fetch\('(knowledge\/[\w.-]+)'\)/g)) seen.add(m[1]);
+  const orphans = [...seen].filter(ref => !known.has(ref));
+  assert.deepEqual(orphans, [],
+    `app.js imports ${orphans.join(', ')} but no stamp list in release-id.mjs names it — `
+    + 'add it to IN_APP or the pin will go stale with no way to re-derive it');
+  assert.ok(seen.size >= 20, `only ${seen.size} local imports found — the scan is broken, not the graph`);
+});
