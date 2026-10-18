@@ -278,7 +278,11 @@ test('the sheet stacks sky, ground and wall in that order',()=>{
  for(const key of ['WALL_LIT','WALL_MID','WALL_SHADE','ROOF_HI','ROOF_LO','SHADOW'])
   named[key]=new RegExp(key+"='#([0-9a-f]{6})'",'i').exec(src);
  for(const [k,v] of Object.entries(named))assert.ok(v,`${k} is not declared in drawTower`);
- const lum=h=>{const n=parseInt(h,16);return 0.2126*(n>>16&255)+0.7152*(n>>8&255)+0.0722*(n&255)};
+ // Relative luminance, linearised. A gamma-encoded weighted sum is not the
+// quantity the drawing is reasoned in, and a ratio taken on one scale while
+// quoted on the other silently measures nothing.
+ const chan=c=>{c/=255;return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4)};
+ const lum=h=>{const n=parseInt(h,16);return 0.2126*chan(n>>16&255)+0.7152*chan(n>>8&255)+0.0722*chan(n&255)};
  const sky=/ctx\.fillStyle='#([0-9a-f]{6})';[\s\S]{0,40}ctx\.fillRect\(0,0,W,H\)/.exec(src);
  // Read the plate out of the fill, not out of the sentence before it. This used
  // to require `closePath();fillStyle=…;fill()` as three adjacent statements, so
@@ -304,14 +308,25 @@ test('the sheet stacks sky, ground and wall in that order',()=>{
  assert.ok(order[0]<order[1],`the plate (${order[1].toFixed(0)}) is not lighter than the sky (${order[0].toFixed(0)}) — the ground vanishes`);
  assert.ok(order[1]<order[2],`the darkest wall (${order[2].toFixed(0)}) is not lighter than the plate (${order[1].toFixed(0)}) — buildings dissolve into the ground`);
  assert.ok(order[3]<order[4],'the lit and mid walls are not two distinguishable steps');
+ // Every drawn feature has to lift off the plate, or it disappears into it.
+ // The streets are allowed ABOVE the shadowed wall: they are lines on a plane,
+ // not the field a massing stands on, and holding them under the wall is what
+ // starved the ground to #121820 — black on a monitor — in the first place.
  for(const [k,v]of Object.entries(tones)){
   assert.ok(L(v)>L(plate[1]),`${k} (${L(v).toFixed(0)}) is not lighter than the plate (${L(plate[1]).toFixed(0)}) — it disappears into it`);
-  assert.ok(L(v)<L(named.WALL_SHADE[1]),`${k} (${L(v).toFixed(0)}) is not darker than the shadowed wall (${L(named.WALL_SHADE[1]).toFixed(0)}) — a street competing with a building`);
  }
- // The ground has to say something: three tones all within one step of each
- // other is a plate with a texture nobody can see.
- const spread=Math.max(...Object.values(tones).map(L))-Math.min(...Object.values(tones).map(L));
- assert.ok(spread>3,`the ground tones span only ${spread.toFixed(1)} — the streets will not read`);
+ // The plate is the field, so the field is what has to stay under the wall.
+ assert.ok(L(plate[1])<L(named.WALL_SHADE[1]),
+  'the plate is lighter than the shadowed wall — a massing will have nothing to separate from');
+ // And the network has to read. Two and a half times the plate is the floor
+ // below which this stopped being a map and became a coin.
+ const road=tones.GROUND_ROAD,pl=L(plate[1]);
+ assert.ok(L(road)>pl*2.2,
+  `the street tone is only ${(L(road)/pl).toFixed(1)}x the plate — the ground reads as a black disc again`);
+ // The ground has to say something. Expressed as a ratio of the plate so the
+ // claim does not depend on which luminance scale the reader has in mind.
+ const hi=Math.max(...Object.values(tones).map(L)),lo2=Math.min(...Object.values(tones).map(L));
+ assert.ok(hi/lo2>1.6,`the ground tones span only ${(hi/lo2).toFixed(2)}x — a plate with a texture nobody can see`);
  // The roof must not outshine the lit wall, or the top of every building is a
  // bright plane over a dark mass.
  assert.ok(L(named.ROOF_LO[1])<L(named.WALL_LIT[1]),

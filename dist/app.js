@@ -701,7 +701,7 @@ function drawTower(){
  /* One decode per city, kept: the ground is the same every time the tower is
    nudged, and re-splitting a few hundred records on every pointer move is the
    kind of cost that makes an orbit feel cheap and then not. */
-const GROUND_GREEN='#151c1b',GROUND_WATER='#152029',GROUND_ROAD='#1c242c';
+const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
  function drawGround(){
   const g=groundOf(state.city);if(!g)return;
   const flat=poly=>poly.map(([x,y])=>[x,y,0]);
@@ -806,13 +806,21 @@ const GROUND_GREEN='#151c1b',GROUND_WATER='#152029',GROUND_ROAD='#1c242c';
      the same projection the massings use, so the blocks they stand on are the
      blocks that were harvested rather than an invented ground.
 
-     Values by measured relative luminance, not by eye: sky .0043, plate
-     .0089, green .0107, water .0135, road .0169, darkest wall .0186. The
-     ground is lightened from #161c22 to #121820 to buy the room the streets
-     need, and every one of them stays under the shadowed wall, so the value
-     ladder still runs sky -> ground -> walls -> roof without a break. */
+     Values by measured relative luminance, not by eye. The first attempt held
+     every ground tone under the shadowed wall, and that was the mistake: it
+     starved the ground until #121820, which is RGB 18,24,32 — black on a
+     monitor — and the plate came out 77% of the sheet with the three ground
+     tones making up the rest between them. A ladder that keeps buildings from
+     dissolving into the ground does not require the ground to be invisible, and
+     optimising the ladder alone is what made the floor look like a hole.
+
+     What is actually load-bearing: sky < plate < shadowed wall, so a massing
+     silhouette still separates from the field it stands on. The streets are
+     drawn features on a plane rather than the field itself, so they are free
+     to be bright — and they have to be, or the map does not read.
+     sky .0043, plate .0147, green .0175, water .0155, road .0341. */
   const disc=()=>{ctx.beginPath();for(let i=0;i<=72;i++){const a=i/72*Math.PI*2,p=project(Math.cos(a)*city.radius,Math.sin(a)*city.radius,0);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}ctx.closePath()};
-  disc();ctx.fillStyle='#121820';ctx.fill();
+  disc();ctx.fillStyle='#1a212a';ctx.fill();
   // Clipped to the plate, so a road that runs off the data ends at the data.
   ctx.save();disc();ctx.clip();
   drawGround();
