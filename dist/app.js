@@ -1,9 +1,9 @@
-import {mountConsole} from './console.js?v=8e43554fd3';
+import {mountConsole} from './console.js?v=eb7471401a';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight}from'./model.js?v=010a1563d4';
-import{familyResponse,lattice}from'./explore.js?v=7530e487bb';
-import{t,langs,langMeta,translator}from'./i18n.js?v=ce5d282c0c';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=a58724b611';
+import{familyResponse,lattice}from'./explore.js?v=5ad6e9a0e7';
+import{t,langs,langMeta,translator}from'./i18n.js?v=5fb2735ac9';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
@@ -13,20 +13,20 @@ import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './
 import {coreOf,coreSVG,CORE_SRC} from './core.js?v=e98b022d2a';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=00bd2ff3a1';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=2585010c17';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=b0e21f2a94';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=170215b08c';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=d8292aae1f';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=f9b6573a45';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=201feff2b4';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=2bd883d84f';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=8ce72105df';
-import {WORKSPACES} from './console.js?v=8e43554fd3';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=168e29fe22';
+import {WORKSPACES} from './console.js?v=eb7471401a';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -250,6 +250,11 @@ function applyDeskPatch(patch){
 
 function update(){
  metrics=evaluate(state);sync();
+ // A regime that ranks by height and silhouette gives the objective no weight
+ // at all. Say so rather than leaving a six-option control that cannot move.
+ const inert=objectiveInert(state),note=$('objectiveNote');
+ if(note){note.hidden=!inert;if(inert)note.textContent=tt('s.objectiveInert')}
+ $('objective').disabled=inert;
  renderLocation({lang,state,metrics,cities,cityLabel:k=>tt("sun."+k),stackHeight,onCity:city=>{state={...state,city};changed()}});
  renderPlay({lang,state,families,profile,label:f=>tt("f."+f),onChange:patch=>{applyDeskPatch(patch)}});
  renderDesks();

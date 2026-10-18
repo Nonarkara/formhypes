@@ -563,6 +563,13 @@ function regimeScore(metrics,s,objective){
  const pull=regimes[s.regime].heightPull;
  return base*(1-pull)+metrics.height*pull*metrics.distinctiveness;
 }
+/** True when the regime leaves the chosen objective with no weight at all.
+    The pull above is a straight blend, so a pull of 1 gives the objective the
+    factor (1-pull) = 0 and every objective ranks identically. That is the
+    documented behaviour of the City competition regime — height and silhouette
+    are its ranking — but a selector that quietly does nothing is a lie, so the
+    interface has to be able to ask this question. */
+export function objectiveInert(s){return (regimes[s.regime]||regimes.yield).heightPull>=1}
 
 const TAPERS=[1,.9,.8,.7],TWISTS=[0,30,60,90];
 

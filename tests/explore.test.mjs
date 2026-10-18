@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {defaults,grossOf,searchPlan,scoreCandidate,rank,evaluate} from '../dist/model.js';
+import {defaults,grossOf,searchPlan,scoreCandidate,rank,evaluate,regimes} from '../dist/model.js';
 import {familyResponse,lattice,responseScale,familyBands,compact} from '../dist/explore.js';
 
 /* ── a DOM small enough to read ───────────────────────────────────────────
@@ -55,6 +55,23 @@ function run(){
 }
 const ALTS=run();
 const CURRENT={contribution:evaluate(defaults).contribution,family:defaults.family};
+
+/* The model is the expensive part: a full run is 176 candidates under landlord
+   yield and 352 once a regime tests a second floor count. Four guards each
+   wanted a ranked run and between them they repeated the same ones, which put
+   this file at twelve seconds. One memo, shared, and every guard reads the
+   same numbers — the assertions are unchanged, only the work is. */
+const PLANS=new Map,RANKED=new Map;
+const planFor=reg=>{
+  const key=reg??defaults.regime;
+  if(!PLANS.has(key))PLANS.set(key,searchPlan({...defaults,regime:key}));
+  return PLANS.get(key);
+};
+const ranked=(reg,objective)=>{
+  const key=(reg??defaults.regime)+'|'+objective;
+  if(!RANKED.has(key))RANKED.set(key,rank(planFor(reg).list.map(c=>scoreCandidate(c,objective))));
+  return RANKED.get(key);
+};
 const cell=(family,taper,twist)=>{
   const target=grossOf(defaults);
   const c={...defaults,family,taper,twist};
@@ -260,9 +277,9 @@ test('a language click redraws the result instead of re-running it',()=>{
 });
 
 test('height-competing regimes keep the best height variant per lattice cell instead of overwriting it',()=>{
-  const plan=searchPlan({...defaults,regime:'competition'});
+  const plan=planFor('competition');
   assert.equal(plan.heightVariants,2,'competition regime must test two floor counts');
-  const alts=rank(plan.list.map(c=>scoreCandidate(c,'contribution')));
+  const alts=ranked('competition','contribution');
   const out=strip(lattice(alts,'box',tt,'en',()=>{}));
   const buttons=[...out.matchAll(/<button class="lattice-cell[^"]*"[^>]*>([^<]*)<\/button>/g)];
   assert.equal(buttons.length,16);
@@ -278,19 +295,35 @@ test('height-competing regimes keep the best height variant per lattice cell ins
 });
 
 test('the facade objective minimizes skin area rather than maximizing it',()=>{
-  const plan=searchPlan(defaults);
-  const byFacade=rank(plan.list.map(c=>scoreCandidate(c,'facade')));
-  const byContrib=rank(plan.list.map(c=>scoreCandidate(c,'contribution')));
+  const byFacade=ranked(null,'facade');
+  const byContrib=ranked(null,'contribution');
   assert.ok(byFacade[0].metrics.facade<byContrib[0].metrics.facade,'minimizing facade must pick a tighter skin than maximizing contribution');
   const minSkin=Math.min(...byFacade.map(a=>a.metrics.facade));
   assert.ok(Math.abs(byFacade[0].metrics.facade-minSkin)<1e-6,'under yield regime (heightPull=0), top facade candidate must have the smallest facade');
 });
 
 test('applying a candidate updates the active study figures and objective changes re-run',()=>{
-  const src=readFile();
+  // Read the source with its comments stripped. Argon 4's version of this guard
+  // grepped for a literal, and a mutation that deleted the whole call while
+  // leaving the line in a comment kept it green — the guard enforced the text
+  // of the fix, not the fix. A comment is not a call.
+  const src=readFile().replace(/\/\*[\s\S]*?\*\//g,'').replace(/^\s*\/\/.*$/gm,'');
   const applyFn=src.slice(src.indexOf('function applyCandidate'),src.indexOf('function finishSearch'));
-  assert.match(applyFn,/if\(searchRun\)\{exploreFamily=state\.family;renderSearch\(\)\}/);
+  assert.ok(applyFn.length>0,'applyCandidate not found');
+  assert.match(applyFn,/if\(searchRun\)\{[^}]*renderSearch\(\)/);
   assert.match(src,/obj\.onchange=\(\)=>\{state\.objective=obj\.value;if\(searchRun\)runSearch\(\)\}/);
+  // And the figure has to be capable of moving in the first place, or the
+  // wiring assertion above would be asserting nothing. This is the behavioural
+  // half: the current tower is drawn where it actually is.
+  for(const k of['s.plotTitle','s.plotNote'])put(k);
+  const ruleX=cur=>{
+    const m=/<path d="M([\d.]+) [\d.]+V[\d.]+" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4 3"/.exec(
+      strip(familyResponse(ALTS,{contribution:cur,family:defaults.family},tt,'en')));
+    return m?+m[1]:null;
+  };
+  const lo=ruleX(LO),mid=ruleX((LO+HI)/2),hi=ruleX(HI);
+  assert.ok(lo!==null&&mid!==null&&hi!==null,'the current rule must always be drawable');
+  assert.ok(lo<mid&&mid<hi,`the rule must track the current tower: ${lo} < ${mid} < ${hi}`);
 });
 
 test('lattice cells and walk reset button size to their text rather than stretching across 1fr',()=>{
@@ -311,3 +344,78 @@ test('lattice cells and walk reset button size to their text rather than stretch
 function readFile(){
   return readFileSync(new URL('../dist/app.js',import.meta.url),'utf8');
 }
+test('a short family name is the long one, so one form cannot have two names',async()=>{
+  const {t}=await import('../dist/i18n.js');
+  const fams=['box','chamfer','cross','octagon','star','rub','triangle','hexagon','oval','petal','pinwheel'];
+  for(const l of['en','th','zh'])for(const f of fams){
+    const long=t[l]['f.'+f],short=t[l]['fs.'+f];
+    assert.ok(long,`${l} f.${f} missing`);
+    assert.ok(short,`${l} fs.${f} missing`);
+    // Chinese marks the noun with 形; that suffix is allowed to come and go.
+    const head=long.split(' / ')[0].replace(/形$/,'');
+    assert.equal(head,short.replace(/形$/,''),`${l} ${f}: "${short}" is not the head of "${long}"`);
+  }
+});
+
+test('one Thai word for the tunnel, not two',async()=>{
+  const {t}=await import('../dist/i18n.js');
+  const hit=Object.entries(t.th).filter(([k,v])=>/^lx\./.test(k)&&/อุโมง/.test(v)).map(([k,v])=>[k,[...new Set(v.match(/อุโมงค?/g))]]);
+  assert.ok(hit.length>=4,'the lens prose should mention the tunnel in several places');
+  for(const [k,forms]of hit)assert.deepEqual(forms,['อุโมง'],`${k} spells the tunnel differently: ${forms.join(',')}`);
+});
+
+test('the objective selector is inert only where the model says it is, and says so',async()=>{
+  const {t}=await import('../dist/i18n.js');
+  const {defaults:base,searchPlan,scoreCandidate,rank,regimes,objectiveInert}=await import('../dist/model.js');
+  void regimes;
+  // Two objectives are enough to show whether the ranking can move at all, and
+  // two keep the guard to a couple of seconds instead of eight.
+  const objs=['contribution','facade'];
+  for(const reg of Object.keys(regimes)){
+    const winners=objs.map(o=>{const r=ranked(reg,o);return r[0].state.family+'|'+r[0].state.taper+'|'+r[0].state.twist;});
+    const distinct=new Set(winners).size;
+    const inert=objectiveInert({...base,regime:reg});
+    // The contract: an objective set that cannot move the ranking must be one
+    // the interface has declared inert. Either way round, not either will do.
+    assert.equal(distinct===1,inert,`regime ${reg}: ${distinct} distinct winner(s), inert=${inert}`);
+    if(!inert)assert.ok(distinct>1,`regime ${reg} moves the objective, so it must not claim otherwise`);
+  }
+  assert.deepEqual(Object.keys(regimes).filter(r=>objectiveInert({...base,regime:r})),['competition']);
+  for(const l of['en','th','zh']){
+    const n=t[l]['s.objectiveInert'];
+    assert.ok(n&&n.length>(l==='zh'?15:25),`${l} s.objectiveInert missing or thin`);
+    if(l==='th')assert.match(n,/[ก-๙]/);
+    if(l==='zh')assert.match(n,/[\u3400-\u9fff]/);
+  }
+  // The note is bound to the regime, and the markup carries it.
+  // app.js cannot be imported without a browser, so this wiring is asserted on
+  // source — but asserted on the two halves that actually carry the truth.
+  // Asserting only that the note is *mentioned* let a mutation through that set
+  // hidden=true forever: the reader was still lied to, and the guard was green.
+  const app=readFile().replace(/\/\*[\s\S]*?\*\//g,'');
+  assert.match(app,/const inert=objectiveInert\(\{?\.\.\.|const inert=objectiveInert\(/);
+  assert.match(app,/note\.hidden=!inert/,`the note must be shown when the objective is inert and only then`);
+  assert.match(app,/if\(inert\)note\.textContent=tt\('s\.objectiveInert'\)/,'the note must carry the translated reason');
+  assert.match(app,/\$\('objective'\)\.disabled=inert/);
+  const html=readFileSync(new URL('../dist/index.html',import.meta.url),'utf8');
+  assert.match(html,/id="objectiveNote"[^>]*hidden/);
+});
+
+test('minimising façade really picks the tightest skin, not the loosest',()=>{
+  // The label says "Minimize façade area". Before the sign was corrected the
+  // objective returned +facade and rank() sorts descending, so the selector was
+  // maximising the thing it promised to minimise. Checked where the regime lets
+  // the objective stand alone, and by comparison where it is blended with
+  // height — a blend does not have to return the global minimum to be pointing
+  // the right way, but it must never come out with more skin than maximising.
+  for(const reg of['yield','civic','speculative']){
+    const plan=planFor(reg);
+    const tight=ranked(reg,'facade')[0],fat=ranked(reg,'contribution')[0];
+    assert.ok(tight.metrics.facade<fat.metrics.facade,
+      `regime ${reg}: "Minimize façade area" returned ${tight.metrics.facade} against ${fat.metrics.facade}`);
+    if(regimes[reg].heightPull===0){
+      assert.ok(Math.abs(tight.metrics.facade-Math.min(...plan.list.map(c=>evaluate(c).facade)))<1e-6,
+        `regime ${reg}: with no blend the top façade candidate must be the smallest skin in the run`);
+    }
+  }
+});
