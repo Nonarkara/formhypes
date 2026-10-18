@@ -258,7 +258,7 @@ export function columnDensity(p,s){
 
 export const regimes={
  yield:{label:'Landlord yield',reads:'Instrument',identityMax:0.16,envelopeDiscipline:1.00,heightPull:0,note:'The form is a machine for turning floor area into rent. Corners pay, perimeter costs, and a plain box wins unless the premium is real.'},
- competition:{label:'City competition',reads:'Flag',identityMax:0.42,envelopeDiscipline:0.72,heightPull:1,note:'Height and silhouette are the ranking. The building is measured against the other towers, so the model is asked how tall and how unlike them — and pays less attention to what the envelope costs.'},
+ competition:{label:'City competition',reads:'Flag',identityMax:0.42,envelopeDiscipline:0.72,heightPull:1,note:'Height and silhouette are the ranking. The building is measured against the other towers, so the model is asked how tall and how unlike them — and does not use envelope cost in this ranking.'},
  civic:{label:'Civic monument',reads:'Public gift',identityMax:0.24,envelopeDiscipline:0.90,heightPull:0.35,note:'A public building must be legible and defensible. Form carries obligation, so distinctiveness is rewarded but it has to be paid for honestly.'},
  speculative:{label:'Speculative capital',reads:'Advertisement',identityMax:0.58,envelopeDiscipline:0.45,heightPull:0.5,note:'The form is the advertisement. It is bought as an image and priced as one: identity carries most of the value and envelope discipline carries least. This is the regime that produces the most aggressive towers, and the one that most needs the numbers in front of it.'}
 };
@@ -601,6 +601,12 @@ export function searchPlan(s){
 export function scoreCandidate(candidate,objective='contribution'){
  const metrics=evaluate(candidate);
  return {state:candidate,metrics,score:regimeScore(metrics,candidate,objective)};
+}
+
+/** Change the ranking rule without evaluating geometry a second time.
+ * Metrics and feasibility belong to the captured run, including after Apply. */
+export function rerank(results,objective='contribution'){
+ return rank(results.map(r=>({...r,score:regimeScore(r.metrics,r.state,objective)})));
 }
 
 export function rank(results){

@@ -12,13 +12,13 @@
    Both are honest about the discipline that makes the comparison mean
    anything: every candidate was resized to the same gross floor area, so only
    the form is moving. */
-import {families} from './model.js?v=a58724b611';
+import {families} from './model.js?v=594cf22f3c';
 
 const INK='#191c1b',MUTED='#585e5b',FAINT='#8b918d',LINE='#c6cbc6',ACCENT='#f59e0b',PAPER='#f2f2ef';
 // Value ladder for the lattice, light to dark. Text flips at index 4, where the
 // fill is dark enough that ink would stop being readable.
 const RAMP=['#eceeea','#d8dbd6','#bec2bc','#9ba09b','#767c77','#4e544f'];
-const X0=118,X1=650,ROW=25,TOP=30,GUTTER=108;
+const X0=118,ROW=25,TOP=30,GUTTER=108;
 // Coordinates go out at 2dp. Raw doubles put seventeen digits into a path and
 // make the emitted figure impossible to read back and check.
 const px=v=>Math.round(v*100)/100;
@@ -27,10 +27,10 @@ const px=v=>Math.round(v*100)/100;
    when it is not a lattice cell — its own taper rarely is — so a rule for it
    can always be drawn. A scale built from the candidates alone would put it
    off the paper. */
-export function responseScale(alternatives,current){
+export function responseScale(alternatives,current,width=720){
  const all=alternatives.map(a=>a.metrics.contribution).concat(current==null?[]:[current.contribution]);
  const min=Math.min(...all),max=Math.max(...all),span=max-min||1;
- return {min,max,x:v=>X0+(v-min)/span*(X1-X0)};
+ return {min,max,x:v=>X0+(v-min)/span*(width-70-X0)};
 }
 const group=a=>({family:a.state.family,lo:Infinity,hi:-Infinity,best:null,rows:[]});
 export function familyBands(alternatives){
@@ -52,18 +52,20 @@ const svgEl=(tag,attrs,parent)=>{
 };
 
 /** Every family on one scale. Returns the figure element. */
-export function familyResponse(alternatives,current,tt,lang,{selected=null,onPick=null}={}){
- const bands=familyBands(alternatives),s=responseScale(alternatives,current);
- const H=TOP+bands.length*ROW+34;
+export function familyResponse(alternatives,current,tt,lang,{selected=null,onPick=null,width=720,row=ROW}={}){
+ const bands=familyBands(alternatives),s=responseScale(alternatives,current,width);
+ const H=TOP+bands.length*row+34;
  const fig=document.createElement('figure');fig.className='study-fig';
  fig.append(caption(tt('s.plotTitle'),tt('s.plotNote')));
- const svg=svgEl('svg',{viewBox:`0 0 720 ${H}`,role:'img','aria-label':tt('s.plotTitle')},fig);
+ const svg=svgEl('svg',{viewBox:`0 0 ${width} ${H}`,role:'group','aria-label':tt('s.plotTitle')},fig);
  // Current-tower rule first, so the family rules sit over it and win where they cross.
  if(current)svgEl('path',{d:`M${px(s.x(current.contribution))} ${TOP-8}V${H-26}`,stroke:ACCENT,'stroke-width':1,'stroke-dasharray':'4 3',fill:'none'},svg);
  bands.forEach((b,i)=>{
-  const y=TOP+i*ROW+ROW/2,on=b.family===selected;
+  const y=TOP+i*row+row/2,on=b.family===selected;
   const g=svgEl('g',{class:'study-band'+(on?' on':''),tabindex:'0',role:'button',
+   'aria-pressed':String(on),'data-study-focus':'family:'+b.family,
    'aria-label':tt('fs.'+b.family)+' · '+compact(lang,b.lo)+' – '+compact(lang,b.hi)},svg);
+  svgEl('rect',{x:0,y:y-row/2,width,height:row,fill:'transparent','pointer-events':'all'},g);
   svgEl('path',{d:`M${px(s.x(b.lo))} ${y}H${px(s.x(b.hi))}`,stroke:on?INK:MUTED,'stroke-width':2},g);
   svgEl('path',{d:`M${px(s.x(b.lo))} ${y-4}v8M${px(s.x(b.hi))} ${y-4}v8`,stroke:on?INK:MUTED,'stroke-width':1},g);
   svgEl('circle',{cx:px(s.x(b.hi)),cy:y,r:3.4,fill:ACCENT},g);
@@ -73,7 +75,7 @@ export function familyResponse(alternatives,current,tt,lang,{selected=null,onPic
    g.addEventListener('click',pick);
    g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}});}
  });
- svgEl('path',{d:`M${X0} ${H-26}H${X1}`,stroke:LINE,'stroke-width':1},svg);
+ svgEl('path',{d:`M${X0} ${H-26}H${width-70}`,stroke:LINE,'stroke-width':1},svg);
  for(const v of[s.min,s.max]){const x=s.x(v);
   svgEl('path',{d:`M${x} ${H-26}v5`,stroke:LINE,'stroke-width':1},svg);
   const t=svgEl('text',{x,y:H-9,'text-anchor':'middle',fill:FAINT,'font-size':10},svg);
@@ -113,6 +115,8 @@ export function lattice(alternatives,family,tt,lang,onApply){
     cell.type='button';
     cell.textContent=compact(lang,a.metrics.contribution);
     cell.title=tt('fs.'+family)+' · '+tt('s.roofScale')+' '+tp.toFixed(2)+' · '+tt('s.twist')+' '+tw+'°';
+    cell.setAttribute('data-study-focus',family+':'+tp+':'+tw);
+    cell.setAttribute('aria-label',tt('s.col.apply')+' · '+cell.title+' · '+tt('c.floors')+' '+a.state.floors+' · '+tt('s.col.height')+' '+a.metrics.height.toFixed(0)+' m · '+tt('s.col.contribution')+' USD '+Math.round(a.metrics.contribution).toLocaleString(LOCALE[lang]));
     if(a===best)cell.classList.add('best');
     cell.onclick=()=>onApply(a);
    }else{

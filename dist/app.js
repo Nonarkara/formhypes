@@ -1,9 +1,9 @@
-import {mountConsole} from './console.js?v=eb7471401a';
+import {mountConsole} from './console.js?v=58f61c3af2';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=a58724b611';
-import{familyResponse,lattice}from'./explore.js?v=5ad6e9a0e7';
-import{t,langs,langMeta,translator}from'./i18n.js?v=5fb2735ac9';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=594cf22f3c';
+import{familyResponse,lattice}from'./explore.js?v=b22a1defb4';
+import{t,langs,langMeta,translator}from'./i18n.js?v=99ff0745a1';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
@@ -13,20 +13,20 @@ import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './
 import {coreOf,coreSVG,CORE_SRC} from './core.js?v=e98b022d2a';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=2585010c17';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=d868da4ce1';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=f9b6573a45';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=201feff2b4';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=2bd883d84f';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=c62d130005';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=6585d814b0';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=1285ba0fef';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=168e29fe22';
-import {WORKSPACES} from './console.js?v=eb7471401a';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=dc2ce40704';
+import {WORKSPACES} from './console.js?v=58f61c3af2';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -145,7 +145,12 @@ function buildSelectors(){
  const obj=$('objective');obj.replaceChildren();
  for(const k of ['contribution','rent','yieldOnCost','corners','facade','silhouette'])opt(obj,k,tt('s.objective.'+k));
  obj.value=state.objective??'contribution';
- obj.onchange=()=>{state.objective=obj.value;if(searchRun)runSearch()};
+ obj.onchange=()=>{
+  state.objective=obj.value;
+  // An in-flight run reads this choice on completion. A completed run already
+  // owns every metric; changing its ranking needs no new geometry or plan.
+  if(searchRun){alternatives=rerank(searchRun.results,obj.value);searchRun.objective=obj.value;shareSearch(obj.value);renderSearch()}
+ };
 }
 
 /* ── ranges ───────────────────────────────────────────────────────────── */
@@ -226,7 +231,7 @@ function toast(msg){$('toast').textContent=msg;$('toast').classList.add('on');cl
 function changed(){
  searchToken++; // a search still running was computed for the old state; drop it
  alternatives=[];searchRun=null;
- $('searchResults').innerHTML=`<div class="empty"><span class="data">${tt('s.sum')} ${searchPlan(state).examined}</span><p>${tt('s.changed')}</p></div>`;
+ $('searchResults').innerHTML=`<div class="empty"><p>${tt('s.changed')}</p></div>`;
  update();
 }
 
@@ -1006,28 +1011,33 @@ $('reset').onclick=()=>{resetBrief();state={...defaults};yaw=-.65;zoom=1;$('floo
    browser between batches so the tab stays responsive and the progress is
    visible — a frozen page is worse than a slow one. */
 let searchToken=0;
-const BATCH=12;
+const SLICE_MS=8;
+function shareSearch(objective){
+ try{history.replaceState(null,'','?regime='+encodeURIComponent(state.regime)+'&objective='+encodeURIComponent(objective)+location.hash)}catch{}
+}
 function runSearch(){
  const objective=$('objective').value;
  const token=++searchToken;
+ searchRun=null;alternatives=[];
  const started=performance.now();
  const plan=searchPlan(state);
  const results=[];let i=0;
  const progress=document.createElement('div');progress.className='empty';
  $('searchResults').replaceChildren(progress);
  // Results are shareable: the rules that produced them go in the query string.
- try{history.replaceState(null,'','?regime='+encodeURIComponent(state.regime)+'&objective='+encodeURIComponent(objective)+location.hash)}catch{}
+ shareSearch(objective);
  const slice=()=>{
   if(token!==searchToken)return;
-  const end=Math.min(i+BATCH,plan.list.length);
-  for(;i<end;i++)results.push(scoreCandidate(plan.list[i],objective));
+  const sliceStart=performance.now();
+  do{results.push(scoreCandidate(plan.list[i++],objective))}
+  while(i<plan.list.length&&performance.now()-sliceStart<SLICE_MS);
   const done=i/plan.list.length;
   progress.replaceChildren();
   const pct=document.createElement('span');pct.className='data';pct.textContent=Math.round(done*100)+'%';
   const note=document.createElement('p');note.textContent=`${i} / ${plan.list.length} ${tt('s.tested')}`;
   progress.append(pct,note,ruleMark(done));
   if(i<plan.list.length){setTimeout(slice,0);return}
-  finishSearch(results,plan,objective,performance.now()-started);
+  finishSearch(results,plan,$('objective').value,performance.now()-started);
  };
  slice();
 }
@@ -1039,15 +1049,18 @@ function applyCandidate(candidate){
  $('studio').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
 }
 function finishSearch(results,plan,objective,elapsed){
- alternatives=rank(results);
- searchRun={plan,objective,elapsed};
+ alternatives=rerank(results,objective);
+ searchRun={plan,objective,elapsed,results};
+ shareSearch(objective);
  renderSearch();
 }
 // Split from the run so a language change redraws exactly the same numbers
 // instead of recomputing them: the candidates are language-independent, only
 // the words around them are not.
 function renderSearch(){
+ const focus=studyFocus();
  const {plan,objective,elapsed}=searchRun;
+ const ranking=objectiveInert(state)?tt('s.rankingCompetition'):tt('s.objective.'+objective);
  const seen=new Set();
  const rows=alternatives.filter(r=>{if(seen.has(r.state.family))return false;seen.add(r.state.family);return true}).slice(0,5);
  if(!rows.length){$('searchResults').innerHTML=`<div class="empty"><p>${tt('s.none')}</p></div>`;toast(tt('s.none'));return}
@@ -1065,23 +1078,27 @@ function renderSearch(){
    +`<td class="numeric">${r.metrics.height.toFixed(0)} m</td>`
    +`<td class="numeric">${money(r.metrics.contribution)}</td>`
    +`<td class="numeric">${d>=0?'+':''}${money(d)}</td>`
-   +`<td><button data-candidate="${i}">${tt('s.col.apply')} ↗</button></td></tr>`;
+   +`<td><button data-candidate="${i}" data-study-focus="ranked:${r.state.family}">${tt('s.col.apply')} ↗</button></td></tr>`;
  });
- html+=`</tbody></table></div><p class="searchsummary">${plan.examined} ${tt('s.tested')} / ${alternatives.length} ${tt('s.feasible')} / ${plan.examined-alternatives.length} ${tt('s.rejected')}. ${tt('s.target')} ${num(plan.target)} m². ${tt('s.best')} “${$('objective').selectedOptions[0].textContent}”${plan.heightVariants>1?' · 2 '+tt('s.heightVariant'):''} · ${elapsed.toFixed(0)} ms</p>`;
+ html+=`</tbody></table></div><p class="searchsummary">${plan.examined} ${tt('s.tested')} / ${alternatives.length} ${tt('s.feasible')} / ${plan.examined-alternatives.length} ${tt('s.rejected')}. ${tt('s.target')} ${num(plan.target)} m². ${tt('s.best')} “${ranking}”${plan.heightVariants>1?' · 2 '+tt('s.heightVariant'):''} · ${elapsed.toFixed(0)} ms</p>`;
  $('searchResults').innerHTML=html;
  document.querySelectorAll('[data-candidate]').forEach(b=>b.onclick=()=>applyCandidate(rows[Number(b.dataset.candidate)]));
- drawStudy();
+ drawStudy();restoreStudyFocus(focus);
 }
 // The table ranks five rows. These draw the whole run the table was selected
 // from, so a reader can see how much of the spread is family and how much is
 // roof scale — and can put a finger on any cell the search actually visited.
+function studyFocus(){return $('searchResults').contains(document.activeElement)?document.activeElement.getAttribute('data-study-focus'):null}
+function restoreStudyFocus(key){if(key){const el=[...$('searchResults').querySelectorAll('[data-study-focus]')].find(n=>n.getAttribute('data-study-focus')===key);el?.focus({preventScroll:true})}}
 function drawStudy(){
+ const focus=studyFocus();
  const host=$('searchResults');if(!host||!alternatives.length||!searchRun)return;
  [...host.querySelectorAll('.study-fig')].forEach(n=>n.remove());
  if(!Object.hasOwn(families,exploreFamily))exploreFamily=state.family;
  host.append(familyResponse(alternatives,{contribution:metrics.contribution,family:state.family},tt,lang,
-  {selected:exploreFamily,onPick:f=>{exploreFamily=f;drawStudy()}}));
+  {width:Math.max(280,Math.min(720,host.clientWidth||720)),row:matchMedia('(max-width:600px), (pointer:coarse)').matches?44:30,selected:exploreFamily,onPick:f=>{exploreFamily=f;drawStudy()}}));
  host.append(lattice(alternatives,exploreFamily,tt,lang,applyCandidate));
+ restoreStudyFocus(focus);
 }
 
 /* ── studies ──────────────────────────────────────────────────────────── */
@@ -1136,7 +1153,7 @@ function measureChrome(){
  const vp=$('tower')?.parentElement;
  if(vp)vp.style.minHeight=Math.max(320,vh-(h?h.offsetHeight:46)-(m?m.offsetHeight:50)-4)+'px';
 }
-addEventListener('resize',measureChrome);
+addEventListener('resize',()=>{measureChrome();if(searchRun)drawStudy()});
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
 
 /* ── the dedication ──────────────────────────────────────────────────────
@@ -1981,7 +1998,7 @@ try{
  if(Object.hasOwn(objectives,q.get('objective')??''))state.objective=q.get('objective');
  deepRun=q.get('run')==='1';
 }catch{}
-consoleUI=mountConsole({getData:()=>({lang,state,metrics,level:Number($('floor').value)}),getBrief:()=>getBriefStudy(state),setBrief:setBriefInputs,onStudyChange:()=>update(),onLevel:level=>{$('floor').value=level;$('floor').oninput()},onLayout:()=>{measureChrome();requestAnimationFrame(drawTower)}});
+consoleUI=mountConsole({getData:()=>({lang,state,metrics,level:Number($('floor').value)}),getBrief:()=>getBriefStudy(state),setBrief:setBriefInputs,onStudyChange:()=>update(),onLevel:level=>{$('floor').value=level;$('floor').oninput()},onLayout:()=>{measureChrome();requestAnimationFrame(()=>{drawTower();if(searchRun)drawStudy()})}});
 setLang(lang);
 placeActions();
 matchMedia('(max-width:600px)').addEventListener('change',placeActions);

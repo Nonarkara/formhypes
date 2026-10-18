@@ -29,6 +29,7 @@ class El{
   set className(v){this.attrs.class=v;}
   get className(){return this.attrs.class||'';}
   set title(v){this.attrs.title=v;}
+  get title(){return this.attrs.title;}
   set type(v){this.attrs.type=v;}
   get classList(){const self=this;return{add(c){self.attrs.class=(self.attrs.class?self.attrs.class+' ':'')+c}};}
   setAttribute(k,v){this.attrs[k]=v}
@@ -302,7 +303,7 @@ test('the facade objective minimizes skin area rather than maximizing it',()=>{
   assert.ok(Math.abs(byFacade[0].metrics.facade-minSkin)<1e-6,'under yield regime (heightPull=0), top facade candidate must have the smallest facade');
 });
 
-test('applying a candidate updates the active study figures and objective changes re-run',()=>{
+test('applying a candidate updates the active study figures',()=>{
   // Read the source with its comments stripped. Argon 4's version of this guard
   // grepped for a literal, and a mutation that deleted the whole call while
   // leaving the line in a comment kept it green — the guard enforced the text
@@ -311,7 +312,6 @@ test('applying a candidate updates the active study figures and objective change
   const applyFn=src.slice(src.indexOf('function applyCandidate'),src.indexOf('function finishSearch'));
   assert.ok(applyFn.length>0,'applyCandidate not found');
   assert.match(applyFn,/if\(searchRun\)\{[^}]*renderSearch\(\)/);
-  assert.match(src,/obj\.onchange=\(\)=>\{state\.objective=obj\.value;if\(searchRun\)runSearch\(\)\}/);
   // And the figure has to be capable of moving in the first place, or the
   // wiring assertion above would be asserting nothing. This is the behavioural
   // half: the current tower is drawn where it actually is.
@@ -418,4 +418,30 @@ test('minimising façade really picks the tightest skin, not the loosest',()=>{
         `regime ${reg}: with no blend the top façade candidate must be the smallest skin in the run`);
     }
   }
+});
+
+
+test('narrow family charts retain readable geometry, selection and button semantics',()=>{
+ const fig=familyResponse(ALTS,CURRENT,tt,'en',{width:330,row:44,selected:'cross'});
+ const out=strip(fig);
+ assert.match(out,/viewBox="0 0 330 548" role="group"/);
+ assert.equal((out.match(/role="button"/g)||[]).length,11);
+ assert.equal((out.match(/aria-pressed="true"/g)||[]).length,1);
+ assert.match(out,/aria-pressed="true" data-study-focus="family:cross"/);
+ assert.equal((out.match(/font-size="10.5"/g)||[]).length,11);
+ assert.equal((out.match(/width="330" height="44" fill="transparent" pointer-events="all"/g)||[]).length,11);
+ const ys=[...out.matchAll(/<text x="108" y="([\d.]+)"/g)].map(m=>+m[1]);
+ assert.equal(ys.length,11);for(let i=1;i<ys.length;i++)assert.equal(ys[i]-ys[i-1],44);
+ const scale=responseScale(ALTS,CURRENT,330);
+ assert.equal(scale.x(scale.min),118);assert.equal(scale.x(scale.max),260);
+});
+
+test('lattice buttons name the action, geometry, floors and value in every language',async()=>{
+ const {translator}=await import('../dist/i18n.js');
+ for(const lang of ['en','th','zh']){
+  const tr=translator(lang),out=strip(lattice(ALTS,'cross',tr,lang,()=>{}));
+  const labels=[...out.matchAll(/aria-label="([^"]*)"/g)].map(m=>m[1]);
+  assert.equal(labels.length,16);
+  for(const label of labels)for(const key of ['s.col.apply','s.roofScale','s.twist','c.floors','s.col.contribution'])assert.ok(label.includes(tr(key)),lang+' '+key);
+ }
 });
