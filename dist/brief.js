@@ -473,7 +473,7 @@ export function setBriefInputs(patch){
 
 /** Restore a full saved Brief atomically; omitted legacy fields use defaults,
  * never the assumptions of whatever study happens to be open. */
-export function restoreBriefInputs(snapshot){
+export function normalizeBriefInputs(snapshot){
  if(!snapshot||typeof snapshot!=='object'||Array.isArray(snapshot))return false;
  const next=structuredClone(DESK_INITIAL),bounds={gfa:[1000,1e7],plot:[1,1e6],far:[.1,100],plate:[50,20000],cap:[10,1000],mx:[.1,2],my:[.1,2],tx:[.1,2],ty:[.1,2],mLevel:[.05,.95]};
  const number=(v,min,max)=>Number.isFinite(v)&&v>=min&&v<=max;
@@ -490,5 +490,8 @@ export function restoreBriefInputs(snapshot){
    }
   }else return false;
  }
- Object.assign(desk,next);return true;
+ return next;
+}
+export function restoreBriefInputs(snapshot){
+ const next=normalizeBriefInputs(snapshot);if(!next)return false;Object.assign(desk,next);return true;
 }

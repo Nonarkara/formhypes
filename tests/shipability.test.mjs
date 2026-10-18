@@ -1,3 +1,4 @@
+import {DECISION_I18N,cleanStudyName,cleanStudyNote} from '../dist/decisions.js';
 import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment} from '../dist/environment.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -110,16 +111,16 @@ test('pure regimes retain their original objective and height-only rankings',()=
 
 test('the actual Save/Reload/Restore flow preserves a full Brief and rolls back blocked deletion',()=>{
  class El{constructor(){this.children=[]}replaceChildren(...c){this.children=c}append(...c){this.children.push(...c)}setAttribute(){}}
- const nodes={save:new El(),savedStudies:new El()},messages=[];
+ const nodes=Object.fromEntries(['save','savedStudies','saveNamed','pinStudy','clearReference','studyName','studyNote','importStudy','studyFile'].map(id=>[id,new El()])),messages=[];nodes.studyName.value='Keep daylight';nodes.studyNote.value='Check access with users';
  let stored='',blocked=false;
  const source=app.slice(app.indexOf('function renderStudies(){'),app.indexOf('/* ── chrome height'));
  const ctx={studies:[],state:{...M.defaults},defaults:M.defaults,$:id=>nodes[id],document:{createElement:()=>new El()},
-  tt:k=>k,money:String,evaluate:M.evaluate,getBriefStudy,restoreBriefInputs,getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,setBriefInputs(){},changed(){},toast:m=>messages.push(m),
+  lang:'en',DECISION_I18N,cleanStudyName,cleanStudyNote,renderDecisionStudy(){},tt:k=>k,money:String,evaluate:M.evaluate,getBriefStudy,restoreBriefInputs,getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,setBriefInputs(){},changed(){},toast:m=>messages.push(m),
   persist:()=>{if(blocked)return false;stored=JSON.stringify(ctx.studies);return true}};
  runInNewContext(source,ctx);
  resetBrief();const original=getBriefStudy(M.defaults).inputs;
  const wanted={...original,gfa:360000,scheme:'solid',plate:3000,seeded:true};restoreBriefInputs(wanted);
- nodes.save.onclick();assert.equal(messages.at(-1),'s.saved');
+ nodes.save.onclick();assert.equal(messages.at(-1),'s.saved');assert.equal(ctx.studies[0].name,'Keep daylight');assert.equal(ctx.studies[0].note,'Check access with users');
  restoreBriefInputs({...original,gfa:180000,scheme:'podium'});
  ctx.studies=JSON.parse(stored);runInNewContext('renderStudies()',ctx);
  nodes.savedStudies.children[0].children[0].onclick();

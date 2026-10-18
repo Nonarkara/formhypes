@@ -6,6 +6,10 @@ import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
 const dir=await mkdtemp(join(tmpdir(),'shdt-contract-mutations-'));
 const cases=[
+ ['unknown package version accepted','decisions.js','![3,4].includes(data.version)','false','malformed packages'],
+ ['comparison reference drifts to current','decisions.js','before=evaluate(reference.state)','before=evaluate(current.state)','comparison preserves'],
+ ['supplied import metrics trusted','decisions.js','state,brief,environment:','state,metrics:data.metrics,brief,environment:','versioned import'],
+ ['decision note lost on save','app.js',"note:cleanStudyNote($('studyNote')?.value),brief:",'note:undefined,brief:','actual Save/Reload'],
  ['levels treated as metres','height','const levels=Number',"const bh=Number(tags['building:levels']);if(bh>0)return {h:bh,src:'building:height'};const levels=Number",'OSM storeys'],
  ['wind becomes linear in speed','environment.js','v.speed*v.speed','v.speed','static wind matches'],
  ['mirror reflects toward sun','environment.js','-v+2*d*n[i]','v+2*d*n[i]','mirror law'],
@@ -26,13 +30,14 @@ const cases=[
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));
  await mkdir(join(dir,'scripts'));await copyFile('scripts/building-height.mjs',join(dir,'scripts/building-height.mjs'));
+ await copyFile('tests/decisions.test.mjs',join(dir,'tests/decisions.test.mjs'));
  await copyFile('tests/environment.test.mjs',join(dir,'tests/environment.test.mjs'));
  await copyFile('package.json',join(dir,'package.json'));await copyFile('tests/shipability.test.mjs',join(dir,'tests/shipability.test.mjs'));
- for(const name of await readdir('dist'))if(!['app.js','model.js','context.js','environment.js','environment-desk.js'].includes(name))await symlink(resolve('dist',name),join(dir,'dist',name));
- const original={};for(const f of ['app.js','model.js','context.js','environment.js','environment-desk.js'])original[f]=await readFile('dist/'+f,'utf8');
+ for(const name of await readdir('dist'))if(!['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js'].includes(name))await symlink(resolve('dist',name),join(dir,'dist',name));
+ const original={};for(const f of ['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js'])original[f]=await readFile('dist/'+f,'utf8');
  const stage=async(file,before,after)=>{for(const [f,s]of Object.entries(original))await writeFile(join(dir,'dist',f),f===file?s.replaceAll(before,after):s)};
  const heightOriginal=await readFile('scripts/building-height.mjs','utf8');
- const run=pattern=>spawnSync(process.execPath,['--test',...(pattern?['--test-name-pattern',pattern]:[]),join(dir,'tests/shipability.test.mjs'),join(dir,'tests/environment.test.mjs')],{encoding:'utf8'});
+ const run=pattern=>spawnSync(process.execPath,['--test',...(pattern?['--test-name-pattern',pattern]:[]),join(dir,'tests/shipability.test.mjs'),join(dir,'tests/environment.test.mjs'),join(dir,'tests/decisions.test.mjs')],{encoding:'utf8'});
  await stage();const baseline=run();if(baseline.status!==0)throw Error('Isolated baseline failed: '+baseline.stdout+baseline.stderr);
  console.log('PASS: isolated baseline');
  for(const [name,file,before,after,pattern]of cases){

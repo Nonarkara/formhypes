@@ -77,3 +77,7 @@ The studio now stays inside the viewport. Land area, FAR and city sit above the 
 ### 18 October 2026 · Building and neighbourhood
 
 **Neighbourhood** fits the surrounding 3D context. **Place → Effects** adds date/time shadows and full-day footprint overlap, user-input static wind/lateral response, and first-hit reflected-sun sample rays. The six-city OSM harvest now distinguishes metre heights from storey counts; all cities were refreshed with source metadata. Environmental inputs and methods survive Save/Restore and JSON export. See [methods, validation and limits](docs/ENVIRONMENT-STUDIES.md). Wind is a static sensitivity study; pedestrian airflow, glare intensity and engineering/code verification require external analysis.
+
+### 19 October 2026 · Compare and reuse decisions
+
+Studies now have names and decision notes. Pin a session reference or compare a saved study against the current design, with A/B geometry on one metre scale, raw deltas, conceptual form-check status and changed scenario inputs. Import version3/4 JSON into the shelf; imported metrics are ignored and recalculated. Version4 exports include names and notes. Import restores tower, Brief and Effects inputs; camera, soil and Walk-in remain separate. See [the comparison with Tower-Morphing and RHIKNOWBOT](docs/HUMAN-CENTRED-COMPARISON.md), including evidence limits and a proposed human task trial.

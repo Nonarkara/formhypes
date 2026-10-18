@@ -293,3 +293,15 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
  #environmentDesk>h2,#environmentDesk>.env-nav:nth-child(3){order:0}
  #environmentDesk>.env-scene{order:1}
 }
+/* A studio memory and comparison sheet, with a fixed reference rather than a verdict. */
+.study-fields{display:grid;gap:5px;margin:12px 0;max-width:65ch}.study-fields label{font-size:12px}.study-fields input,.study-fields textarea{font:inherit;min-width:0;width:100%;padding:7px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:0}.study-fields textarea{resize:vertical}
+.study-tools{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.study-tools button{padding:6px 9px}
+.study-note{flex-basis:100%;max-width:65ch;white-space:pre-wrap;margin:5px 0;font-size:12px}
+#decisionDesk{margin:14px 0;padding-top:12px;border-top:2px solid var(--ink)}#decisionDesk h2{font-size:18px}#decisionDesk h3{font-size:14px;margin:14px 0 6px}#decisionDesk p,.studies>.note{max-width:65ch;font-size:12px;line-height:1.6}
+.decision-figure{margin:8px 0}.decision-figure svg{display:block;width:100%;height:auto;max-height:390px}.decision-figure figcaption{display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:12px;overflow-wrap:anywhere}.decision-table{overflow:auto;max-width:100%;margin:12px 0}.decision-table table{width:100%;font-size:12px}.decision-table th,.decision-table td{padding:7px 5px;font-variant-numeric:tabular-nums}.decision-table td{text-align:right;white-space:nowrap}.decision-changed{font-weight:700;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}#decisionDesk blockquote{border-left:3px solid var(--accent);padding-left:10px;margin:12px 0;white-space:pre-wrap;font-size:12px;max-width:65ch}
+@media(max-width:600px){.study-tools button,.study-fields input{min-height:44px}.decision-table th,.decision-table td{padding:8px 4px}.decision-figure figcaption{gap:8px}}
+.console-dock .saved>button:first-child{white-space:normal;overflow-wrap:anywhere;max-width:100%;text-align:left}
+/* The old appendix shelf had a label column. Docked studies are one task sheet. */
+.console-dock .studies{display:block}
+#clearReference{width:fit-content;padding:6px 9px;margin:7px 0;min-height:32px}
+@media(max-width:600px){#clearReference{min-height:44px}}

@@ -1,3 +1,4 @@
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=7ffa570a33';
 import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=01a4159326';
 import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=55be6d1ca3';
 import {mountConsole} from './console.js?v=82f0a66755';
@@ -21,7 +22,7 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=3
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=297a204bbf';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=b9ae7da0da';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=4cf49fa71e';
 import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=e25f3f0216';
 
@@ -84,7 +85,7 @@ function setLang(l){
  document.title='FormHypes — '+tt('tag.line');
  for(const id of ['reset','save','export'])$(id).setAttribute('aria-label',tt(id));
  buildLangButtons();buildSelectors();buildRanges();sync();
- renderResearch();renderMethod();renderStudies();
+ renderResearch();renderMethod();renderStudies();renderDecisionStudy();
  update();
  // The search result is DOM built from tt(), so it has to be redrawn when tt()
  // changes. Redraw, never re-run: the numbers are language-independent and
@@ -265,7 +266,7 @@ function applyDeskPatch(patch){
 }
 
 function update(){
- metrics=evaluate(state);sync();
+ metrics=evaluate(state);sync();renderDecisionStudy();
  // A regime that ranks by height and silhouette gives the objective no weight
  // at all. Say so rather than leaving a six-option control that cannot move.
  const inert=objectiveInert(state),note=$('objectiveNote');
@@ -1072,7 +1073,7 @@ const ro=new ResizeObserver(entries=>{
  requestAnimationFrame(()=>{pendingRaf=false;drawn={w:0,h:0};drawTower()});
 });
 ro.observe(canvas);
-$('reset').onclick=()=>{resetBrief();restoreEnvironmentStudy();state={...defaults};yaw=-.65;zoom=1;$('floor').value=24;changed();toast(tt('s.reset'))};
+$('reset').onclick=()=>{$('studyName').value='';$('studyNote').value='';resetBrief();restoreEnvironmentStudy();state={...defaults};yaw=-.65;zoom=1;$('floor').value=24;changed();toast(tt('s.reset'))};
 
 /* ── search ───────────────────────────────────────────────────────────── */
 /* The search is ~160 full evaluations. Run it in slices that yield to the
@@ -1187,25 +1188,45 @@ const readStore=k=>{try{return localStorage.getItem(k)}catch{return null}};
 const withDefaults=x=>{const y={...defaults,...x};if(!own(CROWNS,y.crown))y.crown='flat';if(!own(GARDENS,y.garden))y.garden='none';if(!own(DETAILS,y.detail))y.detail='drained-cavity';if(typeof y.led!=='boolean')y.led=false;return y};
 try{const data=JSON.parse(readStore('formHypesStudies')??readStore('formYieldStudies')??'[]');studies=Array.isArray(data)?data.map(s=>s&&s.state?{...s,state:withDefaults(s.state)}:s).filter(x=>x&&validState(x.state)).slice(0,8):[]}catch{studies=[]}
 function persist(){try{localStorage.setItem('formHypesStudies',JSON.stringify(studies));return true}catch{return false}}
+let referenceStudy=null;
+function currentStudy(){return {version:2,name:cleanStudyName($('studyName')?.value),note:cleanStudyNote($('studyNote')?.value),state:{...state},brief:getBriefStudy(state).inputs,environment:getEnvironmentStudy()}}
+function renderDecisionStudy(){
+ const c=DECISION_I18N[lang],host=$('decisionDesk');if(!host)return;
+ for(const [id,key]of [['studyNameLabel','name'],['studyNoteLabel','note'],['saveNamed','save'],['pinStudy','pin'],['importStudy','import'],['clearReference','removeReference']])$(id).textContent=c[key];
+ $('importScope').textContent=c.importScope;$('referenceSession').textContent=c.session;
+ $('clearReference').hidden=!referenceStudy;
+ renderDecision({host,lang,reference:referenceStudy,current:currentStudy(),label:s=>tt('fs.'+s.family)+' / '+s.floors,checkStatus:m=>m.valid?tt('m.feasible'):m.reasons.map(r=>tt('m.reason.'+r)).join(' · '),inputLabel:(key,value)=>schema[key]?tt(schema[key][0])+': '+value+' '+schema[key][4]:key==='regime'?c.fieldRegime+': '+tt('regime.'+value+'.label'):key==='city'?c.fieldCity+': '+tt('sun.'+value):c.fieldLed+': '+(value?c.yes:c.no)});
+}
 function renderStudies(){
  $('savedStudies').replaceChildren();
  if(!studies.length){const p=document.createElement('p');p.className='note';p.textContent=tt('s.emptyStudies');$('savedStudies').append(p)}
  studies.forEach((study,i)=>{
   const d=document.createElement('div');d.className='saved';
   const b=document.createElement('button');
-  b.textContent=`${i+1}. ${tt('f.'+study.state.family)} / ${tt('regime.'+study.state.regime+'.label')} / ${money(evaluate(study.state).contribution)}`;
-  b.onclick=()=>{if(!validateEnvironment(study.environment?.inputs??{})||!restoreBriefInputs(study.brief??study.site??{})){toast(tt('s.restoreFail'));return}restoreEnvironmentStudy(study.environment);state={...defaults,...study.state};changed();toast(tt('s.restored'))};
+  b.textContent=`${i+1}. ${study.name?study.name+' / ':''} ${tt('f.'+study.state.family)} / ${tt('regime.'+study.state.regime+'.label')} / ${money(evaluate(study.state).contribution)}`;
+  b.onclick=()=>{if(!validateEnvironment(study.environment?.inputs??{})||!restoreBriefInputs(study.brief??study.site??{})){toast(tt('s.restoreFail'));return}restoreEnvironmentStudy(study.environment);if($('studyName'))$('studyName').value=study.name||'';if($('studyNote'))$('studyNote').value=study.note||'';state={...defaults,...study.state};changed();toast(tt('s.restored'))};
   const del=document.createElement('button');del.textContent='×';
   del.setAttribute('aria-label',tt('s.delete')+' '+(i+1));
   del.onclick=()=>{const removed=studies.splice(i,1);if(!persist()){studies.splice(i,0,...removed);toast(tt('s.deleteFail'));return}renderStudies()};
-  d.append(b,del);$('savedStudies').append(d);
+  const compare=document.createElement('button');compare.textContent=DECISION_I18N[lang].compare;compare.setAttribute('aria-label',DECISION_I18N[lang].compare+' '+(study.name||tt('fs.'+study.state.family)));compare.onclick=()=>{referenceStudy=structuredClone(study);renderDecisionStudy();$('decisionDesk').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})};
+  d.append(b,del,compare);if(study.note){const note=document.createElement('p');note.className='study-note';note.textContent=study.note;d.append(note)}$('savedStudies').append(d);
  });
 }
 $('save').onclick=()=>{
  if(studies.length>=8){toast(tt('s.full'));return}
- studies.push({version:1,brief:getBriefStudy(state).inputs,environment:getEnvironmentStudy(),state:{...state},site:{plot:getBriefStudy(state).inputs.plot,far:getBriefStudy(state).inputs.far},savedAt:new Date().toISOString()});
+ studies.push({version:1,name:cleanStudyName($('studyName')?.value),note:cleanStudyNote($('studyNote')?.value),brief:getBriefStudy(state).inputs,environment:getEnvironmentStudy(),state:{...state},site:{plot:getBriefStudy(state).inputs.plot,far:getBriefStudy(state).inputs.far},savedAt:new Date().toISOString()});
  if(!persist()){studies.pop();toast(tt('s.saveFail'));return}
  renderStudies();toast(tt('s.saved'));
+};
+
+$('saveNamed').onclick=()=>$('save').onclick();
+$('pinStudy').onclick=()=>{referenceStudy=structuredClone(currentStudy());renderDecisionStudy();$('decisionDesk').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})};
+$('clearReference').onclick=()=>{referenceStudy=null;renderDecisionStudy()};
+$('studyName').oninput=()=>renderDecisionStudy();
+$('importStudy').onclick=()=>$('studyFile').click();
+$('studyFile').onchange=async()=>{
+ const file=$('studyFile').files?.[0];if(!file)return;
+ try{if(file.size>1048576)throw Error('size');const study=parseStudyPackage(await file.text(),validState);if(studies.length>=8){toast(tt('s.full'));return}studies.push(study);if(!persist()){studies.pop();toast(tt('s.saveFail'));return}renderStudies();toast(DECISION_I18N[lang].imported)}catch{toast(DECISION_I18N[lang].invalid)}finally{$('studyFile').value=''}
 };
 
 /* ── chrome height ─────────────────────────────────────────────────────────
@@ -1991,7 +2012,7 @@ function download(name,content,type){
 }
 $('exportObj').onclick=()=>download('formhypes-'+state.family+'.obj',meshOBJ(state),'text/plain');
 $('exportJson').onclick=()=>download('formhypes-study.json',JSON.stringify({
- version:3,units:{length:'m',area:'m²',currency:'USD',rent:'USD/m²/year',capex:'USD paid once'},tier:'conceptual scenario',
+ version:4,study:{name:cleanStudyName($('studyName').value),note:cleanStudyNote($('studyNote').value)},units:{length:'m',area:'m²',currency:'USD',rent:'USD/m²/year',capex:'USD paid once'},tier:'conceptual scenario',
  author:'Dr Non',affiliation:'depa + Axiom',anniversary:'2006–2026',
  source:'Inspired by Dr Non’s MIT classmate Shouheng Chen. Embedded design knowledge after Shouheng Chen, MIT SMArchS 2006. Financial and political readings are extensions.',
  contextStudies:{environment:getEnvironmentStudy(),ground:getLocationStudy(),fengShui:getFengStudy(),brief:getBriefStudy(state),walk:getWalkStudy()},

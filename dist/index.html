@@ -17,7 +17,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="style.css?v=e4f0b10ea1">
 <link rel="stylesheet" href="console.css?v=5dee3ee755">
-<link rel="stylesheet" href="desks.css?v=ab5a7cf1fc">
+<link rel="stylesheet" href="desks.css?v=f1a84bb241">
 </head>
 <body>
 
@@ -146,7 +146,7 @@
            skyline came from. In flow with the rest of the sheet footer, so it
            cannot collide with the rows around it. It CAN still be drawn on: the
            canvas is absolutely positioned across the whole sheet, so the drawing
-           is clipped to the field above this band in app.js?v=c0eec2127c Being in flow was
+           is clipped to the field above this band in app.js?v=b2de753a22 Being in flow was
            never sufficient on its own, and a comment claiming it was hid that
            for as long as it stood — orbit the model and the tower went behind
            the credit line. As an absolutely positioned plate it printed across
@@ -340,7 +340,15 @@
 
   <section class="studies">
     <div><h2 data-i18n="rail.studies">Study shelf</h2><p data-i18n="rail.studiesSub">Save a form before changing the rules.</p></div>
+    <div class="study-fields">
+      <label for="studyName" id="studyNameLabel">Study name</label><input id="studyName" type="text" maxlength="80" autocomplete="off">
+      <label for="studyNote" id="studyNoteLabel">Why keep this option?</label><textarea id="studyNote" rows="3" maxlength="1200"></textarea>
+    </div>
+    <div class="study-tools"><button type="button" id="saveNamed">Save named study</button><button type="button" id="pinStudy">Use current as reference</button><button type="button" id="importStudy">Import study JSON</button><input id="studyFile" type="file" accept=".json,application/json" hidden></div>
+    <p class="note" id="importScope"></p>
     <div id="savedStudies"></div>
+    <p class="note" id="referenceSession"></p><button type="button" id="clearReference" hidden>Clear reference</button>
+    <section id="decisionDesk" aria-live="polite"></section>
   </section>
 </section>
 
@@ -375,5 +383,5 @@
 <dialog id="knowledgeDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="k.button">Architectural knowledge</h2><div id="knowledgeContent" role="status"></div><p class="knowledgeDownloads"><a href="knowledge/designon-knowledge.json?v=38eb5f372c" download data-i18n="k.download">Download</a><a href="knowledge/DESIGNON-LICENSE.txt?v=1950c131d0" data-i18n="k.license">License</a></p></dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="app.js?v=c0eec2127c"></script>
+<script type="module" src="app.js?v=b2de753a22"></script>
 </body></html>

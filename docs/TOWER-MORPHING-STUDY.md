@@ -77,8 +77,7 @@ counts storeys, gardens and voids, the height graduation is spaced against the
 total, and the whole equal-area discipline rests on *z* and plan staying in
 step.
 
-His method can afford this because it returns a solid and reports nothing about
-it. A tool that also has to price the thing cannot.
+The reviewed method returns geometry. In this prototype, per-level offsets would additionally require monotone-level validation and remapping of the area and schedule calculations. A future constrained implementation could meet those requirements.
 
 This is not a criticism of his method. It is the price of pricing the thing,
 and it is the reason the two systems are not the same product despite doing the
@@ -93,14 +92,11 @@ per-level scale and rotation as a third parameterisation while every one of
 those numbers survives.
 
 That is the honest basis for "better than his own", and it is a narrower claim
-than it sounds. Not: a better Rhino plugin. He has thirty years of NURBS
-practice in that file and this is a browser. Rather: a different question.
+than it sounds. Not: a better Rhino plugin. The reviewed method uses Rhino BRep sweeps; FormHypes uses a browser polygon loft. Rather: a different question.
 He built a machine for making forms. The form this system produces can also be
 asked what it costs, and what it costs changes what form is worth making.
 
-A browser cannot ship a Rhino, and the honest way to use his method here is not
-to reimplement `Brep.CreateFromSweep` — that would be worse at it — but to
-adopt the one idea it has that the plan library does not.
+This prototype does not embed Rhino’s BRep kernel. The useful idea to investigate first is per-control-level freedom, implemented against the browser model’s own geometry and accounting contracts. A broader kernel choice needs a demonstrated task benefit.
 
 ## Proposed shape of the work
 
@@ -110,9 +106,9 @@ adopt the one idea it has that the plan library does not.
    reason above, and said out loud in the UI rather than hidden.
 2. **Profile area integrated per level**, so bulge and pinch show up honestly
    in GFA, skin and rent rather than only in the picture. This is the part his
-   method has no equivalent of, because it never integrates anything.
+   reviewed Morphing method does not report; the broader product was not tested for this capability.
 3. **Feasibility against the same constraints** the model already enforces —
-   IBC 504.3 height, envelope-to-floor ratio, core fit — run on the morphed
+   model height allowance, site envelope and core fit — run on the morphed
    stack, not on the ideal one.
 
 Nothing in (1) or (2) requires his code. Both follow from the published
@@ -139,3 +135,7 @@ module.
   control level whose transformed profile crosses itself, and the sweeps would
   produce garbage rather than fail loudly. Worth confirming whether that is
   handled upstream or is simply left to the user.
+
+## 18 October 2026 qualification
+
+This is the earlier source reading recorded in this repository, not a fresh execution of Tower-Morphing. Its original C#/XAML files were not located in the current project or Downloads during this pass. The return type and per-level transformations above describe that method, not every feature in Chen’s complete system. Per-level vertical edits could be constrained to maintain order in a future design; their omission here is an implementation choice, not an inherent incompatibility with accounting. No Rhino code was copied. Neither comparative usability nor productivity superiority has been demonstrated with participants.

@@ -85,28 +85,22 @@ behind them is asserted here.
 
 ---
 
-## What it does not do
+## What the public material did not establish
 
-Stated as absence, because absence is the finding.
+The following are limits of the observation, not verified absences from the installed product.
 
-- **No economics.** No rent, no yield, no NOI, no payback. FAR appears, but as
-  an *input* to a block generator, not as a verdict on a building.
-- **No daylight, shading, carbon or lifecycle.** Solved in FormHypes, absent here.
-- **No consequence reporting.** The tool produces geometry and never states what
-  the geometry costs or gains. Nothing in the videos reports a number that
-  followed from a design decision.
-- **No site.** Design starts from an abstract block. There is no real parcel, no
-  envelope, no daylight that depends on a real neighbour.
-- **One language.** Every label, video caption and string is English.
-- **No written documentation at all.** The marketing site is nine silent videos
-  plus a footer. `/features` is a list of twenty-four command names and nothing
-  else — no sentence explaining what any of them does. There is no manual.
+- **Economic analysis was not demonstrated.** The reviewed clips did not show rent, contribution or payback calculations. FAR was shown as an input to a block generator.
+- **Environmental analysis was not demonstrated.** The reviewed material did not establish daylight, shadow, carbon or lifecycle analysis. FormHypes now has limited geometric/static screens and scenario quantities; those questions are not broadly solved here either.
+- **Consequence reporting was not demonstrated in the reviewed videos.** This makes an instrument for explaining consequences a useful FormHypes direction, without proving the other product cannot do it.
+- **Real-site analysis was not established.** City road and block generation were visible; parcel and neighbor-dependent analysis were not established from that material.
+- **The reviewed public presentation was English.** Installed-product language support was not tested.
+- **No written manual was found on the reviewed public routes.** There may be other documentation or support material. The public Features route is video-led; absence there does not prove absence everywhere.
 
 ---
 
 ## So what
 
-**FormHypes and RHIKNOWBOT are not competing for the same job.**
+**The reviewed public workflows emphasize different tasks.**
 
 RHIKNOWBOT is a geometry kernel and environment — a Rhino/Grasshopper-class
 tool for making and editing form. It is good at that, and nothing here should
@@ -120,29 +114,25 @@ drawn as precedent.
 
 **The gap between them is not a feature list. It is the difference between
 producing a form and being able to find out what it costs.** He built the first.
-Nobody has built the second. That is the territory, and it is not contested.
+This is FormHypes’ intended territory. The public material does not support a claim of market uniqueness or absence of comparable tools.
 
 ### What we should take from it anyway
 
 Three things, in order of value:
 
 1. **The library loop.** His strongest idea is that experience accumulates as
-   reusable assets. FormHypes currently recomputes from defaults on every visit;
+   reusable assets. At the time of the original review, FormHypes recomputed from defaults on every visit;
    a designer's accumulated understanding lives only in the study shelf, and it
    is one-way. This is the single biggest structural idea on offer.
 2. **A component is a reusable unit of knowledge.** Already partly true here —
    `MATERIALS`, `facadeFamilies`, `levelPrograms`, `CROWNS` are all component
    libraries in the same spirit. The difference is that his library is
    user-extensible at runtime; ours are authored tables.
-3. **Ground the free-floating block.** He starts from nothing and puts it
-   anywhere. FormHypes starts from a real plot in a real city. That is a
-   constraint, and it is an advantage.
+3. **Ground the free-floating block.** The reviewed clips emphasize construction tools. FormHypes anchors this proposal to a mapped city context. That can be a useful constraint, but its usability advantage needs testing.
 
 ### What we should not do
 
-Do not chase geometry commands. A browser cannot ship a Rhino. Every hour spent
-trying to out-modelling RHIKNOWBOT is an hour not spent making the consequences
-of a form impossible to misread.
+Do not chase geometry commands. The present browser prototype has a narrower polygon kernel. Additional modelling commands should earn their cost through an observed task failure, while readable consequences remain a concrete design priority.
 
 ---
 
@@ -152,7 +142,7 @@ Recorded here so the reasoning is not lost when the next round starts.
 
 **Crowns and sky terraces were built on the back of this study** — not as
 features copied from his videos (he has neither), but because his massing module
-shows exactly what he does *not* measure. A crown spends a real height
+motivated us to make quantities visible beside geometry; it does not establish what his full product can measure. A crown spends a real height
 allowance; a terrace gives away real rentable area and costs real money to keep
 alive. Neither is decoration, and in a product built on honesty both were
 obligations rather than options. See `dist/crowns.js`.
@@ -182,3 +172,7 @@ The nine taxonomy tabs swap only the hero **video** — durations 28 s, 44 s, 54
 19 s — and print **no descriptive text whatsoever**. The feature taxonomy is nine
 buttons and a footer. Every word above was read from the videos' own on-screen
 captions.
+
+## 18 October 2026 qualification
+
+Current public Home and Features routes were checked again through the real browser. They expose the component/massing/morphing/interference/city/diagram/render/booklet families, with video controls and Sign In. This session did not use the installed software or inspect its private/manual material. Earlier negative-space statements describe the public material observed, not verified absence of product capabilities. Human usability has not been comparatively tested. See HUMAN-CENTRED-COMPARISON.md for the present evidence matrix and changes.
