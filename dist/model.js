@@ -552,7 +552,7 @@ export const objectives={
  contribution:(m)=>m.contribution,
  rent:(m)=>m.rent,
  corners:(m)=>m.corners,
- facade:(m)=>m.facade,
+ facade:(m)=>-m.facade,
  silhouette:(m,s)=>m.distinctiveness*1000+(regimes[s.regime].heightPull?m.height:0),
  yieldOnCost:(m)=>m.yieldOnCost
 };

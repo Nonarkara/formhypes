@@ -58,7 +58,7 @@
 .wk-ctl label,.wk-ctl output{font:400 11px/1.4 var(--sans);color:var(--muted)}
 .wk-ctl output{font-family:var(--mono);color:var(--ink);text-align:right}
 .wk-ctl input{width:100%;accent-color:var(--accent)}
-.wk-btn{font:400 11px/1 var(--sans);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:0;padding:6px 10px;cursor:pointer}
+.wk-btn{font:400 11px/1 var(--sans);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:0;padding:6px 10px;cursor:pointer;justify-self:start;width:fit-content}
 .wk-btn:hover{border-color:var(--accent);color:var(--accent)}
 .wk-ctl p{grid-column:1/4;font:400 11px/1.55 var(--sans);color:var(--faint);margin:2px 0 0}
 .wk-src{font:400 11px/1.55 var(--sans);color:var(--faint);margin:8px 0 0;max-width:80ch}

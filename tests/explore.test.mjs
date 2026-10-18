@@ -258,6 +258,56 @@ test('a language click redraws the result instead of re-running it',()=>{
   assert.match(src,/tt\('fs\.'\+r\.state\.family\)/);
   assert.doesNotMatch(src,/<td>\$\{i\+1\} \/ \$\{families\[/);
 });
+
+test('height-competing regimes keep the best height variant per lattice cell instead of overwriting it',()=>{
+  const plan=searchPlan({...defaults,regime:'competition'});
+  assert.equal(plan.heightVariants,2,'competition regime must test two floor counts');
+  const alts=rank(plan.list.map(c=>scoreCandidate(c,'contribution')));
+  const out=strip(lattice(alts,'box',tt,'en',()=>{}));
+  const buttons=[...out.matchAll(/<button class="lattice-cell[^"]*"[^>]*>([^<]*)<\/button>/g)];
+  assert.equal(buttons.length,16);
+  let multiVariantCells=0;
+  buttons.forEach((m,i)=>{
+    const taper=[1,.9,.8,.7][(i/4)|0],twist=[0,30,60,90][i%4];
+    const matching=alts.filter(a=>a.state.family==='box'&&a.state.taper===taper&&a.state.twist===twist);
+    if(matching.length>1)multiVariantCells++;
+    const bestOfCell=matching.reduce((b,a)=>a.score>b.score?a:b);
+    assert.equal(m[1],compact('en',bestOfCell.metrics.contribution),`cell ${taper}/${twist} was overwritten by the lower-ranked floor variant`);
+  });
+  assert.ok(multiVariantCells>=12,'box under competition must have multiple feasible height variants per cell');
+});
+
+test('the facade objective minimizes skin area rather than maximizing it',()=>{
+  const plan=searchPlan(defaults);
+  const byFacade=rank(plan.list.map(c=>scoreCandidate(c,'facade')));
+  const byContrib=rank(plan.list.map(c=>scoreCandidate(c,'contribution')));
+  assert.ok(byFacade[0].metrics.facade<byContrib[0].metrics.facade,'minimizing facade must pick a tighter skin than maximizing contribution');
+  const minSkin=Math.min(...byFacade.map(a=>a.metrics.facade));
+  assert.ok(Math.abs(byFacade[0].metrics.facade-minSkin)<1e-6,'under yield regime (heightPull=0), top facade candidate must have the smallest facade');
+});
+
+test('applying a candidate updates the active study figures and objective changes re-run',()=>{
+  const src=readFile();
+  const applyFn=src.slice(src.indexOf('function applyCandidate'),src.indexOf('function finishSearch'));
+  assert.match(applyFn,/if\(searchRun\)\{exploreFamily=state\.family;renderSearch\(\)\}/);
+  assert.match(src,/obj\.onchange=\(\)=>\{state\.objective=obj\.value;if\(searchRun\)runSearch\(\)\}/);
+});
+
+test('lattice cells and walk reset button size to their text rather than stretching across 1fr',()=>{
+  const css=readFileSync(new URL('../dist/style.css',import.meta.url),'utf8');
+  const desks=readFileSync(new URL('../dist/desks.css',import.meta.url),'utf8');
+  const latticeRow=/\.lattice-row\{([^}]*)\}/.exec(css);
+  assert.ok(latticeRow,'missing .lattice-row rule');
+  assert.doesNotMatch(latticeRow[1],/1fr/,'.lattice-row must not stretch 4-char cells across 1fr');
+  assert.match(css,/\.lattice\{[^}]*width:max-content/);
+  const trioCap=/\.trioFig figcaption\{([^}]*)\}/.exec(css);
+  assert.ok(trioCap,'missing .trioFig figcaption rule');
+  assert.doesNotMatch(trioCap[1],/min-height/,'.trioFig figcaption must not pad short text with min-height');
+  const wkBtn=/\.wk-btn\{([^}]*)\}/.exec(desks);
+  assert.ok(wkBtn,'missing .wk-btn rule');
+  assert.match(wkBtn[1],/width:fit-content/,'.wk-btn must fit its label instead of stretching across the grid track');
+});
+
 function readFile(){
   return readFileSync(new URL('../dist/app.js',import.meta.url),'utf8');
 }

@@ -165,8 +165,8 @@ input[type=range]::-moz-range-thumb{width:3px;height:18px;background:var(--accen
    so the drawing has to be clipped to the field above this band (app.js, in
    drawTower) or its ink shows through the credit line. The two halves are one
    bug — lifting the band fixes the z-order, and only the clip fixes the ink. */
-.skyline-readout{margin:0 0 6px;padding:0 0 0 9px;border-left:2px solid var(--accent);
- color:var(--dim);font-family:var(--mono);font-size:10px;line-height:1.5}
+.skyline-readout{margin:0 18px 6px;padding:0 0 0 9px;border-left:2px solid var(--accent);
+ width:fit-content;max-width:calc(100% - 36px);color:var(--dim);font-family:var(--mono);font-size:10px;line-height:1.5}
 .skyline-readout .sky-credit{display:block;color:var(--faint)}
 .vh-left{display:flex;align-items:center;gap:8px}
 .square{display:inline-block;width:6px;height:6px;background:var(--accent)}
@@ -292,12 +292,12 @@ tbody tr:hover{background:var(--panel)}
 .study-band:hover path{stroke:var(--ink)}
 .study-band:focus{outline:none}
 .study-band:focus-visible path:first-child{stroke:var(--ink);stroke-width:3}
-.lattice{display:grid;gap:2px;margin-top:2px}
-.lattice-row{display:grid;grid-template-columns:42px repeat(4,1fr);gap:2px}
+.lattice{display:grid;gap:2px;margin-top:2px;width:max-content}
+.lattice-row{display:grid;grid-template-columns:42px repeat(4,54px);gap:2px}
 .lattice-lab{font-family:var(--mono);font-size:10.5px;color:var(--muted);display:flex;align-items:center}
 .lattice-tick{font-family:var(--mono);font-size:10px;color:var(--faint);text-align:center;padding-top:3px}
-.lattice-cell{height:26px;border:1px solid var(--line);font-family:var(--mono);font-size:10.5px;
- padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lattice-cell{height:24px;border:1px solid var(--line);font-family:var(--mono);font-size:10.5px;
+ padding:0 6px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .lattice-cell.best{border-color:var(--ink);font-weight:600}
 .lattice-cell:hover{border-color:var(--ink)}
 .lattice-cell:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
@@ -385,13 +385,12 @@ tbody tr:hover{background:var(--panel)}
 .trioCell{background:var(--panel);padding:12px}
 .trioFig{margin:0}
 .trioFig svg{display:block;width:100%;height:196px}
-.trioFig figcaption{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4;min-height:74px}
+.trioFig figcaption{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4}
 .trioFig figcaption b{color:var(--ink);font-weight:600}
 .figs.trioFigs{grid-template-columns:1fr 1fr;margin:10px 0 0;border:1px solid var(--line);border-top:1px solid var(--line);background:var(--line)}
 .figs.trioFigs div{padding:7px 9px}
 .figs.trioFigs .v{font-size:12.5px}
 @media(max-width:1180px){.trio{grid-template-columns:1fr}}
-@media(max-width:1180px){.trioFig figcaption{min-height:0}}
 @media(max-width:760px){.trioFig svg{height:170px}}
 
 #rBody footer,#research>footer{display:flex;justify-content:space-between;padding:18px 0;font-size:11px;color:var(--muted)}

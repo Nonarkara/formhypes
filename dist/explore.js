@@ -12,7 +12,7 @@
    Both are honest about the discipline that makes the comparison mean
    anything: every candidate was resized to the same gross floor area, so only
    the form is moving. */
-import {families} from './model.js?v=e1aefac756';
+import {families} from './model.js?v=010a1563d4';
 
 const INK='#191c1b',MUTED='#585e5b',FAINT='#8b918d',LINE='#c6cbc6',ACCENT='#f59e0b',PAPER='#f2f2ef';
 // Value ladder for the lattice, light to dark. Text flips at index 4, where the
@@ -87,7 +87,10 @@ export function familyResponse(alternatives,current,tt,lang,{selected=null,onPic
 export function lattice(alternatives,family,tt,lang,onApply){
  const s=responseScale(alternatives,null);
  const cells=new Map();
- for(const a of alternatives)if(a.state.family===family)cells.set(a.state.taper+'|'+a.state.twist,a);
+ for(const a of alternatives)if(a.state.family===family){
+  const k=a.state.taper+'|'+a.state.twist,prev=cells.get(k);
+  if(!prev||(a.score??a.metrics.contribution)>(prev.score??prev.metrics.contribution))cells.set(k,a);
+ }
  const tapers=[...new Set(alternatives.map(a=>a.state.taper))].sort((x,y)=>y-x);
  const twists=[...new Set(alternatives.map(a=>a.state.twist))].sort((x,y)=>x-y);
  const fig=document.createElement('figure');fig.className='study-fig';
