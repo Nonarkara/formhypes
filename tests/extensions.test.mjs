@@ -127,7 +127,7 @@ test('every new shape has unit-scale area and perimeter, with valid export topol
 });
 
 test('JSON study exports retain contextual assumptions and their stated limits',()=>{
- assert.match(dist('app.js'),/contextStudies:\{ground:getLocationStudy\(\),fengShui:getFengStudy\(\),brief:getBriefStudy\(state\),walk:getWalkStudy\(\)\}/);
+ assert.match(dist('app.js'),/contextStudies:\{environment:getEnvironmentStudy\(\),ground:getLocationStudy\(\),fengShui:getFengStudy\(\),brief:getBriefStudy\(state\),walk:getWalkStudy\(\)\}/);
  assert.match(dist('location.js'),/not safety assessment/);assert.match(dist('play.js'),/invented-site design prompt/);
 });
 

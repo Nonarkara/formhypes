@@ -7,12 +7,12 @@ import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=a
 import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposure} from './solar.js?v=9279efc6dc';
 import {lensOf,lensSVG,lensFormula,LENS_KEY,LIFE_YEARS} from './lens.js?v=2949cf8b98';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
-import {CITYSCAPE} from './cityscape.data.js?v=fb3efe9e16';
+import {CITYSCAPE} from './cityscape.data.js?v=e5a1d6659e';
 import {parseGround,parseCity,plotCandidates,plotFacts,plateOnPlot,landscapeSVG,skyViewSVG,makeScene} from './site.js?v=7cb1769785';
 // The lens strings live in the shared translation file, not in this desk's own
 // dictionary: they are the same words the reader has already met in the rail,
 // and a second copy is a second thing to drift.
-import {t as I18N} from './i18n.js?v=1edee52a5b';
+import {t as I18N} from './i18n.js?v=47322b002a';
 
 // Empire Tower 58F / 227 m / 1999, floor plate ≈3,000 m² and a 2.60 m Grade A
 // clear-height benchmark for Bangkok; Dayabumi Complex 35F / 157 m / 1984;

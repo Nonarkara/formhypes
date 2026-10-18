@@ -17,7 +17,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="style.css?v=e4f0b10ea1">
 <link rel="stylesheet" href="console.css?v=5dee3ee755">
-<link rel="stylesheet" href="desks.css?v=aec7168716">
+<link rel="stylesheet" href="desks.css?v=ab5a7cf1fc">
 </head>
 <body>
 
@@ -132,6 +132,7 @@
 
       <div class="viewtools" role="group" aria-label="View">
         <button type="button" id="homeView" title="Reset camera"><span class="ic">⌂</span><span data-i18n="v.home">View</span></button>
+        <button type="button" id="cityView" aria-pressed="false" data-i18n="v.neighbourhood">Neighbourhood</button>
         <button type="button" id="zoomIn" aria-label="Zoom in"><span class="ic">＋</span></button>
         <button type="button" id="zoomOut" aria-label="Zoom out"><span class="ic">−</span></button>
         <button type="button" id="wire" aria-pressed="false" data-i18n="v.wire">Wire</button>
@@ -145,7 +146,7 @@
            skyline came from. In flow with the rest of the sheet footer, so it
            cannot collide with the rows around it. It CAN still be drawn on: the
            canvas is absolutely positioned across the whole sheet, so the drawing
-           is clipped to the field above this band in app.js?v=5955628f03 Being in flow was
+           is clipped to the field above this band in app.js?v=c0eec2127c Being in flow was
            never sufficient on its own, and a comment claiming it was hid that
            for as long as it stood — orbit the model and the tower went behind
            the credit line. As an absolutely positioned plate it printed across
@@ -322,6 +323,8 @@
   <details id="contextPanel"><summary id="contextTitle">Site &amp; neighbours</summary><div id="contextDesk" aria-live="polite"></div></details>
   <details id="sitePanel"><summary id="siteTitle">Stand here</summary><div id="siteDesk" aria-live="polite"></div></details>
 
+  <details id="environmentPanel"><summary id="environmentTitle">Building &amp; neighbourhood</summary><div id="environmentDesk" aria-live="polite"></div></details>
+
   <section class="explore" aria-labelledby="exploreTitle">
     <div class="explorehead">
       <div><h2 id="exploreTitle" data-i18n="rail.explore">Explore alternatives. Keep the area fixed.</h2><p data-i18n="rail.exploreSub">Change the form and read what moved. Every candidate is resized to the same gross floor area.</p></div>
@@ -372,5 +375,5 @@
 <dialog id="knowledgeDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="k.button">Architectural knowledge</h2><div id="knowledgeContent" role="status"></div><p class="knowledgeDownloads"><a href="knowledge/designon-knowledge.json?v=38eb5f372c" download data-i18n="k.download">Download</a><a href="knowledge/DESIGNON-LICENSE.txt?v=1950c131d0" data-i18n="k.license">License</a></p></dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="app.js?v=5955628f03"></script>
+<script type="module" src="app.js?v=c0eec2127c"></script>
 </body></html>

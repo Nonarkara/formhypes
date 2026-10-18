@@ -578,7 +578,7 @@ test('the building stands on the lot it was put on',()=>{
    // The plate must reach the lot: a seat on the ring with the building nowhere
    // near it would pass the centroid test and still be floating.
    const gap=Math.min(...plate.map(([x,y])=>
-    S.distToRing(x+placed.origin[0],y+placed.origin[1],p.ring)));
+    S.pointInRing(x+placed.origin[0],y+placed.origin[1],p.ring)?0:S.distToRing(x+placed.origin[0],y+placed.origin[1],p.ring)));
    assert.ok(gap<40,`${cityKey}/${p.id}: the nearest point of the plate is ${gap.toFixed(0)} m from the lot`);
   }
  }

@@ -1,3 +1,4 @@
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment} from '../dist/environment.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -113,7 +114,7 @@ test('the actual Save/Reload/Restore flow preserves a full Brief and rolls back 
  let stored='',blocked=false;
  const source=app.slice(app.indexOf('function renderStudies(){'),app.indexOf('/* ── chrome height'));
  const ctx={studies:[],state:{...M.defaults},defaults:M.defaults,$:id=>nodes[id],document:{createElement:()=>new El()},
-  tt:k=>k,money:String,evaluate:M.evaluate,getBriefStudy,restoreBriefInputs,setBriefInputs(){},changed(){},toast:m=>messages.push(m),
+  tt:k=>k,money:String,evaluate:M.evaluate,getBriefStudy,restoreBriefInputs,getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,setBriefInputs(){},changed(){},toast:m=>messages.push(m),
   persist:()=>{if(blocked)return false;stored=JSON.stringify(ctx.studies);return true}};
  runInNewContext(source,ctx);
  resetBrief();const original=getBriefStudy(M.defaults).inputs;

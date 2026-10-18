@@ -1,3 +1,4 @@
+import {heightOf} from './building-height.mjs';
 /* Harvest real building footprints and heights from OpenStreetMap around each
    pilot plot, and bake them into dist/cityscape.data.js.
 
@@ -51,16 +52,7 @@ const project=(lat,lon,lat0,lon0)=>{
  return [ (lon-lon0)*rad*R*Math.cos(lat0*rad), (lat-lat0)*rad*R ];
 };
 
-function heightOf(t){
- // Real data first, in the order a surveyor would trust it.
- const h=parseFloat(t.height);
- if(Number.isFinite(h)&&h>0.5&&h<600)return {h,src:'height'};
- const bh=parseFloat(t['building:height']||t['building:levels']);
- if(Number.isFinite(bh)&&bh>0.5&&bh<600)return {h:bh,src:'building:height'};
- const lv=parseFloat(t['building:levels']);
- if(Number.isFinite(lv)&&lv>0&&lv<160)return {h:lv*3.2,src:'levels × 3.2 m'};
- return null;
-}
+// Unit parsing is independently testable without executing a harvest.
 
 /* ── footprint simplification ───────────────────────────────────────────────
    A raw OSM ring can carry forty vertices, most of them a surveyor's chainage
@@ -227,7 +219,7 @@ function toRecord(v){
   const pts=x.ring.map(([x1,y1])=>q(x1)+','+q(y1)).join(',');
   return `${q(x.h)},${x.src==='height'?0:x.src==='building:height'?1:2},${x.ring.length}~${pts}`;
  }).join('|');
- return {meta:{label:v.label,lat:v.lat,lon:v.lon,radius:v.radius,source:v.source,n:v.buildings.length},b};
+ return {meta:{label:v.label,lat:v.lat,lon:v.lon,radius:v.radius,source:v.source,n:v.buildings.length,heightParserVersion:2,harvestedAt:new Date().toISOString()},b};
 }
 
 const missing=PLOTS.map(([k])=>k).filter(k=>!previous[k]);

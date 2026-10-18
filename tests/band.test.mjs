@@ -264,7 +264,7 @@ test('the model is fitted to a field with a real margin at the top',()=>{
  assert.ok(parseInt(floor,10)>=26,'the head margin has no floor, so a short sheet collapses it to nothing');
  // And the base is derived from that margin, not chosen as a fraction of the
  // whole sheet — that fraction was the original bug, in a different costume.
- assert.match(src,/const baseY=HEAD\+ext\*\.96\*scale/,
+ assert.match(src,/const baseY=neighbourhood\?HEAD\+Math.max\(0,fieldH-\(ext\*\.96\+700\*\.72\)\*scale\)\/2\+\(ext\*\.96\+700\*\.36\)\*scale:HEAD\+ext\*\.96\*scale/,
   'the model base is not derived from the head margin');
  assert.ok(!/H\*\.80/.test(src),
   'the model is still hung from a fraction of the full sheet height, which is '+

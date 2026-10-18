@@ -317,7 +317,7 @@ const en={
  'dt.note.terrace-threshold':'The detail that decides whether the floor below stays dry for fifty years. Waterproofing continuity, an upstand, a drainage path and a movement joint that allows the slab and the façade to move independently — all four, or the water finds the one that is missing.',
  'dt.note.balustrade':'The most expensive safety requirement on the building per metre, because it is a guard that must not look like a guard, must not obstruct the view you paid for, and must be fixed through a waterproofing layer that was already finished.',
  'v.skyline':'{where} · rank {rank} of {total} on this plot · tallest {tall} m',
- 'v.skycredit':'Context massing © OpenStreetMap contributors, ODbL · {measured}% of heights surveyed',
+ 'v.skycredit':'Context massing © OpenStreetMap contributors, ODbL · {measured}% with explicit height tags',
  'meth.title1':'Twenty years ahead.',
  'meth.title2':'Still an unfinished idea.',
  'meth.rent':'rentable area × base × (1 + identity + column-free + clear height − low ceiling − daylight depth) + corner area × base × corner premium, where base = rent × occupancy',
@@ -805,7 +805,7 @@ const th={
  'dt.note.terrace-threshold':'รายละเอียดที่ตัดสินว่าชั้นข้างล่างจะแห้งไปอีกกี่สิบปี ความต่อเนื่องของชั้นกันน้ำ ขอบกันน้ำ เส้นทางระบาย และรอยต่อเคลื่อนที่ยอมให้พื้นกับผนังเคลื่อนได้อิสระ ทั้งสี่อย่าง ขาดอย่างเดียว น้ำจะเจาะที่อย่างนั้น',
  'dt.note.balustrade':'ข้อกำหนดความปลอดภัยที่แพงที่สุดของอาคารต่อเมตร เพราะเป็นราวกันที่ต้องไม่ดูเหมือนราวกัน ต้องไม่บังวิวที่คุณจ่ายเงินซื้อ และต้องยึดผ่านชั้นกันน้ำที่ทำเสร็จไปแล้ว',
  'v.skyline':'{where} · อันดับที่ {rank} จาก {total} อาคารในรัศมีนี้ · สูงสุด {tall} ม.',
- 'v.skycredit':'มวลสิ่งก่อสร้างรอบข้าง © ผู้มีส่วนร่วม OpenStreetMap · ODbL · ความสูงที่วัดจริง {measured}%',
+ 'v.skycredit':'มวลสิ่งก่อสร้างรอบข้าง © ผู้มีส่วนร่วม OpenStreetMap · ODbL · ความสูงจากแท็กระบุชัด {measured}%',
  'meth.title1':'ล้ำหน้ามายี่สิบปี',
  'meth.title2':'และยังเป็นความคิดที่ไม่จบ',
  'meth.rent':'พื้นที่ให้เช่า × ฐาน × (1 + อัตลักษณ์ + พื้นที่ไร้เสา + ความสูงฝ้า − ฝ้าต่ำ − ความลึกแสงธรรมชาติ) + พื้นที่ออฟฟิศมุม × ฐาน × ส่วนเพิ่มออฟฟิศมุม โดย ฐาน = ค่าเช่า × อัตราการเช่า',
@@ -1292,7 +1292,7 @@ const zh={
  'dt.note.terrace-threshold':'这个节点决定下面一层楼能不能干五十年。防水层的连续性、翻边、排水路径，以及允许楼板与幕墙各自变形的变形缝——四项缺一，水就找到了缺口。',
  'dt.note.balustrade':'全楼每延米最昂贵的安全要求：它是一道不能看起来像护栏的护栏，不能遮挡你付钱买的视野，而且必须穿过已经做完的防水层固定。',
  'v.skyline':'{where} · 本图范围内 {total} 栋建筑中排第 {rank} 位 · 最高 {tall} 米',
- 'v.skycredit':'周边体量 © OpenStreetMap 贡献者 · ODbL · {measured}% 的高度为实测',
+ 'v.skycredit':'周边体量 © OpenStreetMap 贡献者 · ODbL · {measured}% 的高度来自明确标签',
  'meth.title1':'领先二十年。',
  'meth.title2':'仍是一个未完成的想法。',
  'meth.rent':'可租面积 × 基准 ×（1 + 识别度 + 无柱 + 净高 − 低净高 − 采光进深）+ 转角面积 × 基准 × 转角溢价；其中 基准 = 租金 × 出租率',
@@ -1631,3 +1631,7 @@ Object.assign(zh,{
  'st.source':'道路、水体与绿地：OpenStreetMap 贡献者，ODbL。',
  'st.none':'范围内没有足以容纳该标准层的地块。请增大地块面积或减小建筑跨度。'
 });
+
+Object.assign(t.en,{"v.neighbourhood":"Neighbourhood"});
+Object.assign(t.th,{"v.neighbourhood":"ย่านโดยรอบ"});
+Object.assign(t.zh,{"v.neighbourhood":"周边街区"});

@@ -73,3 +73,7 @@ The studio now stays inside the viewport. Land area, FAR and city sit above the 
 - **Deploy:** `npm run deploy` stamps content hashes, runs the tests, then uploads `dist/` (minus `.wrangler`, `.DS_Store`, `.git`, `.env`) to Pages project `shdt`.
 - **Preview first:** for risky changes, deploy to a preview branch with `wrangler pages deploy <dir> --project-name=shdt --branch=<name>`.
 - **Supply chain:** there are no runtime dependencies. Vendored SunCalc is pinned by sha256 in the tests.
+
+### 18 October 2026 · Building and neighbourhood
+
+**Neighbourhood** fits the surrounding 3D context. **Place → Effects** adds date/time shadows and full-day footprint overlap, user-input static wind/lateral response, and first-hit reflected-sun sample rays. The six-city OSM harvest now distinguishes metre heights from storey counts; all cities were refreshed with source metadata. Environmental inputs and methods survive Save/Restore and JSON export. See [methods, validation and limits](docs/ENVIRONMENT-STUDIES.md). Wind is a static sensitivity study; pedestrian airflow, glare intensity and engineering/code verification require external analysis.

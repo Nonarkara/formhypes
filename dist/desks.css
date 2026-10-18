@@ -274,3 +274,22 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
  .st-pick{max-width:320px}
 }
 @media(max-width:900px){.st-head p{font-size:17px}}
+/* Environmental sheets: one city drawing, compact controls, measured outputs. */
+#environmentPanel{margin:0;padding:9px 0;border-top:2px solid var(--ink)}
+#environmentDesk{padding:12px 0}#environmentDesk h2{font-size:18px;margin:0 0 8px}
+#environmentDesk p{max-width:65ch;font-size:12px;line-height:1.6;margin:9px 0}
+.env-nav{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}.env-nav button{padding:6px 9px;min-height:32px}.env-nav [aria-pressed=true]{border-bottom:2px solid var(--accent);font-weight:700}
+.env-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}.env-inputs label{display:flex;flex-direction:column;gap:4px;font-size:12px}.env-inputs input{width:100%;min-width:0;padding:6px}
+.env-scene{margin:10px 0}.env-scene svg{display:block;width:100%;height:auto}.env-scene figcaption,.env-curve figcaption{font-size:11px;line-height:1.5;margin:6px 0;max-width:65ch}
+.env-results{margin:10px 0;font-size:12px}.env-results>div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line)}.env-results dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.env-table{overflow:auto;max-width:100%;margin:12px 0}.env-table table{width:100%;font-size:12px}.env-table td,.env-table th{padding:7px;text-align:left}
+.env-curve{margin:8px 0;max-width:440px}.env-curve svg{width:100%;height:auto}.env-curve text{font:13px Arial,sans-serif;fill:currentColor}
+#environmentDesk details{margin:12px 0;border-top:1px solid var(--line);padding-top:9px}
+@media(max-width:600px){.env-nav button,#env-day{min-height:44px}.env-inputs input{min-height:44px}.env-results>div{flex-wrap:wrap}.env-results dd{text-align:left}.env-nav{gap:4px}}
+@media(max-width:600px){
+ .console-subnav{gap:8px}
+ #environmentDesk{display:flex;flex-direction:column}
+ #environmentDesk>*{order:2}
+ #environmentDesk>h2,#environmentDesk>.env-nav:nth-child(3){order:0}
+ #environmentDesk>.env-scene{order:1}
+}

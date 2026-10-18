@@ -3,9 +3,9 @@
 import {profile,stack,grossOf} from './model.js?v=a07152d203';
 import {renderFacade} from './facade.js?v=8eeb6a826a';
 export const CONSOLE_TEXT={
- en:{capacity:'Model gross / area allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Assembly','Façade','Place','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
- th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','การประกอบ','เปลือก','ที่ตั้ง','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
- zh:{capacity:'模型总面积 / 面积额度',crosses:'建筑超出假设地块边界',land:'用地 · m²',far:'容积率',city:'城市',assumption:'假设正方形地块 · 容积率为情景输入',work:[ '形体','任务书','核心筒','构造','幕墙','场地','视角','探索','存档' ],rail:['设计','表现'],site:['地基与文化','邻里与日照','落位'],tools:'工作区',open:'参数',close:'关闭',briefTabs:['用地与任务书','方案与转角','论文参数']}
+ en:{capacity:'Model gross / area allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Assembly','Façade','Place','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
+ th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','การประกอบ','เปลือก','ที่ตั้ง','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
+ zh:{capacity:'模型总面积 / 面积额度',crosses:'建筑超出假设地块边界',land:'用地 · m²',far:'容积率',city:'城市',assumption:'假设正方形地块 · 容积率为情景输入',work:[ '形体','任务书','核心筒','构造','幕墙','场地','视角','探索','存档' ],rail:['设计','表现'],site:['地基与文化','邻里与日照','落位','环境'],tools:'工作区',open:'参数',close:'关闭',briefTabs:['用地与任务书','方案与转角','论文参数']}
 };
 export function siteLedger(state,inputs){
  const st=stack(state),height=st.at(-1).z+st.at(-1).h,half=Math.sqrt(inputs.plot)/2;
@@ -43,7 +43,7 @@ const WORK_GLYPHS={
  compare:'<path d="M2 17h16"/><path d="M4 17V10M8 17V6M12 17v-3.5M16 17V8"/>',
  // the shelf: two studies, one behind the other
  studies:'<rect x="2.5" y="10" width="12" height="7"/><rect x="5.5" y="3" width="12" height="7"/>'};
-export function workspaceForTarget(id){return ({briefPanel:'brief',walkPanel:'walk',contextPanel:'place',sitePanel:'place',locationDesk:'place',exploreTitle:'compare',searchResults:'compare',savedStudies:'studies',facadeDesk:'facade',coreFigure:'core',coreFacts:'core',detailFigure:'detail',detailSpec:'detail'})[id]||'form'}
+export function workspaceForTarget(id){return ({briefPanel:'brief',walkPanel:'walk',contextPanel:'place',environmentPanel:'place',sitePanel:'place',locationDesk:'place',exploreTitle:'compare',searchResults:'compare',savedStudies:'studies',facadeDesk:'facade',coreFigure:'core',coreFacts:'core',detailFigure:'detail',detailSpec:'detail'})[id]||'form'}
 const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
 /* Move a desk that already exists in the markup into a workspace panel rather
    than rebuilding it. Rebuilding is how one id ends up living in two places,
@@ -70,12 +70,12 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
  // whole — element ids, event listeners and computed rows intact — so each has
  // exactly one home. Leaving a copy behind would mean two elements with one id.
  moveDesk($('coreDesk'),panels.core);moveDesk($('detailDesk'),panels.detail);
- const placeNav=node('div','console-subnav');panels.place.append(placeNav,$('locationDesk'),$('contextPanel'),$('sitePanel'));
+ const placeNav=node('div','console-subnav');panels.place.append(placeNav,$('locationDesk'),$('contextPanel'),$('sitePanel'),$('environmentPanel'));
  // One button per panel in `site`, and the count is read from the panels rather
  // than typed as [0,1]: a label array that grew to three while this said two
  // deployed cleanly, passed every test, and shipped a third tab with no button to
  // open it. The panels list is the source of truth.
- const placePanels=[$('locationDesk'),$('contextPanel'),$('sitePanel')];
+ const placePanels=[$('locationDesk'),$('contextPanel'),$('sitePanel'),$('environmentPanel')];
  const placeButtons=placePanels.map((_,i)=>{const b=node('button');b.type='button';b.onclick=()=>{place=i;show('place')};placeNav.append(b);return b});
  const facade=node('div');facade.id='facadeDesk';panels.facade.append(facade);
  panels.compare.append(studio.querySelector('.explore'));panels.studies.append(studio.querySelector('.studies'));
@@ -102,9 +102,10 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
   placeButtons.forEach((b,i)=>{b.textContent=c.site[i];b.setAttribute('aria-pressed',String(place===i))});
   $('locationDesk').hidden=place!==0;$('contextPanel').hidden=place!==1;$('contextPanel').open=selected==='place'&&place===1;
   $('sitePanel').hidden=place!==2;$('sitePanel').open=selected==='place'&&place===2;
+  $('environmentPanel').hidden=place!==3;$('environmentPanel').open=selected==='place'&&place===3;
   if(selected==='facade')renderFacade({host:facade,lang,state,level,onLevel});
  }
  function show(key){if(!WORKSPACES.includes(key))return;selected=key;render();onLayout()}
  function active(on){document.body.classList.toggle('is-console',on);if(on){render();onLayout()}}
- return {render,show,active,openForTarget(id){if(id==='contextPanel')place=1;if(id==='locationDesk')place=0;if(id==='sitePanel')place=2;show(workspaceForTarget(id))}};
+ return {render,show,active,openForTarget(id){if(id==='contextPanel')place=1;if(id==='locationDesk')place=0;if(id==='sitePanel')place=2;if(id==='environmentPanel')place=3;show(workspaceForTarget(id))}};
 }

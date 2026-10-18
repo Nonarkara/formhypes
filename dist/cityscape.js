@@ -1,13 +1,12 @@
-import {CITYSCAPE,CITY_KEYS} from './cityscape.data.js?v=fb3efe9e16';
+import {CITYSCAPE,CITY_KEYS} from './cityscape.data.js?v=e5a1d6659e';
 export {CITY_KEYS};
 
-/* The city around the plot, from OpenStreetMap. Footprints and heights are real
-   and surveyed; they are not this project's, and the attribution is printed on
+/* The city around the plot, from OpenStreetMap. Footprints are mapped and heights are tagged or inferred; they are not this project's, and the attribution is printed on
    screen rather than held here.
 
    Each building is a real ring — an outline, not a rectangle — so an L-shaped
    block, a cruciform tower or a notched podium is drawn as the shape that was
-   surveyed. The sixth field of the source record is kept because a tower
+   mapped. The sixth field of the source record is kept because a tower
    measured at 599 m and one inferred from a level count are not the same claim,
    and the drawing has to be able to say which is which.
 
@@ -60,7 +59,7 @@ export function skyline(key,modelHeight){
  const tallest=sorted[0];
  const above=sorted.filter(b=>b.h>=modelHeight);
  const rank=sorted.findIndex(b=>b.h<modelHeight);
- const measured=sorted.filter(b=>b.src===0).length;
+ const measured=sorted.filter(b=>(b.src===0||b.src===1)).length;
  return {
   label:c.label,source:c.source,count:c.buildings.length,radius:c.radius,
   tallest:tallest?{h:tallest.h,measured:tallest.src===0}:null,

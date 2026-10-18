@@ -1,14 +1,16 @@
-import {mountConsole} from './console.js?v=3fa5b508eb';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=01a4159326';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=55be6d1ca3';
+import {mountConsole} from './console.js?v=82f0a66755';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=a07152d203';
 import{familyResponse,lattice}from'./explore.js?v=d3f1e1bb35';
-import{t,langs,langMeta,translator}from'./i18n.js?v=1edee52a5b';
+import{t,langs,langMeta,translator}from'./i18n.js?v=47322b002a';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
 import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,crownOf,gardenOf,crownPlates} from './crowns.js?v=6daba4a8ca';
-import {cityData,skyline,visibleMassings,ringArea} from './cityscape.js?v=d542049f94';
+import {cityData,skyline,visibleMassings,ringArea} from './cityscape.js?v=02b4579819';
 import {parseGround} from './site.js?v=7cb1769785';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
 import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=1df95d7e5e';
@@ -21,20 +23,20 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=3
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=297a204bbf';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=4cf49fa71e';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=dc054b84a9';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=e25f3f0216';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=c6e15f87fc';
-import {WORKSPACES} from './console.js?v=3fa5b508eb';
+import {WORKSPACES} from './console.js?v=82f0a66755';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
 const num=v=>Math.round(v).toLocaleString(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US');
 
-let state={...defaults},metrics,alternatives=[],yaw=-.65,zoom=1,wireframe=false,studies=[],knowledgePack,unknownRegime=null;
+let state={...defaults},metrics,alternatives=[],yaw=-.65,zoom=1,wireframe=false,neighbourhood=false,studies=[],knowledgePack,unknownRegime=null;
 // The run is kept, not just its rows, so a language change can redraw the
 // result in place instead of leaving the table in whichever language the
 // search happened to be launched in.
@@ -245,14 +247,14 @@ function changed(){
 }
 
 /* ── update ───────────────────────────────────────────────────────────── */
-const DESKS=[['brief',BRIEF_I18N,renderBrief],['walk',WALK_I18N,renderWalk],['context',CONTEXT_I18N,renderContext],['site',SITE_I18N,renderSite]];
+const DESKS=[['brief',BRIEF_I18N,renderBrief],['walk',WALK_I18N,renderWalk],['context',CONTEXT_I18N,renderContext],['site',SITE_I18N,renderSite],['environment',ENV_I18N,renderEnvironment]];
 function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textContent=dict[lang].title;if($(id+'Panel').open)render({lang,state,changed:applyDeskPatch,onInputs:()=>{consoleUI?.render();drawTower()}})}}
 for(const [id]of DESKS)$(id+'Panel').addEventListener('toggle',()=>{if($(id+'Panel').open)renderDesks()});
 function applyDeskPatch(patch){
  for(const [key,value]of Object.entries(patch)){
   if(key in schema){const[,min,max,step]=schema[key];if(Number.isFinite(value)){const bounded=Math.max(min,Math.min(max,value));state[key]=Math.round((min+Math.round((bounded-min)/step)*step)*1e6)/1e6}}
 
-  else if(key==='solarTime'){if(validSolar({...state,solarTime:value}))state.solarTime=value}
+  else if(key==='solarTime'||key==='solarDate'){if(validSolar({...state,[key]:value}))state[key]=value}
   else if(['family','program','skin','system','city','material','crown','garden','detail'].includes(key)){
    const allowed={family:families,program:levelPrograms,skin:facadeFamilies,system:systems,city:cities,material:MATERIALS,crown:CROWNS,garden:GARDENS,detail:DETAILS};
    if(Object.hasOwn(allowed[key],value))state[key]=value;
@@ -536,8 +538,8 @@ function drawTower(){
  const HEAD=Math.max(30,Math.round(H*.10));
  const FOOT=150;
  const fieldH=Math.max(120,H-HEAD-FOOT);
- const scale=Math.min(fieldH/(ext*.96+state.span*.4),(W-65)/(state.span*2))*zoom;
- const baseY=HEAD+ext*.96*scale;
+ const scale=(neighbourhood?Math.min((W-65)/1450,fieldH/(700*.72+ext*.96)):Math.min(fieldH/(ext*.96+state.span*.4),(W-65)/(state.span*2)))*zoom;
+ const baseY=neighbourhood?HEAD+Math.max(0,fieldH-(ext*.96+700*.72)*scale)/2+(ext*.96+700*.36)*scale:HEAD+ext*.96*scale;
  const c=Math.cos(yaw),s=Math.sin(yaw);
  const project=(x,y,z)=>{const rx=x*c-y*s,ry=x*s+y*c;return[W*.54+rx*scale,baseY-(z*.96-ry*.36)*scale,ry-z*.04]};
  function path(pts,fill,stroke,width=1){ctx.beginPath();pts.forEach((v,i)=>{const p=project(...v);if(i)ctx.lineTo(p[0],p[1]);else ctx.moveTo(p[0],p[1])});ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke()}}
@@ -618,7 +620,7 @@ function drawTower(){
  }
  const depth=m=>m.cx*s+m.cy*c;
  cityFar.sort((a,b)=>depth(a)-depth(b));
- cityNear.sort((a,b)=>depth(b)-depth(a));
+ cityNear.sort((a,b)=>depth(a)-depth(b));
  // Stroke brightness carries height, so the skyline reads as a skyline: the tall
  // ones are the ones you see first. A height inferred from a level count is
  // drawn a shade dimmer than a surveyed one, because it is a weaker claim and
@@ -744,7 +746,7 @@ const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
     const a=ring[i],d=ring[(i+1)%ring.length];
     const ex=d[0]-a[0],ey=d[1]-a[1];
     const nx=ey,ny=-ex;                          // outward normal, ccw ring
-    if(nx*viewDir[0]-ny*viewDir[1]>=0)continue;  // faces away: not drawn
+    if(!visibleWall(a,d,yaw))continue;  // faces away: not drawn
     const lit=(nx*LIGHT[0]+ny*LIGHT[1])/(Math.hypot(nx,ny)||1);
     const tone=toneFor(lit);
     path([[a[0],a[1],0],[d[0],d[1],0],[d[0],d[1],h],[a[0],a[1],h]],tone,ink,.7);
@@ -1055,7 +1057,8 @@ canvas.onpointerup=canvas.onpointercancel=()=>drag=null;
 canvas.onkeydown=e=>{if(['ArrowLeft','ArrowRight','+','-'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')yaw-=.1;if(e.key==='ArrowRight')yaw+=.1;if(e.key==='+')zoom=Math.min(1.7,zoom+.1);if(e.key==='-')zoom=Math.max(.5,zoom-.1);drawTower()}};
 $('zoomIn').onclick=()=>{zoom=Math.min(1.7,zoom+.1);drawTower()};
 $('zoomOut').onclick=()=>{zoom=Math.max(.5,zoom-.1);drawTower()};
-$('homeView').onclick=()=>{yaw=-.65;zoom=1;drawTower()};
+$('homeView').onclick=()=>{yaw=-.65;zoom=1;neighbourhood=false;$('cityView').setAttribute('aria-pressed','false');drawTower()};
+$('cityView').onclick=()=>{neighbourhood=!neighbourhood;zoom=1;$('cityView').setAttribute('aria-pressed',String(neighbourhood));drawTower()};
 $('wire').onclick=()=>{wireframe=!wireframe;$('wire').setAttribute('aria-pressed',wireframe);drawTower()};
 /* Redraw on resize, comparing like with like: the observer watches the canvas
    and drawTower measures the same canvas, so the guard actually converges.
@@ -1069,7 +1072,7 @@ const ro=new ResizeObserver(entries=>{
  requestAnimationFrame(()=>{pendingRaf=false;drawn={w:0,h:0};drawTower()});
 });
 ro.observe(canvas);
-$('reset').onclick=()=>{resetBrief();state={...defaults};yaw=-.65;zoom=1;$('floor').value=24;changed();toast(tt('s.reset'))};
+$('reset').onclick=()=>{resetBrief();restoreEnvironmentStudy();state={...defaults};yaw=-.65;zoom=1;$('floor').value=24;changed();toast(tt('s.reset'))};
 
 /* ── search ───────────────────────────────────────────────────────────── */
 /* The search is ~160 full evaluations. Run it in slices that yield to the
@@ -1191,7 +1194,7 @@ function renderStudies(){
   const d=document.createElement('div');d.className='saved';
   const b=document.createElement('button');
   b.textContent=`${i+1}. ${tt('f.'+study.state.family)} / ${tt('regime.'+study.state.regime+'.label')} / ${money(evaluate(study.state).contribution)}`;
-  b.onclick=()=>{if(!restoreBriefInputs(study.brief??study.site??{})){toast(tt('s.restoreFail'));return}state={...defaults,...study.state};changed();toast(tt('s.restored'))};
+  b.onclick=()=>{if(!validateEnvironment(study.environment?.inputs??{})||!restoreBriefInputs(study.brief??study.site??{})){toast(tt('s.restoreFail'));return}restoreEnvironmentStudy(study.environment);state={...defaults,...study.state};changed();toast(tt('s.restored'))};
   const del=document.createElement('button');del.textContent='×';
   del.setAttribute('aria-label',tt('s.delete')+' '+(i+1));
   del.onclick=()=>{const removed=studies.splice(i,1);if(!persist()){studies.splice(i,0,...removed);toast(tt('s.deleteFail'));return}renderStudies()};
@@ -1200,7 +1203,7 @@ function renderStudies(){
 }
 $('save').onclick=()=>{
  if(studies.length>=8){toast(tt('s.full'));return}
- studies.push({version:1,brief:getBriefStudy(state).inputs,state:{...state},site:{plot:getBriefStudy(state).inputs.plot,far:getBriefStudy(state).inputs.far},savedAt:new Date().toISOString()});
+ studies.push({version:1,brief:getBriefStudy(state).inputs,environment:getEnvironmentStudy(),state:{...state},site:{plot:getBriefStudy(state).inputs.plot,far:getBriefStudy(state).inputs.far},savedAt:new Date().toISOString()});
  if(!persist()){studies.pop();toast(tt('s.saveFail'));return}
  renderStudies();toast(tt('s.saved'));
 };
@@ -1991,7 +1994,7 @@ $('exportJson').onclick=()=>download('formhypes-study.json',JSON.stringify({
  version:3,units:{length:'m',area:'m²',currency:'USD',rent:'USD/m²/year',capex:'USD paid once'},tier:'conceptual scenario',
  author:'Dr Non',affiliation:'depa + Axiom',anniversary:'2006–2026',
  source:'Inspired by Dr Non’s MIT classmate Shouheng Chen. Embedded design knowledge after Shouheng Chen, MIT SMArchS 2006. Financial and political readings are extensions.',
- contextStudies:{ground:getLocationStudy(),fengShui:getFengStudy(),brief:getBriefStudy(state),walk:getWalkStudy()},
+ contextStudies:{environment:getEnvironmentStudy(),ground:getLocationStudy(),fengShui:getFengStudy(),brief:getBriefStudy(state),walk:getWalkStudy()},
  regime:regimes[state.regime].label,state,metrics,createdAt:new Date().toISOString()},null,2),'application/json');
 $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
  'family,regime,structure,floors,span_m,roof_scale,twist_deg,gross_m2,rentable_m2,corner_offices,height_m,total_height_m,distinctiveness,ranking_score,ranking_method,objective,annual_rent_usd,envelope_reserve_usd,structure_reserve_usd,annual_contribution_usd,capex_usd,capex_per_gross_m2,capital_over_contribution_years',
