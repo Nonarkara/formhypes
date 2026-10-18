@@ -73,7 +73,7 @@ export const CROWN_RATES={
 
 /* The crown's shape, as a stack of horizontal plates rather than a drawing
    instruction. `{t, foot}` is a height up the crown (0 = the roof, 1 = the top)
-   and the share of the roof plate still standing there. Returning data instead
+   and a linear scale relative to the roof profile (not an area fraction). Returning data instead
    of ink means the isometric view, the plan and a test can all read the same
    geometry, and a renderer cannot quietly disagree with the arithmetic. */
 export function crownPlates(c){
@@ -143,6 +143,8 @@ export function gardenIndices(s){
    legal at all, and it must not be folded into a money number. */
 export function crownMetrics(s,topPlateArea){
  const c=crownOf(s);
+ // Historical scenario equivalent area for pricing; not a geometric takeoff
+ // of the schematic crown profiles. The control note exposes this distinction.
  const plan=Math.max(0,topPlateArea)*c.foot;
  const reserve=plan*c.h*CROWN_RATES.linear;
  const capital=plan*CROWN_RATES.steel;

@@ -1,13 +1,13 @@
-import {mountConsole} from './console.js?v=58f61c3af2';
+import {mountConsole} from './console.js?v=3fa5b508eb';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=594cf22f3c';
-import{familyResponse,lattice}from'./explore.js?v=b22a1defb4';
-import{t,langs,langMeta,translator}from'./i18n.js?v=99ff0745a1';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=a07152d203';
+import{familyResponse,lattice}from'./explore.js?v=d3f1e1bb35';
+import{t,langs,langMeta,translator}from'./i18n.js?v=1edee52a5b';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
-import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,crownOf,gardenOf,crownPlates} from './crowns.js?v=b0141b99a4';
+import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,crownOf,gardenOf,crownPlates} from './crowns.js?v=6daba4a8ca';
 import {cityData,skyline,visibleMassings,ringArea} from './cityscape.js?v=d542049f94';
 import {parseGround} from './site.js?v=7cb1769785';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
@@ -15,20 +15,20 @@ import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './
 import {coreOf,coreSVG,CORE_SRC} from './core.js?v=e98b022d2a';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=d868da4ce1';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=36c571f058';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief} from './brief.js?v=c62d130005';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=6585d814b0';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=1285ba0fef';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=297a204bbf';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=4cf49fa71e';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=dc054b84a9';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=dc2ce40704';
-import {WORKSPACES} from './console.js?v=58f61c3af2';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=c6e15f87fc';
+import {WORKSPACES} from './console.js?v=3fa5b508eb';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -39,6 +39,13 @@ let state={...defaults},metrics,alternatives=[],yaw=-.65,zoom=1,wireframe=false,
 // result in place instead of leaving the table in whichever language the
 // search happened to be launched in.
 let searchRun=null,exploreFamily=null;
+const groundCache=new Map();
+function groundOf(city){
+ if(groundCache.has(city))return groundCache.get(city);
+ const g=parseGround(city,GROUND,GROUND_ROAD_M);
+ groundCache.set(city,g||null);return g;
+}
+
 let drawn={w:0,h:0},pendingRaf=false;
 
 // [i18n key, min, max, step, unit] lives in schema.js now — the manual
@@ -308,7 +315,7 @@ function update(){
  $('gardenArea').textContent=num(metrics.gardenArea)+' '+tt('m.perSqM');
  $('gardenReserve').textContent=money(metrics.gardenReserve);
  $('ledIncome').textContent=metrics.ledArea>0?money(metrics.ledRent):tt('m.ledOff');
- if($('crownNote'))$('crownNote').textContent=tt('crown.reads.'+state.crown);
+ if($('crownNote'))$('crownNote').textContent=tt('crown.reads.'+state.crown)+(metrics.crownHeight>0?' '+tt('crown.areaBasis',{a:num(metrics.crownPlan)}):'');
  if($('gardenNote'))$('gardenNote').textContent=tt('garden.reads.'+state.garden);
  const ledTxt=metrics.ledArea>0?tt('m.ledNote'):tt('m.ledOffNote');
  if($('ledNote'))$('ledNote').textContent=ledTxt;
@@ -694,12 +701,6 @@ function drawTower(){
  /* One decode per city, kept: the ground is the same every time the tower is
    nudged, and re-splitting a few hundred records on every pointer move is the
    kind of cost that makes an orbit feel cheap and then not. */
-const groundCache=new Map();
-function groundOf(city){
- if(groundCache.has(city))return groundCache.get(city);
- const g=parseGround(city,GROUND,GROUND_ROAD_M);
- groundCache.set(city,g||null);return g;
-}
 const GROUND_GREEN='#151c1b',GROUND_WATER='#152029',GROUND_ROAD='#1c242c';
  function drawGround(){
   const g=groundOf(state.city);if(!g)return;
@@ -1117,12 +1118,13 @@ function renderSearch(){
  const focus=studyFocus();
  const {plan,objective,elapsed}=searchRun;
  const ranking=objectiveInert(state)?tt('s.rankingCompetition'):tt('s.objective.'+objective);
+ const blended=regimes[state.regime].heightPull>0&&regimes[state.regime].heightPull<1;
  const seen=new Set();
  const rows=alternatives.filter(r=>{if(seen.has(r.state.family))return false;seen.add(r.state.family);return true}).slice(0,5);
  if(!rows.length){$('searchResults').innerHTML=`<div class="empty"><p>${tt('s.none')}</p></div>`;toast(tt('s.none'));return}
  const best=rows[0];
  let html='<div class="tablewrap"><table><thead><tr>'
-  +[tt('s.col.candidate'),tt('s.col.roof'),tt('s.col.gross'),tt('s.col.rentable'),tt('s.col.corners'),tt('s.col.height'),tt('s.col.contribution'),tt('s.col.delta'),'']
+  +[tt('s.col.candidate'),tt('s.col.roof'),tt('s.col.gross'),tt('s.col.rentable'),tt('s.col.corners'),tt('s.col.height'),tt('s.col.contribution'),tt('s.col.delta'),...(blended?[tt('s.col.score')]:[]),'']
   .map(h=>`<th scope="col">${h}</th>`).join('')+'</tr></thead><tbody>';
  rows.forEach((r,i)=>{
   const d=r.metrics.contribution-metrics.contribution;
@@ -1131,12 +1133,14 @@ function renderSearch(){
    +`<td class="numeric">${num(r.metrics.gross)}</td>`
    +`<td class="numeric">${num(r.metrics.rentable)}</td>`
    +`<td class="numeric">${r.metrics.corners}</td>`
-   +`<td class="numeric">${r.metrics.height.toFixed(0)} m</td>`
+   +`<td class="numeric">${r.metrics.heightTotal.toFixed(0)} m</td>`
    +`<td class="numeric">${money(r.metrics.contribution)}</td>`
    +`<td class="numeric">${d>=0?'+':''}${money(d)}</td>`
+   +(blended?`<td class="numeric">${r.score.toFixed(3)}</td>`:'')
    +`<td><button data-candidate="${i}" data-study-focus="ranked:${r.state.family}">${tt('s.col.apply')} ↗</button></td></tr>`;
  });
  html+=`</tbody></table></div><p class="searchsummary">${plan.examined} ${tt('s.tested')} / ${alternatives.length} ${tt('s.feasible')} / ${plan.examined-alternatives.length} ${tt('s.rejected')}. ${tt('s.target')} ${num(plan.target)} m². ${tt('s.best')} “${ranking}”${plan.heightVariants>1?' · 2 '+tt('s.heightVariant'):''} · ${elapsed.toFixed(0)} ms</p>`;
+ if(blended)html+=`<p class="note">${tt('s.normalizedRanking',{o:Math.round((1-regimes[state.regime].heightPull)*100),h:Math.round(regimes[state.regime].heightPull*100)})}</p>`;
  $('searchResults').innerHTML=html;
  document.querySelectorAll('[data-candidate]').forEach(b=>b.onclick=()=>applyCandidate(rows[Number(b.dataset.candidate)]));
  drawStudy();restoreStudyFocus(focus);
@@ -1179,16 +1183,16 @@ function renderStudies(){
   const d=document.createElement('div');d.className='saved';
   const b=document.createElement('button');
   b.textContent=`${i+1}. ${tt('f.'+study.state.family)} / ${tt('regime.'+study.state.regime+'.label')} / ${money(evaluate(study.state).contribution)}`;
-  b.onclick=()=>{if(study.site)setBriefInputs(study.site);state={...defaults,...study.state};changed();toast(tt('s.restored'))};
+  b.onclick=()=>{if(!restoreBriefInputs(study.brief??study.site??{})){toast(tt('s.restoreFail'));return}state={...defaults,...study.state};changed();toast(tt('s.restored'))};
   const del=document.createElement('button');del.textContent='×';
   del.setAttribute('aria-label',tt('s.delete')+' '+(i+1));
-  del.onclick=()=>{studies.splice(i,1);persist();renderStudies()};
+  del.onclick=()=>{const removed=studies.splice(i,1);if(!persist()){studies.splice(i,0,...removed);toast(tt('s.deleteFail'));return}renderStudies()};
   d.append(b,del);$('savedStudies').append(d);
  });
 }
 $('save').onclick=()=>{
  if(studies.length>=8){toast(tt('s.full'));return}
- studies.push({state:{...state},site:{plot:getBriefStudy(state).inputs.plot,far:getBriefStudy(state).inputs.far},savedAt:new Date().toISOString()});
+ studies.push({version:1,brief:getBriefStudy(state).inputs,state:{...state},site:{plot:getBriefStudy(state).inputs.plot,far:getBriefStudy(state).inputs.far},savedAt:new Date().toISOString()});
  if(!persist()){studies.pop();toast(tt('s.saveFail'));return}
  renderStudies();toast(tt('s.saved'));
 };
@@ -1982,9 +1986,9 @@ $('exportJson').onclick=()=>download('formhypes-study.json',JSON.stringify({
  contextStudies:{ground:getLocationStudy(),fengShui:getFengStudy(),brief:getBriefStudy(state),walk:getWalkStudy()},
  regime:regimes[state.regime].label,state,metrics,createdAt:new Date().toISOString()},null,2),'application/json');
 $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
- 'family,regime,structure,floors,span_m,roof_scale,twist_deg,gross_m2,rentable_m2,corner_offices,height_m,distinctiveness,annual_rent_usd,envelope_reserve_usd,structure_reserve_usd,annual_contribution_usd,capex_usd,capex_per_gross_m2,capital_over_contribution_years',
+ 'family,regime,structure,floors,span_m,roof_scale,twist_deg,gross_m2,rentable_m2,corner_offices,height_m,total_height_m,distinctiveness,ranking_score,ranking_method,objective,annual_rent_usd,envelope_reserve_usd,structure_reserve_usd,annual_contribution_usd,capex_usd,capex_per_gross_m2,capital_over_contribution_years',
  ...alternatives.map(r=>[r.state.family,r.state.regime,r.state.system,r.state.floors,r.state.span.toFixed(4),r.state.taper,r.state.twist,
-  r.metrics.gross.toFixed(2),r.metrics.rentable.toFixed(2),r.metrics.corners,r.metrics.height.toFixed(2),r.metrics.distinctiveness.toFixed(4),
+  r.metrics.gross.toFixed(2),r.metrics.rentable.toFixed(2),r.metrics.corners,r.metrics.height.toFixed(2),r.metrics.heightTotal.toFixed(2),r.metrics.distinctiveness.toFixed(4),r.score,r.ranking?.method??'raw',searchRun.objective,
   r.metrics.rent.toFixed(2),r.metrics.facadeCost.toFixed(2),r.metrics.structureCost.toFixed(2),r.metrics.contribution.toFixed(2),
   r.metrics.capex.toFixed(2),r.metrics.capexPerM2.toFixed(2),(Number.isFinite(r.metrics.payback)?r.metrics.payback.toFixed(2):'')].join(','))
 ].join('\n'),'text/csv');

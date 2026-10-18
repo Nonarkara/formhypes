@@ -3,7 +3,7 @@ import {modulorPath} from './modulor.js?v=3431f62913';
 // Not renders — no perspective-correct texture, no refraction through glass, no
 // lighting or shadows, no occupants beyond the scale figure, and no interior
 // partition beyond the one that is cut.
-import {profile, stackHeight,stack} from './model.js?v=594cf22f3c';
+import {profile, stackHeight,stack,massingRings} from './model.js?v=a07152d203';
 
 const EYE=1.60,SV=.95,DTR=Math.PI/180;
 const num=(v,d=2)=>String(Math.round(v*Math.pow(10,d))/Math.pow(10,d));
@@ -138,7 +138,7 @@ function prism(levels,cam,clsFill,clsAlt,clsLine){
 }
 export function street(state,t,view){
  const W=1000,H=620,cx=W/2,cy=Math.round(H*.46);
- const n=Math.max(1,state.floors|0),total=stackHeight(state,n)||1;
+ const n=Math.max(1,state.floors|0),bodyHeight=stackHeight(state,n)||1,total=massingRings(state).at(-1).z;
  const d=view.d,look=view.look*DTR,cs=Math.cos(look),sn=Math.sin(look);
  // Walking in means two things beyond standing still and looking up: where you
  // are standing across the road, and which way you are facing. Without them the
@@ -174,7 +174,8 @@ export function street(state,t,view){
  const fit=[];
  const see=(X,Y,Z)=>{const r=raw(X,Y,Z);if(r)fit.push(r)};
  const levels=[{z:0,pts:p0.map(TP)}];
- for(let i=1;i<=n;i++){const z=Math.min(stackHeight(state,i),total);levels.push({z,pts:profile(state,z/total).map(TP)})}
+ for(let i=1;i<=n;i++){const z=Math.min(stackHeight(state,i),total);levels.push({z,pts:profile(state,z/bodyHeight).map(TP)})}
+ for(const r of massingRings(state).filter(r=>r.kind==='crown'))levels.push({z:r.z,pts:r.poly.map(TP)});
  levels.forEach(l=>l.pts.forEach(q=>{see(q[0],0,q[1]);see(q[0],l.z,q[1])}));
  const R=V0=>V0.pts.map(TP);
  const A=[levels[0].pts[vi],levels[0].pts[(vi+1)%len]],Bz=[levels[0].pts[vi],levels[0].pts[(vi+len-1)%len]];

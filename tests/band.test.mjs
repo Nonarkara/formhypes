@@ -350,7 +350,9 @@ test('the ground is the harvested street network, drawn through the tower projec
   // And the decode is kept, not redone on every pointer move. Checking only
   // that a cache is declared let a mutation pass that kept the declaration and
   // deleted the lookup — the memo would exist and never be read.
-  assert.match(src,/const groundCache=new Map\(\)/);
-  assert.match(src,/groundCache\.has\(city\)\)return groundCache\.get\(city\)/);
-  assert.match(src,/groundCache\.set\(city,g\|\|null\);return g/);
+  const runtime=dist('app.js').replace(/\/\*[\s\S]*?\*\//g,'').replace(/^\s*\/\/.*$/gm,'');
+  assert.ok(runtime.indexOf('const groundCache=new Map()')<runtime.indexOf('function drawTower(){'),'cache must outlive a draw');
+  assert.match(runtime,/const groundCache=new Map\(\)/);
+  assert.match(runtime,/groundCache\.has\(city\)\)return groundCache\.get\(city\)/);
+  assert.match(runtime,/groundCache\.set\(city,g\|\|null\);return g/);
 });

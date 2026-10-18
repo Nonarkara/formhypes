@@ -3,7 +3,7 @@
 // quoted as given. Every neighbouring block below is contextual massing composed
 // for this study: not surveyed, every height indicative. Both facts are printed
 // on screen, not merely held here.
-import {profile, area, stackHeight, evaluate} from './model.js?v=594cf22f3c';
+import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=a07152d203';
 import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposure} from './solar.js?v=9279efc6dc';
 import {lensOf,lensSVG,lensFormula,LENS_KEY,LIFE_YEARS} from './lens.js?v=2949cf8b98';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
@@ -12,7 +12,7 @@ import {parseGround,parseCity,plotCandidates,plotFacts,plateOnPlot,landscapeSVG,
 // The lens strings live in the shared translation file, not in this desk's own
 // dictionary: they are the same words the reader has already met in the rail,
 // and a second copy is a second thing to drift.
-import {t as I18N} from './i18n.js?v=99ff0745a1';
+import {t as I18N} from './i18n.js?v=1edee52a5b';
 
 // Empire Tower 58F / 227 m / 1999, floor plate ≈3,000 m² and a 2.60 m Grade A
 // clear-height benchmark for Bangkok; Dayabumi Complex 35F / 157 m / 1984;
@@ -80,7 +80,7 @@ const box=p=>{let a=Infinity,b=Infinity,c=-Infinity,d=-Infinity;for(const q of p
 const hitBox=(a,b)=>!(a[2]<b[0]||b[2]<a[0]||a[3]<b[1]||b[3]<a[1]);
 const block=n=>{const r=n.b*Math.PI/180,x=n.d*Math.sin(r),y=n.d*Math.cos(r),w=n.w/2;return[[x-w,y-w],[x+w,y-w],[x+w,y+w],[x-w,y+w]]};
 const rayOf=sun=>sun.aboveHorizon&&sun.vector.up>0?{x:-sun.vector.east/sun.vector.up,y:-sun.vector.north/sun.vector.up,k:Math.hypot(sun.vector.east,sun.vector.north)/sun.vector.up}:null;
-const stackOf=s=>{const H=stackHeight(s,s.floors),lv=[];for(let i=0;i<LEVELS;i++){const t=i/(LEVELS-1);lv.push({t,h:t*H,poly:profile(s,t)})}return{H,lv}};
+const stackOf=s=>{const rings=massingRings(s,LEVELS-1);return {H:rings.at(-1).z,lv:rings.map(r=>({h:r.z,poly:r.poly}))}};
 
 const CACHE=new Map();
 export function contextShadow(s,height){const sun=solarPosition({...solarDefaults,...s}),ray=rayOf(sun);return {length:ray?Math.max(0,height)*ray.k:0,azimuth:(sun.azimuth+180)%360}}
@@ -100,14 +100,14 @@ export function rayHitsTriangle(origin,dir,a,b,c){
 }
 function towerMesh(s){const {H,lv}=stackOf(s),triangles=[];for(let i=0;i<lv.length-1;i++)for(let j=0;j<lv[i].poly.length;j++){
  const k=(j+1)%lv[i].poly.length,a=[...lv[i].poly[j],lv[i].h],b=[...lv[i].poly[k],lv[i].h],c=[...lv[i+1].poly[k],lv[i+1].h],d=[...lv[i+1].poly[j],lv[i+1].h];triangles.push([a,b,c],[a,c,d]);
- }return {H,triangles,roof:profile(s,1)}}
+ }return {H,triangles,roof:lv.at(-1).poly}}
 function facadeSamples(n){
  const a=n.b*Math.PI/180,centre=[n.d*Math.sin(a),n.d*Math.cos(a)],normal=Math.abs(centre[0])>Math.abs(centre[1])?[-Math.sign(centre[0]),0]:[0,-Math.sign(centre[1])],tangent=[-normal[1],normal[0]],points=[];
  for(const u of [1/6,1/2,5/6])for(const v of [1/6,1/2,5/6])points.push([centre[0]+normal[0]*n.w/2+tangent[0]*(u-.5)*n.w,centre[1]+normal[1]*n.w/2+tangent[1]*(u-.5)*n.w,v*n.h]);
  return {points,bearing:(Math.atan2(normal[0],normal[1])*180/Math.PI+360)%360};
 }
 export function shade(s,sun,ns){
- const key=JSON.stringify([s.city,s.solarDate,s.family,s.span,s.aspect,s.orientation,s.taper,s.twist,s.floors,s.program,s.height,ns]);
+ const key=JSON.stringify([s.city,s.solarDate,s.family,s.span,s.aspect,s.orientation,s.taper,s.twist,s.floors,s.program,s.height,s.crown,ns]);
  if(CACHE.has(key))return CACHE.get(key);
  const {H,triangles,roof}=towerMesh(s),faces=ns.map(facadeSamples);
  const rows=ns.map(()=>({hours:0,facadeHours:0,exposure:0,reach:0,flags:new Uint8Array(sun.length)}));let daylight=0,longest=0;
@@ -149,7 +149,7 @@ export function renderContext({lang,state,changed}){
   host.replaceChildren();
   const hd=wrap('cx-head');hd.append(el('h2',c.title),el('p',c.tier));host.append(hd);
   const H0=stackHeight(state,state.floors)||0;
-  host.append(lensBand({key:state.city,lang,state,storey:state.floors>0?H0/state.floors:0,H:H0}));
+  host.append(lensBand({key:state.city,lang,state,storey:state.floors>0?H0/state.floors:0,H:massingRings(state).at(-1).z}));
   const nav=wrap('cx-cities');
   for(const k of ORDER){const b=el('button',c['city'+SUFFIX[k]]);b.onclick=()=>changed({city:k});nav.append(b)}
   host.append(nav);
@@ -163,7 +163,7 @@ export function renderContext({lang,state,changed}){
  try{sun=solarPosition({city,solarDate:date,solarTime:time});samples=studyDay({city,solarDate:date})}catch(e){}
  if(!sun||!samples.length){host.replaceChildren(el('p',c.noSite));return;}
  const s0={...state,city,solarDate:date},ns=site.neighbours,res=shade(s0,samples,ns);
- const{H,lv}=stackOf(s0),storey=H/Math.max(1,state.floors),foot=area(profile(s0,0));
+ const{H,lv}=stackOf(s0),storey=stackHeight(s0)/Math.max(1,state.floors),foot=area(profile(s0,0));
  const ray=rayOf(sun),M=c.unitM,Hh=c.unitH,DG=c.unitDeg;
  const name=c['name'+SUFFIX[key]],cityName=c['city'+SUFFIX[key]];
 
@@ -454,7 +454,7 @@ export function renderSite({lang,state,changed}){
  const ground=parseGround(cityKey,GROUND,GROUND_ROAD_M),survey=parseCity(cityKey,CITYSCAPE);
  if(!ground||!survey){return}
 
- const plate=profile(state,0), plateArea=area(plate), towerH=stackHeight(state)||0;
+ const plate=profile(state,0), plateArea=area(plate), towerH=massingRings(state).at(-1).z||0;
  const plots=plotCandidates(survey,ground,plate);
  const head=wrap('st-head');
  head.append(el('h3',c['st.title']),el('p',txt(c['st.lead'],ground.meta.label)));

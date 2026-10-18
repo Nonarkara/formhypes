@@ -6,6 +6,7 @@
     "test": "node --test tests/*.test.mjs",
     "release": "node scripts/release-id.mjs",
     "deploy": "npm run release && npm test && node scripts/deploy.mjs",
-    "dev": "python3 -m http.server 8765 --directory dist"
+    "dev": "python3 -m http.server 8765 --directory dist",
+    "test:mutations": "node scripts/probe-shipability.mjs"
   }
 }

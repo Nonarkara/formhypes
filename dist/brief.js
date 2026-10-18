@@ -7,7 +7,7 @@
 // hold a parameter Chen specifies, this panel says so on screen rather than
 // approximating it quietly.
 
-import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=594cf22f3c';
+import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=a07152d203';
 
 export const BRIEF_I18N={
 en:{
@@ -469,4 +469,26 @@ export function setBriefInputs(patch){
  const bounds={plot:[1,1e6],far:[.1,100]};
  if(!patch||Object.entries(patch).some(([key,value])=>!Object.hasOwn(bounds,key)||!Number.isFinite(value)||value<bounds[key][0]||value>bounds[key][1]))return false;
  Object.assign(desk,patch);return true;
+}
+
+/** Restore a full saved Brief atomically; omitted legacy fields use defaults,
+ * never the assumptions of whatever study happens to be open. */
+export function restoreBriefInputs(snapshot){
+ if(!snapshot||typeof snapshot!=='object'||Array.isArray(snapshot))return false;
+ const next=structuredClone(DESK_INITIAL),bounds={gfa:[1000,1e7],plot:[1,1e6],far:[.1,100],plate:[50,20000],cap:[10,1000],mx:[.1,2],my:[.1,2],tx:[.1,2],ty:[.1,2],mLevel:[.05,.95]};
+ const number=(v,min,max)=>Number.isFinite(v)&&v>=min&&v<=max;
+ for(const [k,v]of Object.entries(snapshot)){
+  if(Object.hasOwn(bounds,k)){if(!number(v,...bounds[k]))return false;next[k]=v}
+  else if(k==='scheme'){if(!SCHEMES.includes(v))return false;next[k]=v}
+  else if(k==='seeded'){if(typeof v!=='boolean')return false;next[k]=v}
+  else if(['curtain','solid','podium'].includes(k)){
+   if(!v||typeof v!=='object'||Array.isArray(v))return false;
+   const limits=k==='podium'?{share:[0,.6],floors:[1,12],pf:[1,4],ff:[1,2]}:{pf:[.6,2],ff:[.8,2]};
+   for(const [field,value]of Object.entries(v)){
+    if(!Object.hasOwn(limits,field)||!number(value,...limits[field])||(field==='floors'&&!Number.isInteger(value)))return false;
+    next[k][field]=value;
+   }
+  }else return false;
+ }
+ Object.assign(desk,next);return true;
 }

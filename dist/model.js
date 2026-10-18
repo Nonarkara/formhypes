@@ -19,9 +19,10 @@ import{polyArea,polyPerimeter,minkowski,planLibrary,loftTable,lateralArea,loftVo
  pointInPolygon,distToBoundary,daylitFraction,daylightReachFor,cotSky,skyAngleDeg,isConvex}from'./geometry.js?v=eb7a621ab9';
 
 import {solarDefaults,facadeExposure} from './solar.js?v=9279efc6dc';
-import {gardenOf,gardenIndices,crownOf,crownMetrics,CROWN_RATES} from './crowns.js?v=b0141b99a4';
+import {gardenOf,gardenIndices,crownOf,crownMetrics,crownPlates,CROWN_RATES} from './crowns.js?v=6daba4a8ca';
 import {detailOf,detailCost,airBarrier} from './details.js?v=1df95d7e5e';
 import {materialOf} from './materials.js?v=be1c7d7582';
+import {SCHEMA} from './schema.js?v=fd56569c48';
 export const families={box:'Rectilinear',chamfer:'Chamfered',cross:'Cruciform',octagon:'Octagonal',star:'Eight-point',rub:'Rub el Hizb',triangle:'Triangular',hexagon:'Hexagonal',oval:'Faceted oval',petal:'Four-petal',pinwheel:'Pinwheel'};
 // Re-exported so the controller has one import edge into the model rather than
 // two into the model and the kernel. There is no cycle either way, but one edge
@@ -559,13 +560,13 @@ export const objectives={
 
 /** Regime pull: a city that is competing wants the tall answer too. */
 function regimeScore(metrics,s,objective){
- const base=objectives[objective]?objectives[objective](metrics,s):metrics.contribution;
+ const base=Object.hasOwn(objectives,objective)?objectives[objective](metrics,s):metrics.contribution;
  const pull=regimes[s.regime].heightPull;
- return base*(1-pull)+metrics.height*pull*metrics.distinctiveness;
+ return pull>=1?(metrics.heightTotal??metrics.height)*metrics.distinctiveness:base;
 }
 /** True when the regime leaves the chosen objective with no weight at all.
-    The pull above is a straight blend, so a pull of 1 gives the objective the
-    factor (1-pull) = 0 and every objective ranks identically. That is the
+    The run-level blend in rank() gives a pull of 1 the objective
+    factor (1-pull) = 0, so every objective ranks identically. That is the
     documented behaviour of the City competition regime — height and silhouette
     are its ranking — but a selector that quietly does nothing is a lie, so the
     interface has to be able to ask this question. */
@@ -582,7 +583,7 @@ export function searchPlan(s){
  // floor count becomes a search variable. Every variant is still resized to the
  // same gross floor area — the comparison is between forms of equal size, and
  // the extra floors are bought by making each one smaller.
- const fit=Math.min(400,Math.max(1,Math.floor(maxFloors(s))));
+ const fit=Math.min(SCHEMA.floors[2],Math.max(SCHEMA.floors[1],Math.floor(maxFloors(s))));
  const floorSets=[s.floors];
  if(reg.heightPull>0){const limit=Math.min(fit,s.floors+Math.round(s.floors*0.5));if(limit>s.floors)floorSets.push(limit)}
  const list=[];
@@ -600,22 +601,39 @@ export function searchPlan(s){
 /** Score one already-resized candidate. */
 export function scoreCandidate(candidate,objective='contribution'){
  const metrics=evaluate(candidate);
- return {state:candidate,metrics,score:regimeScore(metrics,candidate,objective)};
+ return {state:candidate,metrics,objective,score:regimeScore(metrics,candidate,objective)};
 }
 
 /** Change the ranking rule without evaluating geometry a second time.
  * Metrics and feasibility belong to the captured run, including after Apply. */
 export function rerank(results,objective='contribution'){
- return rank(results.map(r=>({...r,score:regimeScore(r.metrics,r.state,objective)})));
+ return rank(results.map(r=>({...r,objective,score:regimeScore(r.metrics,r.state,objective)})));
 }
 
 export function rank(results){
- const feasible=results.filter(x=>x.metrics.valid);
- feasible.sort((a,b)=>{
+ const feasible=results.filter(x=>x.metrics.valid),ranges=new Map();
+ // Only feasible candidates define the scale. Raw USD/area/count values never
+ // share a sum with metres; weights now combine two dimensionless signals.
+ for(const r of feasible){
+  const pull=regimes[r.state.regime].heightPull;if(pull<=0||pull>=1)continue;
+  const key=r.state.regime+'|'+r.objective,h=(r.metrics.heightTotal??r.metrics.height)*r.metrics.distinctiveness;
+  const b=Object.hasOwn(objectives,r.objective)?objectives[r.objective](r.metrics,r.state):r.metrics.contribution;
+  const range=ranges.get(key)||{bMin:Infinity,bMax:-Infinity,hMin:Infinity,hMax:-Infinity};
+  range.bMin=Math.min(range.bMin,b);range.bMax=Math.max(range.bMax,b);range.hMin=Math.min(range.hMin,h);range.hMax=Math.max(range.hMax,h);ranges.set(key,range);
+ }
+ const normalized=(v,lo,hi)=>hi-lo>1e-12?(v-lo)/(hi-lo):.5;
+ const ranked=feasible.map(r=>{
+  const pull=regimes[r.state.regime].heightPull,rawHeight=(r.metrics.heightTotal??r.metrics.height)*r.metrics.distinctiveness;
+  const rawObjective=Object.hasOwn(objectives,r.objective)?objectives[r.objective](r.metrics,r.state):r.metrics.contribution;
+  if(pull<=0||pull>=1)return {...r,score:pull>=1?rawHeight:rawObjective};
+  const range=ranges.get(r.state.regime+'|'+r.objective),objective=normalized(rawObjective,range.bMin,range.bMax),height=normalized(rawHeight,range.hMin,range.hMax);
+  return {...r,score:objective*(1-pull)+height*pull,ranking:{version:2,method:'feasible-run-minmax',objective,height,objectiveWeight:1-pull,heightWeight:pull,rawObjective,rawHeight,...range}};
+ });
+ ranked.sort((a,b)=>{
   const d=b.score-a.score;
   return Math.abs(d)>1e-9?d:a.state.twist-b.state.twist;
  });
- return feasible;
+ return ranked;
 }
 
 /** Synchronous search. Convenient, but blocks for the length of the run —
@@ -651,8 +669,8 @@ export function stackHeight(s,floors=s.floors){
  *  current count, so it stays cheap when called inside a search loop. */
 export function maxFloors(s){
  let n=Math.max(1,Math.min(s.floors,400));
- while(n<400&&stackHeight(s,n+1)<=s.maxHeight)n++;
- while(n>1&&stackHeight(s,n)>s.maxHeight)n--;
+ while(n<400&&stackHeight(s,n+1)+crownOf(s).h<=s.maxHeight)n++;
+ while(n>1&&stackHeight(s,n)+crownOf(s).h>s.maxHeight)n--;
  return n;
 }
 
@@ -669,27 +687,52 @@ export function baseline(s){
 /** How many floors the stored schedule actually supplies — used in the OBJ
  *  header now that the program label lives in i18n, not on the model. */
 const occupiedLevels=src=>src.filter(l=>l.gfa).length;
-const levels=s=>{const prog=levelPrograms[s.program]||levelPrograms.mini;return prog.levels?prog.levels():prog.floors()};
+const levels=s=>{const prog=levelPrograms[s.program]||levelPrograms.mini;return prog.levels?prog.levels(s):prog.floors(s)};
 
-export function meshOBJ(s){
- const st=stack(s),total=st[st.length-1].z+st[st.length-1].h;
- const n=profile(s,0).length;
- const lines=['# FormHypes conceptual massing; units: metres',
- '# Embedded level knowledge after Shouheng Chen, MIT SMArchS 2006',
- `# level program: ${s.program} (${occupiedLevels(levels(s))} levels of schedule)`,
- `# rings: ${st.length+1} (one below grade-zero, one above every level)`];
- // ring 0 is the underside; ring k+1 is the top of level k
- const rings=[0,...st.map(l=>l.z+l.h)];
- for(const z of rings)for(const [x,y] of profile(s,z/total))lines.push(`v ${x.toFixed(5)} ${z.toFixed(5)} ${y.toFixed(5)}`);
- for(let k=0;k<st.length;k++){
-  const a=k*n,b=(k+1)*n;
-  for(let i=0;i<n;i++){
-   const j=(i+1)%n;
-   lines.push(`f ${a+i+1} ${a+j+1} ${b+j+1} ${b+i+1}`);
-  }
- }
- lines.push('f '+Array.from({length:n},(_,i)=>n-i).join(' '));
- lines.push('f '+Array.from({length:n},(_,i)=>st.length*n+i+1).join(' '));
- return lines.join('\n');
+/** Shared exterior massing rings: metres, x east/y north/z up.
+ * Crown factors are the existing schematic linear scales used by the drawing.
+ * bands optionally samples the continuous body for shadow analysis. */
+export function massingRings(s,bands=null){
+ const st=stack(s),H=stackHeight(s),c=crownOf(s);
+ const zs=bands?Array.from({length:bands+1},(_,i)=>H*i/bands):[0,...st.map(l=>l.z+l.h)];
+ const rings=zs.map(z=>({z,poly:profile(s,z/H),kind:'body'}));
+ if(c.h>0){const roof=profile(s,1);for(const p of crownPlates(c))rings.push({z:H+p.t*c.h,poly:roof.map(([x,y])=>[x*p.f,y*p.f]),kind:'crown'})}
+ return rings;
 }
 
+// Ear clipping keeps the concave caps of the cross/star/pinwheel inside their
+// actual outline. A fan across those polygons creates faces outside the solid.
+function capTriangles(poly){
+ const left=poly.map((_,i)=>i),out=[],cross=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+ while(left.length>3){
+  let clipped=false;
+  for(let j=0;j<left.length;j++){
+   const a=left[(j+left.length-1)%left.length],b=left[j],c=left[(j+1)%left.length];
+   if(cross(poly[a],poly[b],poly[c])<=1e-10)continue;
+   if(left.some(k=>k!==a&&k!==b&&k!==c&&cross(poly[a],poly[b],poly[k])>=-1e-10&&cross(poly[b],poly[c],poly[k])>=-1e-10&&cross(poly[c],poly[a],poly[k])>=-1e-10))continue;
+   out.push([a,b,c]);left.splice(j,1);clipped=true;break;
+  }
+  if(!clipped)throw new RangeError('Cannot triangulate massing cap');
+ }
+ out.push([...left]);return out;
+}
+
+export function meshOBJ(s){
+ const rings=massingRings(s),n=rings[0].poly.length;
+ const lines=['# FormHypes conceptual exterior massing; units: metres; Y up',
+ '# Embedded level knowledge after Shouheng Chen, MIT SMArchS 2006',
+ '# Schematic crown included; no core, interiors, terrace openings or assembly detail',
+ `# level program: ${s.program} (${occupiedLevels(levels(s))} levels of schedule)`,
+ `# rings: ${rings.length} (grade and slab/crown elevations)`];
+ for(const r of rings)for(const [x,y] of r.poly)lines.push(`v ${x.toFixed(5)} ${r.z.toFixed(5)} ${y.toFixed(5)}`);
+ // Swapping north/up for OBJ reflects the axes: reverse each world-space face
+ // so outward normals remain outward in the exported coordinate system.
+ const face=indices=>lines.push('f '+indices.map(i=>i+1).reverse().join(' '));
+ for(let k=0;k<rings.length-1;k++)for(let i=0;i<n;i++){
+  const j=(i+1)%n,a=k*n+i,b=k*n+j,c=(k+1)*n+j,d=(k+1)*n+i;
+  face([a,b,c]);face([a,c,d]);
+ }
+ for(const f of capTriangles(rings[0].poly))face([...f].reverse());
+ for(const f of capTriangles(rings.at(-1).poly))face(f.map(i=>(rings.length-1)*n+i));
+ return lines.join('\n');
+}

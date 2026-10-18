@@ -1,0 +1,58 @@
+[
+  {
+    "repo": "ladybug-tools/honeybee-core",
+    "branch": "master",
+    "sha": "0261c070a33fcbb9564cedb0e9122b69cc95aa03",
+    "commitDate": "2026-10-05T22:43:14Z",
+    "license": "AGPL-3.0",
+    "archived": false
+  },
+  {
+    "repo": "ladybug-tools/dragonfly-core",
+    "branch": "master",
+    "sha": "e7d3223068699a50dd436de5bf162585fa60cfb8",
+    "commitDate": "2026-10-13T15:54:40Z",
+    "license": "AGPL-3.0",
+    "archived": false
+  },
+  {
+    "repo": "IfcOpenShell/IfcOpenShell",
+    "branch": "v0.9.0",
+    "sha": "b139fe1c355d6e29f36f430ad4e26f8910bc5958",
+    "commitDate": "2026-10-18T14:10:18Z",
+    "license": "LGPL-3.0",
+    "archived": false
+  },
+  {
+    "repo": "ThatOpen/engine_web-ifc",
+    "branch": "main",
+    "sha": "e408b65471a6c61569f8a6634df494420ddd3bfc",
+    "commitDate": "2026-10-16T10:50:07Z",
+    "license": "MPL-2.0",
+    "archived": false
+  },
+  {
+    "repo": "eventhorizon5/skyscraper",
+    "branch": "master",
+    "sha": "a2ab2c429a820f2cdee563a1c5f1c62c8528480e",
+    "commitDate": "2026-10-18T02:35:42Z",
+    "license": "GPL-2.0",
+    "archived": false
+  },
+  {
+    "repo": "tudelft3d/val3dity",
+    "branch": "main",
+    "sha": "5edc12efd1021927469c0fb98fd0e63e9bacde0d",
+    "commitDate": "2026-08-26T05:36:31Z",
+    "license": "GPL-3.0",
+    "archived": false
+  },
+  {
+    "repo": "anyoptimization/pymoo",
+    "branch": "main",
+    "sha": "23110c155aa8f31b5f1b86928227fb3931ba7f00",
+    "commitDate": "2026-07-07T01:34:48Z",
+    "license": "Apache-2.0",
+    "archived": false
+  }
+]
