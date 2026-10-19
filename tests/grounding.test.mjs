@@ -125,12 +125,17 @@ test('the sheet states how many buildings it removed',()=>{
  // Script discipline. "It mentions removal" is satisfied by Thai pasted into
  // the English slot, which is how an English reader gets a sentence they cannot
  // read on the one line that discloses a deletion from the drawing.
- const val=(l)=>new RegExp("[\"']v\\.replaced[\"']\\s*:\\s*[\"']([^\"']*)[\"']").exec(block(l))[1];
+ const raw=(l)=>new RegExp("[\"']v\\.replaced[\"']\\s*:\\s*[\"']([^\"']*)[\"']").exec(block(l))[1];
+ // The {n} placeholder is stripped first. It is Latin, so leaving it in made
+ // every one of the three strings fail its own script check — the guard caught
+ // its own bug, which is at least better than the other way round.
+ const val=(l)=>raw(l).replace(/\{n\}/g,'7');
+ for(const l of ['en','th','zh'])assert.ok(raw(l).includes('{n}'),`v.replaced in ${l} lost its count`);
  assert.ok(!/[฀-๿]/.test(val('en')),'the English disclosure contains Thai');
  assert.ok(!/[一-鿿]/.test(val('en')),'the English disclosure contains CJK');
  assert.ok(!/[一-鿿]/.test(val('th')),'the Thai disclosure contains CJK');
  assert.ok(!/[A-Za-z]/.test(val('zh')),'the Chinese disclosure fell back to Latin');
- assert.equal(new Set(['en','th','zh'].map(val)).size,3,'the three disclosures must be three different sentences');
+ assert.equal(new Set(['en','th','zh'].map(raw)).size,3,'the three disclosures must be three different sentences');
 });
 
 test('the tower is drawn with a ground contact and a contact shadow',()=>{
