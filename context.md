@@ -164,3 +164,36 @@ Compared Tower-Morphing from the prior source reading and RHIKNOWBOT from curren
 Implemented plain-text names/notes, a cloned session reference, shared-metre A/B towers and neutral raw deltas. Both options expose conceptual validity; changed market/regime/city/LED assumptions are named. No human-welfare score. A versioned JSON importer adds to the shelf without changing the current design; validates state/Brief/Effects and ignores supplied metrics. A narrow historicalv3 migration fills five later missing fields; bad supplied values remain invalid. Newv4 exports preserve names/notes. Other desks remain outside the stated import scope.
 
 Verified307 tests and20 targeted mutations; browser export/import retained metadata, malformed1000floorimport left all3studies intact, reload recovery preserved saved named options, and infeasible post crown explicitly reported height failure. Actualequal-area example: cross→oval reduced envelope by10400m² while base-plate daylight proxy fell10.8percentagepoints and scenario contribution fell2.85mUSD/year. This is a tradeoff, not a winning score. Independent1440/1024/390 plusTH/ZH visual review passed after fixing the inherited two-column Studies layout; phone numerical tables checked separately with no overflow. Shared-memory lesson captured for historical format migration. Human participant superiority remains unverified.
+
+## 2026-10-19 · Shippable pass: design slop, structure, three labs
+
+Design:
+- The annual contribution now opens the performance rail.
+- Rent streams are drawn as lengths.
+- Explore runs its search on arrival.
+- Feng Shui docks beside the tower.
+- Collapsed and empty bands were removed in Place and Walk-in, and the Walk-in legend pairing bug is fixed.
+- Desk prose is capped at 68ch.
+- Workspace names show on phones (the strip scrolls).
+- The Research title is 32px and the studio actions are hidden there.
+
+An independent reviewer (a different model) audited the result at 1440, 1024 and 390 px.
+
+Engine:
+- Ranking ties are deterministic.
+- Terrace floors pay corner premium only on the plate they keep.
+- Stored studies must sit on the slider grid.
+- Fuzzed about 30k states: all values finite, and the invariants hold on valid states.
+
+Structure (`structure.js`, at the head of the Core desk):
+- Least width by rotating calipers, and slenderness against 432 Park and 111 W 57th.
+- A period band from ASCE 7 Ta to EN 46/H.
+- Vortex lock-in speed.
+- Core share against the 24% benchmark, the diagrid angle against 55–75°, and the sky-lobby threshold.
+
+Labs, each live and animated, with sources and "cannot claim" lines:
+- Wind (`wind.js`): EN 1991-1-4 profile and loads, plus vortex shedding at f_s with lock-in.
+- Water (`water.js`): roof-tank, booster and hybrid supply with energy and outage resilience, plus storm drainage.
+- Glare (`glare.js`): specular reflection over OSM neighbours, using City of London 2017 reflectance and the 50 h/yr criterion.
+
+Labs receive `changed()` and may patch the design. Each lab has its own CSS file, because the CSP forbids inline styles. The canvas rule is scoped to `.viewport>canvas`; a bare `canvas{}` rule pinned the lab canvases over the page. Next lab candidates are vertical transport, fire evacuation, and embodied carbon / premium for height.
