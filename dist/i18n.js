@@ -1632,6 +1632,6 @@ Object.assign(zh,{
  'st.none':'范围内没有足以容纳该标准层的地块。请增大地块面积或减小建筑跨度。'
 });
 
-Object.assign(t.en,{"v.neighbourhood":"Neighbourhood"});
-Object.assign(t.th,{"v.neighbourhood":"ย่านโดยรอบ"});
-Object.assign(t.zh,{"v.neighbourhood":"周边街区"});
+Object.assign(t.en,{"v.neighbourhood":"Neighbourhood","v.plan":"Plan","v.reach":"Tower shadow on the ground","v.reachNote":"at this sheet's sun position - not a solar study","v.reachShort":"at this sheet's sun position"});
+Object.assign(t.th,{"v.neighbourhood":"ย่านโดยรอบ","v.plan":"ผัง","v.reach":"เงาของอาคารบนพื้นดิน","v.reachNote":"ที่ตำแหน่งแสงของแผ่นนี้ ไม่ใช่การศึกษาแสงอาทิตย์","v.reachShort":"ที่ตำแหน่งแสงของแผ่นนี้"});
+Object.assign(t.zh,{"v.neighbourhood":"周边街区","v.plan":"平面图","v.reach":"塔楼在地面的投影","v.reachNote":"按本图纸的光照方向，非日照分析","v.reachShort":"按本图纸的光照方向"});

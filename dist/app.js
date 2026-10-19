@@ -1,17 +1,18 @@
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=7ffa570a33';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=01a4159326';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=55be6d1ca3';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=8b86ab0cf1';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=c9013c3ebf';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=3b2fe85a37';
 import {mountConsole} from './console.js?v=82f0a66755';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=a07152d203';
 import{familyResponse,lattice}from'./explore.js?v=d3f1e1bb35';
-import{t,langs,langMeta,translator}from'./i18n.js?v=47322b002a';
+import{t,langs,langMeta,translator}from'./i18n.js?v=f39209e800';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
 import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,crownOf,gardenOf,crownPlates} from './crowns.js?v=6daba4a8ca';
 import {cityData,skyline,visibleMassings,ringArea} from './cityscape.js?v=02b4579819';
+import {sweptHull,reachSteps,reachLabelled,contactOffset} from './reach.js?v=3742398937';
 import {parseGround} from './site.js?v=7cb1769785';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
 import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=1df95d7e5e';
@@ -24,7 +25,7 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=3
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=b9ae7da0da';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=4cf49fa71e';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=e25f3f0216';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=097728acd7';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
@@ -37,7 +38,7 @@ let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
 const num=v=>Math.round(v).toLocaleString(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US');
 
-let state={...defaults},metrics,alternatives=[],yaw=-.65,zoom=1,wireframe=false,neighbourhood=false,studies=[],knowledgePack,unknownRegime=null;
+let state={...defaults},metrics,alternatives=[],yaw=-.65,zoom=1,wireframe=false,neighbourhood=false,view='orbit',panX=0,panY=0,studies=[],knowledgePack,unknownRegime=null;
 // The run is kept, not just its rows, so a language change can redraw the
 // result in place instead of leaving the table in whichever language the
 // search happened to be launched in.
@@ -539,17 +540,30 @@ function drawTower(){
  const HEAD=Math.max(30,Math.round(H*.10));
  const FOOT=150;
  const fieldH=Math.max(120,H-HEAD-FOOT);
- const scale=(neighbourhood?Math.min((W-65)/1450,fieldH/(700*.72+ext*.96)):Math.min(fieldH/(ext*.96+state.span*.4),(W-65)/(state.span*2)))*zoom;
- const baseY=neighbourhood?HEAD+Math.max(0,fieldH-(ext*.96+700*.72)*scale)/2+(ext*.96+700*.36)*scale:HEAD+ext*.96*scale;
+ /* PLAN is not another camera angle on the same problem. In the orbit the
+   ground plane is edge-on — at a 599 m Shenzhen skyline the street grid is a
+   sliver in the corner no matter how the plate is valued, because the plane
+   is being viewed at a grazing angle through a forest. A plan is the view in
+   which a floor is the subject rather than the thing hiding under the
+   buildings, and it is the view a person actually reads a map in.
+
+   It is a true top-down orthographic, not a steep perspective: yaw is ignored
+   so north is up, and the scale is chosen by fitting the harvested radius to
+   the field so the whole plot of streets lands on the sheet. */
+ const city=cityData(state.city);
+ const planView=view==='plan';
+ const planScale=city?Math.min((W-90)/(city.radius*2.15),fieldH/(city.radius*2.15))*zoom:1;
+ const scale=planView?planScale:(neighbourhood?Math.min((W-65)/1450,fieldH/(700*.72+ext*.96)):Math.min(fieldH/(ext*.96+state.span*.4),(W-65)/(state.span*2)))*zoom;
+ const planCY=HEAD+fieldH/2;
+ const baseY=planView?planCY:neighbourhood?HEAD+Math.max(0,fieldH-(ext*.96+700*.72)*scale)/2+(ext*.96+700*.36)*scale:HEAD+ext*.96*scale;
  const c=Math.cos(yaw),s=Math.sin(yaw);
- const project=(x,y,z)=>{const rx=x*c-y*s,ry=x*s+y*c;return[W*.54+rx*scale,baseY-(z*.96-ry*.36)*scale,ry-z*.04]};
+ const project=(x,y,z)=>{if(planView)return[W*.5+x*scale+panX,planCY-y*scale+panY,z];const rx=x*c-y*s,ry=x*s+y*c;return[W*.54+rx*scale,baseY-(z*.96-ry*.36)*scale,ry-z*.04]};
  function path(pts,fill,stroke,width=1){ctx.beginPath();pts.forEach((v,i)=>{const p=project(...v);if(i)ctx.lineTo(p[0],p[1]);else ctx.moveTo(p[0],p[1])});ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke()}}
  function line(a,b,col,width=.6){ctx.beginPath();const p=project(...a),q=project(...b);ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.strokeStyle=col;ctx.lineWidth=width;ctx.stroke()}
 
  // Fetched here, above every use, rather than where it is first drawn. Declared
  // at the point of use it reads as a local convenience; declared before the grid
  // it is what the whole drawing is measured against.
- const city=cityData(state.city);
  const massings=city?visibleMassings(city,scale,1.4):[];
 
  /* The bottom band is in flow now, so its height is whatever the language, the
@@ -589,6 +603,17 @@ function drawTower(){
  ctx.beginPath();
  ctx.rect(0,0,W,H-footInset);
  ctx.clip();
+
+ /* One measurement of the sheet, taken once. The axis triad and the plan's
+   scale bar both have to clear the view-foot labels, and the reason that
+   measurement moved up here is that the plan returns before the triad is
+   drawn — a second copy of this logic would have been free to drift. */
+ const fieldBottom=H-footInset;
+ const footEl=document.querySelector('.viewfoot');
+ const footShown=footEl&&getComputedStyle(footEl).display!=='none';
+ const footLabel=footShown?[...footEl.querySelectorAll('span')].pop():null;
+ const labelLeft=footLabel?footLabel.getBoundingClientRect().left:vpRect.left+24;
+ const origin=[Math.max(24,labelLeft-vpRect.left-40),Math.max(40,fieldBottom-26)];
 
  // Fine grid where the plot is read, coarse grid where the city is. A single
  // 12 m grid across 700 m would be 117 lines each way and would bury the tower
@@ -705,6 +730,7 @@ function drawTower(){
    nudged, and re-splitting a few hundred records on every pointer move is the
    kind of cost that makes an orbit feel cheap and then not. */
 const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
+ const ext_=()=>{const st=stack(state);return st[st.length-1].z+st[st.length-1].h+crownOf(state).h};
  function drawGround(){
   const g=groundOf(state.city);if(!g)return;
   const flat=poly=>poly.map(([x,y])=>[x,y,0]);
@@ -737,7 +763,16 @@ const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
       calculation: the sun position in this model is the sun-study desk's, and
       this sheet has no date. */
    const lx=-LIGHT[0],ly=-LIGHT[1],ln=Math.hypot(lx,ly)||1;
-   const off=h*.16;
+   /* A CONTACT shadow, not a cast one. Offsetting by height meant Shenzhen's
+      599 m tower threw a 96 m slab of #10151a — darker than the plate itself
+      — straight across the street grid, and forty-odd neighbours did the same
+      at smaller scale. That is a large part of why the floor read as a hole
+      even after the plate was brought up to a visible value: the map was
+      being painted over in black by the buildings standing on it. A contact
+      shadow belongs to the building's own footprint and must never exceed it. */
+   let bx0=Infinity,bx1=-Infinity,by0=Infinity,by1=-Infinity;
+   for(const [x,y]of ring){if(x<bx0)bx0=x;if(x>bx1)bx1=x;if(y<by0)by0=y;if(y>by1)by1=y}
+   const off=contactOffset(h,bx1-bx0,by1-by0);
    path(ring.map(([x,y])=>[x+lx/ln*off,y+ly/ln*off,0]),SHADOW,null,0);
    // Roof first, then the walls that meet it, so the parapet sits on the edge.
    const parapet=Math.min(1.6,state.span*.03);
@@ -789,6 +824,152 @@ const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
    if(h>=40)path(ring.map(([x,y])=>[x,y,h]),null,ink,.8);
   }
  }
+ /* The plate boundary. Hoisted above both views because the plan clips its
+    ground to exactly this edge — a plan that drew roads past the harvested
+    radius would be drawing data it does not have. */
+ const disc=()=>{ctx.beginPath();for(let i=0;i<=72;i++){const a=i/72*Math.PI*2,p=project(Math.cos(a)*city.radius,Math.sin(a)*city.radius,0);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}ctx.closePath()};
+
+ /* ── PLAN ──────────────────────────────────────────────────────────────
+   The whole reason this view exists. Everything below is in service of one
+   claim: the floor should read as an OpenStreetMap of the place the user
+   chose, at a scale a person can hold in their head.
+
+   Three things carry that, and none of them is a colour value:
+
+   1. The ground is drawn first and nothing is drawn over it that could hide
+      it. In the orbit the neighbours' walls are what buried it.
+   2. Neighbours are FLAT FOOTPRINTS, stepped by height. A plan does not draw
+      the walls of a building that is not the subject, and the height step is
+      enough to read the skyline from above.
+   3. The tower's own reach is swept across the real streets as a contour
+      diagram. That is the answer to "where does 214 m actually land" — a
+      distance field measured off a surveyed grid, with the 50 m contours
+      labelled where they cross, not a number in a panel. */
+ const REACH=['#241d12','#2e2415','#382b18','#42321b','#4c3a1e'];
+ const planTone=h=>h>=180?'#4d5c69':h>=100?'#45535f':h>=50?'#3d4a55':h>=20?'#35414b':'#2d3841';
+
+ /* The sweep itself lives in reach.js rather than here, so it can be checked
+    against a hand calculation instead of against its own source text. */
+ /* The reach. Swept in the sheet's own drawing light, which is the same
+    direction that already decides which wall is lit — so the wedge on the map
+    agrees with the shading of the model instead of being a second, competing
+    idea of where the sun is. This is a drawing convention, not a solar study:
+    the sheet has no date, and the sun-study desk is where a date is asked
+    for. Bands are nested convex hulls, so painting largest-first is exactly
+    the stepping — no polygon boolean needed. */
+ function drawReach(){
+  const base=profile(state,0);if(ringArea(base)<0)base=[...base].reverse();
+  const ln=Math.hypot(LIGHT[0],LIGHT[1])||1;
+  const lx=LIGHT[0]/ln,ly=LIGHT[1]/ln;
+  const ext=ext_();
+  const band=d=>sweptHull(base,d,lx,ly);
+  // Largest first: the bands are nested convex hulls, so painting from the
+  // outside in IS the stepping. No polygon boolean needed.
+  const steps=reachSteps(ext);
+  for(let k=steps.length-1;k>=0;k--){
+   path(band(steps[k]).map(([x,y])=>[x,y,0]),REACH[Math.min(k,REACH.length-1)],null,0);
+  }
+  ctx.font='10px "IBM Plex Mono",monospace';ctx.textAlign='left';
+  for(let k=0;k<steps.length;k++){
+   const d=steps[k],poly=band(d);
+   path(poly.map(([x,y])=>[x,y,0]),null,'#f59e0b',1);
+   /* The figure printed is the offset the band was ACTUALLY swept to, not the
+      50 m multiple it was rounded from. A 214.4 m tower drew its last contour
+      at 214.4 m and printed "250 m" — the drawing and the number disagreeing,
+      which is the one thing a dimension may never do. Rounding the label up
+      because it was easier to type is how a sheet starts lying.
+      Only every second contour is lettered, and the outermost one suppresses
+      any contour within 50 m of it: a 214 m tower drew its 200 m and 214 m
+      contours 14 m apart, and the two labels landed on top of each other.
+      The legend carries the stepping; the contours carry the distance. */
+   if(!reachLabelled(d,ext))continue;
+   // On the vertex furthest along the light: the only point of the contour
+   // guaranteed to be on its own leading edge.
+   let best=poly[0],bv=-1e9;
+   for(const v of poly){const t=v[0]*lx+v[1]*ly;if(t>bv){bv=t;best=v}}
+   const p=project(best[0],best[1],0);
+   ctx.fillStyle='#f59e0b';ctx.fillText(Math.round(d)+' m',p[0]+4,p[1]+3);
+  }
+  ctx.textAlign='left';
+ }
+
+ function drawScaleBar(){
+  // A round distance that lands near 150 px at the current zoom. Fixed
+  // lengths are useless across a 0.5×–1.7× zoom range; this keeps the bar a
+  // readable physical size and changes its printed length instead.
+  let m=10;for(const q of[10,20,50,100,200,500,1000])if(q*scale<=170)m=q;
+  // Pulled left far enough that the end figure and its " m" both fit. The bar
+  // is anchored beside the view-foot label, which is the far right of the
+  // sheet, so a long bar walked straight off the edge.
+  const px=m*scale,x=Math.min(origin[0],W-24-px-24),y=origin[1];
+  ctx.strokeStyle='#a2aca9';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(x,y-5);ctx.lineTo(x,y);ctx.lineTo(x+px,y);ctx.lineTo(x+px,y-5);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x+px/2,y);ctx.lineTo(x+px/2,y-3);ctx.stroke();
+  ctx.font='10px "IBM Plex Mono",monospace';ctx.fillStyle='#a2aca9';ctx.textAlign='left';
+  ctx.fillText('0',x-3,y+13);ctx.fillText(m+' m',x+px,y+13);
+ }
+ function drawNorth(){
+  // North is up because the plan projection ignores yaw entirely — so this is
+  // not a decorative compass, it is a statement about the projection, and it
+  // would be a lie the moment the projection rotated.
+  const x=origin[0],y=Math.max(30,origin[1]-34);
+  ctx.strokeStyle='#a2aca9';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(x,y+14);ctx.lineTo(x,y);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-3.5,y+6);ctx.moveTo(x,y);ctx.lineTo(x+3.5,y+6);ctx.stroke();
+  ctx.font='10px "IBM Plex Mono",monospace';ctx.fillStyle='#a2aca9';ctx.textAlign='center';
+  ctx.fillText('N',x,y+25);ctx.textAlign='left';
+ }
+ function drawPlanSheet(){
+  ctx.fillStyle='#0b0e11';ctx.fillRect(0,0,W,H);
+  disc();ctx.fillStyle='#1a212a';ctx.fill();
+  ctx.save();disc();ctx.clip();
+  drawGround();
+  ctx.restore();
+  disc();ctx.strokeStyle='#2b353d';ctx.lineWidth=1;ctx.stroke();
+  for(const m of massings){
+   let r=m.ring;if(ringArea(r)<0)r=[...r].reverse();
+   path(r.map(([x,y])=>[x,y,0]),planTone(m.h),'#4a5862',.6);
+  }
+  drawReach();
+  const side=state.site/2;
+  path([[-side,-side,0],[side,-side,0],[side,side,0],[-side,side,0]],null,'#a2aca9',1);
+  let fr=profile(state,0);if(ringArea(fr)<0)fr=[...fr].reverse();
+  path(fr.map(v=>[v[0],v[1],0]),'#f59e0b','#f5c46a',1);
+  drawScaleBar();drawNorth();
+  /* The legend is the scale, stated. Without it four warm bands are a
+     gradient the reader has to guess at — and a gradient is exactly what this
+     drawing set is not allowed to be anywhere else.
+
+     It sits top-left rather than beside the scale bar because the scale bar's
+     anchor is pushed to the far right by the view-foot label, and there was
+     not room for a 170 px key out there: both heading and note were being
+     clipped by the canvas edge, which is how "Tower shadow on the ground"
+     reached the user as "Tower shadow on t". */
+  let ly=HEAD+26;const lx=16;
+  ctx.font='10px "IBM Plex Mono",monospace';ctx.textAlign='left';
+  ctx.fillStyle='#a2aca9';ctx.fillText(tt('v.reach'),lx,ly);ly+=12;
+  for(let k=0;k<Math.min(4,REACH.length);k++){
+   const lo=k*50,hi=(k+1)*50;
+   ctx.fillStyle=REACH[k];ctx.fillRect(lx,ly+2,14,9);
+   ctx.strokeStyle='#f59e0b';ctx.lineWidth=.6;ctx.strokeRect(lx+.5,ly+2.5,14,9);
+   ctx.fillStyle='#a2aca9';
+   ctx.fillText(lo+'–'+(k===3?'+':hi)+' m',lx+20,ly+10);
+   ly+=13;
+  }
+  ctx.fillStyle='#8b918d';ctx.font='9px "IBM Plex Mono",monospace';
+  // The note is the longest string on the sheet and the most likely to be
+  // clipped, so it is clamped to the field rather than trusted to fit.
+  const note=tt('v.reachNote');
+  ctx.fillText(W-18>ctx.measureText(note).width?note:tt('v.reachShort'),lx,ly+10);
+  ctx.textAlign='left';
+ }
+
+ if(city&&planView){
+  drawPlanSheet();
+  ctx.restore();
+  if(footInset>0){ctx.fillStyle='#2c3438';ctx.fillRect(0,fieldBottom,W,1)}
+  return;
+ }
  if(city){
   /* The ground has to be a value between the sky and the walls, or the city
      floats. It was #0a0d10 against a #111416 page background — four values
@@ -822,7 +1003,6 @@ const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
      drawn features on a plane rather than the field itself, so they are free
      to be bright — and they have to be, or the map does not read.
      sky .0043, plate .0147, green .0175, water .0155, road .0341. */
-  const disc=()=>{ctx.beginPath();for(let i=0;i<=72;i++){const a=i/72*Math.PI*2,p=project(Math.cos(a)*city.radius,Math.sin(a)*city.radius,0);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}ctx.closePath()};
   disc();ctx.fillStyle='#1a212a';ctx.fill();
   // Clipped to the plate, so a road that runs off the data ends at the data.
   ctx.save();disc();ctx.clip();
@@ -1038,12 +1218,6 @@ const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
     screen. The right-hand label is still avoided when it exists and dropped for
     the left margin when it does not — the ruler owns the right edge, so guessing
     right is how the triad ends up under the scale. */
- const fieldBottom=H-footInset;
- const footEl=document.querySelector('.viewfoot');
- const footShown=footEl&&getComputedStyle(footEl).display!=='none';
- const footLabel=footShown?[...footEl.querySelectorAll('span')].pop():null;
- const labelLeft=footLabel?footLabel.getBoundingClientRect().left:vpRect.left+24;
- const origin=[Math.max(24,labelLeft-vpRect.left-40),Math.max(40,fieldBottom-26)];
  ctx.strokeStyle='#a2aca9';ctx.fillStyle='#a2aca9';
  for(const[dx,dy,label]of[[25,8,'X'],[-18,12,'Y'],[0,-26,'Z']]){ctx.beginPath();ctx.moveTo(...origin);ctx.lineTo(origin[0]+dx,origin[1]+dy);ctx.stroke();ctx.fillText(label,origin[0]+dx-4,origin[1]+dy+(dy<0?-4:13))}
  ctx.restore();
@@ -1052,14 +1226,32 @@ const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
  if(footInset>0){ctx.fillStyle='#2c3438';ctx.fillRect(0,fieldBottom,W,1)}
 }
 let drag=null;
-canvas.onpointerdown=e=>{drag={x:e.clientX};canvas.setPointerCapture(e.pointerId)};
-canvas.onpointermove=e=>{if(!drag)return;yaw+=(e.clientX-drag.x)*.01;drag={x:e.clientX};drawTower()};
+canvas.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId)};
+canvas.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag={x:e.clientX,y:e.clientY};
+ // In plan the drag pans the sheet rather than orbiting it. Orbiting a top
+ // -down drawing has no meaning, and leaving the drag live there would swing a
+ // map nobody believes is rotating.
+ if(view==='plan'){panX+=dx;panY+=dy}else yaw+=dx*.01;
+ drawTower()};
 canvas.onpointerup=canvas.onpointercancel=()=>drag=null;
-canvas.onkeydown=e=>{if(['ArrowLeft','ArrowRight','+','-'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')yaw-=.1;if(e.key==='ArrowRight')yaw+=.1;if(e.key==='+')zoom=Math.min(1.7,zoom+.1);if(e.key==='-')zoom=Math.max(.5,zoom-.1);drawTower()}};
+canvas.onkeydown=e=>{
+ if(view==='plan'&&e.key.startsWith('Arrow')){e.preventDefault();const k=34;
+  if(e.key==='ArrowLeft')panX-=k;if(e.key==='ArrowRight')panX+=k;
+  if(e.key==='ArrowUp')panY-=k;if(e.key==='ArrowDown')panY+=k;drawTower();return}
+ if(['ArrowLeft','ArrowRight','+','-'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')yaw-=.1;if(e.key==='ArrowRight')yaw+=.1;if(e.key==='+')zoom=Math.min(1.7,zoom+.1);if(e.key==='-')zoom=Math.max(.5,zoom-.1);drawTower()}};
 $('zoomIn').onclick=()=>{zoom=Math.min(1.7,zoom+.1);drawTower()};
 $('zoomOut').onclick=()=>{zoom=Math.max(.5,zoom-.1);drawTower()};
-$('homeView').onclick=()=>{yaw=-.65;zoom=1;neighbourhood=false;$('cityView').setAttribute('aria-pressed','false');drawTower()};
-$('cityView').onclick=()=>{neighbourhood=!neighbourhood;zoom=1;$('cityView').setAttribute('aria-pressed',String(neighbourhood));drawTower()};
+$('homeView').onclick=()=>{yaw=-.65;zoom=1;neighbourhood=false;view='orbit';panX=0;panY=0;$('cityView').setAttribute('aria-pressed','false');$('planView').setAttribute('aria-pressed','false');drawTower()};
+/* Plan is a mode, not a modifier. Turning on the neighbourhood framing implies
+   the orbit again, because those two answer different questions and stacking
+   them produced a sheet that was neither a plan nor a perspective. */
+$('planView').onclick=()=>{view=view==='plan'?'orbit':'plan';panX=0;panY=0;zoom=1;
+ if(view==='plan')neighbourhood=false;
+ $('planView').setAttribute('aria-pressed',String(view==='plan'));
+ $('cityView').setAttribute('aria-pressed','false');drawTower()};
+$('cityView').onclick=()=>{neighbourhood=!neighbourhood;zoom=1;
+ if(neighbourhood&&view==='plan'){view='orbit';panX=0;panY=0;$('planView').setAttribute('aria-pressed','false')}
+ $('cityView').setAttribute('aria-pressed',String(neighbourhood));drawTower()};
 $('wire').onclick=()=>{wireframe=!wireframe;$('wire').setAttribute('aria-pressed',wireframe);drawTower()};
 /* Redraw on resize, comparing like with like: the observer watches the canvas
    and drawTower measures the same canvas, so the guard actually converges.

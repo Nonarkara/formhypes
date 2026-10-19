@@ -42,7 +42,7 @@ const stamp = (src, refs, ids) => refs.reduce(
     `${ref}?v=${ids[ref.replace(/^\.\//, '')]}`),
   src);
 
-const SHARED = ['console.css','desks.css','modulor.js','model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'vendor/SUNCALC-LICENSE.txt', 'i18n.js', 'style.css', 'play.js', 'location.js',
+const SHARED = ['console.css','desks.css','modulor.js','model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'vendor/SUNCALC-LICENSE.txt', 'i18n.js', 'reach.js', 'style.css', 'play.js', 'location.js',
   'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt',
   // The crown, material and detail libraries, and the harvested cityscape. These
   // three arrived carrying literal pins (?v=crown1), which meant their bytes
@@ -69,7 +69,7 @@ const MEDIA = ['research/artifacts/ags-anchorage-2436.png','research/media/offic
   'research/artifacts/chen-fig40.png', 'research/artifacts/chen-fig49.png',
   'research/protocol-en.txt','research/protocol-th.txt','research/protocol-zh.txt'];
 const DESKS=['facade.js','brief.js','walk.js','context.js','explore.js'];
-const IN_APP = ['./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./context.js','./explore.js','./site.js','./ground.data.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
+const IN_APP = ['./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./context.js','./explore.js','./site.js','./ground.data.js','./reach.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
 const IN_HTML = ['console.css','desks.css','style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 
 for(const lang of ['en','th','zh'])await write(`research/protocol-${lang}.txt`,researchProtocol(lang));
