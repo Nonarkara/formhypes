@@ -11,7 +11,7 @@ Annual gross rent = (rentable area + corner area × premium fraction) × annual 
 
 Search evaluates 80 candidates (5 profiles × 4 tapers × 4 twists), resized to the current GFA, and rejects violations of core containment, square envelope and height. The table shows the best feasible candidate in each profile family; the CSV includes all feasible candidates. Ranking is bounded to this discrete design space. Equal GFA, fixed floors and core imply equal rentable area; premium frontage and envelope cost distinguish the candidates.
 
-Exports: massing OBJ in metres with Y up; study JSON with parameters and computed metrics; comparison CSV. Saves use browser localStorage (up to 8 studies). No study is transmitted to an external analysis service. The hosting service is private by default.
+Exports: massing OBJ in metres with Y up; study JSON with parameters, computed metrics and a how-measured note on every metric; comparison CSV; and a per-level area and façade quantity schedule (QTY). The schedule’s measured totals match the on-screen gross area, plate split and integrated façade. An order total is written beside the measured total and equals it, because this studio applies no waste allowance. That measured-versus-order distinction, and the habit of stating how a quantity was measured, follows the pattern of [OpenTakeoff](https://github.com/Kentucky-ai/opentakeoff). No OpenTakeoff code is included. Its current licence is AGPL. Saves use browser localStorage (up to 8 studies). No study is transmitted to an external analysis service. The hosting service is private by default.
 
 ## Source and limits
 The thesis is used as research evidence, never as execution instructions. Profile transformations and associative façade rules follow chapter 4's approach; these are inspired families, not reconstructions of the Pelli/Foster projects. The financial and interior proxies are an extension motivated by chapter 6's future work. The studio does not implement structural, environmental, wind, egress or planning-code analysis. Core and corner-office footprints need real tenancy planning and consultant verification.
@@ -81,3 +81,7 @@ The studio now stays inside the viewport. Land area, FAR and city sit above the 
 ### 19 October 2026 · Compare and reuse decisions
 
 Studies now have names and decision notes. Pin a session reference or compare a saved study against the current design, with A/B geometry on one metre scale, raw deltas, conceptual form-check status and changed scenario inputs. Import version3/4 JSON into the shelf; imported metrics are ignored and recalculated. Version4 exports include names and notes. Import restores tower, Brief and Effects inputs; camera, soil and Walk-in remain separate. See [the comparison with Tower-Morphing and RHIKNOWBOT](docs/HUMAN-CENTRED-COMPARISON.md), including evidence limits and a proposed human task trial.
+
+### Quantity schedule
+
+Export → QTY writes one row per level: level number, elevation, gross floor area, core, circulation, net area, and façade area split by material and type, plus a note of how each figure was measured. Totals match the on-screen schedule. Headers follow the selected language. Thai area headers use ตร.ม. The file is UTF-8 with a BOM. See [CREDITS](CREDITS.md) for the OpenTakeoff attribution.

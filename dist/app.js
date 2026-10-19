@@ -1,12 +1,12 @@
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=7ffa570a33';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=01a4159326';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=55be6d1ca3';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=7aa0662423';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=1a0856ad2e';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=1d43946506';
 import {mountConsole} from './console.js?v=82f0a66755';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=a07152d203';
 import{familyResponse,lattice}from'./explore.js?v=d3f1e1bb35';
-import{t,langs,langMeta,translator}from'./i18n.js?v=47322b002a';
+import{t,langs,langMeta,translator}from'./i18n.js?v=d04b8147f5';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
@@ -24,11 +24,12 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=3
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=b9ae7da0da';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=4cf49fa71e';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=e25f3f0216';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=d521ae15b8';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
+import {quantityCsv, howMeasured} from './quantity.js?v=1a066a30a3';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=c6e15f87fc';
 import {WORKSPACES} from './console.js?v=82f0a66755';
@@ -84,6 +85,7 @@ function setLang(l){
  document.querySelectorAll('[data-i18n]').forEach(n=>{n.textContent=tt(n.dataset.i18n)});
  document.title='FormHypes — '+tt('tag.line');
  for(const id of ['reset','save','export'])$(id).setAttribute('aria-label',tt(id));
+ if($('exportQty'))$('exportQty').setAttribute('aria-label',tt('d.qtyTitle'));
  buildLangButtons();buildSelectors();buildRanges();sync();
  renderResearch();renderMethod();renderStudies();renderDecisionStudy();
  update();
@@ -2016,7 +2018,8 @@ $('exportJson').onclick=()=>download('formhypes-study.json',JSON.stringify({
  author:'Dr Non',affiliation:'depa + Axiom',anniversary:'2006–2026',
  source:'Inspired by Dr Non’s MIT classmate Shouheng Chen. Embedded design knowledge after Shouheng Chen, MIT SMArchS 2006. Financial and political readings are extensions.',
  contextStudies:{environment:getEnvironmentStudy(),ground:getLocationStudy(),fengShui:getFengStudy(),brief:getBriefStudy(state),walk:getWalkStudy()},
- regime:regimes[state.regime].label,state,metrics,createdAt:new Date().toISOString()},null,2),'application/json');
+ regime:regimes[state.regime].label,state,metrics,howMeasured:howMeasured(metrics,lang),createdAt:new Date().toISOString()},null,2),'application/json');
+$('exportQty').onclick=()=>download('formhypes-quantities.csv',quantityCsv(state,lang),'text/csv');
 $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
  'family,regime,structure,floors,span_m,roof_scale,twist_deg,gross_m2,rentable_m2,corner_offices,height_m,total_height_m,distinctiveness,ranking_score,ranking_method,objective,annual_rent_usd,envelope_reserve_usd,structure_reserve_usd,annual_contribution_usd,capex_usd,capex_per_gross_m2,capital_over_contribution_years',
  ...alternatives.map(r=>[r.state.family,r.state.regime,r.state.system,r.state.floors,r.state.span.toFixed(4),r.state.taper,r.state.twist,

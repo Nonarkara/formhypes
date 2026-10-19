@@ -69,7 +69,7 @@ const MEDIA = ['research/artifacts/ags-anchorage-2436.png','research/media/offic
   'research/artifacts/chen-fig40.png', 'research/artifacts/chen-fig49.png',
   'research/protocol-en.txt','research/protocol-th.txt','research/protocol-zh.txt'];
 const DESKS=['facade.js','brief.js','walk.js','context.js','explore.js'];
-const IN_APP = ['./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./context.js','./explore.js','./site.js','./ground.data.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
+const IN_APP = ['./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./context.js','./explore.js','./site.js','./ground.data.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', './quantity.js', 'knowledge/designon-knowledge.json'];
 const IN_HTML = ['console.css','desks.css','style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 
 for(const lang of ['en','th','zh'])await write(`research/protocol-${lang}.txt`,researchProtocol(lang));
@@ -107,6 +107,12 @@ const tracks=stamp(await read('research-tracks.js'), ['./reader-content.js',...M
 await write('research-tracks.js',tracks);ids['research-tracks.js']=sha(tracks);
 const guided=stamp(await read('research-reader.js'), ['./research-tracks.js','./reader.js','./model.js'], ids);
 await write('research-reader.js',guided);ids['research-reader.js']=sha(guided);
+
+// quantity.js reads the model after the model stamp has settled, then app.js
+// pins the quantity module it actually imports.
+const quantity = stamp(await read('quantity.js'), ['./model.js','./geometry.js','./areasplit.js','./materials.js'], ids);
+await write('quantity.js', quantity);
+ids['quantity.js'] = sha(quantity);
 
 // app.js is stamped against its imports, then hashed in its rewritten form so
 // index.html points at the bytes that actually ship.

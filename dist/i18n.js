@@ -1635,3 +1635,18 @@ Object.assign(zh,{
 Object.assign(t.en,{"v.neighbourhood":"Neighbourhood"});
 Object.assign(t.th,{"v.neighbourhood":"ย่านโดยรอบ"});
 Object.assign(t.zh,{"v.neighbourhood":"周边街区"});
+Object.assign(t.en,{
+ 'd.qty':'QTY',
+ 'd.qtyTitle':'Per-level area and façade schedule',
+ 'd.exportNote':'OBJ contains the conceptual outer shell, not an interior BIM model. JSON preserves the rules and metrics, and states how each figure was measured. CSV exports the current candidate search. QTY is the per-level area and façade schedule.'
+});
+Object.assign(t.th,{
+ 'd.qty':'ปริมาณ',
+ 'd.qtyTitle':'ตารางพื้นที่และเปลือกรายชั้น',
+ 'd.exportNote':'OBJ คือเปลือกนอกเชิงแนวคิด ไม่ใช่ BIM ภายใน JSON เก็บกฎและตัวเลข และบอกวิธีวัดแต่ละค่า CSV คือผลการค้นหาปัจจุบัน QTY คือตารางพื้นที่และเปลือกรายชั้น'
+});
+Object.assign(t.zh,{
+ 'd.qty':'工程量',
+ 'd.qtyTitle':'分层面积与立面工程量',
+ 'd.exportNote':'OBJ 只含概念外壳，不是内部 BIM。JSON 保留规则与指标，并写明每项如何测量。CSV 导出本次搜索结果。QTY 是分层面积与立面工程量。'
+});

@@ -437,6 +437,7 @@ dialog.manual h3{margin:16px 0 5px}
 dialog ul{padding-left:18px;font-size:12px}
 dialog li{margin:6px 0;line-height:1.5}
 .exportoptions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.exportoptions button{min-width:44px;min-height:44px}
 #knowledgeContent table{table-layout:auto}
 #knowledgeContent td,#knowledgeContent th{padding:6px 7px}
 .knowledgeDownloads{display:flex;flex-wrap:wrap;gap:12px;font-size:11.5px;margin-top:14px}
