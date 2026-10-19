@@ -22,7 +22,7 @@ en:{
  'sec.types':'8 · The four original massing types · §5.1.1',
  'l.gfa':'Gross floor area the client wants','l.plot':'Plot area','l.far':'Floor area ratio','l.plate':'Typical floor plate','l.cap':'Height cap',
  'u.m2':'m²','u.m':'m','u.pct':'%','u.far':'FAR',
- 'r.plot':'Plot area','r.far':'Floor area ratio','r.permitted':'Permitted gross floor area = plot × FAR','r.brief':'Brief, as asked','r.delivered':'Delivered by this scheme','r.consumed':'Share of the allowance consumed','r.left':'Allowance left over','r.shortfall':'Shortfall','r.plotNeeded':'Plot this brief would need at this FAR',
+ 'r.plot':'Plot area','r.far':'Floor area ratio','r.permitted':'Permitted gross floor area = plot × FAR','r.brief':'Brief, as asked','r.delivered':'Delivered by this scheme','r.allowTick':'allowance','r.consumed':'Share of the allowance consumed','r.left':'Allowance left over','r.shortfall':'Shortfall','r.plotNeeded':'Plot this brief would need at this FAR',
  'r.storeys':'Storeys','r.height':'Implied height = storeys × floor-to-floor','r.stack':'Kernel stack height, mechanical and refuge levels included','r.cap':'Height cap','r.headroom':'Headroom under the cap',
  'st.subj.area':'Area check',
  'st.fits':'The brief fits inside the allowance.',
@@ -83,7 +83,7 @@ th:{
  'sec.types':'8 · มวลอาคารดั้งเดิมสี่แบบ · §5.1.1',
  'l.gfa':'พื้นที่รวมที่เจ้าของต้องการ','l.plot':'พื้นที่ผังที่ดิน','l.far':'อัตราส่วนพื้นที่','l.plate':'พื้นที่ชั้นทั่วไป','l.cap':'เพดานความสูง',
  'u.m2':'ตร.ม.','u.m':'ม.','u.pct':'%','u.far':'อัตราส่วนพื้นที่',
- 'r.plot':'พื้นที่ผังที่ดิน','r.far':'อัตราส่วนพื้นที่','r.permitted':'พื้นที่รวมที่รับได้ = ผังที่ดิน × อัตราส่วน','r.brief':'โจทย์ตามที่ขอ','r.delivered':'สิ่งที่แบบนี้ส่งมอบได้','r.consumed':'สัดส่วนที่ใช้ไป','r.left':'สิ่งที่เหลือ','r.shortfall':'ขาด','r.plotNeeded':'ผังที่ดินที่โจทย์นี้ต้องใช้ที่อัตราส่วนนี้',
+ 'r.plot':'พื้นที่ผังที่ดิน','r.far':'อัตราส่วนพื้นที่','r.permitted':'พื้นที่รวมที่รับได้ = ผังที่ดิน × อัตราส่วน','r.brief':'โจทย์ตามที่ขอ','r.delivered':'สิ่งที่แบบนี้ส่งมอบได้','r.allowTick':'พื้นที่ที่ได้รับอนุญาต','r.consumed':'สัดส่วนที่ใช้ไป','r.left':'สิ่งที่เหลือ','r.shortfall':'ขาด','r.plotNeeded':'ผังที่ดินที่โจทย์นี้ต้องใช้ที่อัตราส่วนนี้',
  'r.storeys':'จำนวนชั้น','r.height':'ความสูงโดยประมาณ = จำนวนชั้น × ความสูงชั้น','r.stack':'ความสูงตามชุดชั้นของโมเดล รวมชั้นเครื่องและชั้นหลุดหนี','r.cap':'เพดานความสูง','r.headroom':'ส่วนที่เหลือใต้เพดาน',
  'st.subj.area':'การตรวจพื้นที่',
  'st.fits':'โจทย์อยู่ในโควตาที่ได้รับ',
@@ -144,7 +144,7 @@ zh:{
  'sec.types':'8 · 四种原始体量 · §5.1.1',
  'l.gfa':'业主要的总建筑面积','l.plot':'地块面积','l.far':'容积率','l.plate':'标准层面积','l.cap':'高度上限',
  'u.m2':'m²','u.m':'m','u.pct':'%','u.far':'容积率',
- 'r.plot':'地块面积','r.far':'容积率','r.permitted':'可建总面积 = 地块 × 容积率','r.brief':'业主要求','r.delivered':'本方案可交付','r.consumed':'已占额度','r.left':'剩余额度','r.shortfall':'缺口','r.plotNeeded':'按此容积率所需地块',
+ 'r.plot':'地块面积','r.far':'容积率','r.permitted':'可建总面积 = 地块 × 容积率','r.brief':'业主要求','r.delivered':'本方案可交付','r.allowTick':'额度','r.consumed':'已占额度','r.left':'剩余额度','r.shortfall':'缺口','r.plotNeeded':'按此容积率所需地块',
  'r.storeys':'层数','r.height':'推算高度 = 层数 × 层高','r.stack':'模型层列高度，已含设备层与避难层','r.cap':'高度上限','r.headroom':'距上限余量',
  'st.subj.area':'面积核算',
  'st.fits':'任务书在额度之内。',
@@ -326,12 +326,20 @@ export function renderBrief({lang,state,changed,onInputs}){
   ledger(c['r.delivered'],`${num(r.gfa)} ${c['u.m2']}`));
  s2.append(t2.t);
  const rule=document.createElementNS('http://www.w3.org/2000/svg','svg');
- rule.setAttribute('viewBox','0 0 160 16');rule.setAttribute('class','br-rule');rule.setAttribute('aria-hidden','true');
- const share=permitted>0?Math.max(0,r.gfa)/Math.max(permitted,r.gfa):0;
- const mark=(1+158*Math.max(0,Math.min(1,share))).toFixed(1);
- let ticks='';for(let i=0;i<=10;i++){const tx=(1+158*i/10).toFixed(1);ticks+=`M${tx} ${i%5?8:4}V14`;}
+ /* Delivered area drawn as a length against the allowance, which is a tick
+    with its name. The part beyond the allowance is the one amber length. A
+    ruler with one mark said nothing once the brief passed the allowance. */
+ rule.setAttribute('viewBox','0 0 320 26');rule.setAttribute('class','br-rule');rule.setAttribute('aria-hidden','true');
+ const span=Math.max(permitted,r.gfa,1),X=v=>(8+304*Math.max(0,v)/span).toFixed(1);
+ const xa=X(permitted),xd=X(r.gfa),fit=X(Math.min(r.gfa,permitted));
  if(over>0)rule.classList.add('over');
- rule.innerHTML=`<path d="M1 11H159" fill="none" stroke="currentColor" stroke-width="1"/><path d="${ticks}" fill="none" stroke="currentColor" stroke-width="1"/><path d="M${mark} 1V15" fill="none" stroke="currentColor" stroke-width="1.6"/>`;
+ const near=Number(xa)>250;
+ rule.innerHTML=`<path d="M8 9H312" fill="none" stroke="currentColor" stroke-width="1" opacity=".25"/>`
+  +`<path d="M8 9H${fit}" fill="none" stroke="currentColor" stroke-width="3"/>`
+  +(over>0?`<path d="M${xa} 9H${xd}" fill="none" stroke="#f59e0b" stroke-width="3"/>`:'')
+  +`<path d="M8 3V15M${xa} 2V16" fill="none" stroke="currentColor" stroke-width="1"/>`
+  +`<text x="8" y="25" font-size="9" fill="currentColor">0</text>`
+  +`<text x="${xa}" y="25" font-size="9" fill="currentColor" text-anchor="${near?'end':'middle'}">${c['r.allowTick']}</text>`;
  s2.append(rule);
  const t2b=table();
  t2b.b.append(
