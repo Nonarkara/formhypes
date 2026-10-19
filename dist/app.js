@@ -2,7 +2,7 @@ import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPac
 import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=25b035f7b8';
 import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=1f07292d4e';
 import {renderStructure} from './structure.js?v=5c4abd9e39';
-import {mountConsole} from './console.js?v=b489ae2c97';
+import {mountConsole} from './console.js?v=bfb6d567c8';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=4d4eb35fb5';
@@ -35,7 +35,7 @@ import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=8d66bc0eff';
-import {WORKSPACES} from './console.js?v=b489ae2c97';
+import {WORKSPACES} from './console.js?v=bfb6d567c8';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
