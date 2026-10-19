@@ -24,3 +24,13 @@ test('stored studies off the slider grid or of the wrong type are refused',()=>{
  assert.match(app,/x\[k\]>=1&&x\[k\]<300/,'span below 1 m crashes the OBJ cap triangulation');
  assert.match(app,/typeof s\.state==='object'&&!Array\.isArray\(s\.state\)/);
 });
+
+test('every drafting rule() call passes two full points before its options',()=>{
+ for(const f of ['core.js','details.js','facade.js','walk.js','app.js']){
+  const src=readFileSync(new URL('../dist/'+f,import.meta.url),'utf8');
+  for(const m of src.matchAll(/\brule\(([^()]*(?:\([^()]*\)[^()]*)*)\)/g)){
+   const args=m[1].split(/,(?![^{]*\})/);
+   if(args.some(a=>a.trim().startsWith('{')))assert.ok(args.findIndex(a=>a.trim().startsWith('{'))>=4,`${f}: rule(${m[1]}) passes options as a coordinate`);
+  }
+ }
+});

@@ -34,6 +34,11 @@ body.is-console .viewport canvas{height:100%;width:100%}
 body.is-console .studio:not([data-task="form"]){grid-template-columns:minmax(0,1.2fr) minmax(360px,1fr)}
 body.is-console .studio:not([data-task="form"])>.controls,body.is-console .studio:not([data-task="form"])>.results{display:none}
 body.is-console .studio:not([data-task="form"])>.viewport{grid-column:1}
+/* The luopan and its table need more width than a desk; the tower stays beside
+   them because turning the ring turns the tower. */
+body.is-console .studio[data-task="feng"]{grid-template-columns:minmax(0,.8fr) minmax(0,1.5fr)}
+.console-dock{container-type:inline-size}
+@container (max-width:700px){.console-dock #fengshuiDesk .feng-grid{grid-template-columns:minmax(0,1fr)}}
 .console-dock{height:100%;min-height:0;min-width:0;overflow:auto;padding:10px 14px;border-left:2px solid var(--ink);overscroll-behavior:contain}
 .console-dock[hidden],.console-workspace[hidden]{display:none!important}
 .console-workspace{min-width:0}
@@ -155,12 +160,21 @@ body.is-console [hidden]{display:none!important}
     the breach can turn it amber instead of materialising a bar under the header. */
  .console-site-note{display:none}
  .console-rail-nav{display:none}
- .console-nav{gap:5px}
- .console-nav .wt{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
- /* Nine marks plus their padding have to fit a 374px rail without a sideways
-    scroll, so the phone keeps the icon and drops everything the icon is not. */
- .console-nav button{min-height:44px;padding:0 7px;display:inline-flex;align-items:center}
- #console-tab-form{order:1}#console-tab-compare{order:2}#console-tab-brief{order:3}#console-tab-place{order:4}#console-tab-walk{order:5}#console-tab-facade{order:6}#console-tab-studies{order:7}#console-tab-core{order:8}#console-tab-detail{order:9}
+ /* Ten workspaces do not fit 374px as bare icons either, and an unlabelled
+    icon is a guess. The strip scrolls sideways with each name under its mark;
+    the cut-off last label is the signifier that there is more. */
+ .console-nav{gap:2px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;flex-wrap:nowrap}
+ .console-nav::-webkit-scrollbar{display:none}
+ .console-nav .wt{font-size:10px;letter-spacing:.02em;white-space:nowrap}
+ .console-nav button{min-height:44px;min-width:52px;padding:2px 6px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex:none;scroll-snap-align:start}
+ /* The area figure stands alone in the phone header, so it carries its name. */
+ .console-capacity::before{content:attr(data-short) ' '}
+ /* Each slider keeps its 44px touch track; the rows need no margin on top. */
+ #geometryControls .control{margin:2px 0}
+ .viewtools{max-width:calc(100% - 24px);overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
+ .viewtools::-webkit-scrollbar{display:none}
+ .viewtools button{flex:none}
+ #console-tab-form{order:1}#console-tab-compare{order:2}#console-tab-brief{order:3}#console-tab-place{order:4}#console-tab-walk{order:5}#console-tab-facade{order:6}#console-tab-studies{order:7}#console-tab-core{order:8}#console-tab-detail{order:9}#console-tab-feng{order:10}
  body.is-console .studio[data-task="form"]{grid-template-rows:minmax(260px,1.45fr) minmax(168px,.62fr)}
  body.is-console .studio[data-task="form"]>.controls{display:flex;flex-direction:column}
  body.is-console .studio[data-task="form"]>.results{display:none}
@@ -181,3 +195,11 @@ body.is-console [hidden]{display:none!important}
  .searchcontrols select,.console-dock .searchcontrols select{width:100%;max-width:none;min-width:0;padding-right:28px}
  .searchcontrols button{width:100%;min-height:44px}
 }
+/* Walk-in stacked four paddings above its first heading; the dock already
+   frames it. */
+.console-dock #walkPanel{padding-top:0}
+.console-dock #walkDesk{padding-top:0}
+.console-dock #walkDesk>.wk-sec:first-child{margin-top:0;padding-top:0}
+/* The luopan was capped at 336px in a column twice that wide. It is the
+   instrument on this desk, so it takes the column. */
+.console-dock #fengshuiDesk .feng-lp{width:100%;max-width:min(100%,520px);height:auto}

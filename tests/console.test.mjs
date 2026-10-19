@@ -329,17 +329,17 @@ test('the active section is marked with a rule, not a shadow',()=>{
 test('every workspace in the switcher shows its name, not just a mark',()=>{
  const css=read('console.css');
  const blocks=[...css.matchAll(/@media\(max-width:(\d+)px\)\{((?:[^{}]|\{[^{}]*\})*)\}/g)];
- // The label is hidden on a narrow sheet on purpose — there the icon is all
- // that fits — and shown everywhere else. Both states have to exist, or the
- // guard passes on a strip with no labels at any width.
+ // The label is shown at every width.
  const desktopRule=/\.console-nav \.wt\{([^}]*)\}/.exec(css.replace(/@media[^}]*\{(?:[^{}]|\{[^{}]*\})*\}/g,''));
  assert.ok(desktopRule,'there is no .console-nav .wt rule outside a media query');
  assert.ok(!/clip\s*:\s*rect/.test(desktopRule[1])&&!/width:\s*1px/.test(desktopRule[1]),
   `the workspace label is clipped away on a desktop sheet: ${desktopRule[1].trim()}`);
  const narrow=blocks.filter(b=>parseInt(b[1],10)<=600).map(b=>b[2]).join('\n');
- assert.match(narrow,/\.console-nav \.wt\{[^}]*clip\s*:\s*rect/,
-  'the narrow sheet no longer drops the label — nine marks with no names is '+
-  'what this guard exists to prevent');
+ // 2026-10-19: ten unlabelled marks did not fit either and the tenth was cut
+ // off. The phone now keeps every name and scrolls the strip sideways.
+ assert.doesNotMatch(narrow,/\.console-nav \.wt\{[^}]*clip\s*:\s*rect/,
+  'the phone drops the workspace names again: an unlabelled mark is a guess');
+ assert.match(narrow,/\.console-nav\{[^}]*overflow-x:auto/,'the phone strip must scroll, not clip');
  const js=read('console.js');
  const glyphs=/WORK_GLYPHS=\{([\s\S]*?)\};/.exec(js);
  assert.ok(glyphs,'WORK_GLYPHS is missing from console.js');

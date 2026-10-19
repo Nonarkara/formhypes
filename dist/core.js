@@ -369,7 +369,7 @@ export function coreSVG(s,core,{floor=1,lang='en'}={}){
   const f=z*zw; if(f>=s.floors)break;
   const yy=+y(f*s.height);
   g+=cut(`M${PIPE.cw-4} ${f2(yy-3.5)} h8 v3.5 h-8 Z`,'metal');
-  g+=rule(PIPE.cw,yy,X.far,{c:'var(--accent)',w:.5,dash:'1 2'});
+  g+=rule(PIPE.cw,yy,X.far,yy,{c:'var(--accent)',w:.5,dash:'1 2'});
   if(z===1)g+=leader(PIPE.cw,yy-1,X.far+8,yy-14,L.tank);
  }
  if(svc.velocityBreakers){
@@ -388,7 +388,7 @@ export function coreSVG(s,core,{floor=1,lang='en'}={}){
  // The selected level, from the same slider that drives the plan above.
  const fy=+y(clamp(floor-1,0,s.floors-1)*s.height);
  g+=`<g id="core-marker">`
-  +rule(X.w0-5,fy,X.far,{c:'var(--accent)',w:1.2})
+  +rule(X.w0-5,fy,X.far,fy,{c:'var(--accent)',w:1.2})
   +cut(`M${X.bay+8} ${f2(fy-4)} h20 v8 h-20 Z`,'seal')
   +txt(X.bay+18,fy+2.4,String(floor),{on:true,anchor:'middle',size:6})
   +`</g>`;

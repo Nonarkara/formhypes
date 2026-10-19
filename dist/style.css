@@ -167,7 +167,7 @@ input[type=range]::-moz-range-thumb{width:3px;height:18px;background:var(--accen
    bug — lifting the band fixes the z-order, and only the clip fixes the ink. */
 .skyline-readout{margin:0 18px 6px;padding:0 0 0 9px;border-left:2px solid var(--accent);
  width:fit-content;max-width:calc(100% - 36px);color:var(--dim);font-family:var(--mono);font-size:10px;line-height:1.5}
-.skyline-readout .sky-credit{display:block;color:var(--faint)}
+.skyline-readout .sky-credit{color:var(--faint)}
 .vh-left{display:flex;align-items:center;gap:8px}
 .square{display:inline-block;width:6px;height:6px;background:var(--accent)}
 /* The canvas is out of flow on purpose: writing its backing store must never be
@@ -209,6 +209,14 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 .tb-by{flex:none;color:#a2aca9}
 /* The header already says "inspired by SHDT"; the sheet keeps its width for the reference. */
 .titleblock .b-cred{display:none}
+/* Once the reader has orbited, the gesture hint has done its job. */
+.viewport.handled>.viewfoot{display:none}
+/* Claim and source on one run of text when there is room; they still wrap. */
+.skyline-readout .sky-credit{display:inline}
+.skyline-readout .sky-credit::before{content:' · '}
+/* In the console the header carries the wordmark; the sheet keeps the author,
+   the notice and the reference, which fit in two rows. */
+body.is-console .titleblock .tb-sheet{display:none}
 @media(max-width:560px){.titleblock .b-cred,.titleblock .tb-sheet,.titleblock .tb-by{display:none}
  .titleblock{height:auto;flex-wrap:wrap;row-gap:3px;padding:5px 18px}
  .tb-ref{flex-basis:100%;margin-left:0;padding-left:0}}
@@ -639,7 +647,7 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .location-desk{margin:18px 0;padding:14px 0;border-top:2px solid var(--ink);max-width:1160px}
 .location-desk h2{font-size:18px}.location-desk p{max-width:84ch;font-size:12px;margin:8px 0}
 .location-cities{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}.location-cities button{padding:4px 9px}
-.location-desk details{padding:10px 0;border-top:1px solid var(--line)}.location-desk details>button{margin:4px 5px 6px 0}
+.location-desk details{padding:0;margin:0;border-top:1px solid var(--line)}.location-desk details[open]{padding:0 0 10px}.location-desk details>button{margin:4px 5px 6px 0}
 .location-desk a{font-size:12px}.location-context{border-left:3px solid var(--accent);padding-left:10px}
 .mechanics-inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0;max-width:860px}
 .mechanics-inputs label{font-size:12px}.mechanics-inputs input{display:block;width:100%;min-height:30px;margin-top:4px;background:var(--panel);border:1px solid var(--line);padding:4px}

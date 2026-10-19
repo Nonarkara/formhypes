@@ -3,9 +3,9 @@
 import {profile,stack,grossOf} from './model.js?v=b84188fae5';
 import {renderFacade} from './facade.js?v=6a72e55a48';
 export const CONSOLE_TEXT={
- en:{capacity:'Model gross / area allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
- th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
- zh:{capacity:'模型总面积 / 面积额度',crosses:'建筑超出假设地块边界',land:'用地 · m²',far:'容积率',city:'城市',assumption:'假设正方形地块 · 容积率为情景输入',work:[ '形体','任务书','核心筒','构造','幕墙','场地','风水','视角','探索','存档' ],rail:['设计','表现'],site:['地基与文化','邻里与日照','落位','环境'],tools:'工作区',open:'参数',close:'关闭',briefTabs:['用地与任务书','方案与转角','论文参数']}
+ en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
+ th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',capacityShort:'พื้นที่ / ที่ให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
+ zh:{capacity:'模型总面积 / 面积额度',capacityShort:'面积 / 额度',crosses:'建筑超出假设地块边界',land:'用地 · m²',far:'容积率',city:'城市',assumption:'假设正方形地块 · 容积率为情景输入',work:[ '形体','任务书','核心筒','构造','幕墙','场地','风水','视角','探索','存档' ],rail:['设计','表现'],site:['地基与文化','邻里与日照','落位','环境'],tools:'工作区',open:'参数',close:'关闭',briefTabs:['用地与任务书','方案与转角','论文参数']}
 };
 export function siteLedger(state,inputs){
  const st=stack(state),height=st.at(-1).z+st.at(-1).h,half=Math.sqrt(inputs.plot)/2;
@@ -70,6 +70,9 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
  const panels={};
  for(const k of WORKSPACES.slice(1)){const p=node('section','console-workspace');p.id='workspace-'+k;p.dataset.workspace=k;panels[k]=p;dock.append(p)}
  panels.brief.append($('briefPanel'));panels.walk.append($('walkPanel'));
+ // Feng Shui was never moved here, so it hung as a bar under every workspace
+ // and opened as a page with no tower beside the ring it turns.
+ panels.feng.append($('fengshuiPanel'));
  // The core section and the wall assembly are drawings, and a drawing that
  // lives in a 300px rail is a drawing nobody scrolls to. Both are moved here
  // whole — element ids, event listeners and computed rows intact — so each has
@@ -89,7 +92,7 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
  $('formAtlas').open=true;$('formAtlas').classList.add('console-atlas');
  const controls=shell.querySelector('.controls');controls.insertBefore($('formAtlas'),controls.firstElementChild.nextSibling);
  const buttons=WORKSPACES.map((k,i)=>{const b=node('button');b.type='button';b.id='console-tab-'+k;b.setAttribute('role','tab');b.setAttribute('aria-controls','consoleShell');b.onclick=()=>show(k);b.onkeydown=e=>{let n;if(e.key==='ArrowRight')n=(i+1)%WORKSPACES.length;if(e.key==='ArrowLeft')n=(i+WORKSPACES.length-1)%WORKSPACES.length;if(e.key==='Home')n=0;if(e.key==='End')n=WORKSPACES.length-1;if(n!==undefined){e.preventDefault();show(WORKSPACES[n]);buttons[n].focus()}};nav.append(b);return b});
- function syncSite(){const {lang}=getData(),c=CONSOLE_TEXT[lang],inputs=getBrief().inputs;land.name.textContent=c.land;far.name.textContent=c.far;cityName.textContent=c.city;const ledger=siteLedger(getData().state,inputs),fmt=n=>Math.round(n).toLocaleString(lang);capacity.textContent=fmt(ledger.gross)+' / '+fmt(ledger.allowance)+' m²';capacity.setAttribute('aria-label',c.capacity+': '+capacity.textContent);capacity.title=c.capacity;capacity.classList.toggle('console-flag',ledger.remaining<0);note.textContent=ledger.fits?c.assumption:c.crosses;note.title=note.textContent;note.classList.toggle('console-flag',!ledger.fits);if(credit)credit.title=credit.textContent;for(const [f,v]of [[land.input,inputs.plot],[far.input,inputs.far]])if(document.activeElement!==f)f.value=String(v)}
+ function syncSite(){const {lang}=getData(),c=CONSOLE_TEXT[lang],inputs=getBrief().inputs;land.name.textContent=c.land;far.name.textContent=c.far;cityName.textContent=c.city;const ledger=siteLedger(getData().state,inputs),fmt=n=>Math.round(n).toLocaleString(lang);capacity.textContent=fmt(ledger.gross)+' / '+fmt(ledger.allowance)+' m²';capacity.setAttribute('aria-label',c.capacity+': '+capacity.textContent);capacity.title=c.capacity;capacity.dataset.short=c.capacityShort||'';capacity.classList.toggle('console-flag',ledger.remaining<0);note.textContent=ledger.fits?c.assumption:c.crosses;note.title=note.textContent;note.classList.toggle('console-flag',!ledger.fits);if(credit)credit.title=credit.textContent;for(const [f,v]of [[land.input,inputs.plot],[far.input,inputs.far]])if(document.activeElement!==f)f.value=String(v)}
  for(const [input,key]of [[land.input,'plot'],[far.input,'far']])input.onchange=()=>{if(!input.checkValidity()||!Number.isFinite(input.valueAsNumber)){input.reportValidity();input.value=String(getBrief().inputs[key]);return}if(setBrief({[key]:input.valueAsNumber}))onStudyChange();syncSite()};
  function render(){
   if(typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches&&selected==='form')rail=0;
@@ -110,7 +113,7 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
   $('environmentPanel').hidden=place!==3;$('environmentPanel').open=selected==='place'&&place===3;
   if(selected==='facade')renderFacade({host:facade,lang,state,level,onLevel});
  }
- function show(key){if(!WORKSPACES.includes(key))return;selected=key;render();onLayout()}
+ function show(key){if(!WORKSPACES.includes(key))return;selected=key;render();onLayout();buttons[WORKSPACES.indexOf(key)].scrollIntoView?.({inline:'nearest',block:'nearest'})}
  function active(on){document.body.classList.toggle('is-console',on);if(on){render();onLayout()}}
  return {render,show,active,openForTarget(id){if(id==='contextPanel')place=1;if(id==='locationDesk')place=0;if(id==='sitePanel')place=2;if(id==='environmentPanel')place=3;show(workspaceForTarget(id))}};
 }

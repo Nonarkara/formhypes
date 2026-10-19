@@ -7,7 +7,7 @@ const app=readFileSync(new URL('../dist/app.js',import.meta.url),'utf8');
 // Execute the real controller functions against a deterministic scheduler. A
 // source substring in a comment cannot satisfy these lifecycle checks.
 const handler=app.slice(app.indexOf(' obj.onchange=()=>'),app.indexOf('\n };',app.indexOf(' obj.onchange=()=>'))+4);
-const search=app.slice(app.indexOf('let searchToken=0;'),app.indexOf('function applyCandidate'));
+const search=app.slice(app.indexOf('let searchToken=0'),app.indexOf('function applyCandidate'));
 const finish=app.slice(app.indexOf('function finishSearch'),app.indexOf('// Split from the run'));
 const changed=app.slice(app.indexOf('function changed()'),app.indexOf('/* ── update'));
 function harness(){

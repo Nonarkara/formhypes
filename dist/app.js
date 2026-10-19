@@ -2,7 +2,7 @@ import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPac
 import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=720b5c10c5';
 import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=fb85142bb8';
 import {renderStructure} from './structure.js?v=307dfa7027';
-import {mountConsole} from './console.js?v=19e8ef70e8';
+import {mountConsole} from './console.js?v=1b4f3b8058';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=b84188fae5';
@@ -17,7 +17,7 @@ import {sweptHull,reachSteps,reachLabelled,contactOffset} from './reach.js?v=374
 import {parseGround} from './site.js?v=7cb1769785';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
 import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=c4a97205e2';
-import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=60cc665ee0';
+import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=f90cb5173d';
 import {coreScene} from './core3d.js?v=396c530315';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy as getFengPlayStudy} from './play.js?v=578d890470';
@@ -35,7 +35,7 @@ import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=9d38899646';
-import {WORKSPACES} from './console.js?v=19e8ef70e8';
+import {WORKSPACES} from './console.js?v=1b4f3b8058';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -274,7 +274,7 @@ function sync(){
 /* ── toast ────────────────────────────────────────────────────────────── */
 function toast(msg){$('toast').textContent=msg;$('toast').classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('on'),4200)}
 function changed(){
- searchToken++; // a search still running was computed for the old state; drop it
+ searchToken++;searchActive=false; // a search still running was computed for the old state; drop it
  alternatives=[];searchRun=null;
  $('searchResults').innerHTML=`<div class="empty"><p>${tt('s.changed')}</p></div>`;
  update();
@@ -1616,7 +1616,10 @@ const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
  if(footInset>0){ctx.fillStyle='#2c3438';ctx.fillRect(0,fieldBottom,W,1)}
 }
 let drag=null;
-canvas.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId)};
+canvas.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);learned()};
+// The gesture hint is a signifier for the first visit. Once the reader has
+// dragged, it has done its job, and its band is drawing height given back.
+function learned(){const v=document.querySelector('.viewport');if(v&&!v.classList.contains('handled')){v.classList.add('handled');requestAnimationFrame(drawTower)}}
 canvas.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag={x:e.clientX,y:e.clientY};
  // In plan the drag pans the sheet rather than orbiting it. Orbiting a top
  // -down drawing has no meaning, and leaving the drag live there would swing a
@@ -1683,14 +1686,14 @@ $('reset').onclick=()=>{$('studyName').value='';$('studyNote').value='';resetBri
 /* The search is ~160 full evaluations. Run it in slices that yield to the
    browser between batches so the tab stays responsive and the progress is
    visible — a frozen page is worse than a slow one. */
-let searchToken=0;
+let searchToken=0,searchActive=false;
 const SLICE_MS=8;
 function shareSearch(objective){
  try{history.replaceState(null,'','?regime='+encodeURIComponent(state.regime)+'&objective='+encodeURIComponent(objective)+location.hash)}catch{}
 }
 function runSearch(){
  const objective=$('objective').value;
- const token=++searchToken;
+ const token=++searchToken;searchActive=true;
  searchRun=null;alternatives=[];
  const started=performance.now();
  const plan=searchPlan(state);
@@ -1722,6 +1725,7 @@ function applyCandidate(candidate){
  $('studio').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
 }
 function finishSearch(results,plan,objective,elapsed){
+ searchActive=false;
  alternatives=rerank(results,objective);
  searchRun={plan,objective,elapsed,results};
  shareSearch(objective);
@@ -2697,7 +2701,10 @@ try{
  if(Object.hasOwn(objectives,q.get('objective')??''))state.objective=q.get('objective');
  deepRun=q.get('run')==='1';
 }catch{}
-consoleUI=mountConsole({getData:()=>({lang,state,metrics,level:Number($('floor').value)}),getBrief:()=>getBriefStudy(state),setBrief:setBriefInputs,onStudyChange:()=>update(),onLevel:level=>{$('floor').value=level;$('floor').oninput()},onLayout:()=>{measureChrome();requestAnimationFrame(()=>{drawTower();if(searchRun)drawStudy()})}});
+consoleUI=mountConsole({getData:()=>({lang,state,metrics,level:Number($('floor').value)}),getBrief:()=>getBriefStudy(state),setBrief:setBriefInputs,onStudyChange:()=>update(),onLevel:level=>{$('floor').value=level;$('floor').oninput()},onLayout:()=>{measureChrome();requestAnimationFrame(()=>{drawTower();if(searchRun)drawStudy()});
+ // Explore opened on an empty desk: a heading, a select, a button and a blank
+ // panel. The search takes about a second, so it runs on arrival instead.
+ if($('consoleShell')?.dataset.task==='compare'&&!searchRun&&!searchActive)runSearch()}});
 setLang(lang);
 placeActions();
 matchMedia('(max-width:600px)').addEventListener('change',placeActions);
