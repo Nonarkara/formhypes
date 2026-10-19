@@ -74,7 +74,7 @@ test('steel calibration: a Sears-like steel tower lands inside Khan’s publishe
 test('published reference points carry their citations',()=>{
  assert.deepEqual(REFERENCE_STEEL.map(p=>p.key),['hancock','empire','sears']);
  for(const p of REFERENCE_STEEL){assert.ok(p.src&&p.src.length>3);assert.ok(p.kg>100&&p.kg<250)}
- near(REFERENCE_STEEL[0].kg,29*4.8824,1e-9);
+ near(REFERENCE_STEEL[0].kg,30*4.8824,1e-9); // SOM: about 30 psf
  assert.equal(scorsBand(120),'A');assert.equal(scorsBand(199),'B');assert.equal(scorsBand(300),'E');
  assert.equal(scorsBand(341),'E');assert.equal(scorsBand(156),'B');assert.equal(scorsBand(228),'C');assert.equal(scorsBand(9999),'G');
  assert.deepEqual(TARGETS.map(t=>t.value),[156,228]);

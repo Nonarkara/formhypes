@@ -63,9 +63,9 @@
      ACI 318-19 Table 6.6.3.1.1(a): uncracked walls 0.70·Ig.
      EN 1991-1-1 Table 6.2: offices, category B1, q_k 2.5 kN/m²; RC 25 kN/m³.
    ASSUMPTIONS are marked ASSUMPTION where they are set. */
-import {profile,stack,area} from './model.js';
-import {leastWidth} from './structure.js';
-import {windRead} from './wind.js';
+import {profile,stack,area} from './model.js?v=4d4eb35fb5';
+import {leastWidth} from './structure.js?v=5c4abd9e39';
+import {windRead} from './wind.js?v=8024108437';
 
 /* ── factors ─────────────────────────────────────────────────────────── */
 // IStructE Table 2.3, UK in-situ concrete (ICE V3), kgCO2e/kg, at 0%, 25% and
@@ -123,12 +123,13 @@ export const SYSTEM_KEYS=Object.keys(SYSTEMS);
 /* Published points for the premium-for-height chart. lb/ft² × 4.8824 = kg/m². */
 const PSF=4.8824;
 export const REFERENCE_STEEL=[
- {key:'hancock',storeys:100,kg:29*PSF,src:'Construction (1972); Britannica'},
+ {key:'hancock',storeys:100,kg:30*PSF,src:'SOM: about 30 psf'},
  {key:'empire',storeys:102,kg:42*PSF,src:'Lehigh (Khan), “over 42”'},
  {key:'sears',storeys:108,kg:33*PSF,src:'Lehigh (Khan)'}
 ];
-// SCORS (A1–A5, structure). [upper edge, band]. A and B edges published; the
-// rest read as 50 kg steps consistent with the published placements.
+// SCORS (A1–A5, structure). [upper edge, band]. Edges read from Figure 1 of the
+// 2020 paper (nine equal bands, axis 0 to >400); only A (100–150) is stated in
+// its text. SCORS is per m² GIA; this lab divides by the model's GFA.
 export const SCORS=[[50,'A++'],[100,'A+'],[150,'A'],[200,'B'],[250,'C'],[300,'D'],[350,'E'],[400,'F'],[Infinity,'G']];
 export const TARGETS=[{key:'riba',value:156},{key:'leti',value:228}];
 
@@ -305,7 +306,7 @@ export const CARBON_TEXT={
   elev:'Material per level · gravity grey · lateral amber',elevFoot:'H {h} m · 1:{l}',
   assume:'Assumptions: floor slabs per m² — 250 mm flat slab with 25 kg/m² reinforcement (core + grid), 130 mm composite slab with 35 or 40 kg/m² steel framing (outrigger, diagrid); superimposed dead 2.5 kN/m²; imposed 2.5 kN/m² (EN 1991-1-1, B1); working stress 0.4·f_ck in concrete, 213 MPa in S355 steel; walls at 0.70·E_cm (ACI 318-19); reinforcement 2% in columns, 1% in walls; lever arm 0.9 of the core or the least plan width; an outrigger moves half the moment to the perimeter (40–60% is published); a diagrid uses 0.8 of a conventional perimeter frame (Hearst Tower), that frame 1.6 × ideal flanges. Steel quantities are calibrated so a 68 m square, 108-storey steel tower lands inside Khan’s 142–205 kg/m².',
   cannot:'Cannot claim: an order-of-magnitude scaling law, not a structural design and not a certified life-cycle assessment. No foundations or substructure (SCORS includes them, so the band shown flatters the tower), no transfer structures, no site activities A5a, no seismic design, no dynamic wind response. Carbon factors vary by country and supplier; use EPDs once the supply chain is known.',
-  src:'Sources: IStructE, How to calculate embodied carbon, 2nd ed. 2022, Tables 2.3–2.6 (ICE V3, CARES, worldsteel) · Gibbons, Orr et al., SCORS, The Structural Engineer 98(10) 2020 · Price & Myers carbon data · Khan, premium for height (Lehigh; Construction 1972; Britannica) · Hearst Tower steel (Foster + Partners via BD+C) · outrigger moment relief (Designing Buildings Wiki) · Foraboschi, Mercanzin & Trabucco, Energy and Buildings 68, 2014 · EN 1991-1-4 via the Wind tab · EN 1991-1-1 · EN 1992-1-1 Table 3.1 · ACI 318-19 Table 6.6.3.1.1.'},
+  src:'Sources: IStructE, How to calculate embodied carbon, 2nd ed. 2022, Tables 2.3–2.6 (ICE V3, CARES, worldsteel; EAF/BOF bounds for sections from the UK row, global average 1.580) · Arnold, Cook, Cox, Gibbons & Orr, SCORS (bands read from Fig. 1; per m² GIA), The Structural Engineer 98(10) 2020 · Price & Myers carbon data · Khan, premium for height (Lehigh; Construction 1972; Britannica) · Hearst Tower steel (Foster + Partners via BD+C) · outrigger moment relief (Designing Buildings Wiki) · Foraboschi, Mercanzin & Trabucco, Energy and Buildings 68, 2014 · EN 1991-1-4 via the Wind tab · EN 1991-1-1 · EN 1992-1-1 Table 3.1 · ACI 318-19 Table 6.6.3.1.1.'},
  th:{title:'คาร์บอนแฝงและต้นทุนส่วนเพิ่มของความสูง',
   lede:'โครงสร้างโตตามความสูงของอาคาร พื้นแต่ละชั้นใช้วัสดุเท่าเดิมทุกระดับ เสาต้องรับทุกชั้นที่อยู่เหนือมัน ส่วนระบบต้านแรงด้านข้างต้องรับโมเมนต์พลิกคว่ำจากลมด้วยระยะแขนโมเมนต์ที่กว้างได้ไม่เกินแกนกลางหรือผังอาคาร ปรับเกณฑ์แล้วดูปริมาณวัสดุตอบกลับ',
   run:'ชั้น {n} จาก {N} · {kg} กก./ตร.ม. · {c} กก.CO₂e/ตร.ม.',
@@ -334,7 +335,7 @@ export const CARBON_TEXT={
   elev:'วัสดุต่อชั้น · รับน้ำหนักสีเทา · รับแรงด้านข้างสีอำพัน',elevFoot:'สูง {h} ม. · 1:{l}',
   assume:'สมมติฐาน: พื้นต่อ ตร.ม. — พื้นไร้คาน 250 มม. เหล็กเสริม 25 กก./ตร.ม. (แกนกลาง + เสา) พื้นคอมโพสิต 130 มม. โครงเหล็ก 35 หรือ 40 กก./ตร.ม. (เอาท์ริกเกอร์ ไดอะกริด) น้ำหนักบรรทุกคงที่เพิ่มเติม 2.5 kN/ตร.ม. น้ำหนักบรรทุกจร 2.5 kN/ตร.ม. (EN 1991-1-1 B1) หน่วยแรงใช้งาน 0.4·f_ck สำหรับคอนกรีต 213 MPa สำหรับเหล็ก S355 ผนังใช้ 0.70·E_cm (ACI 318-19) เหล็กเสริม 2% ในเสา 1% ในผนัง ระยะแขนโมเมนต์ 0.9 ของแกนกลางหรือความกว้างผังด้านแคบสุด เอาท์ริกเกอร์ย้ายโมเมนต์ครึ่งหนึ่งไปที่เสารอบนอก (ข้อมูลที่เผยแพร่ 40–60%) ไดอะกริดใช้เหล็ก 0.8 เท่าของโครงรอบนอกแบบทั่วไป (Hearst Tower) และโครงแบบทั่วไปใช้ 1.6 เท่าของปีกในอุดมคติ ปริมาณเหล็กปรับเทียบให้อาคารเหล็กผังสี่เหลี่ยม 68 ม. สูง 108 ชั้น อยู่ในช่วง 142–205 กก./ตร.ม. ของ Khan',
   cannot:'สิ่งที่อ้างไม่ได้: เป็นกฎการปรับขนาดระดับลำดับขนาด ไม่ใช่การออกแบบโครงสร้าง และไม่ใช่การประเมินวัฏจักรชีวิตที่ได้รับการรับรอง ไม่รวมฐานรากและโครงสร้างใต้ดิน (SCORS รวมไว้ ระดับที่แสดงจึงดูดีกว่าความจริง) ไม่รวมโครงสร้างถ่ายแรง กิจกรรมในสถานที่ก่อสร้าง A5a การออกแบบต้านแผ่นดินไหว และการตอบสนองเชิงพลวัตต่อลม ค่าคาร์บอนแตกต่างตามประเทศและผู้ผลิต เมื่อทราบแหล่งวัสดุให้ใช้ EPD',
-  src:'แหล่งอ้างอิง: IStructE, How to calculate embodied carbon ฉบับที่ 2 ปี 2022 ตาราง 2.3–2.6 (ICE V3, CARES, worldsteel) · Gibbons, Orr และคณะ SCORS, The Structural Engineer 98(10) 2020 · ข้อมูลคาร์บอนของ Price & Myers · Khan ส่วนเพิ่มของความสูง (Lehigh; Construction 1972; Britannica) · เหล็กของ Hearst Tower (Foster + Partners ผ่าน BD+C) · การลดโมเมนต์ด้วยเอาท์ริกเกอร์ (Designing Buildings Wiki) · Foraboschi, Mercanzin และ Trabucco, Energy and Buildings 68, 2014 · EN 1991-1-4 ผ่านแท็บลม · EN 1991-1-1 · EN 1992-1-1 ตาราง 3.1 · ACI 318-19 ตาราง 6.6.3.1.1'},
+  src:'แหล่งอ้างอิง: IStructE, How to calculate embodied carbon ฉบับที่ 2 ปี 2022 ตาราง 2.3–2.6 (ICE V3, CARES, worldsteel; ค่าขอบเขต EAF/BOF ของเหล็กรูปพรรณจากแถวสหราชอาณาจักร ค่าเฉลี่ยโลก 1.580) · Arnold, Cook, Cox, Gibbons และ Orr, SCORS (ช่วงคะแนนอ่านจากรูปที่ 1 ต่อ ตร.ม. พื้นที่ภายในรวม), The Structural Engineer 98(10) 2020 · ข้อมูลคาร์บอนของ Price & Myers · Khan ส่วนเพิ่มของความสูง (Lehigh; Construction 1972; Britannica) · เหล็กของ Hearst Tower (Foster + Partners ผ่าน BD+C) · การลดโมเมนต์ด้วยเอาท์ริกเกอร์ (Designing Buildings Wiki) · Foraboschi, Mercanzin และ Trabucco, Energy and Buildings 68, 2014 · EN 1991-1-4 ผ่านแท็บลม · EN 1991-1-1 · EN 1992-1-1 ตาราง 3.1 · ACI 318-19 ตาราง 6.6.3.1.1'},
  zh:{title:'隐含碳与高度溢价',
   lede:'结构随塔楼一起长高。每层楼板在任何高度用料都一样；柱子要承担其上所有楼层；抗侧力体系则要以不超过核心筒或平面宽度的力臂抵抗风的倾覆力矩。调整条件，看材料用量如何回应。',
   run:'第 {n} 层 / 共 {N} 层 · {kg} 千克/平方米 · {c} 千克CO₂e/平方米',
@@ -363,7 +364,7 @@ export const CARBON_TEXT={
   elev:'每层材料 · 竖向灰色 · 抗侧琥珀色',elevFoot:'高 {h} 米 · 1:{l}',
   assume:'假定：每平方米楼板——250 毫米无梁楼板配筋 25 千克/平方米（核心筒 + 柱网）；130 毫米组合楼板配钢梁 35 或 40 千克/平方米（伸臂桁架、斜交网格）；附加恒载 2.5 kN/平方米；活载 2.5 kN/平方米（EN 1991-1-1，B1 类）；工作应力混凝土取 0.4·f_ck，S355 钢取 213 MPa；墙体刚度取 0.70·E_cm（ACI 318-19）；柱配筋率 2%，墙 1%；力臂取核心筒或平面最窄宽度的 0.9；伸臂桁架将一半力矩转移到外围（文献为 40–60%）；斜交网格用钢为常规外框的 0.8（赫斯特大厦），常规外框为理想翼缘的 1.6 倍。钢材用量经校准，使 68 米见方、108 层的钢结构塔楼落在 Khan 的 142–205 千克/平方米范围内。',
   cannot:'不能据此断言：这是数量级的比例关系，不是结构设计，也不是经认证的生命周期评估。不含基础和地下结构（SCORS 包含这些，因此所示等级偏乐观），不含转换结构、现场施工活动 A5a、抗震设计和风致动力响应。碳排放因子因国家和供应商而异；供应链明确后应使用 EPD。',
-  src:'来源：IStructE《How to calculate embodied carbon》第 2 版，2022，表 2.3–2.6（ICE V3、CARES、worldsteel）· Gibbons、Orr 等，SCORS，The Structural Engineer 98(10)，2020 · Price & Myers 碳数据 · Khan 高度溢价（理海大学；Construction 1972；大英百科）· 赫斯特大厦（Hearst Tower）用钢（Foster + Partners，经 BD+C）· 伸臂桁架力矩折减（Designing Buildings Wiki）· Foraboschi、Mercanzin、Trabucco，Energy and Buildings 68，2014 · EN 1991-1-4（经“风”页）· EN 1991-1-1 · EN 1992-1-1 表 3.1 · ACI 318-19 表 6.6.3.1.1'}
+  src:'来源：IStructE《How to calculate embodied carbon》第 2 版，2022，表 2.3–2.6（ICE V3、CARES、worldsteel；型钢 EAF/BOF 取值来自英国行，全球平均 1.580）· Arnold、Cook、Cox、Gibbons、Orr，SCORS（等级取自图 1；按建筑内部面积计），The Structural Engineer 98(10)，2020 · Price & Myers 碳数据 · Khan 高度溢价（理海大学；Construction 1972；大英百科）· 赫斯特大厦（Hearst Tower）用钢（Foster + Partners，经 BD+C）· 伸臂桁架力矩折减（Designing Buildings Wiki）· Foraboschi、Mercanzin、Trabucco，Energy and Buildings 68，2014 · EN 1991-1-4（经“风”页）· EN 1991-1-1 · EN 1992-1-1 表 3.1 · ACI 318-19 表 6.6.3.1.1'}
 };
 
 /* ── DOM ──────────────────────────────────────────────────────────────── */

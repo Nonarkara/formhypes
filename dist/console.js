@@ -1,7 +1,7 @@
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
 import {profile,stack,grossOf} from './model.js?v=4d4eb35fb5';
-import {renderCarbonLab} from './carbon.js?v=8ccaa70ce2';
+import {renderCarbonLab} from './carbon.js?v=f257e13ac5';
 import {renderLiftsLab} from './lifts.js?v=72ae698523';
 import {renderFireLab} from './fire.js?v=256fd63d9e';
 import {renderWindLab} from './wind.js?v=8024108437';
