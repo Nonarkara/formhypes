@@ -125,7 +125,7 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
   $('environmentPanel').hidden=place!==3;$('environmentPanel').open=selected==='place'&&place===3;
   if(selected==='facade')renderFacade({host:facade,lang,state,level,onLevel});
   // Every lab is told whether it is on screen, so a hidden lab stops animating.
-  for(const [k,[render,id]]of Object.entries(labs))render({host:$(id),state,metrics:getData().metrics,lang,active:selected===k});
+  for(const [k,[render,id]]of Object.entries(labs))render({host:$(id),state,metrics:getData().metrics,changed:getData().changed,lang,active:selected===k});
  }
  function show(key){if(!WORKSPACES.includes(key))return;selected=key;render();onLayout();buttons[WORKSPACES.indexOf(key)].scrollIntoView?.({inline:'nearest',block:'nearest'})}
  function active(on){document.body.classList.toggle('is-console',on);if(on){render();onLayout()}}

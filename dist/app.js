@@ -2702,7 +2702,7 @@ try{
  if(Object.hasOwn(objectives,q.get('objective')??''))state.objective=q.get('objective');
  deepRun=q.get('run')==='1';
 }catch{}
-consoleUI=mountConsole({getData:()=>({lang,state,metrics,level:Number($('floor').value)}),getBrief:()=>getBriefStudy(state),setBrief:setBriefInputs,onStudyChange:()=>update(),onLevel:level=>{$('floor').value=level;$('floor').oninput()},onLayout:()=>{measureChrome();requestAnimationFrame(()=>{drawTower();if(searchRun)drawStudy()});
+consoleUI=mountConsole({getData:()=>({lang,state,metrics,level:Number($('floor').value),changed:applyDeskPatch}),getBrief:()=>getBriefStudy(state),setBrief:setBriefInputs,onStudyChange:()=>update(),onLevel:level=>{$('floor').value=level;$('floor').oninput()},onLayout:()=>{measureChrome();requestAnimationFrame(()=>{drawTower();if(searchRun)drawStudy()});
  // Explore opened on an empty desk: a heading, a select, a button and a blank
  // panel. The search takes about a second, so it runs on arrival instead.
  if($('consoleShell')?.dataset.task==='compare'&&!searchRun&&!searchActive)runSearch()}});

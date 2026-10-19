@@ -313,7 +313,11 @@ function refresh(geometryChanged){
  const maxS=Math.max(1e-9,...rows.map(x=>x.shear));
  ui.cmp.replaceChildren(...rows.map(x=>{
   const li=el('li','wl-row'+(x.family===state.family?' wl-me':''));
-  const name=el('span','wl-name',c.fam[x.family]||x.family),track=el('span','wl-track'),bar=el('span','wl-bar');
+  // A row is a way to try that plan: it sets the tower's family, and every
+  // desk follows. The current family stays plain text.
+  const label=c.fam[x.family]||x.family,canPick=pick&&x.family!==state.family;
+  const name=el(canPick?'button':'span','wl-name',label),track=el('span','wl-track'),bar=el('span','wl-bar');
+  if(canPick){name.type='button';name.onclick=()=>pick({family:x.family})}
   bar.style.width=(100*x.shear/maxS).toFixed(1)+'%';track.append(bar);
   const val=el('span','wl-val',fmt(x.shear)+' '+c.u.mn+' · v_crit '+fmt(x.vCrit)+' '+c.u.ms+' · '+c.cmp[x.state]);
   if(x.state!=='clear')val.classList.add('wl-flagtext');
@@ -453,8 +457,10 @@ function loop(){
 }
 function stop(){if(raf&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(raf);raf=0}
 
-export function renderWindLab({host,state,metrics,lang='en',active=false}={}){
+let pick=null;
+export function renderWindLab({host,state,metrics,lang='en',active=false,changed=null}={}){
  if(!host||!state)return;
+ pick=typeof changed==='function'?changed:null;
  lang=WIND_TEXT[lang]?lang:'en';
  last={state,metrics};
  if(!active){stop();return}
