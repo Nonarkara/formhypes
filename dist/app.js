@@ -1,6 +1,7 @@
 import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=8f2f135b0f';
 import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=720b5c10c5';
 import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=fb85142bb8';
+import {renderStructure} from './structure.js?v=307dfa7027';
 import {mountConsole} from './console.js?v=19e8ef70e8';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
@@ -470,6 +471,7 @@ function drawAreaSplit(){
 
 function drawCore(){
  const box=$('coreFigure');if(!box)return;
+ renderStructure({host:$('structureDesk'),state,metrics,lang});
  const net=metrics?.rentable??0;
  const core=coreOf(state,net,occupiedOf(state));
  box.innerHTML=coreSVG(state,core,{floor:Number($('floor').value),lang});

@@ -353,3 +353,19 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 #fengshuiDesk .feng-src{margin:8px 0 0;padding-left:18px;font:400 11px/1.6 var(--sans);color:var(--faint);max-width:82ch}
 #fengshuiDesk .feng-src li{margin-bottom:3px}
 @media (max-width:900px){#fengshuiDesk .feng-grid{grid-template-columns:minmax(0,1fr);gap:0}}
+
+/* ── Structure, read from the geometry (structure.js) ── */
+.structure-desk{border-bottom:2px solid var(--ink);padding:0 0 12px;margin:0 0 14px}
+.structure-desk .sd-title{font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 8px}
+.structure-desk .sd-verdict{font-size:20px;font-weight:600;margin:0;line-height:1.2}
+.structure-desk .sd-verdict.sd-flag{color:var(--ink);border-left:3px solid var(--accent);padding-left:8px}
+.structure-desk .sd-lede{margin:2px 0 6px;color:var(--muted);font-size:12px}
+.structure-desk .sd-scale{margin:0 0 8px}
+.structure-desk .sd-scale svg{width:100%;height:auto;display:block;max-width:520px}
+.structure-desk .sd-axis{font-size:11px;color:var(--muted)}
+.structure-desk .sd-facts{margin:0 0 8px;display:grid;gap:3px}
+.structure-desk .sd-facts>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;border-bottom:1px solid var(--line);padding:3px 0}
+.structure-desk .sd-facts dt{font-size:12px}
+.structure-desk .sd-facts dd{margin:0;font-family:var(--mono);font-size:12px;text-align:right}
+.structure-desk .sd-note{font-size:12px;line-height:1.45;margin:6px 0;max-width:65ch}
+.structure-desk .sd-limits{color:var(--muted)}
