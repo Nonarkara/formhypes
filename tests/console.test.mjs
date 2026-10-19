@@ -23,7 +23,7 @@ test('workspace navigation keeps every existing desk addressable',()=>{
  // The count is derived, never typed: a hardcoded 9 stopped covering the
  // workspaces added after it was written, which is how two tools end up
  // sharing one mark without anybody noticing.
- assert.deepEqual(WORKSPACES,['form','brief','core','wind','water','glare','detail','facade','place','feng','walk','compare','studies']);
+ assert.deepEqual(WORKSPACES,['form','brief','core','lifts','fire','wind','water','glare','detail','facade','place','feng','walk','compare','studies']);
  for(const [id,workspace]of [['briefPanel','brief'],['contextPanel','place'],['locationDesk','place'],['walkPanel','walk'],['exploreTitle','compare'],['savedStudies','studies'],['atlas','form'],['coreFigure','core'],['detailFigure','detail']])assert.equal(workspaceForTarget(id),workspace);
  for(const l of ['en','th','zh']){assert.deepEqual(Object.keys(CONSOLE_TEXT[l]),Object.keys(CONSOLE_TEXT.en));assert.equal(CONSOLE_TEXT[l].work.length,WORKSPACES.length);assert.deepEqual(Object.keys(FACADE_TEXT[l]),Object.keys(FACADE_TEXT.en));assert.equal(FACADE_TEXT[l].parts.length,8);
   if(l!=='en')for(const p of FACADE_TEXT[l].parts)assert.match(p,l==='th'?/[ก-๙]/:/[㐀-鿿]/);
