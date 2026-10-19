@@ -14,7 +14,7 @@
 
    Import this module for the numbers. The page only downloads the file. */
 
-import {stack, profile, area, evaluate, glazingAt, facadeFamilies} from './model.js?v=0c66fed306';
+import {stack, profile, area, evaluate, glazingAt, facadeFamilies} from './model.js?v=59eff05d4b';
 import {planLibrary, loftTable, lateralArea} from './geometry.js?v=eb7a621ab9';
 import {splitOf, CIRCULATION_SHARE} from './areasplit.js?v=7506bcd419';
 import {MATERIALS, materialOf} from './materials.js?v=be1c7d7582';
@@ -177,25 +177,25 @@ const COPY={
   level:'Level',elevation:'Elevation (m)',gross:'Gross floor area (m²)',core:'Core area (m²)',
   circulation:'Circulation (m²)',net:'Net area (m²)',how:'How measured',facade:'Façade',unit:'m²',
   measured:'Measured total',order:'Order total',
-  levelHow:'gross = outer slab outline × kept share, and zero on a level that earns no floor area; core = core footprint on occupied levels, otherwise zero; circulation = {pct}% of (gross − core); net = gross − core − circulation; façade = integrated loft skin between this level’s elevations (perimeter × floor-to-floor height on a vertical prism), split by material and type. Measured quantity is this geometry. Order quantity equals the measured quantity; no waste allowance is applied.',
-  measuredHow:'Measured total. The sum of the level rows. Gross, core, circulation, net and façade equal the on-screen schedule: gross is the outer-slab sum, core is the core footprint, circulation and net are the plate split, and façade is the integrated skin.',
-  orderHow:'Order total. Each order quantity equals the measured total. This schedule adds no waste or cutting allowance, so the two totals match the on-screen schedule on purpose.'
+  levelHow:'gross = outer slab outline × kept share, and zero on a level that earns no floor area; core = core footprint on occupied levels, otherwise zero; circulation = {pct}% of (gross − core); net = gross − core − circulation; façade = integrated loft skin between this level’s elevations (perimeter × floor-to-floor height on a vertical prism), split by material and type. Measured quantity is this geometry. Order quantity equals the measured quantity; no waste allowance is applied. The screen shows whole m². This file shows 2 decimal places.',
+  measuredHow:'Measured total. The sum of the printed level rows. Gross, core, circulation, net and façade equal the on-screen schedule rounded to 2 decimal places: gross is the outer-slab sum, core is the core footprint, circulation and net are the plate split, and façade is the integrated skin. The screen shows whole m². This file shows 2 decimal places.',
+  orderHow:'Order total. Each order quantity equals the measured total. This schedule adds no waste or cutting allowance, so the two totals match the on-screen schedule rounded to 2 decimal places. The screen shows whole m². This file shows 2 decimal places.'
  },
  th:{
   level:'ชั้น',elevation:'ระดับ (ม.)',gross:'พื้นที่รวม (ตร.ม.)',core:'พื้นที่แกนกลาง (ตร.ม.)',
   circulation:'พื้นที่ทางสัญจร (ตร.ม.)',net:'พื้นที่สุทธิ (ตร.ม.)',how:'วิธีวัด',facade:'เปลือก',unit:'ตร.ม.',
   measured:'รวมที่วัดได้',order:'รวมที่สั่ง',
-  levelHow:'พื้นที่รวม = เส้นขอบพื้นชั้นนอก × สัดส่วนที่คงไว้ และเป็นศูนย์ในชั้นที่ไม่คิดพื้นที่; พื้นที่แกนกลาง = รอยแกนกลางในชั้นที่มีพื้นที่ นอกนั้นเป็นศูนย์; พื้นที่ทางสัญจร = {pct}% ของ (พื้นที่รวม − แกนกลาง); พื้นที่สุทธิ = พื้นที่รวม − แกนกลาง − ทางสัญจร; เปลือก = พื้นผิวที่อินทิเกรตระหว่างระดับของชั้นนี้ (เท่ากับเส้นรอบรูป × ความสูงชั้น เมื่อผนังตั้งตรง) แยกตามวัสดุและชนิด. ปริมาณที่วัดคือเรขาคณิตนี้. ปริมาณที่สั่งเท่ากับปริมาณที่วัด เพราะไม่ได้บวกเผื่อการสูญเสีย.',
-  measuredHow:'รวมที่วัดได้ คือผลบวกของทุกชั้น พื้นที่รวม แกนกลาง ทางสัญจร พื้นที่สุทธิ และเปลือก เท่ากับตารางบนจอ: พื้นที่รวมคือผลบวกเส้นขอบพื้น แกนกลางคือรอยแกน ทางสัญจรกับพื้นที่สุทธิคือการแบ่งแผ่นพื้น และเปลือกคือผิวที่อินทิเกรต',
-  orderHow:'รวมที่สั่ง แต่ละปริมาณที่สั่งเท่ากับรวมที่วัดได้ ตารางนี้ไม่บวกเผื่อการสูญเสียหรือการตัด ดังนั้นสองแถวนี้ตรงกับตารางบนจอโดยตั้งใจ'
+  levelHow:'พื้นที่รวม = เส้นขอบพื้นชั้นนอก × สัดส่วนที่คงไว้ และเป็นศูนย์ในชั้นที่ไม่คิดพื้นที่; พื้นที่แกนกลาง = รอยแกนกลางในชั้นที่มีพื้นที่ นอกนั้นเป็นศูนย์; พื้นที่ทางสัญจร = {pct}% ของ (พื้นที่รวม − แกนกลาง); พื้นที่สุทธิ = พื้นที่รวม − แกนกลาง − ทางสัญจร; เปลือก = พื้นผิวที่อินทิเกรตระหว่างระดับของชั้นนี้ (เท่ากับเส้นรอบรูป × ความสูงชั้น เมื่อผนังตั้งตรง) แยกตามวัสดุและชนิด. ปริมาณที่วัดคือเรขาคณิตนี้. ปริมาณที่สั่งเท่ากับปริมาณที่วัด เพราะไม่ได้บวกเผื่อการสูญเสีย. บนจอแสดงเป็นตารางเมตรจำนวนเต็ม ไฟล์นี้แสดงทศนิยม 2 ตำแหน่ง',
+  measuredHow:'รวมที่วัดได้ คือผลบวกของแถวที่พิมพ์ พื้นที่รวม แกนกลาง ทางสัญจร พื้นที่สุทธิ และเปลือก เท่ากับตารางบนจอเมื่อปัดเป็นทศนิยม 2 ตำแหน่ง: พื้นที่รวมคือผลบวกเส้นขอบพื้น แกนกลางคือรอยแกน ทางสัญจรกับพื้นที่สุทธิคือการแบ่งแผ่นพื้น และเปลือกคือผิวที่อินทิเกรต บนจอแสดงเป็นตารางเมตรจำนวนเต็ม ไฟล์นี้แสดงทศนิยม 2 ตำแหน่ง',
+  orderHow:'รวมที่สั่ง แต่ละปริมาณที่สั่งเท่ากับรวมที่วัดได้ ตารางนี้ไม่บวกเผื่อการสูญเสียหรือการตัด ดังนั้นสองแถวนี้ตรงกับตารางบนจอเมื่อปัดเป็นทศนิยม 2 ตำแหน่ง บนจอแสดงเป็นตารางเมตรจำนวนเต็ม ไฟล์นี้แสดงทศนิยม 2 ตำแหน่ง'
  },
  zh:{
   level:'层',elevation:'标高 (m)',gross:'总建筑面积 (m²)',core:'核心筒面积 (m²)',
   circulation:'交通面积 (m²)',net:'净面积 (m²)',how:'测量方法',facade:'立面',unit:'m²',
-  measured:'实测合计',order:'订购合计',
-  levelHow:'总面积 = 外轮廓楼板 × 保留比例，不计面积的楼层为零；核心筒 = 有面积楼层的核心筒足迹，其余为零；交通 = （总面积 − 核心筒）的 {pct}%；净面积 = 总面积 − 核心筒 − 交通；立面 = 本层层间的放样侧面积（直壁时等于周长 × 层高），按材料与类型分开。实测数量是该几何量。订购数量等于实测数量，因为不加损耗。',
-  measuredHow:'实测合计，即各层之和。总面积、核心筒、交通、净面积和立面等于屏幕上的表：总面积是外轮廓之和，核心筒是足迹，交通和净面积是平面划分，立面是积分侧面积。',
-  orderHow:'订购合计。每一项订购数量都等于实测合计。本表不加损耗或切割余量，因此两行合计故意与屏幕上的表一致。'
+  measured:'计算合计',order:'订购合计',
+  levelHow:'总面积 = 外轮廓楼板 × 保留比例，不计面积的楼层为零；核心筒 = 有面积楼层的核心筒足迹，其余为零；交通 = （总面积 − 核心筒）的 {pct}%；净面积 = 总面积 − 核心筒 − 交通；立面 = 本层层间的放样侧面积（直壁时等于周长 × 层高），按材料与类型分开。实测数量是该几何量。订购数量等于实测数量，因为不加损耗。屏幕显示整平方米，本文件显示 2 位小数。',
+  measuredHow:'计算合计，即各层印出值之和。总面积、核心筒、交通、净面积和立面等于屏幕上的表四舍五入到 2 位小数：总面积是外轮廓之和，核心筒是足迹，交通和净面积是平面划分，立面是积分侧面积。屏幕显示整平方米，本文件显示 2 位小数。',
+  orderHow:'订购合计。每一项订购数量都等于计算合计。本表不加损耗或切割余量，因此两行合计与屏幕上的表按 2 位小数一致。屏幕显示整平方米，本文件显示 2 位小数。'
  }
 };
 
@@ -208,7 +208,45 @@ function facadeHeader(id,meta,lang){
  return copy.facade+' · '+name+' · '+type+' ('+copy.unit+')';
 }
 
-function numCell(v,digits=8){return {n:true,v,digits}}
+const AREA_DP=2;
+
+/* Integer hundredths (or thousandths) of a value already passed through
+   formatNum, so the printed text and the residue use one rounding. */
+function units(v,digits){
+ const s=formatNum(v,digits);
+ const neg=s.startsWith('-');
+ const [whole,frac='']= (neg?s.slice(1):s).split('.');
+ const scale=10**digits;
+ const n=Number(whole)*scale+Number((frac+'0'.repeat(digits)).slice(0,digits));
+ return neg?-n:n;
+}
+function fromUnits(u,digits){
+ const neg=u<0;
+ const scale=10**digits;
+ const a=Math.abs(u);
+ const whole=Math.floor(a/scale);
+ const s=digits?whole+'.'+String(a%scale).padStart(digits,'0'):String(whole);
+ return neg?'-'+s:s;
+}
+function numExact(text,digits){return {n:true,v:Number(text),digits,exact:text}}
+
+/* Round every level cell, then put the leftover hundredths on the last
+   non-zero printed cell so the column adds up to the schedule at this
+   precision. A void that prints as zero stays zero. */
+function pinColumn(raw,target,digits){
+ const cells=raw.map(v=>units(v,digits));
+ let last=-1;
+ for(let i=cells.length-1;i>=0;i--)if(cells[i]!==0){last=i;break}
+ if(last<0){
+  for(let i=raw.length-1;i>=0;i--)if(Math.abs(raw[i])>1e-9){last=i;break}
+ }
+ if(last<0)last=Math.max(0,raw.length-1);
+ const targetU=units(target,digits);
+ let others=0;
+ for(let i=0;i<cells.length;i++)if(i!==last)others+=cells[i];
+ cells[last]=targetU-others;
+ return {cells,total:targetU,last};
+}
 
 export function quantityTable(state,lang='en'){
  const L=langOf(lang);
@@ -216,26 +254,56 @@ export function quantityTable(state,lang='en'){
  const copy=COPY[L];
  const headers=[copy.level,copy.elevation,copy.gross,copy.core,copy.circulation,copy.net,
   ...keys.map(k=>facadeHeader(k,meta,L)),copy.how];
- const body=rows.map(r=>[
-  numCell(r.level,0),numCell(r.elevation,3),numCell(r.gross),numCell(r.core),numCell(r.circulation),numCell(r.net),
-  ...keys.map(k=>numCell(r.facade[k]||0)),fill(copy.levelHow)
+ const gross=pinColumn(rows.map(r=>r.gross),screen.gross,AREA_DP);
+ const core=pinColumn(rows.map(r=>r.core),screen.core,AREA_DP);
+ const circulation=pinColumn(rows.map(r=>r.circulation),screen.circulation,AREA_DP);
+ const net=pinColumn(rows.map(r=>r.net),screen.net,AREA_DP);
+ const facadePins=keys.map(k=>pinColumn(rows.map(r=>r.facade[k]||0),rows.reduce((s,r)=>s+(r.facade[k]||0),0),AREA_DP));
+ // Each material column is pinned to its own rounded sum. The leftover
+ // hundredth, if the rounded columns no longer add up to the façade on the
+ // schedule, goes on the last non-zero cell of the last non-zero column.
+ const facadeWant=units(screen.facade,AREA_DP);
+ const facadeGot=facadePins.reduce((s,p)=>s+p.total,0);
+ if(facadePins.length&&facadeGot!==facadeWant){
+  let col=facadePins.length-1;
+  for(let c=facadePins.length-1;c>=0;c--)if(facadePins[c].cells.some(u=>u!==0)){col=c;break}
+  facadePins[col].cells[facadePins[col].last]+=facadeWant-facadeGot;
+  facadePins[col].total+=facadeWant-facadeGot;
+ }
+ const cell=(text,digits)=>numExact(text,digits);
+ const body=rows.map((r,i)=>[
+  cell(formatNum(r.level,0),0),cell(formatNum(r.elevation,3),3),
+  cell(fromUnits(gross.cells[i],AREA_DP),AREA_DP),
+  cell(fromUnits(core.cells[i],AREA_DP),AREA_DP),
+  cell(fromUnits(circulation.cells[i],AREA_DP),AREA_DP),
+  cell(fromUnits(net.cells[i],AREA_DP),AREA_DP),
+  ...facadePins.map(p=>cell(fromUnits(p.cells[i],AREA_DP),AREA_DP)),
+  fill(copy.levelHow)
  ]);
- const facade={};
- for(const k of keys)facade[k]=rows.reduce((s,r)=>s+(r.facade[k]||0),0);
- const totals={gross:screen.gross,core:screen.core,circulation:screen.circulation,net:screen.net,facade};
  const totalRow=(label,how)=>[
-  label,'',numCell(totals.gross),numCell(totals.core),numCell(totals.circulation),numCell(totals.net),
-  ...keys.map(k=>numCell(totals.facade[k]||0)),how
+  label,'',
+  cell(fromUnits(gross.total,AREA_DP),AREA_DP),
+  cell(fromUnits(core.total,AREA_DP),AREA_DP),
+  cell(fromUnits(circulation.total,AREA_DP),AREA_DP),
+  cell(fromUnits(net.total,AREA_DP),AREA_DP),
+  ...facadePins.map(p=>cell(fromUnits(p.total,AREA_DP),AREA_DP)),
+  how
  ];
  body.push(totalRow(copy.measured,copy.measuredHow),totalRow(copy.order,copy.orderHow));
  return {headers,rows:body,keys,screen,labels:{measured:copy.measured,order:copy.order}};
 }
 
-/* Text cells that start with a formula trigger are prefixed so a spreadsheet
-   treats them as text. Numbers keep their sign: a negative area is not a formula. */
+/* Only a string is a formula risk. A numeric cell is written by formatNum, so
+   a negative area such as -12.50 keeps its sign. A string that starts with
+   = + - @ or a tab, CR or LF is prefixed before it is quoted. */
+const FORMULA_START=/^[=+\-@\t\r\n]/;
 export function csvField(value){
- let s=value==null?'':String(value);
- if(/^[=+\-@]/.test(s))s="'"+s;
+ if(typeof value!=='string'){
+  const s=value==null?'':String(value);
+  return /[",\n\r]/.test(s)?'"'+s.replaceAll('"','""')+'"':s;
+ }
+ let s=value;
+ if(FORMULA_START.test(s))s="'"+s;
  if(/[",\n\r]/.test(s))s='"'+s.replaceAll('"','""')+'"';
  return s;
 }
@@ -247,7 +315,7 @@ export function formatNum(n,digits=8){
 }
 export function toCsv(headers,rows){
  const line=cells=>cells.map(cell=>{
-  if(cell&&typeof cell==='object'&&cell.n)return formatNum(cell.v,cell.digits??8);
+  if(cell&&typeof cell==='object'&&cell.n)return typeof cell.exact==='string'?cell.exact:formatNum(cell.v,cell.digits??AREA_DP);
   return csvField(cell);
  }).join(',');
  return [line(headers),...rows.map(line)].join('\r\n')+'\r\n';

@@ -7,7 +7,7 @@
 // hold a parameter Chen specifies, this panel says so on screen rather than
 // approximating it quietly.
 
-import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=0c66fed306';
+import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=59eff05d4b';
 
 export const BRIEF_I18N={
 en:{

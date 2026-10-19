@@ -1,12 +1,12 @@
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=b8c89ed50c';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=975a0aa2ec';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=d33e94ad19';
-import {mountConsole} from './console.js?v=2eda886fa4';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=aa90c63633';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=116f50e734';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=d07637bcb5';
+import {mountConsole} from './console.js?v=cf48c8d07c';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=0c66fed306';
-import{familyResponse,lattice}from'./explore.js?v=71324d2b16';
-import{t,langs,langMeta,translator}from'./i18n.js?v=d098f21272';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=59eff05d4b';
+import{familyResponse,lattice}from'./explore.js?v=7dbcfa1937';
+import{t,langs,langMeta,translator}from'./i18n.js?v=05108614ac';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
@@ -19,21 +19,21 @@ import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './
 import {coreOf,coreSVG,CORE_SRC} from './core.js?v=e98b022d2a';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=fbab3e2d85';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=a29c6bbaef';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=f3502a1c05';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=fc9c01ac25';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=be448b2a7d';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=2eee6ede9c';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=553369f999';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=3a573892af';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
-import {quantityCsv, howMeasured} from './quantity.js?v=ef0dd892b2';
+import {quantityCsv, howMeasured} from './quantity.js?v=2d48ebc776';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=5f63bfdc65';
-import {WORKSPACES} from './console.js?v=2eda886fa4';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=b3a5642d6e';
+import {WORKSPACES} from './console.js?v=cf48c8d07c';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
