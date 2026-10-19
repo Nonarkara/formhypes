@@ -319,8 +319,20 @@ test('the view foot names the gesture the sheet actually responds to',()=>{
  }
  const app=strip(dist('app.js'));
  assert.match(app,/syncDragHint\(\)/,'the view foot hint is never resynchronised');
- assert.match(app,/tt\(view==='plan'\?'v\.pan':'v\.drag'\)/,
-  'the foot hint does not follow the view');
+ /* Which hint each view shows is read out of the function, not matched as one
+    literal ternary. Pinning `tt(view==='plan'?'v.pan':'v.drag')` fails the moment
+    a third view exists — the guard breaking on correct code, and telling you
+    nothing about the two views it was written to protect. What has to hold is
+    that the views are distinguished and that every hint they name is a real
+    translated string in all three languages. */
+ const hintFn=/function syncDragHint\(\)\{([\s\S]*?)\n\}/.exec(app);
+ assert.ok(hintFn,'syncDragHint has no body to inspect');
+ const keys=[...hintFn[1].matchAll(/'([a-z]+\.[A-Za-z]+)'/g)].map(m=>m[1]);
+ assert.ok(keys.length>=3,`the view foot only distinguishes ${keys.length} views: ${keys}`);
+ assert.equal(new Set(keys).size,keys.length,`the view foot reuses a hint: ${keys}`);
+ for(const k of keys)
+  for(const l of ['en','th','zh'])
+   assert.ok(grab(l,k),`${k} is named by the view foot but missing from ${l}`);
  // And it must be restored on the way back, or the orbit inherits the plan text.
  assert.ok((app.match(/syncDragHint\(\)/g)||[]).length>=3,
   'the hint is set on entering the plan but never on leaving it');

@@ -156,7 +156,7 @@ export function note(x,y,s,o={}){ PEND.push({k:'txt',x,y,tx:x,ty:y,text:s,o}); r
    around them. Otherwise "70" moves out from under its dimension, which is a
    dimension that now measures the wrong distance — the exact failure this whole
    exercise exists to remove. */
-export function layout(items){
+export function layout(items,W=CW,H=CH){
  const rank=i=>i.o.fixed?0:1;
  const ordered=[...items].sort((a,b)=>rank(a)-rank(b));
  const out=[]; let needL=0,needR=0;
@@ -167,7 +167,8 @@ export function layout(items){
   const x0=it.o.anchor==='middle'?it.tx-w/2:it.o.anchor==='end'?it.tx-w:side==='R'?it.tx+3:it.tx-3-w;
   const box=p=>[p.x0,p.x0+p.w];
   const [ax0,ax1]=box({x0,w});
-  let ty=Math.max(LO, Math.min(HI, it.ty));
+  const lo=TOP+3,hi=H+BOT-4;
+  let ty=Math.max(lo, Math.min(hi, it.ty));
   if(!it.o.fixed){
    // One collision per pass, then rescan. Applying a shift for EVERY obstacle in
    // a single pass compounds the corrections and walks the note back into the
@@ -199,7 +200,7 @@ export function layout(items){
      // If the side we want is off the sheet, take the other one. A note that
      // is pinned against the frame must step the other way or it stays printed
      // on top of its neighbour forever.
-     shift=want>=LO&&want<=HI?want:(alt>=LO&&alt<=HI?alt:want);
+     shift=want>=lo&&want<=hi?want:(alt>=lo&&alt<=hi?alt:want);
      break;
     }
     if(shift===null) break;
@@ -207,14 +208,14 @@ export function layout(items){
    }
   }
   out.push({...it,size,side,lines,w,x0,ty});
-  if(x0+w+3>CW) needR=Math.max(needR,x0+w+3-CW);
+  if(x0+w+3>W) needR=Math.max(needR,x0+w+3-W);
   if(x0-3<0) needL=Math.max(needL,3-x0);
  }
  return {out,needL,needR};
 }
 
-function drawNotes(items){
- const {out,needL,needR}=layout(items);
+function drawNotes(items,W=CW,H=CH){
+ const {out,needL,needR}=layout(items,W,H);
  const notes=out.map(p=>{
   const c=p.o.on?'var(--accent)':'var(--muted)';
   const anchor=p.o.anchor||(p.side==='R'?'start':'end');
@@ -233,13 +234,28 @@ function drawNotes(items){
   return `<path d="M${p.x} ${p.y} L${mid[0]} ${mid[1]} L${land} ${p.ty}" fill="none" stroke="${c}" stroke-width=".6"/>`
    +`<circle cx="${p.x}" cy="${p.y}" r="1.2" fill="${c}"/>`+body;
  }).join('');
- return {body:notes,viewBox:`${-needL} ${-TOP} ${CW+needL+needR} ${CH+TOP+BOT}`};
+ return {body:notes,viewBox:`${-needL} ${-TOP} ${W+needL+needR} ${H+TOP+BOT}`};
 }
 /* A flow arrow — water, air, smoke. Thin shaft, small solid head, and it is the
    ONLY thing in a detail allowed an arrowhead. */
-export function flow(d,on=false){
- const c=on?'var(--accent)':'var(--muted)';
- return `<path d="${d}" fill="none" stroke="${c}" stroke-width=".8"/>`;
+/* A flow line — a riser, a duct, a run of water. `cls` is an optional class
+   name, and it is not decoration.
+
+   The core section styles its risers with CSS keyframes that march a dash
+   pattern downward or upward, so the direction of travel is animated rather than
+   described. That animation hangs off `core-flow-up` / `-down` / `-air`. The
+   first version of the core drew them by passing the class name into a
+   parameter that only ever tested truthiness: the lines came out in the accent
+   colour and no class was ever emitted, so the sheet looked right and nothing
+   moved. The guard that catches this is a *presence* check on the emitted
+   markup — a styling rule that is styled but never drawn is the same defect as
+   a function that is exported but never called.
+
+   So the class is put on the element. A truthy non-string (the details
+   drawings' `true`) still means "accent" and no class, exactly as before. */
+export function flow(d,cls=false){
+ const on=!!cls,c=typeof cls==='string'?cls:'';
+ return `<path d="${d}"${c?` class="${c}"`:''} fill="none" stroke="${on?'var(--accent)':'var(--muted)'}" stroke-width=".8"/>`;
 }
 export const head=(x,y,dir,on=false)=>{
  const p={u:'M0,2.6 l2.6,-2.6 l2.6,2.6',d:'M0,-2.6 l2.6,2.6 l2.6,-2.6',l:'M2.6,0 l-2.6,2.6 l2.6,2.6',r:'M-2.6,0 l2.6,2.6 l-2.6,2.6'}[dir];
@@ -300,10 +316,24 @@ export const rule=(x1,y1,x2,y2,o={})=>`<path d="M${x1} ${y1} L${x2} ${y2}" fill=
    which is how the next twelve would have managed it. The frame grows to the
    notes it actually has — a drawing whose notes all sit inside the field keeps
    its original 250x150 box and pays for no margin it did not use. */
-export const sheet=(body,w=CW,h=CH)=>{
+/* The frame's own ARIA.
+
+   `aria-hidden="true"` was here because every sheet of a drawing set is a
+   sibling of a caption in the surrounding HTML, and hiding them stopped a screen
+   reader announcing twelve identical "image" nodes. It was right for the twelve
+   details and wrong for the core section, which carries its own
+   aria-label — and `aria-hidden` on an element with a label does not fall back
+   to the label, it hides the element. The core section's long description,
+   written for exactly this, was unreachable.
+
+   So the decision is the caller's: sheet() takes the label and marks the
+   element hidden only when there is none. A sheet with no label is decorative
+   and is hidden; a sheet with a label is described by it. */
+export const sheet=(body,w=CW,h=CH,label='')=>{
  const notes=PEND; PEND=[];
- const {body:noteSVG,viewBox}=drawNotes(notes);
- return `<svg class="dsec" viewBox="${viewBox}" role="img" aria-hidden="true"`
+ const {body:noteSVG,viewBox}=drawNotes(notes,w,h);
+ return `<svg class="dsec" viewBox="${viewBox}" role="img"`
+  +(label?` aria-label="${label}"`:` aria-hidden="true"`)
   +` xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linecap="square">`
   +`<defs>${DEFS}</defs>${body}${noteSVG}</svg>`;
 };

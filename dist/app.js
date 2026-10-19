@@ -1,12 +1,12 @@
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=74d2205894';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=dc4a048343';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=a9eccb5186';
-import {mountConsole} from './console.js?v=2eda886fa4';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=aedf04bd4e';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=a51a227b4c';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=02582ef143';
+import {mountConsole} from './console.js?v=0a26b2450d';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=0c66fed306';
-import{familyResponse,lattice}from'./explore.js?v=71324d2b16';
-import{t,langs,langMeta,translator}from'./i18n.js?v=b5cb69e097';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=6486a0c4d9';
+import{familyResponse,lattice}from'./explore.js?v=cbfa52a32d';
+import{t,langs,langMeta,translator}from'./i18n.js?v=27230efac0';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
@@ -15,30 +15,60 @@ import {cityData,skyline,visibleMassings,ringArea,splitByPlot} from './cityscape
 import {sweptHull,reachSteps,reachLabelled,contactOffset} from './reach.js?v=3742398937';
 import {parseGround} from './site.js?v=7cb1769785';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
-import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=e1bb08c0de';
-import {coreOf,coreSVG,CORE_SRC} from './core.js?v=e98b022d2a';
+import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=c4a97205e2';
+import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=60cc665ee0';
+import {coreScene} from './core3d.js?v=396c530315';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=fbab3e2d85';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=449ee7f788';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=f3502a1c05';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=fc9c01ac25';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=3df57f1f06';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=08d51a7f6f';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=d8f5b776c1';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=75392f025c';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=5f63bfdc65';
-import {WORKSPACES} from './console.js?v=2eda886fa4';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=3b0875c3f2';
+import {WORKSPACES} from './console.js?v=0a26b2450d';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
 const num=v=>Math.round(v).toLocaleString(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US');
 
 let state={...defaults},metrics,alternatives=[],yaw=-.65,zoom=1,wireframe=false,neighbourhood=false,view='orbit',panX=0,panY=0,studies=[],knowledgePack,unknownRegime=null;
+
+/* The core view runs its own clock and its own zoom, and both are separate from
+   the orbit's for the same reason the camera is: a zoom range that can reach the
+   top of a 600 m column does not belong on a zoom range that has to keep a whole
+   building legible. The loop runs only while the core view is on screen —
+   a requestAnimationFrame that never stops is a battery, and a battery that is
+   running to animate something nobody is looking at. */
+let coreZoom=1,coreRAF=0,coreClock=0,corePan=0;
+const coreStart=()=>coreClock||(coreClock=performance.now());
+const coreT=()=>motionOff()?0:(performance.now()-coreStart())/1000;
+/* How much of the core's height the sheet is actually showing, in metres. The
+   projection lifts a metre by 0.96 of a scale unit, so the field divided by
+   scale is not the answer and using it put the locator window a few per cent
+   high on every drawing. */
+const coreVisibleM=(scale,fieldH)=>fieldH/(scale*0.96);
+
+/* Storeys that are actually let. The escalator bank is sized on the podium's
+   share of the population, and the podium's share has to come from a per-floor
+   area — see escalatorDesign(). A mechanical or transfer level carries nobody,
+   so counting them would size the bank on floors that have no people on them. */
+const occupiedOf=s=>stack(s).filter(l=>l.gfa).length||s.floors;
+
+function coreLoop(){
+ if(view!=='core'){coreRAF=0;return}
+ coreRAF=requestAnimationFrame(coreLoop);
+ drawTower();
+}
+function startCoreLoop(){if(!coreRAF)coreRAF=requestAnimationFrame(coreLoop)}
+function stopCoreLoop(){if(coreRAF){cancelAnimationFrame(coreRAF);coreRAF=0}coreClock=0}
 // The run is kept, not just its rows, so a language change can redraw the
 // result in place instead of leaving the table in whichever language the
 // search happened to be launched in.
@@ -440,15 +470,18 @@ function drawAreaSplit(){
 function drawCore(){
  const box=$('coreFigure');if(!box)return;
  const net=metrics?.rentable??0;
- const core=coreOf(state,net);
+ const core=coreOf(state,net,occupiedOf(state));
  box.innerHTML=coreSVG(state,core,{floor:Number($('floor').value),lang});
- const L=core.lift,V=core.services;
+ const L=core.lift,V=core.services,E=core.escalator;
  const rows=[
   ['cx.k.pop',num(L.population)],
   ['cx.k.cars',L.cars],
   ['cx.k.zones',L.zones+' × '+L.zoneFloors+'L'],
   ['cx.k.interval',L.interval+' s < '+L.intervalMax+' s'],
   ['cx.k.handle',L.handleRequired+' / 5 min'],
+  ['cx.k.esc',E.up+' ↑ '+E.down+' ↓ = '+E.units],
+  ['cx.k.escreach',E.levels+'L · '+E.rise+' m'],
+  ['cx.k.esccore',E.coreForNext+' m'],
   ['cx.k.wzones',V.zones+' × '+V.zoneHead+' m'],
   ['cx.k.stacks',V.stacks+' × '+V.stackMM+' mm'],
   ['cx.k.vent',V.ventStacks],
@@ -462,7 +495,7 @@ function drawCore(){
   const dd=document.createElement('dd');dd.textContent=String(v);
   d.append(dt,dd);f.append(d);
  }
- $('coreSrc').textContent=tt('cx.src')+' '+CORE_SRC.lifts+' · '+CORE_SRC.water+' · '+CORE_SRC.drains;
+ $('coreSrc').textContent=tt('cx.src')+' '+CORE_SRC.lifts+' · '+CORE_SRC.water+' · '+CORE_SRC.drains+' · '+CORE_SRC.escalators;
  $('coreShown').textContent=tt('cx.shown');
 }
 function drawPlan(){
@@ -547,6 +580,24 @@ function drawTower(){
  const HEAD=Math.max(30,Math.round(H*.10));
  const FOOT=150;
  const fieldH=Math.max(120,H-HEAD-FOOT);
+ /* CORE is the third view, and it is the only one that answers "where is the
+    core and what is in it".
+
+    A 14 m core inside a 599 m tower is ten pixels wide at any scale that fits
+    the building. That is the whole reason the core used to live in a sidebar as
+    a section drawing beside the model — because there was nowhere to put it in
+    the model itself. But that is a fact about one framing, not about the core:
+    the core view drops the framing. It fits the CORE across the field, the tower
+    behind it becomes a wire cage, and the sheet crops the height it cannot show.
+    Zooming out walks the window up the column, which is why the zoom range is
+    wide here and the sheet carries a locator saying where in the core you are.
+
+    So it is not a zoom preset on the orbit — it is a different camera, its own
+    zoom law, and its own early return below. Keeping it inside drawTower() is
+    deliberate: it shares this `project`, this `path` and this model state, so
+    the core cannot be drawn at a different scale or from a different angle than
+    the building that contains it. */
+ const coreView=view==='core';
  /* PLAN is not another camera angle on the same problem. In the orbit the
    ground plane is edge-on — at a 599 m Shenzhen skyline the street grid is a
    sliver in the corner no matter how the plate is valued, because the plane
@@ -560,11 +611,46 @@ function drawTower(){
  const city=cityData(state.city);
  const planView=view==='plan';
  const planScale=city?Math.min((W-90)/(city.radius*2.15),fieldH/(city.radius*2.15))*zoom:1;
- const scale=planView?planScale:(neighbourhood?Math.min((W-65)/1450,fieldH/(700*.72+ext*.96)):Math.min(fieldH/(ext*.96+state.span*.4),(W-65)/(state.span*2)))*zoom;
+ /* The core view fits the CORE, and it fits it to about a third of the sheet so
+    there is ground either side of it to read the tower's own section against.
+    CORE_WINDOW is the height of core that should be legible at zoom 1 — chosen
+    as a round number of storeys rather than a nice fraction of the field, so
+    that the number of storeys visible does not change when the window does. */
+ const CORE_WINDOW=34;
+ /* The core view looks DOWN into the core rather than across it.
+
+    Everything that makes a core a core — which shaft is beside which, where the
+    bank sits, how deep the stair is — is in PLAN. The orbit's elevation is about
+    twenty degrees, chosen so a 600 m tower reads as a tower, and at twenty
+    degrees a 14 m square of plan projects to a sliver two pixels deep. The core
+    came out as a flat grey slab with four vertical bands: correct geometry, and
+    none of it legible, because the view angle was the orbit's and the subject was
+    not the orbit's.
+
+    Forty-one degrees opens the plan without tipping the storey plates past
+    legibility. It is the same axonometric the section drawing is drawn on. */
+ const CORE_ELEV=0.86;
+ const coreFit=Math.min((W-110)/(state.core*2.9),fieldH/(CORE_WINDOW+CORE_ELEV*state.core));
+ const scale=coreView?coreFit*coreZoom:planView?planScale:(neighbourhood?Math.min((W-65)/1450,fieldH/(700*.72+ext*.96)):Math.min(fieldH/(ext*.96+state.span*.4),(W-65)/(state.span*2)))*zoom;
  const planCY=HEAD+fieldH/2;
- const baseY=planView?planCY:neighbourhood?HEAD+Math.max(0,fieldH-(ext*.96+700*.72)*scale)/2+(ext*.96+700*.36)*scale:HEAD+ext*.96*scale;
+ /* The core view's window is clamped to the column. Without the clamp you can
+    drag the ground line clean off the top of the sheet and be left looking at
+    196 m of empty sky with a locator saying you are at the top of it — which is
+    the same class of bug as the fixed-offset footer: the drawing is correct and
+    anchored to nothing. corePan is a height in metres, and the clamp is in
+    metres too, so it holds at every zoom. */
+ const coreVis=coreView?coreVisibleM(scale,fieldH):0;
+ const coreMaxPan=coreView?Math.max(0,total-coreVis):0;
+ if(coreView)corePan=Math.min(coreMaxPan,Math.max(0,corePan));
+ const baseY=coreView?HEAD+fieldH+corePan*scale:planView?planCY:neighbourhood?HEAD+Math.max(0,fieldH-(ext*.96+700*.72)*scale)/2+(ext*.96+700*.36)*scale:HEAD+ext*.96*scale;
  const c=Math.cos(yaw),s=Math.sin(yaw);
- const project=(x,y,z)=>{if(planView)return[W*.5+x*scale+panX,planCY-y*scale+panY,z];const rx=x*c-y*s,ry=x*s+y*c;return[W*.54+rx*scale,baseY-(z*.96-ry*.36)*scale,ry-z*.04]};
+ /* One projection for the whole sheet, with the elevation angle as the one
+    thing the core view changes. A second project() for the core would be a
+    second camera that could drift from the first, and "the core is drawn at a
+    different scale than the building it is inside" is exactly the bug this view
+    was built to remove. */
+ const elev=coreView?CORE_ELEV:0.36;
+ const project=(x,y,z)=>{if(planView)return[W*.5+x*scale+panX,planCY-y*scale+panY,z];const rx=x*c-y*s,ry=x*s+y*c;return[W*.54+rx*scale,baseY-(z*.96-ry*elev)*scale,ry-z*.04]};
  function path(pts,fill,stroke,width=1){ctx.beginPath();pts.forEach((v,i)=>{const p=project(...v);if(i)ctx.lineTo(p[0],p[1]);else ctx.moveTo(p[0],p[1])});ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke()}}
  function line(a,b,col,width=.6){ctx.beginPath();const p=project(...a),q=project(...b);ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.strokeStyle=col;ctx.lineWidth=width;ctx.stroke()}
 
@@ -628,6 +714,238 @@ function drawTower(){
  const footLabel=footShown?[...footEl.querySelectorAll('span')].pop():null;
  const labelLeft=footLabel?footLabel.getBoundingClientRect().left:vpRect.left+24;
  const origin=[Math.max(24,labelLeft-vpRect.left-40),Math.max(40,fieldBottom-26)];
+
+ /* ── the core view ────────────────────────────────────────────────────────
+    Returns from here. It is not the orbit with a different zoom: the tower
+    becomes a cage, the core becomes the subject, and none of the city drawing
+    runs — a 300 m neighbour at the core's scale is 4500 px wide and would fill
+    the sheet with one grey wall, which is the opposite of a legible drawing.
+
+    Everything painted below comes out of coreScene() in model metres. Nothing
+    here decides a dimension; it decides what is solid and what is void. */
+ if(coreView){
+  ctx.fillStyle='#0b0e11';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#141a20';ctx.fillRect(0,baseY,W,H-baseY);
+  ctx.strokeStyle='#39434a';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,baseY+.5);ctx.lineTo(W,baseY+.5);ctx.stroke();
+  // Earth hatch below grade, so the core is founded rather than sitting on the
+  // plate. The section drawing does the same thing; two drawings of one building
+  // that disagree about whether it has a basement is not two drawings.
+  ctx.strokeStyle='#232c33';ctx.lineWidth=.5;
+  for(let x=-W;x<W*2;x+=9){ctx.beginPath();ctx.moveTo(x,baseY+4);ctx.lineTo(x+7,H);ctx.stroke()}
+
+  /* The tower, as a cage. Grade outline, roof outline and the four corner
+     arrises between them: enough to say "the core is inside this" and no more.
+     Filled, it would hide the thing the view exists to show. */
+  const cage='#2f3940', ring0=profile(state,0), ring1=profile(state,1);
+  path(ring0.map(v=>[...v,0]),null,cage,.7);
+  path(ring1.map(v=>[...v,total]),null,cage,.7);
+  for(const [x,y] of ring0)line([x,y,0],[x,y,total],cage,.5);
+  /* Storey lines, thinned hard. At the core view's forty-one degrees a 48 m
+     tower plate projects to a parallelogram a hundred pixels deep, so a plate
+     every other storey turns the cage into diagonal hatching that buries the
+     core — the thing the cage exists to give context to. Every eighth storey is
+     enough to say "there is a building here, this storey spacing, this many of
+     them" and leaves the sheet for the subject. */
+  const every=Math.max(4,Math.round(st.length/6));
+  st.forEach((l,i)=>{if(i%every)return;path(ring0.map(v=>[...v,l.z]),null,'#1d242a',.3)});
+  // The storey the reader has selected, on the plan view's own index.
+  const fiC=Math.min(Number($('floor').value)-1,st.length-1);
+  path(profile(state,st[fiC].z/total).map(v=>[...v,st[fiC].z]),null,'#f59e0b',1.6);
+
+  /* The core.
+
+     One sorted list, one painter's algorithm. Walls, shafts, stair, bank, cars,
+     storey plates and stair flights all go in together and are drawn back to
+     front by the same depth term the tower's own faces use.
+
+     They did not used to share one list. The plates and the flights were drawn
+     in a separate pass after everything, which is correct for a plate and
+     wrong for a flight: a flight at the back of the core painted over the
+     shafts in front of it, so the stair floated in front of the lifts at every
+     storey. Depth is not a property of a category of thing, it is a property of
+     where the thing is.
+
+     Faces that ENCLOSE space are culled when they turn toward the camera —
+     walls, shafts, stair. You look into those. Faces that ARE a machine are not
+     culled: the cars and the bank keep all their sides, because a car drawn as
+     five faces reads as a broken box rather than as a cabin. Culling only the
+     walls, which was the first attempt, leaves the stair standing across the
+     whole core as an unbroken slab hiding every shaft behind it — a cutaway is
+     not one wall removed, it is every enclosure opened on the same side. */
+  const core=coreOf(state,metrics?.rentable??0,occupiedOf(state));
+  const sc0=coreScene(state,core,coreT());
+  const zLo=Math.max(0,corePan),zHi=Math.min(total,corePan+coreVisibleM(scale,fieldH));
+  const vn=(p,q,r)=>{const ux=q[0]-p[0],uy=q[1]-p[1],uz=q[2]-p[2],vx=r[0]-p[0],vy=r[1]-p[1],vz=r[2]-p[2];
+   return [uy*vz-uz*vy,uz*vx-ux*vz,ux*vy-uy*vx]};
+  const camX=Math.sin(yaw),camY=Math.cos(yaw);      // the direction the sheet looks from
+  const quads=[];
+  /* The outward normal is taken from the box's own centre, not from the winding
+     of the four points.
+
+     Winding is not a safe source. The six faces of a box written as six
+     separate literals do not all wind the same way round, so a cross product
+     comes out pointing inward on some faces and outward on others — and then
+     culling removes the faces you can see and keeps the ones you cannot. The
+     symptom is a core that has gone opaque: the far wall, which should have been
+     culled, is drawn in front of everything inside it. Subtracting the face's
+     own centroid from the box's centre and flipping the normal to agree with it
+     is immune to how the points happen to be listed. */
+  const emit=(pts,kind,mid=null)=>{
+   let n=vn(pts[0],pts[1],pts[2]);
+   if(mid){
+    const c=[pts.reduce((v,q)=>v+q[0],0)/4-mid[0],pts.reduce((v,q)=>v+q[1],0)/4-mid[1],pts.reduce((v,q)=>v+q[2],0)/4-mid[2]];
+    if(n[0]*c[0]+n[1]*c[1]+n[2]*c[2]<0)n=[-n[0],-n[1],-n[2]];
+   }
+   if(kind!=='car'&&kind!=='escalator'&&n[0]*camX+n[1]*camY>0)return;
+   quads.push({p:pts,k:kind,d:pts.reduce((v,q)=>v+project(...q)[2],0)/pts.length});
+  };
+  const six=(b,kind,omitTop=false)=>{
+   const mid=[(b.x0+b.x1)/2,(b.y0+b.y1)/2,(b.z0+b.z1)/2];
+   emit([[b.x0,b.y0,b.z0],[b.x1,b.y0,b.z0],[b.x1,b.y0,b.z1],[b.x0,b.y0,b.z1]],kind,mid);
+   emit([[b.x0,b.y1,b.z0],[b.x1,b.y1,b.z0],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],kind,mid);
+   emit([[b.x0,b.y0,b.z0],[b.x0,b.y1,b.z0],[b.x0,b.y1,b.z1],[b.x0,b.y0,b.z1]],kind,mid);
+   emit([[b.x1,b.y0,b.z0],[b.x1,b.y1,b.z0],[b.x1,b.y1,b.z1],[b.x1,b.y0,b.z1]],kind,mid);
+   emit([[b.x0,b.y0,b.z0],[b.x1,b.y0,b.z0],[b.x1,b.y1,b.z0],[b.x0,b.y1,b.z0]],kind,mid);
+   if(!omitTop)emit([[b.x0,b.y0,b.z1],[b.x1,b.y0,b.z1],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],kind,mid);
+  };
+  for(const it of sc0.solids){
+   const b=it.b;
+   if(b.deep!==undefined){
+    /* An incline: soffit, two flanks, and the tread face on the slope. Not a
+       box — a box draws a 4.1 m slab lying flat, which is a ramp on its side
+       and the one thing an escalator never is. */
+    emit([[b.x0,b.y0,b.z1b],[b.x1,b.y0,b.z1b],[b.x1,b.y0,b.z1],[b.x0,b.y0,b.z1]],'escalator');
+    emit([[b.x0,b.y1,b.z1b],[b.x1,b.y1,b.z1b],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],'escalator');
+    emit([[b.x0,b.y0,b.z1b],[b.x0,b.y1,b.z1b],[b.x0,b.y1,b.z1],[b.x0,b.y0,b.z1]],'escalator');
+    emit([[b.x0,b.y0,b.z1],[b.x0,b.y1,b.z1],[b.x1,b.y1,b.z1],[b.x1,b.y0,b.z1]],'escalator');
+   }else six(b,it.kind,it.kind==='shaft');
+  }
+  for(const car of sc0.cars)six(car.b,'car');
+
+  /* Storey plates. Without them the core is four vertical bands and the eye has
+     no way to read a height — forty-eight metres of drawing looks exactly like
+     two hundred. These are the storeys the schedule actually holds, from stack()
+     at their real z, so the reader can count them and the selected level lands
+     on one. Hairlines and nothing more: a slab with any weight turns the core
+     into a stack of solid floors and hides the thing it is there to measure. */
+  {
+   const cc=state.core/2;
+   for(const l of st){
+    if(l.z<zLo||l.z>zHi||l.index%2)continue;
+    const sel=l.index===fiC;
+    emit([[-cc,-cc,l.z],[cc,-cc,l.z],[cc,cc,l.z],[-cc,cc,l.z]],sel?'plateSel':'plate');
+   }
+  }
+
+  /* The stair, as flights rather than a box. A stair drawn as a solid reads as
+     a wall in a different grey, which is what it was. Two flights side by side
+     across the stairwell rather than one plate the full width of the core —
+     one full-width plate is a shelf, and a shelf stacked to the roof is a
+     bookcase, not a stair. */
+  {
+   const t=sc0.stair,w=(t.x1-t.x0)/2,mid=(t.x0+t.x1)/2;
+   for(const l of st){
+    if(l.z<zLo||l.z>zHi)continue;
+    const hz=l.z+l.h/2;
+    emit([[t.x0,t.y0,l.z],[mid,t.y0,l.z],[mid,t.y0,hz],[t.x0,t.y0,hz]],'flight');
+    emit([[mid,t.y1,hz],[t.x1,t.y1,hz],[t.x1,t.y1,l.z+l.h],[mid,t.y1,l.z+l.h]],'flight');
+    void w;
+   }
+  }
+
+quads.sort((a,b2)=>a.d-b2.d);
+  /* What is filled and what is not.
+
+     The core's walls, its shafts and its stair are VOIDS. A cutaway axonometric
+     draws them as an outline and leaves the space inside them open, and that is
+     not a style preference — it is what makes the drawing work. Filled with dark
+     greys they came out as one black mass from the first metre to the last, with
+     the storey plates invisible on it and the amber car apparently floating in a
+     void rather than running inside a shaft. Outlined, the plates read as a
+     ladder up the core, the shafts read as slots, and the car reads as a car in a
+     shaft because there is a slot around it.
+
+     The bank and the cars keep their fills: they are machines, not spaces. */
+  for(const q of quads){
+   const fill=q.k==='car'?'#f59e0b':q.k==='escalator'?'#3b4750':null;
+   const stroke=q.k==='car'?'#fbbf24':q.k==='wall'?'#93a3aa':q.k==='escalator'?'#85939c'
+     :q.k==='stair'?'#6d7c84':q.k==='flight'?'#8a99a1':q.k==='shaft'?'#8a99a1'
+     :q.k==='plateSel'?'#f59e0b':'#6d7b84';
+   path(q.p,fill,stroke,q.k==='car'?.9:q.k==='plate'||q.k==='plateSel'?.6:.5);
+  }
+
+  /* What each part IS.
+
+     Four bands of different greys is a texture, not a drawing: the reader can
+     see that something is in there and cannot tell what. A leader and a label
+     per element is the whole difference, and it costs one line of text each —
+     the same convention, and the same four words in the same three languages,
+     as the section drawing beside it. A reader moving between the two views is
+     not learning two vocabularies for the same building. */
+  {
+   const zMid=(zLo+zHi)/2;
+   const anchorOf=kind=>{
+    if(kind==='car')return sc0.cars.length?sc0.cars[0].b:null;
+    if(kind==='escalator'){
+     const e=sc0.solids.find(o=>o.kind==='escalator');
+     return e?{x0:e.b.x0,x1:e.b.x1,y0:e.b.y0,y1:e.b.y1,z0:e.b.z0,z1:e.b.z1}:null;
+    }
+    if(kind==='stair')return{...sc0.stair,z0:zMid,z1:zMid};
+    const sh=sc0.solids.find(o=>o.kind==='shaft');
+    return sh?{...sh.b,z0:zMid,z1:zMid}:null;
+   };
+   const rows=[['cx.lgShaft','shaft'],['cx.lgCar','car'],['cx.lgStair','stair'],['cx.lgEsc','escalator']];
+   const colX=22,step=Math.min(44,Math.max(28,(fieldH-90)/rows.length));
+   let ly0=HEAD+26;
+   ctx.font='11px "IBM Plex Sans",Arial,sans-serif';ctx.textAlign='left';
+   for(const [key,kind] of rows){
+    const a2=anchorOf(kind);
+    if(!a2)continue;
+    const p2=project((a2.x0+a2.x1)/2,(a2.y0+a2.y1)/2,(a2.z0+a2.z1)/2);
+    if(p2[1]<HEAD-16||p2[1]>fieldBottom+8)continue;
+    const ty=ly0+step/2,tx=colX+136;
+    ctx.strokeStyle='#5b686f';ctx.lineWidth=.6;
+    ctx.beginPath();ctx.moveTo(tx+4,ty);ctx.lineTo(p2[0],p2[1]);ctx.stroke();
+    ctx.beginPath();ctx.arc(p2[0],p2[1],2.2,0,Math.PI*2);ctx.fillStyle='#f59e0b';ctx.fill();
+    ctx.fillStyle='#a2aca9';ctx.fillText(tt(key),colX,ty+4);
+    ly0+=step;
+   }
+  }
+
+  /* The locator. A core 600 m tall shown through a 46 m window is a view of
+     somewhere, not a view of the core — so the sheet says where. It is the same
+     job as the key on a section drawing, and it is the only thing on the sheet
+     that tells the reader that zooming out walks them up the column. */
+  const lx=W-128,ly=HEAD+8,lb=Math.min(fieldH-16,Math.max(220,fieldH*.72)),lr=lx+96;
+  ctx.fillStyle='#0d1114';ctx.fillRect(lx,ly,96,lb);
+  ctx.strokeStyle='#39434a';ctx.strokeRect(lx+.5,ly+.5,95,lb-1);
+  const zfC=core.lift.zoneFloors,hC=state.height;
+  for(let z=0;z<core.lift.zones;z++){
+   const a=ly+lb-(z*zfC*hC)/sc0.window.total*lb;
+   const b2=ly+lb-(Math.min(st.length,(z+1)*zfC)*hC)/sc0.window.total*lb;
+   ctx.strokeStyle='#3d484f';ctx.beginPath();ctx.moveTo(lx,Math.max(ly,b2));ctx.lineTo(lr,Math.max(ly,b2));ctx.stroke();
+   ctx.fillStyle='#6d7b84';ctx.font='9px "IBM Plex Mono",monospace';ctx.textAlign='left';
+   ctx.fillText(String(z+1),lx+4,Math.max(ly+10,b2-3));
+  }
+  const vis=Math.min(coreVis,sc0.window.total);
+  const vy0=ly+lb-(corePan+vis)/sc0.window.total*lb;
+  const vy1=ly+lb-corePan/sc0.window.total*lb;
+  ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.2;
+  ctx.strokeRect(lx+2,Math.max(ly+1,vy0),92,Math.max(6,Math.min(vy1,ly+lb-1)-Math.max(ly+1,vy0)));
+  ctx.lineWidth=.6;
+  ctx.fillStyle='#8b918d';ctx.font='10px "IBM Plex Mono",monospace';ctx.textAlign='left';
+  ctx.fillText(tt('v.coreKey'),lx+6,ly+13);
+  ctx.fillStyle='#f59e0b';ctx.fillText(Math.round(sc0.window.total)+' m',lx+6,ly+lb-6);
+  ctx.fillStyle='#8b918d';ctx.textAlign='right';
+  ctx.fillText(tt('v.coreZone'),lr-6,ly+lb-6);
+
+  /* One caption, bottom left, in the sheet's own idiom: what is on screen. */
+  ctx.textAlign='left';ctx.fillStyle='#a2aca9';ctx.font='11px "IBM Plex Mono",monospace';
+  ctx.fillText(tt('v.coreCaption'),24,fieldBottom-10);
+  ctx.restore();
+  return;
+ }
 
  // Fine grid where the plot is read, coarse grid where the city is. A single
  // 12 m grid across 700 m would be 117 lines each way and would bury the tower
@@ -1164,6 +1482,27 @@ const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
 
  const cc=state.core/2;
  path([[-cc,-cc,total+.2],[cc,-cc,total+.2],[cc,cc,total+.2],[-cc,cc,total+.2]],'#414d51','#a2aca9',.7);
+ /* The core, ghosted, up the whole height of the orbit.
+
+    Only the roof square was drawn, so the core existed on the building for
+    eight pixels at the top and nowhere else — which is exactly why it could
+    not be found and had to be explained in a sidebar. Four vertical arrises and
+    a band at each lift-zone boundary cost eight lines and put it back: a reader
+    can see the column run the full height before they ever press the core view,
+    and can see where the groups change.
+
+    Ghosted, not filled. At orbit scale a 14 m core is a few pixels wide; filling
+    it would put a dark stripe up the middle of the facade that reads as a
+    rendering fault rather than as a room. */
+ ctx.save();
+ ctx.globalAlpha=.42;
+ for(const [gx,gy] of [[-cc,-cc],[cc,-cc],[cc,cc],[-cc,cc]])line([gx,gy,0],[gx,gy,total+.2],'#7d8f99',.6);
+ const zfG=coreOf(state,metrics?.rentable??0,occupiedOf(state)).lift.zoneFloors;
+ for(let z=0;z<=st.length;z++){
+  if(z%zfG)continue;
+  path([[-cc,-cc,z*state.height],[cc,-cc,z*state.height],[cc,cc,z*state.height],[-cc,cc,z*state.height]],null,'#7d8f99',.5);
+ }
+ ctx.restore();
 
  // ── the crown ─────────────────────────────────────────────────────────────
  // Drawn from crownPlates(), the same table the height and the reserve are
@@ -1278,26 +1617,47 @@ canvas.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture
 canvas.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag={x:e.clientX,y:e.clientY};
  // In plan the drag pans the sheet rather than orbiting it. Orbiting a top
  // -down drawing has no meaning, and leaving the drag live there would swing a
- // map nobody believes is rotating.
- if(view==='plan'){panX+=dx;panY+=dy}else yaw+=dx*.01;
+ // map nobody believes is rotating. In the core view the horizontal drag still
+ // orbits, because the core is a solid in space and its plan reads at any angle;
+ // the vertical drag walks the window up the column, which is the same gesture
+ // as panning a tall drawing and is the only way to see the top of a 600 m core
+ // without a scrollbar.
+ if(view==='plan'){panX+=dx;panY+=dy}
+ else{yaw+=dx*.01;if(view==='core')corePan-=dy}
  drawTower()};
 canvas.onpointerup=canvas.onpointercancel=()=>drag=null;
 canvas.onkeydown=e=>{
  if(view==='plan'&&e.key.startsWith('Arrow')){e.preventDefault();const k=34;
   if(e.key==='ArrowLeft')panX-=k;if(e.key==='ArrowRight')panX+=k;
   if(e.key==='ArrowUp')panY-=k;if(e.key==='ArrowDown')panY+=k;drawTower();return}
+ if(view==='core'&&e.key.startsWith('Arrow')){e.preventDefault();const k=state.height*3;
+  if(e.key==='ArrowLeft')yaw-=.1;if(e.key==='ArrowRight')yaw+=.1;
+  if(e.key==='ArrowUp')corePan+=k;if(e.key==='ArrowDown')corePan-=k;drawTower();return}
  if(['ArrowLeft','ArrowRight','+','-'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')yaw-=.1;if(e.key==='ArrowRight')yaw+=.1;if(e.key==='+')zoom=Math.min(1.7,zoom+.1);if(e.key==='-')zoom=Math.max(.5,zoom-.1);drawTower()}};
-$('zoomIn').onclick=()=>{zoom=Math.min(1.7,zoom+.1);drawTower()};
-$('zoomOut').onclick=()=>{zoom=Math.max(.5,zoom-.1);drawTower()};
-$('homeView').onclick=()=>{yaw=-.65;zoom=1;neighbourhood=false;view='orbit';panX=0;panY=0;$('cityView').setAttribute('aria-pressed','false');$('planView').setAttribute('aria-pressed','false');drawTower()};
+$('zoomIn').onclick=()=>{if(view==='core'){coreZoom=Math.min(6,coreZoom*1.35)}else zoom=Math.min(1.7,zoom+.1);drawTower()};
+$('zoomOut').onclick=()=>{if(view==='core'){coreZoom=Math.max(.05,coreZoom/1.35)}else zoom=Math.max(.5,zoom-.1);drawTower()};
+$('homeView').onclick=()=>{yaw=-.65;zoom=1;neighbourhood=false;view='orbit';panX=0;panY=0;corePan=0;coreZoom=1;$('cityView').setAttribute('aria-pressed','false');$('planView').setAttribute('aria-pressed','false');$('coreView').setAttribute('aria-pressed','false');stopCoreLoop();syncDragHint();drawTower()};
 /* Plan is a mode, not a modifier. Turning on the neighbourhood framing implies
    the orbit again, because those two answer different questions and stacking
    them produced a sheet that was neither a plan nor a perspective. */
-function syncDragHint(){const h=document.querySelector('[data-i18n="v.drag"]');if(h)h.textContent=tt(view==='plan'?'v.pan':'v.drag')}
+function syncDragHint(){const h=document.querySelector('[data-i18n="v.drag"]');if(h)h.textContent=tt(view==='plan'?'v.pan':view==='core'?'v.coreDrag':'v.drag')}
 $('planView').onclick=()=>{view=view==='plan'?'orbit':'plan';panX=0;panY=0;zoom=1;
  if(view==='plan')neighbourhood=false;
  $('planView').setAttribute('aria-pressed',String(view==='plan'));
- $('cityView').setAttribute('aria-pressed','false');syncDragHint();drawTower()};
+ $('cityView').setAttribute('aria-pressed','false');stopCoreLoop();syncDragHint();drawTower()};
+/* The core is a view, not a zoom preset. Pressing it releases the tower's skin
+   and starts the cars; pressing it again puts the skin back, because a reader
+   who has seen where the core is still wants to look at the building. The clock
+   restarts with the view so the cars begin at grade rather than wherever the
+   last orbit left them, and it stops on the way out rather than idling at 60
+   frames a second behind a sheet nobody is reading. */
+$('coreView').onclick=()=>{const on=view!=='core';
+ view=on?'core':(neighbourhood?'orbit':'orbit');panX=0;panY=0;
+ if(on){zoom=1;coreZoom=1;neighbourhood=false;$('cityView').setAttribute('aria-pressed','false');$('planView').setAttribute('aria-pressed','false')}
+ $('coreView').setAttribute('aria-pressed',String(on));
+ syncDragHint();
+ if(on)startCoreLoop();else stopCoreLoop();
+ drawTower()};
 $('cityView').onclick=()=>{neighbourhood=!neighbourhood;zoom=1;
  if(neighbourhood&&view==='plan'){view='orbit';panX=0;panY=0;$('planView').setAttribute('aria-pressed','false')}
  $('cityView').setAttribute('aria-pressed',String(neighbourhood));syncDragHint();drawTower()};

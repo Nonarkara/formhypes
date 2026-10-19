@@ -49,7 +49,7 @@ const SHARED = ['console.css','desks.css','modulor.js','model.js', 'geometry.js'
   // could change without moving any stamp and without appearing in the release
   // graph at all. They are content-pinned now like everything else: a changed
   // skyline is a changed hash, and shows up.
-  'crowns.js','materials.js','details.js','cityscape.js','cityscape.data.js','core.js',
+  'crowns.js','materials.js','details.js','cityscape.js','cityscape.data.js','core.js','core3d.js',
   // The manual reads schema.js for its ranges and i18n.js for its labels, so
   // all three have to be stamped before it is hashed. A manual that drifts from
   // the model is worse than none, because it is trusted.
@@ -69,7 +69,7 @@ const MEDIA = ['research/artifacts/ags-anchorage-2436.png','research/media/offic
   'research/artifacts/chen-fig40.png', 'research/artifacts/chen-fig49.png',
   'research/protocol-en.txt','research/protocol-th.txt','research/protocol-zh.txt'];
 const DESKS=['facade.js','brief.js','walk.js','context.js','explore.js'];
-const IN_APP = ['./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./context.js','./explore.js','./site.js','./ground.data.js','./reach.js','./drafting.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
+const IN_APP = ['./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./core3d.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./context.js','./explore.js','./site.js','./ground.data.js','./reach.js','./drafting.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
 const IN_HTML = ['console.css','desks.css','style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 
 for(const lang of ['en','th','zh'])await write(`research/protocol-${lang}.txt`,researchProtocol(lang));
@@ -93,6 +93,14 @@ await write('cityscape.js', cityscape);ids['cityscape.js']=sha(cityscape);
 // and wrong by the time the next line ran. Stamping order is not a style
 // preference here; it is the difference between a stamp that is true and one
 // that merely looks like one.
+// core3d.js holds the core's geometry and core.js holds the arithmetic that
+// reads it, and app.js holds both. Same ordering rule as details.js/drafting.js:
+// the stamper has to own the import edges or they carry hand-written hashes that
+// rot the moment either file is edited.
+const c3 = stamp(await read('core3d.js'), [], ids);
+await write('core3d.js', c3); ids['core3d.js'] = sha(c3);
+const coreSrc = stamp(await read('core.js'), ['./core3d.js','./drafting.js'], ids);
+await write('core.js', coreSrc); ids['core.js'] = sha(coreSrc);
 const det = stamp(await read('details.js'), ['./drafting.js'], ids);
 await write('details.js', det);ids['details.js']=sha(det);
 const model = stamp(await read('model.js'), ['./geometry.js','./schema.js','./solar.js','./crowns.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js'], ids);

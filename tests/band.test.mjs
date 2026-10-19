@@ -179,11 +179,27 @@ test('the drawing is clipped to the field above the footer band',()=>{
  // The clip must open before the drawing and close after it. Balanced save and
  // restore counts catch a clip left open at the end of the function, which would
  // silently constrain every later draw instead of being visibly wrong.
+ /* The invariant is not "one more restore than save" — it never was; that was a
+    proxy for "every early exit closes its own clip". The plan view exits early
+    and so does the core view, so counting to a literal 1 failed the day a second
+    early exit was added correctly — and would have passed if either of them
+    forgot its restore.
+
+    So: restores must equal saves plus one per exit out of drawTower. A save with
+    no matching restore fails. An early exit with no restore fails. An early exit
+    with two restores fails. Nothing is pinned to a view count. */
  const saves=(src.match(/ctx\.save\(\)/g)||[]).length;
  const restores=(src.match(/ctx\.restore\(\)/g)||[]).length;
- assert.equal(restores,saves+1,
-  `drawTower has ${saves} ctx.save() and ${restores} ctx.restore() — the extra `+
-  'restore is the plan view early exit, and without it an unbalanced clip leaks into the next frame');
+ /* Counted as bare `return;` statements. Matching every `return` in the body
+    reported eleven exits for a function with two and failed for a reason that
+    had nothing to do with the clip; matching on indentation is no better,
+    because the exits sit inside their `if` blocks. A bare `return;` is an exit
+    out of drawTower; a `return <expr>` belongs to a nested callback, which has
+    its own save and restore to balance. */
+ const exits=(src.match(/\n\s+return;/g)||[]).length;
+ assert.equal(restores,saves+exits,
+  `drawTower has ${saves} ctx.save(), ${restores} ctx.restore() and ${exits} early exit(s). Each `+
+  'early exit must close the clip it opened, or an unbalanced clip leaks into the next frame');
  // And that extra restore has to actually be in front of the return it serves.
  const exit=src.indexOf('if(city&&planView)');
  assert.ok(exit>0,'the plan view has no early exit to balance');
@@ -271,8 +287,16 @@ test('the model is fitted to a field with a real margin at the top',()=>{
  // whole sheet — that fraction was the original bug, in a different costume.
  assert.match(src,/const planCY=HEAD\+fieldH\/2/,
   'the plan centre is not derived from the head margin');
- assert.match(src,/const baseY=planView\?planCY:neighbourhood\?HEAD\+Math\.max\(0,fieldH-\(ext\*\.96\+700\*\.72\)\*scale\)\/2\+\(ext\*\.96\+700\*\.36\)\*scale:HEAD\+ext\*\.96\*scale/,
+ /* The orbit's own derivation has to survive intact, whatever else branches
+    ahead of it — so the assertion is anchored on the tail, not on the head of
+    the ternary. Pinning it to `planView?...` meant adding a third view broke a
+    guard about the head margin, which is a guard pointing at the wrong line. */
+ assert.match(src,/neighbourhood\?HEAD\+Math\.max\(0,fieldH-\(ext\*\.96\+700\*\.72\)\*scale\)\/2\+\(ext\*\.96\+700\*\.36\)\*scale:HEAD\+ext\*\.96\*scale/,
   'the model base is not derived from the head margin');
+ // And the core view is anchored to the same margin rather than to a fraction of
+ // the field, or it would sit at a different ground line from the orbit.
+ assert.match(src,/coreView\?HEAD\+fieldH\+/,
+  "the core view's ground line is not derived from the head margin");
  assert.ok(!/H\*\.80/.test(src),
   'the model is still hung from a fraction of the full sheet height, which is '+
   'what put the crown against the top edge');

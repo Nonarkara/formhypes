@@ -10,7 +10,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {defaults,evaluate} from '../dist/model.js';
-import {coreOf,coreSVG,carTracks,CORE_METHOD,CORE_SRC} from '../dist/core.js';
+import {coreOf,coreSVG,carTracks,CORE_METHOD,CORE_SRC,VB} from '../dist/core.js';
 const dist=f=>readFileSync(new URL('../dist/'+f,import.meta.url),'utf8');
 const net=evaluate({...defaults}).rentable;
 
@@ -102,7 +102,25 @@ test('the section is a section: it spans the model rise and marks the level',()=
  const s={...defaults};
  const core=coreOf(s,net);
  const svg=coreSVG(s,core,{floor:24,lang:'en'});
- assert.match(svg,/viewBox="0 0 240 336"/);
+ /* The sheet is annotated in a margin column, and the annotation pass grows the
+    frame to whatever margins the notes actually needed — so a fixed viewBox is
+    no longer the right way to say "this spans the rise". What has to hold is
+    that the frame CONTAINS the drawing field: the top margin at or above VB.top
+    and the base at or below VB.base. Anything less crops the building the
+    section exists to section. */
+ const vb=/viewBox="(-?[\d.]+) (-?[\d.]+) ([\d.]+) ([\d.]+)"/.exec(svg);
+ assert.ok(vb,`the section has no viewBox: ${svg.slice(0,160)}`);
+ const [,vx,vy,vw,vh]=vb.map(Number);
+ assert.ok(vy<=VB.top,`the frame starts at y=${vy}, below the drawing's top margin ${VB.top} — the section is cropped`);
+ assert.ok(vy+vh>=VB.base,`the frame ends at y=${vy+vh}, above the model's base ${VB.base} — the section is cropped`);
+ assert.ok(vw>0&&vh>0,`the section has no area: ${svg.slice(0,160)}`);
+ /* And the long description has to be reachable. An element carrying BOTH an
+    aria-label and aria-hidden is not described by its label — it is removed
+    from the accessibility tree entirely, so the prose written for this drawing
+    was present in the markup and unavailable to every reader who needed it. */
+ assert.equal((svg.match(/\brole="img"/g)||[]).length,1,'the section declares role="img" more than once');
+ assert.ok(!/aria-hidden/.test(svg),'the section is aria-hidden, so its own description can never be read');
+ assert.ok(/aria-label="[^"]{40,}"/.test(svg),'the section has no usable long description');
  assert.match(svg,/id="section"/,'the section must be addressable so the animation can find it');
  assert.ok((svg.match(/id="core-car-/g)||[]).length>=2,'at least two cars must be drawn');
  assert.ok(svg.includes('stroke-dasharray'),'a riser must be dashed or its flow cannot be read');
@@ -110,7 +128,11 @@ test('the section is a section: it spans the model rise and marks the level',()=
  for(const c of ['core-flow-up','core-flow-down','core-flow-air'])
   assert.ok(svg.includes(c),`${c} is styled but never drawn`);
  // Every level line, so the reader can count floors against the schedule.
- assert.ok((svg.match(/font-family="IBM Plex Mono/g)||[]).length>=4);
+ /* The drafting vocabulary resolves its typeface through a CSS variable rather
+    than naming the family in the markup, so this counts var(--mono) — the same
+    intent: enough monospaced numerals on the sheet that a reader can count
+    floors against the schedule. */
+ assert.ok((svg.match(/font-family="(?:IBM Plex Mono|var\(--mono\))"/g)||[]).length>=4);
  // And it must say what the drawing is in the language asked for.
  assert.ok(!coreSVG(s,core,{floor:1,lang:'en'}).includes(coreSVG(s,core,{floor:1,lang:'th'}).match(/aria-label="([^"]+)"/)[1].slice(0,20)),
   'the accessible description must differ per language');

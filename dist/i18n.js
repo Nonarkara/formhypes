@@ -47,6 +47,12 @@ const en={
  'cx.k.vent':'Vent stacks',
  'cx.k.vb':'Velocity breakers',
  'cx.k.travel':'Car travel, one way',
+ 'cx.k.esc':'Escalators, up + down',
+ 'cx.k.escreach':'Escalator reach',
+ 'cx.k.esccore':'Core for one level more',
+ 'cx.lgEsc':'Escalator',
+ 'cx.lgShaft':'Lift shaft, cut',
+ 'cx.lgStair':'Escape stair',
  'cx.shown':'A section cuts the core once: two shafts of the group, one car each. The counts above are for the whole building.',
  'cx.src':'Sized on ',
  'rail.g.top':'Crown and terrace',
@@ -261,7 +267,7 @@ const en={
 
  'v.home':'View',
  'v.wire':'Wireframe',
- 'v.drag':'Drag to orbit / ± to zoom','v.pan':'Drag to pan / ± to zoom',
+ 'v.drag':'Drag to orbit / ± to zoom','v.pan':'Drag to pan / ± to zoom','v.coreDrag':'Drag to orbit, up/down to climb · ± to zoom','v.coreKey':'Core, full height','v.coreZone':'zone','v.coreCaption':'Core at true scale, inside the building. Drag up to climb it.',
  'v.units':'metres',
  'tb.notice':'Concept prototype — not for construction',
  'tb.by':'by Dr Non · depa + Axiom',
@@ -536,6 +542,12 @@ const th={
  'cx.k.vent':'ท่อระบายอากาศ',
  'cx.k.vb':'ตัวหักความเร็ว',
  'cx.k.travel':'เวลาเดินทางขึ้นหนึ่งเที่ยว',
+ 'cx.k.esc':'บันไดเลื่อน ขึ้น + ลง',
+ 'cx.k.escreach':'ระยะที่บันไดเลื่อนไปถึง',
+ 'cx.k.esccore':'แกนกลางสำหรับอีกหนึ่งชั้น',
+ 'cx.lgEsc':'บันไดเลื่อน',
+ 'cx.lgShaft':'ช่องลิฟต์ ตัดแนวตั้ง',
+ 'cx.lgStair':'บันไดหนีไฟ',
  'cx.shown':'ภาคตัดตัดแกนกลางเพียงครั้งเดียว เห็นช่องลิฟต์สองช่อง ช่องละหนึ่งรถ ตัวเลขข้างบนนับทั้งอาคาร',
  'cx.src':'คำนวณตาม ',
  'rail.g.top':'ยอดตึกและลานกลางฟ้า',
@@ -750,7 +762,7 @@ const th={
 
  'v.home':'มุมมอง',
  'v.wire':'โครงข่าย',
- 'v.drag':'ลากเพื่อหมุน / ± เพื่อซูม','v.pan':'ลากเพื่อเลื่อน / ± เพื่อซูม',
+ 'v.drag':'ลากเพื่อหมุน / ± เพื่อซูม','v.pan':'ลากเพื่อเลื่อน / ± เพื่อซูม','v.coreDrag':'ลากเพื่อหมุน ขึ้น/ลงเพื่อไต่ · ± เพื่อซูม','v.coreKey':'แกนกลาง ตลอดความสูง','v.coreZone':'โซน','v.coreCaption':'แกนกลางขนาดจริง อยู่ภายในอาคาร ลากขึ้นเพื่อไต่ขึ้นไป',
  'v.units':'เมตร',
  'tb.notice':'ต้นแบบเชิงแนวคิด ไม่ใช่งานก่อสร้าง',
  'tb.by':'โดย Dr Non · depa + Axiom',
@@ -1024,6 +1036,12 @@ const zh={
  'cx.k.vent':'通气立管',
  'cx.k.vb':'消能弯',
  'cx.k.travel':'轿厢单程运行时间',
+ 'cx.k.esc':'自动扶梯，上 + 下',
+ 'cx.k.escreach':'扶梯可达层数',
+ 'cx.k.esccore':'再多一层的核心筒尺寸',
+ 'cx.lgEsc':'自动扶梯',
+ 'cx.lgShaft':'电梯井，剖切',
+ 'cx.lgStair':'疏散楼梯',
  'cx.shown':'剖面只剖过一次核心筒：画出两个井道，各一轿厢。上方数字为整栋建筑。',
  'cx.src':'按 ',
  'rail.g.top':'塔冠与空中平台',
@@ -1238,7 +1256,7 @@ const zh={
 
  'v.home':'视角',
  'v.wire':'线框',
- 'v.drag':'拖动旋转 / ± 缩放','v.pan':'拖动平移 / ± 缩放',
+ 'v.drag':'拖动旋转 / ± 缩放','v.pan':'拖动平移 / ± 缩放','v.coreDrag':'拖动旋转，上/下爬升 · ± 缩放','v.coreKey':'核心筒 全高','v.coreZone':'分段','v.coreCaption':'核心筒按真实比例，位于建筑内部。向上拖动可沿筒而上。',
  'v.units':'米',
  'tb.notice':'概念原型——不可用于施工',
  'tb.by':'Dr Non · depa + Axiom 出品',
@@ -1635,6 +1653,6 @@ Object.assign(zh,{
  'st.none':'范围内没有足以容纳该标准层的地块。请增大地块面积或减小建筑跨度。'
 });
 
-Object.assign(t.en,{"v.neighbourhood":"Neighbourhood","v.plan":"Plan","v.reach":"Tower shadow on the ground","v.reachNote":"at this sheet's sun position - not a solar study","v.reachShort":"at this sheet's sun position"});
-Object.assign(t.th,{"v.neighbourhood":"ย่านโดยรอบ","v.plan":"ผัง","v.reach":"เงาของอาคารบนพื้นดิน","v.reachNote":"ที่ตำแหน่งแสงของแผ่นนี้ ไม่ใช่การศึกษาแสงอาทิตย์","v.reachShort":"ที่ตำแหน่งแสงของแผ่นนี้"});
-Object.assign(t.zh,{"v.neighbourhood":"周边街区","v.plan":"平面图","v.reach":"塔楼在地面的投影","v.reachNote":"按本图纸的光照方向，非日照分析","v.reachShort":"按本图纸的光照方向"});
+Object.assign(t.en,{"v.neighbourhood":"Neighbourhood","v.plan":"Plan","v.core":"Core","v.reach":"Tower shadow on the ground","v.reachNote":"at this sheet's sun position - not a solar study","v.reachShort":"at this sheet's sun position"});
+Object.assign(t.th,{"v.neighbourhood":"ย่านโดยรอบ","v.plan":"ผัง","v.core":"แกน","v.reach":"เงาของอาคารบนพื้นดิน","v.reachNote":"ที่ตำแหน่งแสงของแผ่นนี้ ไม่ใช่การศึกษาแสงอาทิตย์","v.reachShort":"ที่ตำแหน่งแสงของแผ่นนี้"});
+Object.assign(t.zh,{"v.neighbourhood":"周边街区","v.plan":"平面图","v.core":"核心筒","v.reach":"塔楼在地面的投影","v.reachNote":"按本图纸的光照方向，非日照分析","v.reachShort":"按本图纸的光照方向"});
