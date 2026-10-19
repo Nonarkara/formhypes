@@ -1,1 +1,57 @@
-/* wind lab styles. */
+/* Wind lab. Three text sizes only: 15px heading and verdict, 12px everything
+   that is read, 11px for the sources line. Hairlines separate; nothing encloses. */
+.wl{container-type:inline-size;display:grid;gap:10px;min-width:0;font-size:12px;line-height:1.45;color:var(--ink)}
+.wl-title{margin:0;font-size:var(--m);font-weight:600;letter-spacing:0}
+.wl-sub{margin:6px 0 0;font-size:12px;font-weight:600;padding-top:8px;border-top:1px solid var(--line)}
+.wl-prose{margin:0;max-width:68ch;color:var(--muted)}
+.wl-hint{margin:2px 0 0;max-width:68ch;color:var(--muted)}
+.wl-limits{color:var(--ink)}
+.wl-src{margin:0;font-size:11px;max-width:68ch;color:var(--muted);padding-top:8px;border-top:1px solid var(--line)}
+
+.wl-views{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;background:var(--dark)}
+.wl-canvas{position:static;inset:auto;display:block;width:100%;background:var(--dark);touch-action:auto}
+.wl-plan{height:280px}
+.wl-elev{height:340px}
+@container (min-width:640px){
+ .wl-views{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}
+ .wl-plan,.wl-elev{height:380px}
+}
+
+.wl-status{margin:0;font-family:var(--mono);font-size:var(--m);font-weight:500}
+.wl-verdict{margin:0;font-size:var(--m);max-width:68ch}
+.wl-flag{color:var(--ink);border-left:3px solid var(--accent);padding-left:8px}
+
+.wl-controls{display:grid;grid-template-columns:minmax(0,1fr);gap:10px 18px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+@container (min-width:640px){.wl-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.wl-field{min-width:0}
+.wl-fieldhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.wl-label{font-size:12px;font-weight:500;margin:0}
+.wl-out{font-family:var(--mono);font-size:12px}
+.wl-field input[type=range]{width:100%}
+.wl-seg{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.wl-seg button,.wl-toggle{font-size:12px;border-radius:0;margin-top:4px}
+.wl-seg button{flex:1 1 auto;justify-content:center}
+
+.wl-facts{margin:0;display:grid;grid-template-columns:minmax(0,1fr)}
+@container (min-width:640px){.wl-facts{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px}}
+.wl-facts>div{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--line);min-width:0}
+.wl-facts dt{color:var(--muted)}
+.wl-facts dd{margin:0;font-family:var(--mono);text-align:right;overflow-wrap:anywhere}
+
+.wl-compare{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.wl-row{display:grid;grid-template-columns:minmax(0,7.5em) minmax(0,1fr);grid-template-areas:"name track" "val val";gap:2px 10px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}
+@container (min-width:640px){.wl-row{grid-template-columns:minmax(0,9em) minmax(0,1fr) minmax(0,auto);grid-template-areas:"name track val"}}
+.wl-name{grid-area:name}
+.wl-track{grid-area:track;display:block;height:8px;border-left:1px solid var(--ink)}
+.wl-bar{display:block;height:100%;background:var(--faint)}
+.wl-val{grid-area:val;font-family:var(--mono);color:var(--muted);text-align:left}
+@container (min-width:640px){.wl-val{text-align:right}}
+.wl-me .wl-name{font-weight:600}
+.wl-me .wl-bar{background:var(--accent)}
+.wl-me .wl-val{color:var(--ink)}
+.wl-flagtext{color:var(--ink)}
+
+@media(pointer:coarse){
+ .wl-seg button,.wl-toggle,.wl-field input[type=range]{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){.wl *{transition:none}}
