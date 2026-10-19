@@ -205,3 +205,14 @@ Labs receive `changed()` and may patch the design. Each lab has its own CSS file
 - **Drawing type:** measured at 1024 px, then lifted to roughly a 10 px floor without collisions. Drafting notes are 7.5 units (8 overlapped in the threshold detail, which the test caught), Walk-in uses sheet units, and the eye-height figure was re-laid.
 - **Brief chart:** the allowance bar is now a dimension line with a labelled allowance tick.
 - **Edge incident:** Cloudflare's CDG edge served a 520 for one stamped `style.css` URL while every other key served the file, which left the page unstyled for Paris visitors. Re-stamping gave it a new key. If a page is ever unstyled for one region, check the failing URL with an extra query parameter before suspecting the code.
+
+## 2026-10-19 · Carbon and premium-for-height lab
+
+`carbon.js`:
+- **Model:** floors, plus gravity (accumulated load over stress), plus lateral (the wind.js overturning moment over the lever arm, drift-limited at H/500), per m² of the model's own GFA. It is an order-of-magnitude scaling law, calibrated so that a Sears-like steel tower lands inside Khan's range.
+- **Carbon factors:** IStructE *How to calculate embodied carbon* (2nd ed., 2022), Tables 2.3–2.6, with GGBS share, electric-arc share and transport as controls.
+- **Rating:** SCORS bands read from Figure 1 of the 2020 paper. Those bands are per m² of gross internal area; the lab divides by gross floor area, and says so.
+- **Reference marks:** Khan's Lehigh figures and SOM's "about 30 psf" for the Hancock Center.
+- **Default tower:** 1,631 kg/m², 47% of it lateral, 370 kgCO₂e/m², band F, because the core is the only lever arm. As a diagrid it drops to 237, band C.
+- **Verification:** an independent check confirmed the factors, the RIBA and LETI targets and the Hearst Tower figure, and corrected Hancock and the EAF/BOF attribution.
+- **Fonts:** `--mono` now falls back to IBM Plex Sans Thai and Noto Sans SC, so Thai and Chinese set in mono never drop to a system face.
