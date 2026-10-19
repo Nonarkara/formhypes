@@ -279,7 +279,7 @@ export function coreSVG(s,core,{floor=1,lang='en'}={}){
   // up printed across the head of the drawing, none of them beside the line it
   // names. The step is chosen so two numbers can never be closer than they are
   // tall, which is what makes fixing them safe rather than merely tidy.
-  g+=txt(X.w0-3,yy+3,String(f),{anchor:'end',size:6.5,fixed:true});
+  g+=txt(X.w0-3,yy+3,String(f),{anchor:'end',size:7.5,fixed:true});
  }
  g+=beyond(`M${X.w0} ${topY} H${X.far}`,.8);
 
@@ -362,7 +362,7 @@ export function coreSVG(s,core,{floor=1,lang='en'}={}){
  for(const x of [PIPE.cw,PIPE.drain,PIPE.vent,PIPE.fire])g+=flow(`M${x} ${f2(pb)} V${f2(pbe)}`,x===PIPE.vent?"core-flow-air":x===PIPE.drain?"core-flow-down":"core-flow-up");
  g+=head(PIPE.cw,pbe,'u',true)+head(PIPE.fire,pbe,'u',true)+head(PIPE.drain,pb,'d',true);
  for(const[x,t]of[[PIPE.cw,'CWS'],[PIPE.drain,'DRAIN'],[PIPE.vent,'VENT'],[PIPE.fire,'FIRE']])
-  g+=leader(x,pb+8,x+2,pb-1,t,{size:5.5});
+  g+=leader(x,pb+8,x+2,pb-1,t,{size:7.5});
 
  const svc=core.services,zw=svc.zoneFloors;
  for(let z=1;z<svc.zones;z++){
@@ -390,7 +390,7 @@ export function coreSVG(s,core,{floor=1,lang='en'}={}){
  g+=`<g id="core-marker">`
   +rule(X.w0-5,fy,X.far,fy,{c:'var(--accent)',w:1.2})
   +cut(`M${X.bay+8} ${f2(fy-4)} h20 v8 h-20 Z`,'seal')
-  +txt(X.bay+18,fy+2.4,String(floor),{on:true,anchor:'middle',size:6})
+  +txt(X.bay+18,fy+2.4,String(floor),{on:true,anchor:'middle',size:7.5})
   +`</g>`;
 
  // Zone heights dimensioned with slash terminators, on the distance measured.

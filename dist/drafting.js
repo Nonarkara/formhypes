@@ -161,7 +161,8 @@ export function layout(items,W=CW,H=CH){
  const ordered=[...items].sort((a,b)=>rank(a)-rank(b));
  const out=[]; let needL=0,needR=0;
  for(const it of ordered){
-  const size=it.o.size||6, side=it.tx<it.x?'L':'R';
+  // Drawings are shown at about 1.3 px per unit; 7.5 units is the 10 px floor.
+  const size=Math.max(7.5,it.o.size||7.5), side=it.tx<it.x?'L':'R';
   const lines=wrap(it.text, GUT-2*PAD, size);
   const w=Math.max(...lines.map(l=>adv(l,size)));
   const x0=it.o.anchor==='middle'?it.tx-w/2:it.o.anchor==='end'?it.tx-w:side==='R'?it.tx+3:it.tx-3-w;
@@ -275,12 +276,12 @@ export function dim(x1,y1,x2,y2,label,off=6){
  // slides off its line stops being the measurement of that distance. It is
  // registered for one reason only — so every other note is laid out around it.
  // It draws itself, as it always has, and this pass must not draw it twice.
- note(vert?x1-3:mx, vert?my:y1-3, label,{fixed:true,obstacle:true,size:6,anchor:vert?'end':'middle'});
+ note(vert?x1-3:mx, vert?my:y1-3, label,{fixed:true,obstacle:true,size:8,anchor:vert?'end':'middle'});
  return `<g>${vert
   ?`<path d="M${x1} ${y1} V${y2}" stroke="var(--muted)" stroke-width=".5" stroke-dasharray="3 1.5"/>${slash(x1,y1)}${slash(x1,y2)}`
-   +`<text x="${x1-3}" y="${my}" font-family="var(--mono)" font-size="6" fill="var(--muted)" text-anchor="end" stroke="none" transform="rotate(-90 ${x1-3} ${my})">${label}</text>`
+   +`<text x="${x1-3}" y="${my}" font-family="var(--mono)" font-size="8" fill="var(--muted)" text-anchor="end" stroke="none" transform="rotate(-90 ${x1-3} ${my})">${label}</text>`
   :`<path d="M${x1} ${y1} H${x2}" stroke="var(--muted)" stroke-width=".5" stroke-dasharray="3 1.5"/>${slash(x1,y1)}${slash(x2,y1)}`
-   +`<text x="${mx}" y="${y1-3}" font-family="var(--mono)" font-size="6" fill="var(--muted)" text-anchor="middle" stroke="none">${label}</text>`
+   +`<text x="${mx}" y="${y1-3}" font-family="var(--mono)" font-size="8" fill="var(--muted)" text-anchor="middle" stroke="none">${label}</text>`
  }</g>`;
 }
 

@@ -98,8 +98,8 @@ export function interior(state,t){
  [[P(-span*.34,0,z0+(D-z0)*.18),1],[P(-span*.10,cl,cut+.4),2],[P(-span*.30,cl+.85,z0+.5),3],
   [P(-span*.19,cl+.80,(z0+cut)/2),4],[P(-span*.02,cl+.42,z0+.6),5],[P(span*.27,cl+.20,(z0+cut)/2),6],
   [P(span*.34,cl*.55,D),7],[FP(-.34,1.78),8],[[cx+36,cy+6],9],[P(span*.30,cl,cut+.2),10]]
-  .forEach(([at,n])=>o.push(`<circle class="wk-pin" cx="${num(at[0],1)}" cy="${num(at[1],1)}" r="10"/>`,
-   `<text class="wk-pin-t" x="${num(at[0],1)}" y="${num(at[1]+4,1)}" text-anchor="middle">${n}</text>`));
+  .forEach(([at,n])=>o.push(`<circle class="wk-pin" cx="${num(at[0],1)}" cy="${num(at[1],1)}" r="22"/>`,
+   `<text class="wk-pin-t" x="${num(at[0],1)}" y="${num(at[1]+8,1)}" text-anchor="middle">${n}</text>`));
  return {svg:o.join(''),ff,span,lens:2*Math.atan(H/2/f)/DTR,depth:D};
 }
 
@@ -227,10 +227,10 @@ export function street(state,t,view){
    `<text x="${num(mx,1)}" y="${num(my+3,1)}" text-anchor="middle">${num(total,1)} m</text>`;
  }
  const tp=levels[levels.length-1].pts[vi],th=cam.P(tp[0],total,tp[1]);
- if(th)o+=`<circle class="wk-pin" cx="${num(th[0],1)}" cy="${num(th[1],1)}" r="10"/><text class="wk-pin-t" x="${num(th[0],1)}" y="${num(th[1]+4,1)}" text-anchor="middle">1</text>`;
+ if(th)o+=`<circle class="wk-pin" cx="${num(th[0],1)}" cy="${num(th[1],1)}" r="22"/><text class="wk-pin-t" x="${num(th[0],1)}" y="${num(th[1]+8,1)}" text-anchor="middle">1</text>`;
  [[out(A[1],uA,FOOT),2],[out(A[1],uA,FOOT+ROAD*.5),3],[nA[0].pts[2],4],[nB[0].pts[2],5],[fp,6]]
   .forEach(([q,k])=>{const r=cam.P(q[0],0,q[1]);if(!r)return;
-   o+=`<circle class="wk-pin" cx="${num(r[0],1)}" cy="${num(r[1],1)}" r="10"/><text class="wk-pin-t" x="${num(r[0],1)}" y="${num(r[1]+4,1)}" text-anchor="middle">${k}</text>`});
+   o+=`<circle class="wk-pin" cx="${num(r[0],1)}" cy="${num(r[1],1)}" r="22"/><text class="wk-pin-t" x="${num(r[0],1)}" y="${num(r[1]+8,1)}" text-anchor="middle">${k}</text>`});
  // The angle to the top and the scale at the near corner both depend on how far
  // the reader actually is from the corner being measured. Standing off the axis
  // makes that distance hypot(off, d), not d — and a figure that keeps reporting

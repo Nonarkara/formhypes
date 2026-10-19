@@ -521,7 +521,7 @@ function drawPlan(){
  const nx=221,ny=19;
  svg+=`<g><circle cx="${nx}" cy="${ny}" r="8.5" fill="none" stroke="#a8aeaa" stroke-width=".6"/>`
      +`<path d="M${nx} ${ny-8.5} L${nx+3.1} ${ny+7} L${nx} ${ny+4.2} L${nx-3.1} ${ny+7} Z" fill="#191c1b"/>`
-     +`<text x="${nx}" y="${ny-11.5}" text-anchor="middle" fill="#585e5b" font-family="IBM Plex Mono,monospace" font-size="8">N</text></g>`;
+     +`<text x="${nx}" y="${ny-12.5}" text-anchor="middle" fill="#585e5b" font-family="IBM Plex Mono,monospace" font-size="10">N</text></g>`;
 
  // overall dimension — witness lines off the plate, arrowed line between them
  const xs=p.map(v=>v[0]),ys=p.map(v=>v[1]);
@@ -540,7 +540,7 @@ function drawPlan(){
  for(let i=0;i<4;i++)bar+=`<rect x="${(bx+i*seg).toFixed(1)}" y="${by}" width="${seg.toFixed(1)}" height="4.5" fill="${i%2?'#191c1b':'none'}" stroke="#191c1b" stroke-width=".6"/>`;
  for(let i=0;i<=4;i++){
   const tx=bx+i*seg,anch=i===0?'start':i===4?'end':'middle';
-  bar+=`<text x="${tx.toFixed(1)}" y="${by+14}" text-anchor="${anch}" fill="#585e5b" font-family="IBM Plex Mono,monospace" font-size="8">${i===4?i*u+' m':i*u}</text>`;
+  bar+=`<text x="${tx.toFixed(1)}" y="${by+15}" text-anchor="${anch}" fill="#585e5b" font-family="IBM Plex Mono,monospace" font-size="10">${i===4?i*u+' m':i*u}</text>`;
  }
  svg+=bar;
 
@@ -2354,10 +2354,12 @@ function humanPlate(){
  // Scale to the plate rather than the other way round: a 9.6 m storey must not
  // run off the top of the drawing, and the width follows the height so the
  // room keeps its proportions instead of stretching.
- const V=Math.min(26,150/f2f);
+ // V capped at 20 (was 26) and a wider label margin, so the dimensions can be
+ // set at 11 units and still read at 10 px in a 276 px rail.
+ const V=Math.min(20,150/f2f);
  const X0=30, XM=8.5, X1=X0+XM*V, YF=172, YN=YF-f2f*V;   // floor line, slab above
  const yc=YF-clear*V;                            // ceiling, i.e. clear height
- const VW=X1+86, VH=206;
+ const VW=X1+132, VH=206;
  const ns=svgEl('svg',{viewBox:`0 0 ${VW} ${VH}`});
  const add=(t,a,x)=>{const n=svgEl(t,a);if(x!=null)n.textContent=x;ns.appendChild(n);return n};
  const DIM='#585e5b';
@@ -2398,22 +2400,24 @@ function humanPlate(){
  add('circle',{cx:px,cy:ey,r:1.8,fill:'#191c1b'});
  add('path',{d:`M${px} ${ey} L${X1} ${ey-4}`,stroke:'#f59e0b','stroke-width':'.9'});
  add('path',{d:`M${X1} ${ey-4} l-6 -2 v4 Z`,fill:'#f59e0b'});
- add('text',{x:px+16,y:ey+3,fill:'#585e5b','font-size':'7.5','font-family':'IBM Plex Mono,monospace'},'1.60 m eye');
+ // Set in the open room to the left of the figure, clear of the wall and the dimensions.
+ add('text',{x:px-8,y:ey+3.5,'text-anchor':'end',fill:'#585e5b','font-size':'11.5','font-family':'IBM Plex Mono,monospace'},'1.60 m eye');
 
  // dimensions, right-hand side, in the drafting manner
- const dim=(y1,y2,label,off)=>{
+ const dim=(y1,y2,label,off,ly=(y1+y2)/2)=>{
   add('path',{d:`M${X1+off-4} ${y1} H${X1+off+4} M${X1+off} ${y1} V${y2}`,stroke:DIM,'stroke-width':'.5'});
   add('path',{d:`M${X1+off} ${y1} l-2 4 h4 Z M${X1+off} ${y2} l-2 -4 h4 Z`,fill:DIM});
-  add('text',{x:X1+off+7,y:(y1+y2)/2+2.5,fill:'#191c1b','font-size':'7.5','font-family':'IBM Plex Mono,monospace'},label);
+  add('text',{x:X1+off+7,y:ly+3.5,fill:'#191c1b','font-size':'11.5','font-family':'IBM Plex Mono,monospace'},label);
  };
- dim(YN,YF,f2f.toFixed(2)+' m',8);
- dim(yc,YF,clear.toFixed(2)+' m clear',22);
- add('text',{x:X0+40,y:YN+24,fill:'#585e5b','font-size':'7.5','font-family':'IBM Plex Sans,Arial'},
+ // Floor-to-floor is labelled at its top, beside the services zone, so it
+ // stacks above the clear-height label instead of printing over it.
+ dim(YN,YF,f2f.toFixed(2)+' m',8,YN+9);
+ dim(yc,YF,clear.toFixed(2)+' m clear',30);
+ add('text',{x:X0+6,y:YN+(f2f-clear)*V/2+4,fill:'#585e5b','font-size':'11.5','font-family':'IBM Plex Sans,Arial'},
    tt('h.services'));
- add('text',{x:X0+40,y:YN+34,fill:'#8b918d','font-size':'7.5','font-family':'IBM Plex Sans,Arial'},
-   tt('h.hidden'));
  wrap.append(ns);
- wrap.append(el('p','note','Le Corbusier · Modulor · 1.83 / 2.26 m'));
+ // The second line is a sentence; it reads better as text than squeezed into the zone.
+ wrap.append(el('p','note',tt('h.hidden')+'. Le Corbusier · Modulor · 1.83 / 2.26 m'));
 
  // Solar screening uses the selected floor, city and date. Daily exposure
  // bands are geometric comparisons; glazing and rent are separate assumptions.

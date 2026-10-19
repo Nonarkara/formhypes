@@ -199,7 +199,7 @@ const S=(body,w=250,h=150)=>`<svg class="dsec" viewBox="0 0 ${w} ${h}" role="img
 const L=(d,sw=1)=>`<path d="${d}" stroke="var(--ink)" stroke-width="${sw}"/>`;
 const A=(d,sw=1)=>`<path d="${d}" stroke="var(--accent)" stroke-width="${sw}"/>`;
 const D=(d,sw=1)=>`<path d="${d}" stroke="var(--faint)" stroke-width="${sw}"/>`;
-const T=(x,y,s)=>`<text x="${x}" y="${y}" font-family="var(--mono)" font-size="7" fill="var(--faint)"`
+const T=(x,y,s)=>`<text x="${x}" y="${y}" font-family="var(--mono)" font-size="8.5" fill="var(--faint)"`
  +`stroke="none">${s}</text>`;
 // A small solid arrowhead. Amber when it is the point of the detail, ink when
 // it is only showing that something is moving.

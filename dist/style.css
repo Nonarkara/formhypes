@@ -625,7 +625,7 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 
 #feng{font-size:12px;padding:8px 0}#feng label{display:block;margin:8px 0 3px}
 .feng-prompts{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px}.feng-prompts button{padding:3px 6px}
-.feng-drawing{max-width:210px;margin:auto}.feng-drawing svg{display:block;width:100%;font-size:9px}
+.feng-drawing{max-width:230px;margin:auto}.feng-drawing svg{display:block;width:100%;font-size:11px}
 .feng-reading{border-left:2px solid var(--accent);padding-left:8px;margin-top:8px}
 #feng a{font-size:11px;display:block}
 #reader{max-width:1060px;margin:auto;scroll-margin-top:60px}

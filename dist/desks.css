@@ -84,7 +84,7 @@
 .wk-svg .wk-a{stroke:var(--accent,#f59e0b);fill:none}
 .wk-svg .wk-bg{fill:var(--dark,#111416);stroke:none}
 .wk-svg .wk-pin{fill:var(--dark,#111416);stroke:var(--accent,#f59e0b);stroke-width:1}
-.wk-svg .wk-pin-t{fill:var(--accent,#f59e0b);font-family:var(--mono);font-size:11px}
+.wk-svg .wk-pin-t{fill:var(--accent,#f59e0b);font-family:var(--mono);font-size:24px}
 .wk-svg text{font-family:var(--mono);font-size:11px;fill:var(--dim,#a2aca9)}
 
 /* ── Place / context desk (moved from context.js) ── */
@@ -369,3 +369,7 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 .structure-desk .sd-facts dd{margin:0;font-family:var(--mono);font-size:12px;text-align:right}
 .structure-desk .sd-note{font-size:12px;line-height:1.45;margin:6px 0;max-width:65ch}
 .structure-desk .sd-limits{color:var(--muted)}
+
+/* The walk-in section is drawn on a 1000-unit sheet shown ~425 px wide, so its
+   type is set in sheet units: 26 units reads at about 11 px. */
+.wk-svg text{font-size:26px}

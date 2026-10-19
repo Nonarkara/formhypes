@@ -215,3 +215,5 @@ body.is-console [hidden]{display:none!important}
 .console-dock #fengshuiDesk th{white-space:normal}
 /* Reset, Save and Export act on the studio; on the reading pages they are noise. */
 body[data-tab="research"] header .actions{display:none}
+/* The façade sheet is 564 units shown ~425 px wide: 14 units reads at ~10.5 px. */
+#facadeDesk svg{font-size:14px}
