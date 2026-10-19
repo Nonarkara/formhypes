@@ -1,9 +1,9 @@
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
 import {profile,stack,grossOf} from './model.js?v=b84188fae5';
-import {renderWindLab} from './wind.js?v=502210edc5';
-import {renderWaterLab} from './water.js?v=8dd3a7945e';
-import {renderGlareLab} from './glare.js?v=75228c114e';
+import {renderWindLab} from './wind.js?v=fc192f785d';
+import {renderWaterLab} from './water.js?v=ed6043fdf0';
+import {renderGlareLab} from './glare.js?v=41c573e904';
 import {renderFacade} from './facade.js?v=6a72e55a48';
 export const CONSOLE_TEXT={
  en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Wind','Water','Glare','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},

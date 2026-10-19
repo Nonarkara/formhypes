@@ -32,8 +32,8 @@
    than the stacks carry, the difference stands on the roof, and the figure
    shows it standing there. */
 
-import {stack,profile,area,evaluate} from './model.js';
-import {liftDesign,servicesDesign,CORE_SRC} from './core.js';
+import {stack,profile,area,evaluate} from './model.js?v=b84188fae5';
+import {liftDesign,servicesDesign,CORE_SRC} from './core.js?v=f90cb5173d';
 
 export const WATER_METHOD={
  rho:1000,g:9.81,

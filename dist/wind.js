@@ -27,8 +27,8 @@
    - Occupant comfort: ISO 10137:2007; ISO 6897; NatHaz (Kareem), 10-year
      return peak acceleration about 10–15 milli-g residential, 20–25 milli-g
      office. Quoted, never computed here. */
-import {profile,stackHeight,families,inside} from './model.js';
-import {structureRead,STRUCT_TEXT} from './structure.js';
+import {profile,stackHeight,families,inside} from './model.js?v=b84188fae5';
+import {structureRead,STRUCT_TEXT} from './structure.js?v=32b44bc030';
 
 export const RHO=1.25;
 // EN 1991-1-4 Table 4.1. Category I is omitted to keep four choices.

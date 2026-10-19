@@ -1,12 +1,12 @@
 import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=8f2f135b0f';
 import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=720b5c10c5';
 import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=fb85142bb8';
-import {renderStructure} from './structure.js?v=307dfa7027';
-import {mountConsole} from './console.js?v=1b2196ec32';
+import {renderStructure} from './structure.js?v=32b44bc030';
+import {mountConsole} from './console.js?v=6ceacf8909';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=b84188fae5';
-import{familyResponse,lattice}from'./explore.js?v=83a8372afd';
+import{familyResponse,lattice}from'./explore.js?v=d34f4a7e99';
 import{t,langs,langMeta,translator}from'./i18n.js?v=27230efac0';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
@@ -26,7 +26,7 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=f
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=a1e36c7479';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=779e749fce';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=6ebeb461cf';
 import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=afb25e3e3b';
 import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=a7de189823';
 
@@ -35,7 +35,7 @@ import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=9d38899646';
-import {WORKSPACES} from './console.js?v=1b2196ec32';
+import {WORKSPACES} from './console.js?v=6ceacf8909';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);

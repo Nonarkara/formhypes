@@ -22,9 +22,9 @@
    ρ(θ) = ρn + (1 − ρn)·w(θ), which reproduces those figures exactly at ρn = 13 %.
 
    DNI is the 0.8 kW/m² transparent reference used everywhere else here. */
-import {solarPosition,cities} from './solar.js';
-import {profile,stackHeight} from './model.js';
-import {cityData,ringsIntersect} from './cityscape.js';
+import {solarPosition,cities} from './solar.js?v=9279efc6dc';
+import {profile,stackHeight} from './model.js?v=b84188fae5';
+import {cityData,ringsIntersect} from './cityscape.js?v=dcc15cb0df';
 
 export const GLARE_DNI=800;               // W/m², the project's reference beam
 export const GLARE_LEVELS=12;
