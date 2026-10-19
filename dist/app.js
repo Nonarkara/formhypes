@@ -1,12 +1,12 @@
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=8b86ab0cf1';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=c9013c3ebf';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=3b2fe85a37';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=9235e5d15c';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=8b022e7340';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=da38386dd7';
 import {mountConsole} from './console.js?v=82f0a66755';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=a07152d203';
 import{familyResponse,lattice}from'./explore.js?v=d3f1e1bb35';
-import{t,langs,langMeta,translator}from'./i18n.js?v=f39209e800';
+import{t,langs,langMeta,translator}from'./i18n.js?v=e53a211e88';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
@@ -25,7 +25,7 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=3
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=b9ae7da0da';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=4cf49fa71e';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=097728acd7';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=39b3294c82';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
@@ -968,6 +968,11 @@ const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
   drawPlanSheet();
   ctx.restore();
   if(footInset>0){ctx.fillStyle='#2c3438';ctx.fillRect(0,fieldBottom,W,1)}
+  // The view foot names the gesture this sheet responds to. In plan the drag
+  // pans, and a sheet that still says "orbit" is telling the reader to do
+  // something that does nothing — the same failure as printing 250 m on a
+  // line drawn at 214.
+  syncDragHint();
   return;
  }
  if(city){
@@ -1245,13 +1250,14 @@ $('homeView').onclick=()=>{yaw=-.65;zoom=1;neighbourhood=false;view='orbit';panX
 /* Plan is a mode, not a modifier. Turning on the neighbourhood framing implies
    the orbit again, because those two answer different questions and stacking
    them produced a sheet that was neither a plan nor a perspective. */
+function syncDragHint(){const h=document.querySelector('[data-i18n="v.drag"]');if(h)h.textContent=tt(view==='plan'?'v.pan':'v.drag')}
 $('planView').onclick=()=>{view=view==='plan'?'orbit':'plan';panX=0;panY=0;zoom=1;
  if(view==='plan')neighbourhood=false;
  $('planView').setAttribute('aria-pressed',String(view==='plan'));
- $('cityView').setAttribute('aria-pressed','false');drawTower()};
+ $('cityView').setAttribute('aria-pressed','false');syncDragHint();drawTower()};
 $('cityView').onclick=()=>{neighbourhood=!neighbourhood;zoom=1;
  if(neighbourhood&&view==='plan'){view='orbit';panX=0;panY=0;$('planView').setAttribute('aria-pressed','false')}
- $('cityView').setAttribute('aria-pressed',String(neighbourhood));drawTower()};
+ $('cityView').setAttribute('aria-pressed',String(neighbourhood));syncDragHint();drawTower()};
 $('wire').onclick=()=>{wireframe=!wireframe;$('wire').setAttribute('aria-pressed',wireframe);drawTower()};
 /* Redraw on resize, comparing like with like: the observer watches the canvas
    and drawTower measures the same canvas, so the guard actually converges.

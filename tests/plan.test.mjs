@@ -289,6 +289,26 @@ test('everything the plan draws with is actually imported',()=>{
   'reach.js is not hashed by release-id.mjs, so a change to it does not move any stamp');
 });
 
+test('the view foot names the gesture the sheet actually responds to',()=>{
+ // Dragging a plan pans and orbiting it is meaningless, so a foot that still
+ // says "orbit" is telling the reader to do something that does nothing. The
+ // same failure as printing 250 m on a line drawn at 214 m.
+ const i=dist('i18n.js');
+ const grab=(l,k)=>new RegExp(`t\\.${l}[\\s\\S]{0,3000}?"${k}":"([^"]*)"`).exec(i)?.[1];
+ for(const l of ['en','th','zh']){
+  assert.ok(grab(l,'v.pan'),`v.pan is missing from ${l}`);
+  assert.ok(grab(l,'v.pan').length<grab(l,'v.drag').length+40,`v.pan in ${l} is not a gesture hint`);
+  assert.notEqual(grab(l,'v.pan'),grab(l,'v.drag'),`v.pan is a copy of v.drag in ${l}`);
+ }
+ const app=strip(dist('app.js'));
+ assert.match(app,/syncDragHint\(\)/,'the view foot hint is never resynchronised');
+ assert.match(app,/tt\(view==='plan'\?'v\.pan':'v\.drag'\)/,
+  'the foot hint does not follow the view');
+ // And it must be restored on the way back, or the orbit inherits the plan text.
+ assert.ok((app.match(/syncDragHint\(\)/g)||[]).length>=3,
+  'the hint is set on entering the plan but never on leaving it');
+});
+
 test('the plan button exists, is translated in all three languages, and is not Latin-fallback',()=>{
  const html=dist('index.html');
  assert.match(html,/id="planView"/,'the plan button is missing from the sheet');

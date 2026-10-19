@@ -261,7 +261,7 @@ const en={
 
  'v.home':'View',
  'v.wire':'Wireframe',
- 'v.drag':'Drag to orbit / ± to zoom',
+ 'v.drag':'Drag to orbit / ± to zoom','v.pan':'Drag to pan / ± to zoom',
  'v.units':'metres',
  'tb.notice':'Concept prototype — not for construction',
  'tb.by':'by Dr Non · depa + Axiom',
@@ -749,7 +749,7 @@ const th={
 
  'v.home':'มุมมอง',
  'v.wire':'โครงข่าย',
- 'v.drag':'ลากเพื่อหมุน / ± เพื่อซูม',
+ 'v.drag':'ลากเพื่อหมุน / ± เพื่อซูม','v.pan':'ลากเพื่อเลื่อน / ± เพื่อซูม',
  'v.units':'เมตร',
  'tb.notice':'ต้นแบบเชิงแนวคิด ไม่ใช่งานก่อสร้าง',
  'tb.by':'โดย Dr Non · depa + Axiom',
@@ -1236,7 +1236,7 @@ const zh={
 
  'v.home':'视角',
  'v.wire':'线框',
- 'v.drag':'拖动旋转 / ± 缩放',
+ 'v.drag':'拖动旋转 / ± 缩放','v.pan':'拖动平移 / ± 缩放',
  'v.units':'米',
  'tb.notice':'概念原型——不可用于施工',
  'tb.by':'Dr Non · depa + Axiom 出品',
