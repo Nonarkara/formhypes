@@ -216,3 +216,11 @@ Labs receive `changed()` and may patch the design. Each lab has its own CSS file
 - **Default tower:** 1,631 kg/m², 47% of it lateral, 370 kgCO₂e/m², band F, because the core is the only lever arm. As a diagrid it drops to 237, band C.
 - **Verification:** an independent check confirmed the factors, the RIBA and LETI targets and the Hearst Tower figure, and corrected Hancock and the EAF/BOF attribution.
 - **Fonts:** `--mono` now falls back to IBM Plex Sans Thai and Noto Sans SC, so Thai and Chinese set in mono never drop to a system face.
+
+## 2026-10-19 · Core desk lift speed
+
+`liftSpeed(rise)` in `core.js` gives about 30 s to the top of the run, in 0.5 m/s steps, never below 1.6 m/s and never above 10 m/s. It is the single speed rule for the Core desk's lift sizing, its section and 3D car animations, the evacuation lifts and the Lifts lab.
+
+The Core desk's round trip now uses CIBSE's split: travel per floor is h/v, and acceleration plus door time is charged once per stop. The old version charged v/a on every floor, which doubled the round trip at about 6 m/s.
+
+The default 48-storey tower now has 3 zones × 5 cars at 6.5 m/s with a 16.8 s interval (it was 18 cars at 1.6 m/s). The Lifts lab reproduces the Core desk's round trip from the t_v and t_s that `liftDesign` returns. The earlier open item ("Core desk fixed 1.6 m/s") is closed.
