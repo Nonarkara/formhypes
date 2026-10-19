@@ -64,7 +64,7 @@ function cssRules(css){
 
 test('the canvas is positioned, so everything in flow over it must be too',()=>{
  const css=dist('style.css');
- const canvas=/^canvas\{([^}]*)\}/m.exec(css);
+ const canvas=/^\.viewport>canvas\{([^}]*)\}/m.exec(css); // scoped 2026-10-19: a bare canvas{} rule pinned every lab canvas over the page
  assert.ok(canvas,'the base canvas rule is missing');
  assert.match(canvas[1],/position:\s*absolute/,
   'this guard assumes an out-of-flow canvas; if the canvas goes in flow, the '+

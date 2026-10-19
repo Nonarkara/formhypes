@@ -174,7 +174,7 @@ body.is-console [hidden]{display:none!important}
  .viewtools{max-width:calc(100% - 24px);overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
  .viewtools::-webkit-scrollbar{display:none}
  .viewtools button{flex:none}
- #console-tab-form{order:1}#console-tab-compare{order:2}#console-tab-brief{order:3}#console-tab-place{order:4}#console-tab-walk{order:5}#console-tab-facade{order:6}#console-tab-studies{order:7}#console-tab-core{order:8}#console-tab-detail{order:9}#console-tab-feng{order:10}#console-tab-wind{order:11}#console-tab-water{order:12}#console-tab-glare{order:13}
+ #console-tab-form{order:1}#console-tab-compare{order:2}#console-tab-brief{order:3}#console-tab-place{order:4}#console-tab-walk{order:5}#console-tab-facade{order:6}#console-tab-studies{order:7}#console-tab-core{order:8}#console-tab-wind{order:9}#console-tab-water{order:10}#console-tab-glare{order:11}#console-tab-detail{order:12}#console-tab-feng{order:13}
  body.is-console .studio[data-task="form"]{grid-template-rows:minmax(260px,1.45fr) minmax(168px,.62fr)}
  body.is-console .studio[data-task="form"]>.controls{display:flex;flex-direction:column}
  body.is-console .studio[data-task="form"]>.results{display:none}
