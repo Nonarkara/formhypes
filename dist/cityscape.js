@@ -53,15 +53,21 @@ function parsed(key){
 /* The skyline the model is actually standing in: the tallest things within the
    harvest radius, and what they would mean next to this tower. Reported, not
    drawn as a claim — the viewport draws them, this describes them. */
-export function skyline(key,modelHeight){
+/* `plotRing` excludes the buildings the tower replaces from the ranking as well
+   as from the drawing. Ranking against a skyline that includes a 599 m building
+   the drawing no longer shows would put "tallest 599 m" on a sheet with no 599 m
+   building in it — the rank would describe a city the tower will not stand in. */
+export function skyline(key,modelHeight,plotRing){
  const c=parsed(key);if(!c)return null;
- const sorted=[...c.buildings].sort((a,b)=>b.h-a.h);
+ const pool=plotRing?c.buildings.filter(b=>!ringsIntersect(b.ring,plotRing)):c.buildings;
+ const sorted=[...pool].sort((a,b)=>b.h-a.h);
  const tallest=sorted[0];
  const above=sorted.filter(b=>b.h>=modelHeight);
  const rank=sorted.findIndex(b=>b.h<modelHeight);
  const measured=sorted.filter(b=>(b.src===0||b.src===1)).length;
  return {
-  label:c.label,source:c.source,count:c.buildings.length,radius:c.radius,
+  label:c.label,source:c.source,count:pool.length,radius:c.radius,
+  replaced:c.buildings.length-pool.length,
   tallest:tallest?{h:tallest.h,measured:tallest.src===0}:null,
   tallerThanModel:above.length,
   // +1 because a list indexed from zero: this is the model's position in the
@@ -99,6 +105,54 @@ export function visibleMassings(city,scale,minPx=1.6){
    the back-face cull would then remove exactly the walls the camera can see —
    a silent, plausible-looking failure that only shows as a missing wall. So the
    handedness is normalised once, here, rather than tested per edge per frame. */
+/* Does this harvested building stand on the plot the tower is being drawn on?
+
+   In Shenzhen a 599 m massing spans x -32..44, y -11..65 — it contains the
+   origin, which is exactly where the tower stands. Drawing both means the
+   neighbour is painted in front of the one building the sheet is about, and the
+   tower appears to rise from inside another building rather than from the
+   ground. It read as floating, and no amount of shadow or contact line fixes a
+   contradiction about where the buildings are.
+
+   The tower occupies the plot, so whatever stands on it is the site, not the
+   context. It is removed from the drawing and counted, and the count is stated
+   on the sheet — because a neighbour that silently disappears is a massing the
+   reader cannot check, and a rank computed against massings they cannot see is
+   a rank they cannot audit.
+
+   Edge crossing plus containment. Bounding boxes alone would take a large
+   building whose box merely contains the plot while the polygon does not, and
+   a small shed just past the corner would be missed. */
+function segCross(ax,ay,bx,by,cx,cy,dx,dy){
+ const d1=(bx-ax)*(cy-ay)-(by-ay)*(cx-ax),d2=(bx-ax)*(dy-ay)-(by-ay)*(dx-ax);
+ const d3=(dx-cx)*(ay-cy)-(dy-cy)*(ax-cx),d4=(dx-cx)*(by-cy)-(dy-cy)*(bx-cx);
+ return (d1>0)!==(d2>0)&&(d3>0)!==(d4>0);
+}
+function pointIn(ring,x,y){
+ let hit=false;
+ for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+  const [xi,yi]=ring[i],[xj,yj]=ring[j];
+  if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)hit=!hit;
+ }
+ return hit;
+}
+export function ringsIntersect(a,b){
+ if(!a||!b||a.length<3||b.length<3)return false;
+ for(let i=0;i<a.length;i++){
+  const [ax,ay]=a[i],[bx,by]=a[(i+1)%a.length];
+  for(let j=0;j<b.length;j++){
+   const [cx,cy]=b[j],[dx,dy]=b[(j+1)%b.length];
+   if(segCross(ax,ay,bx,by,cx,cy,dx,dy))return true;
+  }
+ }
+ return pointIn(a,b[0][0],b[0][1])||pointIn(b,a[0][0],a[0][1]);
+}
+export function splitByPlot(massings,ring){
+ const onPlot=[],context=[];
+ for(const m of massings)(ringsIntersect(m.ring,ring)?onPlot:context).push(m);
+ return {onPlot,context};
+}
+
 export function ringArea(ring){
  let a=0;
  for(let i=0,j=ring.length-1;i<ring.length;j=i++)a+=(ring[j][0]*ring[i][1]-ring[i][0]*ring[j][1]);

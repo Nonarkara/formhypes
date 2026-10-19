@@ -3,7 +3,7 @@ import {modulorPath} from './modulor.js?v=3431f62913';
 // Not renders — no perspective-correct texture, no refraction through glass, no
 // lighting or shadows, no occupants beyond the scale figure, and no interior
 // partition beyond the one that is cut.
-import {profile, stackHeight,stack,massingRings} from './model.js?v=a07152d203';
+import {profile, stackHeight,stack,massingRings} from './model.js?v=0c66fed306';
 
 const EYE=1.60,SV=.95,DTR=Math.PI/180;
 const num=(v,d=2)=>String(Math.round(v*Math.pow(10,d))/Math.pow(10,d));

@@ -261,7 +261,7 @@ const en={
 
  'v.home':'View',
  'v.wire':'Wireframe',
- 'v.drag':'Drag to orbit / ± to zoom',
+ 'v.drag':'Drag to orbit / ± to zoom','v.pan':'Drag to pan / ± to zoom',
  'v.units':'metres',
  'tb.notice':'Concept prototype — not for construction',
  'tb.by':'by Dr Non · depa + Axiom',
@@ -318,6 +318,7 @@ const en={
  'dt.note.balustrade':'The most expensive safety requirement on the building per metre, because it is a guard that must not look like a guard, must not obstruct the view you paid for, and must be fixed through a waterproofing layer that was already finished.',
  'v.skyline':'{where} · rank {rank} of {total} on this plot · tallest {tall} m',
  'v.skycredit':'Context massing © OpenStreetMap contributors, ODbL · {measured}% with explicit height tags',
+ 'v.replaced':'{n} building(s) on this plot removed — the tower stands there',
  'meth.title1':'Twenty years ahead.',
  'meth.title2':'Still an unfinished idea.',
  'meth.rent':'rentable area × base × (1 + identity + column-free + clear height − low ceiling − daylight depth) + corner area × base × corner premium, where base = rent × occupancy',
@@ -749,7 +750,7 @@ const th={
 
  'v.home':'มุมมอง',
  'v.wire':'โครงข่าย',
- 'v.drag':'ลากเพื่อหมุน / ± เพื่อซูม',
+ 'v.drag':'ลากเพื่อหมุน / ± เพื่อซูม','v.pan':'ลากเพื่อเลื่อน / ± เพื่อซูม',
  'v.units':'เมตร',
  'tb.notice':'ต้นแบบเชิงแนวคิด ไม่ใช่งานก่อสร้าง',
  'tb.by':'โดย Dr Non · depa + Axiom',
@@ -806,6 +807,7 @@ const th={
  'dt.note.balustrade':'ข้อกำหนดความปลอดภัยที่แพงที่สุดของอาคารต่อเมตร เพราะเป็นราวกันที่ต้องไม่ดูเหมือนราวกัน ต้องไม่บังวิวที่คุณจ่ายเงินซื้อ และต้องยึดผ่านชั้นกันน้ำที่ทำเสร็จไปแล้ว',
  'v.skyline':'{where} · อันดับที่ {rank} จาก {total} อาคารในรัศมีนี้ · สูงสุด {tall} ม.',
  'v.skycredit':'มวลสิ่งก่อสร้างรอบข้าง © ผู้มีส่วนร่วม OpenStreetMap · ODbL · ความสูงจากแท็กระบุชัด {measured}%',
+ 'v.replaced':'ลบอาคารในพื้นที่นี้ {n} หลัง เพราะตึกตั้งอยู่ตรงนั้น',
  'meth.title1':'ล้ำหน้ามายี่สิบปี',
  'meth.title2':'และยังเป็นความคิดที่ไม่จบ',
  'meth.rent':'พื้นที่ให้เช่า × ฐาน × (1 + อัตลักษณ์ + พื้นที่ไร้เสา + ความสูงฝ้า − ฝ้าต่ำ − ความลึกแสงธรรมชาติ) + พื้นที่ออฟฟิศมุม × ฐาน × ส่วนเพิ่มออฟฟิศมุม โดย ฐาน = ค่าเช่า × อัตราการเช่า',
@@ -1236,7 +1238,7 @@ const zh={
 
  'v.home':'视角',
  'v.wire':'线框',
- 'v.drag':'拖动旋转 / ± 缩放',
+ 'v.drag':'拖动旋转 / ± 缩放','v.pan':'拖动平移 / ± 缩放',
  'v.units':'米',
  'tb.notice':'概念原型——不可用于施工',
  'tb.by':'Dr Non · depa + Axiom 出品',
@@ -1293,6 +1295,7 @@ const zh={
  'dt.note.balustrade':'全楼每延米最昂贵的安全要求：它是一道不能看起来像护栏的护栏，不能遮挡你付钱买的视野，而且必须穿过已经做完的防水层固定。',
  'v.skyline':'{where} · 本图范围内 {total} 栋建筑中排第 {rank} 位 · 最高 {tall} 米',
  'v.skycredit':'周边体量 © OpenStreetMap 贡献者 · ODbL · {measured}% 的高度来自明确标签',
+ 'v.replaced':'本图幅内已移除 {n} 栋建筑 — 塔楼建在该位置',
  'meth.title1':'领先二十年。',
  'meth.title2':'仍是一个未完成的想法。',
  'meth.rent':'可租面积 × 基准 ×（1 + 识别度 + 无柱 + 净高 − 低净高 − 采光进深）+ 转角面积 × 基准 × 转角溢价；其中 基准 = 租金 × 出租率',
@@ -1632,9 +1635,9 @@ Object.assign(zh,{
  'st.none':'范围内没有足以容纳该标准层的地块。请增大地块面积或减小建筑跨度。'
 });
 
-Object.assign(t.en,{"v.neighbourhood":"Neighbourhood"});
-Object.assign(t.th,{"v.neighbourhood":"ย่านโดยรอบ"});
-Object.assign(t.zh,{"v.neighbourhood":"周边街区"});
+Object.assign(t.en,{"v.neighbourhood":"Neighbourhood","v.plan":"Plan","v.reach":"Tower shadow on the ground","v.reachNote":"at this sheet's sun position - not a solar study","v.reachShort":"at this sheet's sun position"});
+Object.assign(t.th,{"v.neighbourhood":"ย่านโดยรอบ","v.plan":"ผัง","v.reach":"เงาของอาคารบนพื้นดิน","v.reachNote":"ที่ตำแหน่งแสงของแผ่นนี้ ไม่ใช่การศึกษาแสงอาทิตย์","v.reachShort":"ที่ตำแหน่งแสงของแผ่นนี้"});
+Object.assign(t.zh,{"v.neighbourhood":"周边街区","v.plan":"平面图","v.reach":"塔楼在地面的投影","v.reachNote":"按本图纸的光照方向，非日照分析","v.reachShort":"按本图纸的光照方向"});
 Object.assign(t.en,{
  'd.qty':'QTY',
  'd.qtyTitle':'Per-level area and façade schedule',

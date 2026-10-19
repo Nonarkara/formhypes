@@ -522,11 +522,22 @@ test('the sheet bottom band is one in-flow stack, not elements with guessed offs
  // band; it is measuring an element that can be absent. footInset is derived
  // from every in-flow child, so it is correct whether or not any one of them is
  // on screen. The horizontal label is still cleared, but only when it exists.
- const triad=/const origin=\[([^\]]*)\];\s*ctx\.strokeStyle='#a2aca9'/.exec(app);
- assert.ok(triad,'the axis triad origin is missing or no longer a single point');
+ /* The anchor is measured ONCE and both the triad and the plan's scale bar
+   read it. The previous assertion required the declaration to sit immediately
+   before the triad's strokeStyle, which was only ever true by accident of
+   layout: the moment a second thing needed the same anchor, that adjacency
+   became a lie about what the guard was protecting. What has to hold is that
+   the anchor is derived from the measured label and band edge, and that
+   there is exactly one of it — two copies would drift, and this is the same
+   bug the layout measurement was written to end. */
+ const all=[...app.matchAll(/const origin=\[([^\]]*)\];/g)];
+ assert.equal(all.length,1,'the sheet anchor must be measured once, not copied per drawing');
+ const triad=all[0];
  assert.ok(/labelLeft/.test(triad[1])&&/fieldBottom/.test(triad[1]),
   `the triad must be placed against the measured view foot label and the band `+
   `edge, got ${triad[1]}`);
+ assert.ok(/labelLeft-vpRect\.left-40/.test(triad[1]),
+  'the anchor no longer clears the view foot label horizontally');
  assert.ok(!/footR/.test(triad[1]),
   'the triad must not take its vertical placement from a single band row — '+
   'that row is display:none on a narrow screen, where a Math.max floor becomes '+
