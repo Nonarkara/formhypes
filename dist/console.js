@@ -1,6 +1,7 @@
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
 import {profile,stack,grossOf} from './model.js?v=4d4eb35fb5';
+import {renderCarbonLab} from './carbon.js?v=8ccaa70ce2';
 import {renderLiftsLab} from './lifts.js?v=72ae698523';
 import {renderFireLab} from './fire.js?v=256fd63d9e';
 import {renderWindLab} from './wind.js?v=8024108437';
@@ -8,9 +9,9 @@ import {renderWaterLab} from './water.js?v=57287d29e5';
 import {renderGlareLab} from './glare.js?v=a4132486c8';
 import {renderFacade} from './facade.js?v=5afbb15568';
 export const CONSOLE_TEXT={
- en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Lifts','Evacuation','Wind','Water','Glare','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
- th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',capacityShort:'พื้นที่ / ที่ให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','ลิฟต์','อพยพหนีไฟ','อุโมงค์ลม','ระบบน้ำ','แสงสะท้อน','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
- zh:{capacity:'模型总面积 / 面积额度',capacityShort:'面积 / 额度',crosses:'建筑超出假设地块边界',land:'用地 · m²',far:'容积率',city:'城市',assumption:'假设正方形地块 · 容积率为情景输入',work:[ '形体','任务书','核心筒','电梯','疏散','风洞','给排水','反光','构造','幕墙','场地','风水','视角','探索','存档' ],rail:['设计','表现'],site:['地基与文化','邻里与日照','落位','环境'],tools:'工作区',open:'参数',close:'关闭',briefTabs:['用地与任务书','方案与转角','论文参数']}
+ en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Lifts','Evacuation','Wind','Water','Glare','Carbon','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
+ th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',capacityShort:'พื้นที่ / ที่ให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','ลิฟต์','อพยพหนีไฟ','อุโมงค์ลม','ระบบน้ำ','แสงสะท้อน','คาร์บอน','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
+ zh:{capacity:'模型总面积 / 面积额度',capacityShort:'面积 / 额度',crosses:'建筑超出假设地块边界',land:'用地 · m²',far:'容积率',city:'城市',assumption:'假设正方形地块 · 容积率为情景输入',work:[ '形体','任务书','核心筒','电梯','疏散','风洞','给排水','反光','碳排放','构造','幕墙','场地','风水','视角','探索','存档' ],rail:['设计','表现'],site:['地基与文化','邻里与日照','落位','环境'],tools:'工作区',open:'参数',close:'关闭',briefTabs:['用地与任务书','方案与转角','论文参数']}
 };
 export function siteLedger(state,inputs){
  const st=stack(state),height=st.at(-1).z+st.at(-1).h,half=Math.sqrt(inputs.plot)/2;
@@ -18,7 +19,7 @@ export function siteLedger(state,inputs){
  const gross=grossOf(state),allowance=inputs.plot*inputs.far;
  return {gross,allowance,remaining:allowance-gross,fits};
 }
-export const WORKSPACES=['form','brief','core','lifts','fire','wind','water','glare','detail','facade','place','feng','walk','compare','studies'];
+export const WORKSPACES=['form','brief','core','lifts','fire','wind','water','glare','carbon','detail','facade','place','feng','walk','compare','studies'];
 /* Each workspace is named by a drawing, not a word. A strip of nine words is a
    menu; nine marks are an instrument panel, and they survive being read at a
    glance while the reader is looking at the tower. Drawn the way the rest of
@@ -51,6 +52,8 @@ const WORK_GLYPHS={
  lifts:'<rect x="3" y="2" width="6" height="16"/><rect x="11" y="2" width="6" height="16"/><rect x="4.2" y="4" width="3.6" height="4"/><rect x="12.2" y="12" width="3.6" height="4"/><path d="M6 11.5l-1.4 2h2.8zM14 8.5l-1.4-2h2.8z"/>',
  // evacuation: a stair in section and the way out at its foot
  fire:'<path d="M2 18h4v-4h4v-4h4V6h4"/><path d="M14 18h5M16.5 15.5l2.5 2.5-2.5 2.5"/>',
+ // carbon: a tower drawn as stacked material, heavier toward the base, and the cloud above it
+ carbon:'<path d="M7 18V8h6v10M5 18h10"/><path d="M8 12h4M8 15h4"/><path d="M6.5 6.2a2.4 2.4 0 0 1 3.3-2.6 2.8 2.8 0 0 1 5.2 1.4 1.8 1.8 0 0 1-.4 3.5H6.8a1.6 1.6 0 0 1-.3-2.3z"/>',
  // a wind tunnel: flow lines bending round a plan, the wake shed behind it
  wind:'<path d="M1 5.5h6.5M1 14.5h6.5M1 10h4"/><rect x="8" y="7" width="5" height="6"/><path d="M13 7.5c2.5-1 3.5 1 5.5 0M13 12.5c2.5 1 3.5-1 5.5 0"/><circle cx="16.5" cy="10" r="1.3"/>',
  // water: the tank on the roof, the rising main, a drop at the tap below
@@ -102,7 +105,7 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
  const placeButtons=placePanels.map((_,i)=>{const b=node('button');b.type='button';b.onclick=()=>{place=i;show('place')};placeNav.append(b);return b});
  const facade=node('div');facade.id='facadeDesk';panels.facade.append(facade);
  // Labs: live instruments, each owning its host and its animation loop.
- const labs={lifts:[renderLiftsLab,'liftsLab'],fire:[renderFireLab,'fireLab'],wind:[renderWindLab,'windLab'],water:[renderWaterLab,'waterLab'],glare:[renderGlareLab,'glareLab']};
+ const labs={carbon:[renderCarbonLab,'carbonLab'],lifts:[renderLiftsLab,'liftsLab'],fire:[renderFireLab,'fireLab'],wind:[renderWindLab,'windLab'],water:[renderWaterLab,'waterLab'],glare:[renderGlareLab,'glareLab']};
  for(const [k,[,id]]of Object.entries(labs)){const h=node('div','lab-host');h.id=id;panels[k].append(h)}
  panels.compare.append(studio.querySelector('.explore'));panels.studies.append(studio.querySelector('.studies'));
  // The existing atlas is already wired to the real model. Make it the chooser.
