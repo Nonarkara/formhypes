@@ -409,7 +409,9 @@ export function evaluate(s){
   // drained, irrigated, planted and waterproofed every year of its life.
   if(frac<1)gardenArea+=area(p)*(1-frac);
   facade+=lateralArea(tab,l.z,l.z+l.h,sAt,s0z,()=>0,th0z);
-  cornerArea+=zones.reduce((a,z)=>a+area(z),0);
+  // A terrace level keeps only `frac` of its plate; its corner premium cannot
+  // exceed what it keeps. ponytail: proportional, not clipped to the kept outline.
+  cornerArea+=zones.reduce((a,z)=>a+area(z),0)*frac;
   corners+=zones.length;
   if(l.gfa){
    depthWorst=Math.max(depthWorst,daylightDepth(p,s));
@@ -631,7 +633,11 @@ export function rank(results){
  });
  ranked.sort((a,b)=>{
   const d=b.score-a.score;
-  return Math.abs(d)>1e-9?d:a.state.twist-b.state.twist;
+  // Ties are common on integer objectives (corner counts), so the order must
+  // not depend on the order candidates arrived in.
+  if(Math.abs(d)>1e-9)return d;
+  const k=r=>[r.state.family,r.state.taper,r.state.twist,r.state.floors].join('|');
+  return k(a)<k(b)?-1:k(a)>k(b)?1:0;
  });
  return ranked;
 }

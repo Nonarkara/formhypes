@@ -1,11 +1,11 @@
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=aedf04bd4e';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=a51a227b4c';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=02582ef143';
-import {mountConsole} from './console.js?v=afaf5e9585';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=8f2f135b0f';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=720b5c10c5';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=fb85142bb8';
+import {mountConsole} from './console.js?v=19e8ef70e8';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=6486a0c4d9';
-import{familyResponse,lattice}from'./explore.js?v=cbfa52a32d';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=b84188fae5';
+import{familyResponse,lattice}from'./explore.js?v=83a8372afd';
 import{t,langs,langMeta,translator}from'./i18n.js?v=27230efac0';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
@@ -20,21 +20,21 @@ import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=60cc665ee0';
 import {coreScene} from './core3d.js?v=396c530315';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy as getFengPlayStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=449ee7f788';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=f4ffdafeff';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=08d51a7f6f';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=d8f5b776c1';
-import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=45eb3b43f7';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=75392f025c';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=a1e36c7479';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=779e749fce';
+import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=afb25e3e3b';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=a7de189823';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=3b0875c3f2';
-import {WORKSPACES} from './console.js?v=afaf5e9585';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=9d38899646';
+import {WORKSPACES} from './console.js?v=19e8ef70e8';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -408,16 +408,16 @@ function update(){
 }
 
 /* ── where the rent comes from ────────────────────────────────────────── */
-/* A scale, not a filled bar: ten pen ticks and one longer mark, the way a
-   graphic scale sits on a drawing. The length is the share of the largest
-   line in this ledger. Nothing here is a pooled fill. */
+/* A dimension line, not a filled bar: a faint full-width base and a drawn
+   line whose length is this stream's share of the largest one, with an end
+   tick at each end the way a dimension string is drawn. Each row used to carry
+   the same ten-tick ruler with one mark, so every row looked identical and the
+   eye had to hunt for the mark; a length reads at a glance. */
 function ruleMark(fraction){
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
- svg.setAttribute('viewBox','0 0 160 16');svg.setAttribute('aria-hidden','true');
+ svg.setAttribute('viewBox','0 0 160 10');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
  const x=(1+158*Math.max(0,Math.min(1,fraction))).toFixed(1);
- let ticks='';
- for(let i=0;i<=10;i++){const tx=(1+158*i/10).toFixed(1);ticks+=`M${tx} ${i%5?8:4}V14`;}
- svg.innerHTML=`<path d="M1 11H159" fill="none" stroke="currentColor" stroke-width="1"/><path d="${ticks}" fill="none" stroke="currentColor" stroke-width="1"/><path d="M${x} 1V15" fill="none" stroke="currentColor" stroke-width="1.6"/>`;
+ svg.innerHTML=`<path d="M1 5H159" fill="none" stroke="currentColor" stroke-width="1" opacity=".22" vector-effect="non-scaling-stroke"/><path d="M1 5H${x}" fill="none" stroke="currentColor" stroke-width="3" vector-effect="non-scaling-stroke"/><path d="M1 1V9M${x} 1V9" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
  return svg;
 }
 function renderPremiums(){
@@ -1779,7 +1779,10 @@ function drawStudy(){
 // Own keys only: an inherited name such as 'constructor' would otherwise pass and turn every metric into NaN.
 const own=(o,k)=>typeof k==='string'&&Object.hasOwn(o,k);
 function validState(x){return x&&own(families,x.family)&&own(levelPrograms,x.program)&&own(facadeFamilies,x.skin)&&own(MATERIALS,x.material)&&own(CROWNS,x.crown)&&own(GARDENS,x.garden)&&own(DETAILS,x.detail)&&own(systems,x.system)&&own(regimes,x.regime)
- &&validSolar({...solarDefaults,...x})&&Object.keys(schema).every(k=>Number.isFinite(k==='orientation'?(x[k]??0):x[k])&&(k==='span'?x[k]>0&&x[k]<300:(x[k]??0)>=schema[k][1]&&(x[k]??0)<=schema[k][2]))}
+ &&validSolar({...solarDefaults,...x})&&Object.keys(schema).every(k=>Number.isFinite(k==='orientation'?(x[k]??0):x[k])&&(k==='span'?x[k]>=1&&x[k]<300:(x[k]??0)>=schema[k][1]&&(x[k]??0)<=schema[k][2]&&onStep(k,x[k]??0)))}
+// A stored value off the slider grid (floors 12.5) evaluates as a different
+// building from the one it displays, so it is refused like any other junk.
+const onStep=(k,v)=>{const[,min,,step]=schema[k];const n=(v-min)/step;return Math.abs(n-Math.round(n))<1e-6}
 // The rebrand renamed both keys. Fall back to the old ones so a language
 // choice and a study shelf saved under the previous name survive it.
 const readStore=k=>{try{return localStorage.getItem(k)}catch{return null}};
@@ -1788,7 +1791,7 @@ const readStore=k=>{try{return localStorage.getItem(k)}catch{return null}};
 // it was made with a flat roof and no terrace — and rejecting it would throw
 // away the reader's own work because the model grew two switches.
 const withDefaults=x=>{const y={...defaults,...x};if(!own(CROWNS,y.crown))y.crown='flat';if(!own(GARDENS,y.garden))y.garden='none';if(!own(DETAILS,y.detail))y.detail='drained-cavity';if(typeof y.led!=='boolean')y.led=false;return y};
-try{const data=JSON.parse(readStore('formHypesStudies')??readStore('formYieldStudies')??'[]');studies=Array.isArray(data)?data.map(s=>s&&s.state?{...s,state:withDefaults(s.state)}:s).filter(x=>x&&validState(x.state)).slice(0,8):[]}catch{studies=[]}
+try{const data=JSON.parse(readStore('formHypesStudies')??readStore('formYieldStudies')??'[]');studies=Array.isArray(data)?data.map(s=>s&&s.state&&typeof s.state==='object'&&!Array.isArray(s.state)?{...s,state:withDefaults(s.state)}:s).filter(x=>x&&validState(x.state)).slice(0,8):[]}catch{studies=[]}
 function persist(){try{localStorage.setItem('formHypesStudies',JSON.stringify(studies));return true}catch{return false}}
 let referenceStudy=null;
 function currentStudy(){return {version:2,name:cleanStudyName($('studyName')?.value),note:cleanStudyNote($('studyNote')?.value),state:{...state},brief:getBriefStudy(state).inputs,environment:getEnvironmentStudy()}}

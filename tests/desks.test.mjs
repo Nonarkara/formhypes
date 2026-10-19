@@ -327,12 +327,15 @@ test('the Shenzhen notes moved into the Place desk instead of vanishing with the
  assert.doesNotMatch(bkk,/Xiaohei|660 m scheme/,'Shenzhen notes leaked onto another site');
 });
 
-test('the performance rail leads with drawings and keeps the schedule on demand',()=>{
+test('the performance rail leads with its one answer, then drawings, schedule on demand',()=>{
  const html=readDist('index.html');
- // A rail that prints its figures before the first drawing reads as a
- // template. The two drawings an architect reads off a sheet come first.
- assert.ok(html.indexOf('id="premiumPanel"')<html.indexOf('id="contribution"'),
-  'the rent scales must sit above the headline figure');
+ // 2026-10-19: the headline figure was below the fold at 1024 px under the
+ // rent scales and the plan, so the one number every edit moves was invisible
+ // while editing. One answer first, then the drawings that explain it.
+ assert.ok(html.indexOf('id="contribution"')<html.indexOf('id="premiumPanel"'),
+  'the headline figure must open the rail, above the rent scales');
+ assert.ok(html.indexOf('id="premiumPanel"')<html.indexOf('id="plan"'),
+  'the rent scales sit above the level plan');
  assert.ok(html.indexOf('id="plan"')<html.indexOf('id="annualRent"'),
   'the level plan must sit above the figures');
  // Then the figures, grouped, opened by the reader rather than printed.

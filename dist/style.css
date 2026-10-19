@@ -247,7 +247,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 .railgroup .note{font-size:11px;line-height:1.4;padding-bottom:6px}
 .panhel,.panelh{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px;font-weight:400}
 .staff{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 10px;align-items:baseline;margin:0 0 8px;font-size:11px;color:var(--ink)}
-.staff svg{grid-column:1/-1;width:100%;height:16px;display:block}
+.staff svg{grid-column:1/-1;width:100%;height:10px;display:block;margin-top:2px}
 .staff .amt{font-family:var(--mono)}
 .staff.neg{color:var(--accent)}
 
