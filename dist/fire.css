@@ -1,1 +1,44 @@
-/* fire lab styles. */
+/* Fire lab. Three text sizes only: 15px heading, status and verdict, 12px
+   everything that is read, 11px for the sources line. Hairlines separate;
+   nothing encloses. The one accent marks the fire floor and the current
+   width on the chart. */
+.fe{container-type:inline-size;display:grid;gap:10px;min-width:0;font-size:12px;line-height:1.45;color:var(--ink)}
+.fe-title{margin:0;font-size:var(--m);font-weight:600;letter-spacing:0}
+.fe-sub{margin:6px 0 0;font-size:12px;font-weight:600;padding-top:8px;border-top:1px solid var(--line)}
+.fe-prose{margin:0;max-width:68ch;color:var(--muted)}
+.fe-hint{margin:2px 0 0;max-width:68ch;color:var(--muted)}
+.fe-limits{color:var(--ink)}
+.fe-src{margin:0;font-size:11px;max-width:68ch;color:var(--muted);padding-top:8px;border-top:1px solid var(--line)}
+
+.fe-canvas{position:static;inset:auto;display:block;width:100%;background:var(--dark);touch-action:auto}
+.fe-hero{height:480px}
+.fe-chart{height:220px}
+@container (min-width:640px){.fe-hero{height:600px}.fe-chart{height:240px}}
+
+.fe-status{margin:0;font-family:var(--mono);font-size:var(--m);font-weight:500;max-width:68ch}
+.fe-verdict{margin:0;font-size:var(--m);max-width:68ch}
+.fe-flag{border-left:3px solid var(--accent);padding-left:8px}
+
+.fe-controls{display:grid;grid-template-columns:minmax(0,1fr);gap:12px 18px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+@container (min-width:640px){.fe-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fe-field{min-width:0}
+.fe-fieldhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.fe-label{font-size:12px;font-weight:500;margin:0}
+.fe-out{font-family:var(--mono);font-size:12px;text-align:right}
+.fe-field input[type=range]{width:100%}
+.fe-field input[type=range]:disabled{opacity:.45}
+.fe-seg{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.fe-seg button,.fe-toggle{font-size:12px;border-radius:0;margin-top:4px}
+.fe-seg button{flex:1 1 auto;justify-content:center}
+
+.fe-facts{margin:0;display:grid;grid-template-columns:minmax(0,1fr)}
+@container (min-width:640px){.fe-facts{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px}}
+.fe-facts>div{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--line);min-width:0}
+.fe-facts dt{color:var(--muted);flex:0 1 auto}
+.fe-facts dd{margin:0;font-family:var(--mono);text-align:right;overflow-wrap:anywhere}
+.fe-flagtext{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+
+@media(pointer:coarse){
+ .fe-seg button,.fe-toggle,.fe-field input[type=range]{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){.fe *{transition:none}}
