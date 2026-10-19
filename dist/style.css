@@ -315,7 +315,7 @@ tbody tr:hover{background:var(--panel)}
 .lattice-cell:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 
 .studies{padding:22px 0;display:grid;grid-template-columns:244px 1fr;gap:24px}
-.studies h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+.studies h2,#decisionDesk h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em}
 .studies p{margin:5px 0 0;color:var(--muted);font-size:11px}
 #savedStudies{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start}
 

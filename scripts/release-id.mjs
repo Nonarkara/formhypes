@@ -42,7 +42,7 @@ const stamp = (src, refs, ids) => refs.reduce(
     `${ref}?v=${ids[ref.replace(/^\.\//, '')]}`),
   src);
 
-const SHARED = ['console.css','desks.css','modulor.js','model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'vendor/SUNCALC-LICENSE.txt', 'i18n.js', 'reach.js', 'drafting.js', 'style.css', 'play.js', 'location.js',
+const SHARED = ['console.css','desks.css','wind.css','water.css','glare.css','modulor.js','model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'vendor/SUNCALC-LICENSE.txt', 'i18n.js', 'reach.js', 'drafting.js', 'style.css', 'play.js', 'location.js',
   'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt',
   // The crown, material and detail libraries, and the harvested cityscape. These
   // three arrived carrying literal pins (?v=crown1), which meant their bytes
@@ -68,9 +68,9 @@ const MEDIA = ['research/artifacts/ags-anchorage-2436.png','research/media/offic
   'research/artifacts/chen-fig36.png', 'research/artifacts/chen-fig76-detail.png', 'research/artifacts/chen-fig38.png',
   'research/artifacts/chen-fig40.png', 'research/artifacts/chen-fig49.png',
   'research/protocol-en.txt','research/protocol-th.txt','research/protocol-zh.txt'];
-const DESKS=['facade.js','brief.js','walk.js','context.js','explore.js','feng.js','structure.js'];
+const DESKS=['structure.js','facade.js','brief.js','walk.js','context.js','explore.js','feng.js','wind.js','water.js','glare.js'];
 const IN_APP = ['./structure.js','./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./core3d.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./feng.js','./context.js','./explore.js','./site.js','./ground.data.js','./reach.js','./drafting.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
-const IN_HTML = ['console.css','desks.css','style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
+const IN_HTML = ['console.css','desks.css','wind.css','water.css','glare.css','style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 
 for(const lang of ['en','th','zh'])await write(`research/protocol-${lang}.txt`,researchProtocol(lang));
 const ids = {};
@@ -108,11 +108,11 @@ await write('model.js', model);ids['model.js']=sha(model);
 const manual = stamp(await read('manual.js'), ['./schema.js','./manual-text.js','./model.js'], ids);
 await write('manual.js', manual);ids['manual.js']=sha(manual);
 
-for(const f of DESKS){const src=stamp(await read(f), ['./modulor.js','./model.js','./solar.js','./geometry.js','./lens.js','./site.js','./ground.data.js','./cityscape.data.js','./cityscape.js','./i18n.js',...MEDIA], ids);await write(f,src);ids[f]=sha(src)}
+for(const f of DESKS){const src=stamp(await read(f), ['./structure.js','./core.js','./drafting.js','./modulor.js','./model.js','./solar.js','./geometry.js','./lens.js','./site.js','./ground.data.js','./cityscape.data.js','./cityscape.js','./i18n.js',...MEDIA], ids);await write(f,src);ids[f]=sha(src)}
 
 for(const f of ['environment.js','environment-desk.js','decisions.js']){const src=stamp(await read(f),['./model.js','./brief.js','./cityscape.js','./solar.js','./context.js','./environment.js'],ids);await write(f,src);ids[f]=sha(src)}
 
-const consoleSrc=stamp(await read('console.js'), ['./facade.js','./model.js'],ids);
+const consoleSrc=stamp(await read('console.js'), ['./facade.js','./model.js','./wind.js','./water.js','./glare.js'],ids);
 await write('console.js',consoleSrc);ids['console.js']=sha(consoleSrc);
 
 const research = stamp(await read('research.js'), MEDIA, ids);

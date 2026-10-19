@@ -1,11 +1,14 @@
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
 import {profile,stack,grossOf} from './model.js?v=b84188fae5';
+import {renderWindLab} from './wind.js?v=502210edc5';
+import {renderWaterLab} from './water.js?v=8dd3a7945e';
+import {renderGlareLab} from './glare.js?v=75228c114e';
 import {renderFacade} from './facade.js?v=6a72e55a48';
 export const CONSOLE_TEXT={
- en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
- th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',capacityShort:'พื้นที่ / ที่ให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
- zh:{capacity:'模型总面积 / 面积额度',capacityShort:'面积 / 额度',crosses:'建筑超出假设地块边界',land:'用地 · m²',far:'容积率',city:'城市',assumption:'假设正方形地块 · 容积率为情景输入',work:[ '形体','任务书','核心筒','构造','幕墙','场地','风水','视角','探索','存档' ],rail:['设计','表现'],site:['地基与文化','邻里与日照','落位','环境'],tools:'工作区',open:'参数',close:'关闭',briefTabs:['用地与任务书','方案与转角','论文参数']}
+ en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Wind','Water','Glare','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
+ th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',capacityShort:'พื้นที่ / ที่ให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','อุโมงค์ลม','ระบบน้ำ','แสงสะท้อน','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
+ zh:{capacity:'模型总面积 / 面积额度',capacityShort:'面积 / 额度',crosses:'建筑超出假设地块边界',land:'用地 · m²',far:'容积率',city:'城市',assumption:'假设正方形地块 · 容积率为情景输入',work:[ '形体','任务书','核心筒','风洞','给排水','反光','构造','幕墙','场地','风水','视角','探索','存档' ],rail:['设计','表现'],site:['地基与文化','邻里与日照','落位','环境'],tools:'工作区',open:'参数',close:'关闭',briefTabs:['用地与任务书','方案与转角','论文参数']}
 };
 export function siteLedger(state,inputs){
  const st=stack(state),height=st.at(-1).z+st.at(-1).h,half=Math.sqrt(inputs.plot)/2;
@@ -13,7 +16,7 @@ export function siteLedger(state,inputs){
  const gross=grossOf(state),allowance=inputs.plot*inputs.far;
  return {gross,allowance,remaining:allowance-gross,fits};
 }
-export const WORKSPACES=['form','brief','core','detail','facade','place','feng','walk','compare','studies'];
+export const WORKSPACES=['form','brief','core','wind','water','glare','detail','facade','place','feng','walk','compare','studies'];
 /* Each workspace is named by a drawing, not a word. A strip of nine words is a
    menu; nine marks are an instrument panel, and they survive being read at a
    glance while the reader is looking at the tower. Drawn the way the rest of
@@ -42,6 +45,12 @@ const WORK_GLYPHS={
  // that is the building rather than the tradition.
  feng:'<circle cx="10" cy="10" r="7.8"/><circle cx="10" cy="10" r="3.2"/><path d="M10 2.2v2.1M10 15.7v2.1M2.2 10h2.1M15.7 10h2.1M4.5 4.5l1.5 1.5M15.5 15.5l-1.5-1.5M15.5 4.5l-1.5 1.5M4.5 15.5l1.5-1.5"/><path d="M10 10 15.4 5.2"/><rect x="8.6" y="8.6" width="2.8" height="2.8"/>',
  // curtain wall: two mullions, one transom
+ // a wind tunnel: flow lines bending round a plan, the wake shed behind it
+ wind:'<path d="M1 5.5h6.5M1 14.5h6.5M1 10h4"/><rect x="8" y="7" width="5" height="6"/><path d="M13 7.5c2.5-1 3.5 1 5.5 0M13 12.5c2.5 1 3.5-1 5.5 0"/><circle cx="16.5" cy="10" r="1.3"/>',
+ // water: the tank on the roof, the rising main, a drop at the tap below
+ water:'<rect x="5" y="2" width="10" height="4"/><path d="M10 6v8M6 18h8"/><path d="M10 14.2c-1.4 1.8-1.4 3.8 0 3.8s1.4-2 0-3.8z"/>',
+ // glare: the sun, a glass face, and the ray it throws onto the ground
+ glare:'<circle cx="4" cy="4" r="2.2"/><path d="M12 2v13"/><path d="M5.8 5.6 12 10l6 7.5"/><path d="M14.5 18h5"/>',
  facade:'<rect x="3" y="4" width="14" height="12"/><path d="M7.7 4v12M12.3 4v12M3 10h14"/>',
  // alternatives held to one area: four bars off one baseline, each stepped off
  // the last so the set reads as a ranking rather than a fence
@@ -86,6 +95,9 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
  const placePanels=[$('locationDesk'),$('contextPanel'),$('sitePanel'),$('environmentPanel')];
  const placeButtons=placePanels.map((_,i)=>{const b=node('button');b.type='button';b.onclick=()=>{place=i;show('place')};placeNav.append(b);return b});
  const facade=node('div');facade.id='facadeDesk';panels.facade.append(facade);
+ // Labs: live instruments, each owning its host and its animation loop.
+ const labs={wind:[renderWindLab,'windLab'],water:[renderWaterLab,'waterLab'],glare:[renderGlareLab,'glareLab']};
+ for(const [k,[,id]]of Object.entries(labs)){const h=node('div','lab-host');h.id=id;panels[k].append(h)}
  panels.compare.append(studio.querySelector('.explore'));panels.studies.append(studio.querySelector('.studies'));
  // The existing atlas is already wired to the real model. Make it the chooser.
  $('family').hidden=true;document.querySelector('label[for="family"]').hidden=true;
@@ -112,6 +124,8 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
   $('sitePanel').hidden=place!==2;$('sitePanel').open=selected==='place'&&place===2;
   $('environmentPanel').hidden=place!==3;$('environmentPanel').open=selected==='place'&&place===3;
   if(selected==='facade')renderFacade({host:facade,lang,state,level,onLevel});
+  // Every lab is told whether it is on screen, so a hidden lab stops animating.
+  for(const [k,[render,id]]of Object.entries(labs))render({host:$(id),state,metrics:getData().metrics,lang,active:selected===k});
  }
  function show(key){if(!WORKSPACES.includes(key))return;selected=key;render();onLayout();buttons[WORKSPACES.indexOf(key)].scrollIntoView?.({inline:'nearest',block:'nearest'})}
  function active(on){document.body.classList.toggle('is-console',on);if(on){render();onLayout()}}
