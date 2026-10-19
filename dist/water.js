@@ -33,7 +33,7 @@
    shows it standing there. */
 
 import {stack,profile,area,evaluate} from './model.js?v=4d4eb35fb5';
-import {liftDesign,servicesDesign,CORE_SRC} from './core.js?v=5c2823d151';
+import {liftDesign,servicesDesign,CORE_SRC} from './core.js?v=deb2864e7f';
 
 export const WATER_METHOD={
  rho:1000,g:9.81,

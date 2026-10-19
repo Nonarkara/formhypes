@@ -53,17 +53,18 @@ test('Barney/Al-Sharif average wait approximation',()=>{
 
 test('the RTT formula reproduces the Core desk on the default tower (documented difference in inputs)',()=>{
  const m=evaluate(defaults),cd=liftDesign(defaults,m.rentable),M=CORE_METHOD;
- // liftDesign: H = S = N/2, E = 0, tv = h/v + v/a, ts = door time, P = 0.8·13
+ // liftDesign: H = S = N/2, E = 0, t_v = h/v, t_s = one-floor flight − t_v + doors, P = 0.8·13
  const N=cd.zoneFloors,P=M.carLoad*M.carRated;
- const rt=rttFormula({H:N/2,S:N/2,E:0,tv:defaults.height/M.carSpeed+M.carSpeed/M.carAccel,ts:M.doorTime,P,tp:M.transferTime});
+ // liftDesign states its own t_v and t_s (CIBSE split); the formula must return its round trip.
+ const rt=rttFormula({H:N/2,S:N/2,E:0,tv:cd.tv,ts:cd.ts,P,tp:M.transferTime});
  assert.equal(Math.round(rt),cd.rt);
  // At the Core desk's own speed the lab reproduces it; by default it starts at
  // the typical speed for the rise instead.
- const plan=liftPlan(defaults,{speed:M.carSpeed},m);
+ const plan=liftPlan(defaults,{speed:cd.carSpeed},m);
  assert.equal(liftPlan(defaults,{},m).v,liftPlan(defaults,{},m).vTypical);
  // same population, same zone count, same car and speed defaults
  assert.equal(plan.popDefault,cd.population);assert.equal(plan.Z,cd.zones);
- assert.equal(plan.cap,M.carRated);assert.equal(plan.v,M.carSpeed);
+ assert.equal(plan.cap,M.carRated);assert.equal(plan.v,cd.carSpeed);
  assert.deepEqual(plan.coreDesk,{zones:cd.zones,cars:cd.carsPerZone,rt:cd.rt,interval:cd.interval});
  // the fuller inputs (probabilistic H, express run) can only lengthen the upper zone's trip
  const topZone=plan.groups[plan.groups.length-1];

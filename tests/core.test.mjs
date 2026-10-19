@@ -10,7 +10,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {defaults,evaluate} from '../dist/model.js';
-import {coreOf,coreSVG,carTracks,CORE_METHOD,CORE_SRC,VB} from '../dist/core.js';
+import {coreOf,coreSVG,carTracks,CORE_METHOD,CORE_SRC,VB,liftSpeed} from '../dist/core.js';
 const dist=f=>readFileSync(new URL('../dist/'+f,import.meta.url),'utf8');
 const net=evaluate({...defaults}).rentable;
 
@@ -35,7 +35,11 @@ test('more floors means more cars, and never fewer zones than the method needs',
 
 test('a car is never faster than the speed the figure claims',()=>{
  const {lift}=coreOf(defaults,net);
- assert.equal(lift.carSpeed,CORE_METHOD.carSpeed);
+ // 2026-10-19: speed follows the rise (about 30 s to the top), not a fixed 1.6 m/s.
+ assert.equal(lift.carSpeed,liftSpeed(defaults.floors*defaults.height));
+ assert.ok(lift.carSpeed>CORE_METHOD.carSpeed,'a 200 m tower is not sized at the low-rise speed');
+ assert.equal(liftSpeed(30),CORE_METHOD.carSpeed,'low rise keeps the 1.6 m/s floor');
+ assert.equal(liftSpeed(1e4),10,'and never above 10 m/s');
  // The travel time must be the time to cross a zone at that speed, not a number
  // picked to look plausible on the drawing.
  const s={...defaults},rise=s.floors*s.height,k=(312-24)/rise;

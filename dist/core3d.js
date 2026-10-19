@@ -200,7 +200,7 @@ export function carZ(s,lift,i,tSec){
  const zf=lift.zoneFloors;
  const z=Math.min(i,Math.max(0,lift.zones-1));
  const f0=z*zf,f1=Math.min(s.floors,(z+1)*zf),span=Math.max(0,f1-f0);
- const travel=span*s.height/LIFT3.carSpeed,dwell=LIFT3.doorTime*2;
+ const travel=span*s.height/(lift.carSpeed||LIFT3.carSpeed),dwell=LIFT3.doorTime*2;
  const cycle=2*travel+2*dwell;
  if(!(cycle>0))return{z:0,zone:z,cycle:0,atFloor:true,dir:0};
  // Each car starts a third of a cycle in, so a bank is never in lockstep.

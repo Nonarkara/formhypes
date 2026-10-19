@@ -19,7 +19,7 @@
    at the car load the chosen arrival rate actually produces.
 
    The Core desk (core.js liftDesign) uses the same RTT formula with cruder
-   inputs: H = S = N/2, no express run, and 2 s per stop. rttFormula() below is
+   inputs: H = S = N/2 and no express run; same speed and stop time. rttFormula() below is
    that formula, and the tests feed it liftDesign's own inputs and get
    liftDesign's own round trip back. The lab then states on screen why its
    fuller inputs give a different, longer answer for the upper zones.
@@ -30,7 +30,7 @@
    behaviour, not an industry traffic simulator — the lab says so.
 
    Everything above the DOM section is pure and DOM-free so it can be tested. */
-import {liftDesign,CORE_METHOD} from './core.js?v=5c2823d151';
+import {liftDesign,CORE_METHOD,liftSpeed} from './core.js?v=deb2864e7f';
 import {stack,evaluate} from './model.js?v=4d4eb35fb5';
 
 /* Stated assumptions. Each one is printed where it is used. */
@@ -155,7 +155,7 @@ export function liftPlan(s,o={},metrics,noCounterpart=false){
  // Default to the typical speed for this rise, not the Core desk's fixed
  // 1.6 m/s: at 200 m that would flag every tower as failing before the reader
  // has touched a control. The Core desk's own figures stay in their row.
- const vDefault=clamp(Math.round((Zs[top]-Zs[0])/A.topRun*2)/2,1,10);
+ const vDefault=liftSpeed(Zs[top]-Zs[0]); // the Core desk's own rule (core.js)
  const v=clamp(fin(o.speed,vDefault),0.5,12),a=A.accel,tp=A.tp;
  const td=clamp(fin(o.door,4),1,15);
  const maxZ=Math.max(1,Math.min(8,Math.floor(N/2)));
@@ -219,7 +219,7 @@ export function liftPlan(s,o={},metrics,noCounterpart=false){
  const groundArea=shafts[0]*Ash,core=Math.max(1,fin(s.core,14)),coreArea=core*core;
  const suggestCore=groundArea>A.coreShare*coreArea?Math.ceil(Math.sqrt(groundArea/A.coreShare)):null;
  const run=Math.max(...groups.map(g=>Zs[g.hi]-Zs[g.base]),df);
- const vTypical=clamp(Math.round(run/A.topRun*2)/2,1,10);
+ const vTypical=liftSpeed(run);
  const plan={pattern,pop,popDefault,net,rate,cap,v,a,td,tp,Z,decks,dd,dest,auto,carsM,sky,skyOK,L,snap,cands,
   N,top,df,levelZ:Zs,levelH:Hs,towerTop:Zs[top]+Hs[top],
   voids:st.filter(l=>!l.gfa&&l.use!=='garden').map(l=>({z:l.z,h:l.h})),
@@ -439,7 +439,7 @@ export const LIFTS_TEXT={
    hc:'Handling {h}% in {g} is below the {r}% arrival rate, so queues grow. Add cars or car capacity.',
    group:'{g} needs {n} cars; a group of more than 8 is impractical round one lobby. Add a zone, raise the speed, or use a sky lobby.',
    sat:'Saturated: {g} cannot carry the arrival rate, and its queue grows without limit.'},
-  coreDesk:'Why the Core desk differs: it sizes each zone with H = S = N/2, no express run past the lower zones, and 2 s per stop. This lab takes S and H from the probability formulas, adds each upper zone’s express run, and counts the single-floor flight and the door time. Same formula, fuller inputs.',
+  coreDesk:'Why the Core desk differs: it sizes each zone with H = S = N/2, and no express run past the lower zones. Both use the same rated speed and the same stop time (one-floor flight plus doors). This lab takes S and H from the probability formulas and adds each upper zone’s express run. Same formula, fuller inputs.',
   simGap:'When the simulated wait is longer than the CIBSE figure: the formula assumes cars leave the lobby at even intervals, about 80% full. The simulated group has no dispatcher, so cars bunch and leave fuller, as an unmanaged collective group does. The gap between the two numbers is the case for good dispatching.',
   chart:{sat:'saturated',title:'Average wait against cars per zone',note:'The CIBSE average wait (solid) falls with each car added, by less each time; the shaft area at the lobby (dashed) climbs in a straight line. The current choice is marked.',x:'cars per zone',xd:'cars per group, against the CIBSE minimum',y:'average wait, s',a:'lobby shafts, m²'},
   apply:'Apply a {c} m core to the tower',applyNote:'The lift shafts here take more than half of the {s} m core at the lobby (half is an assumption, leaving room for stairs, risers and toilets).',
@@ -480,7 +480,7 @@ export const LIFTS_TEXT={
    hc:'ความสามารถขนส่ง {h}% ใน{g} ต่ำกว่าอัตราการมาถึง {r}% แถวคอยจึงยาวขึ้น ให้เพิ่มรถหรือความจุรถ',
    group:'{g} ต้องใช้รถ {n} คัน กลุ่มที่เกิน 8 คันจัดรอบล็อบบี้เดียวได้ยาก ให้เพิ่มโซน เพิ่มความเร็ว หรือใช้สกายล็อบบี้',
    sat:'อิ่มตัว: {g} รับอัตราการมาถึงไม่ไหว แถวคอยยาวขึ้นไม่สิ้นสุด'},
-  coreDesk:'เหตุที่ต่างจากแผงแกนอาคาร: แผงนั้นคิดแต่ละโซนด้วย H = S = N/2 ไม่คิดระยะวิ่งด่วนผ่านโซนล่าง และคิด 2 วินาทีต่อการจอด ส่วนนี้คิด S และ H จากสูตรความน่าจะเป็น เพิ่มระยะวิ่งด่วนของโซนบน และนับเวลาเคลื่อนที่หนึ่งชั้นกับเวลาประตู สูตรเดียวกัน แต่ข้อมูลครบกว่า',
+  coreDesk:'เหตุที่ต่างจากแผงแกนอาคาร: แผงนั้นคิดแต่ละโซนด้วย H = S = N/2 และไม่คิดระยะวิ่งด่วนผ่านโซนล่าง ทั้งสองใช้ความเร็วพิกัดและเวลาต่อการจอดเดียวกัน (เวลาวิ่งหนึ่งชั้นรวมเวลาเปิดปิดประตู) ส่วนนี้คิด S และ H จากสูตรความน่าจะเป็น เพิ่มระยะวิ่งด่วนของโซนบน และนับเวลาเคลื่อนที่หนึ่งชั้นกับเวลาประตู สูตรเดียวกัน แต่ข้อมูลครบกว่า',
   simGap:'เมื่อเวลารอจากการจำลองนานกว่าตัวเลขของ CIBSE: สูตรสมมติว่ารถออกจากล็อบบี้เป็นช่วงห่างเท่ากัน บรรทุกราว 80% แต่กลุ่มลิฟต์ในการจำลองไม่มีระบบจัดสรร รถจึงจับกลุ่มกันและออกไปแน่นกว่า เหมือนกลุ่มลิฟต์แบบรวมเรียกที่ไม่มีการควบคุม ช่องว่างระหว่างสองตัวเลขนี้คือเหตุผลที่ต้องมีการจัดสรรรถที่ดี',
   chart:{sat:'อิ่มตัว',title:'เวลารอเฉลี่ยเทียบกับจำนวนรถต่อโซน',note:'เวลารอเฉลี่ยตาม CIBSE (เส้นทึบ) ลดลงทุกครั้งที่เพิ่มรถ แต่ลดน้อยลงทุกครั้ง ส่วนพื้นที่ช่องลิฟต์ที่ล็อบบี้ (เส้นประ) เพิ่มเป็นเส้นตรง จุดที่เลือกอยู่ทำเครื่องหมายไว้',x:'รถต่อโซน',xd:'รถต่อกลุ่ม เทียบกับจำนวนต่ำสุดตาม CIBSE',y:'เวลารอเฉลี่ย วินาที',a:'ช่องลิฟต์ที่ล็อบบี้ ตร.ม.'},
   apply:'ใช้แกนอาคารขนาด {c} ม. กับอาคาร',applyNote:'ช่องลิฟต์ที่นี่กินพื้นที่เกินครึ่งของแกน {s} ม. ที่ชั้นล็อบบี้ (ครึ่งหนึ่งเป็นค่าสมมติ เผื่อพื้นที่บันได ช่องท่อ และห้องน้ำ)',
@@ -521,7 +521,7 @@ export const LIFTS_TEXT={
    hc:'{g}的输送能力 {h}% 低于 {r}% 的到达率，队列会增长。请增加轿厢或载客量。',
    group:'{g}需要 {n} 台轿厢；超过 8 台的电梯组难以围绕一个候梯厅布置。请增加分区、提高速度，或采用空中大堂。',
    sat:'饱和：{g}无法承担该到达率，队列将无限增长。'},
-  coreDesk:'与核心筒面板不同的原因：该面板按 H = S = N/2 计算每个分区，不计穿过低区的直驶段，每次停靠计 2 秒。本实验按概率公式求 S 和 H，加入高区的直驶段，并计入单层运行时间和开关门时间。公式相同，输入更完整。',
+  coreDesk:'与核心筒面板不同的原因：该面板按 H = S = N/2 计算每个分区，不计穿过低区的直驶段；两者采用相同的额定速度和相同的停靠时间（单层运行加开关门）。本实验按概率公式求 S 和 H，加入高区的直驶段，并计入单层运行时间和开关门时间。公式相同，输入更完整。',
   simGap:'模拟候梯时间长于 CIBSE 数值时：公式假定轿厢以均匀间隔、约 80% 满载离开大堂；模拟中的电梯组没有调度器，轿厢会扎堆、载得更满才出发，就像缺乏管理的集选电梯组。两个数字之间的差距，正说明良好派梯的价值。',
   chart:{sat:'饱和',title:'平均候梯时间与每区轿厢数',note:'CIBSE 平均候梯时间（实线）随每增加一台轿厢而下降，但降幅越来越小；首层井道面积（虚线）则直线上升。当前选择已标出。',x:'每区轿厢数',xd:'每组轿厢数（相对 CIBSE 最少配置）',y:'平均候梯 秒',a:'首层井道 平方米'},
   apply:'将 {c} 米核心筒应用到塔楼',applyNote:'此处电梯井道在首层占用了 {s} 米核心筒一半以上的面积（一半为假定值，为楼梯、管井和卫生间留出空间）。',

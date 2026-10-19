@@ -58,7 +58,7 @@
    They are modelled waiting for their floor's queue to clear, then descending
    at their own speed; with lifts in use they take the lifts first. */
 import {stack,profile,area,evaluate} from './model.js?v=4d4eb35fb5';
-import {liftDesign,CORE_METHOD} from './core.js?v=5c2823d151';
+import {liftDesign,CORE_METHOD} from './core.js?v=deb2864e7f';
 
 /* ── SFPE constants ─────────────────────────────────────────────────────── */
 export const A_SFPE=0.266;
@@ -213,13 +213,14 @@ export function liftEvac(s,levels,users,netArea,pre){
   const ls=occ.slice(z*per,(z+1)*per);if(!ls.length)continue;
   let Nz=0,Hz=0;for(const l of ls){const u=users[l.i]||0;Nz+=u;Hz+=u*l.z}
   const H=Nz>0?Hz/Nz:ls[0].z;
-  const rtt=2*(H/M.carSpeed+M.carSpeed/M.carAccel)+2*M.doorTime+2*P*M.transferTime;
+  const v=(ld&&ld.carSpeed)||M.carSpeed;
+  const rtt=2*(H/v+v/M.carAccel)+2*M.doorTime+2*P*M.transferTime;
   const trips=Math.ceil(Nz/P-1e-9),each=Math.ceil(trips/cars);
   const tz=Nz>0?fin(pre)+each*rtt:0;
   time=Math.max(time,tz);rttMax=Math.max(rttMax,rtt);total+=Nz;
   zs.push({from:ls[0].i,to:ls[ls.length-1].i,users:Nz,rtt,trips,time:tz,h:H});
  }
- return {time,rtt:rttMax,zones,cars,users:total,zs,speed:M.carSpeed};
+ return {time,rtt:rttMax,zones,cars,users:total,zs,speed:(ld&&ld.carSpeed)||M.carSpeed};
 }
 
 /* ── one scenario ───────────────────────────────────────────────────────── */

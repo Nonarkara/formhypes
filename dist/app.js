@@ -2,7 +2,7 @@ import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPac
 import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=25b035f7b8';
 import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=1f07292d4e';
 import {renderStructure} from './structure.js?v=5c4abd9e39';
-import {mountConsole} from './console.js?v=9843c8a942';
+import {mountConsole} from './console.js?v=75f5daf9a7';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=4d4eb35fb5';
@@ -17,8 +17,8 @@ import {sweptHull,reachSteps,reachLabelled,contactOffset} from './reach.js?v=374
 import {parseGround} from './site.js?v=7cb1769785';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
 import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=707811bbf9';
-import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=5c2823d151';
-import {coreScene} from './core3d.js?v=396c530315';
+import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=deb2864e7f';
+import {coreScene} from './core3d.js?v=702aed5396';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy as getFengPlayStudy} from './play.js?v=578d890470';
 import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=ad3557ea73';
@@ -35,7 +35,7 @@ import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=8d66bc0eff';
-import {WORKSPACES} from './console.js?v=9843c8a942';
+import {WORKSPACES} from './console.js?v=75f5daf9a7';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);

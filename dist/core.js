@@ -36,16 +36,16 @@
    WC 6, urinal 2, washbasin 1; a 150 mm high-rise commercial stack carries
    about 960 discharge units).
 
-   The cars move at the stated 1.6 m/s. A car really does take forty-odd seconds
-   to cross a zone, and showing that is more use than a fast car would be — the
-   figure states the travel time, so the slowness reads as true and not broken.
+   The cars move at the rated speed liftSpeed() gives for the rise, and the
+   figure states the travel time, so what the drawing shows and what the
+   numbers say are the same car.
 
    THE ESCALATORS — EN 115-1. A section that showed only lifts would quietly
    imply that lifts are how everybody gets in. They are not: an escalator serves
    the podium and nothing above it, and where its reach stops is a fact about
    the size of the core. See escalatorDesign(). */
 
-import {podiumReach,escRun} from './core3d.js?v=396c530315';
+import {podiumReach,escRun} from './core3d.js?v=702aed5396';
 import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow} from './drafting.js?v=59af773922';
 
 export const CORE_METHOD={
@@ -78,10 +78,10 @@ const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 /* One lift group sized on the CIBSE up-peak. `zoneFloors` is how many floors
    this group serves; the interval it achieves decides whether the zone is
    allowed to exist at all. */
-function group(pop,zones,zoneFloors,tv,M){
+function group(pop,zones,zoneFloors,tv,M,ts=M.doorTime){
  const P=M.carLoad*M.carRated;
  const H=zoneFloors/2, S=zoneFloors/2;
- const rt=2*H*tv+(S+1)*M.doorTime+2*P*M.transferTime;
+ const rt=2*H*tv+(S+1)*ts+2*P*M.transferTime;
  const perCar=300*P/rt;                      // persons per 5 min, one car
  const required=M.upPeakShare*pop/zones;    // persons per 5 min, this zone
  let cars=Math.max(1,Math.ceil(required/perCar));
@@ -92,27 +92,42 @@ function group(pop,zones,zoneFloors,tv,M){
  return{zoneFloors,cars,rt,interval:rt/cars,perCar,required,P};
 }
 
+/* Rated speed for the rise. The Core desk used 1.6 m/s at every height, which is
+   a low-rise speed: a 200 m tower sized that way needs twice the cars a real one
+   has, and the Lifts lab disagreed with it. Rule of thumb, stated as such: a car
+   reaches the top of its run in about 30 s, rounded to 0.5 m/s, never below the
+   1.6 m/s low-rise floor and never above 10 m/s. One rule for the Core desk, its
+   drawings, the evacuation lifts and the Lifts lab. */
+export const SPEED_TOP_RUN=30;
+export function liftSpeed(rise){return clamp(Math.round((Number.isFinite(rise)?rise:0)/SPEED_TOP_RUN*2)/2,CORE_METHOD.carSpeed,10)}
 export function liftDesign(s,netArea){
  const M=CORE_METHOD;
  const pop=(netArea||0)/M.areaPerPerson;
- const tv=s.height/M.carSpeed+M.carSpeed/M.carAccel;
+ const v=liftSpeed(s.floors*s.height);
+ // CIBSE Guide D split: t_v is one floor at rated speed; acceleration belongs to
+ // the stop, so t_s is a one-floor flight minus t_v, plus the doors. Charging
+ // v/a on every floor travelled (as before) was harmless at 1.6 m/s and
+ // doubled the round trip at 6 m/s.
+ const tv=s.height/v;
+ const flight=s.height>=v*v/M.carAccel?s.height/v+v/M.carAccel:2*Math.sqrt(s.height/M.carAccel);
+ const ts=flight-tv+M.doorTime;
  // The zone count is a choice, not a derivation: about sixteen floors a group,
  // never more than four, never a zone under six floors. Bounding it matters —
  // an unbounded search will happily invent nine groups of one floor each to
  // chase an interval, and that is a core nobody could build.
  const maxZones=Math.max(1,Math.min(4,Math.floor(s.floors/6)));
  const zones=clamp(Math.round(s.floors/16),1,maxZones);
- const g=group(pop,zones,Math.ceil(s.floors/zones),tv,M);
+ const g=group(pop,zones,Math.ceil(s.floors/zones),tv,M,ts);
  return{
   population:Math.round(pop),areaPerPerson:M.areaPerPerson,upPeakShare:M.upPeakShare,
   zones,zoneFloors:Math.ceil(s.floors/zones),carsPerZone:g.cars,cars:g.cars*zones,
   interval:+g.interval.toFixed(1),intervalMax:M.intervalMax,rt:Math.round(g.rt),
   handlePerCar:+g.perCar.toFixed(1),handleRequired:Math.round(g.required),
-  carSpeed:M.carSpeed,carRated:M.carRated,
+  carSpeed:v,carRated:M.carRated,tv:+tv.toFixed(3),ts:+ts.toFixed(3),
   // The one-way run at the drawn speed. tv is the stop-to-stop time used for
   // the traffic calculation; the car crosses a zone at full speed, and the
   // figure must not quote one number while the drawing shows another.
-  travelTime:Math.round(g.zoneFloors*s.height/M.carSpeed)
+  travelTime:Math.round(g.zoneFloors*s.height/v)
  };
 }
 
@@ -419,7 +434,7 @@ export function coreSVG(s,core,{floor=1,lang='en'}={}){
    The risers already animate in CSS. The cars now animate the same way, in the
    markup, with <animateTransform>: no loop to die, no work while the drawing
    is scrolled away, and the motion is exactly the one computed above — run up,
-   dwell, run down, dwell, at the stated 1.6 m/s.
+   dwell, run down, dwell, at the rated speed for the rise.
 
    The two phases are the honest ones. keyTimes carries the door dwells flat,
    so a car waits at each end instead of gliding through it. */
@@ -441,7 +456,7 @@ function carMotion(yBot,yTop,travel,dwell,begin){
 /* Where a car may go, in drawing units, and how fast it gets there. */
 export function carTracks(s,core){
  const rise=core.services.rise||s.floors*s.height,k=(VB.base-VB.top)/rise;
- const speed=CORE_METHOD.carSpeed*k,zf=core.lift.zoneFloors;
+ const speed=(core.lift.carSpeed||CORE_METHOD.carSpeed)*k,zf=core.lift.zoneFloors;
  const dwell=CORE_METHOD.doorTime*2;
  return SHAFT.map((_,i)=>{
   const z=clamp(i,0,core.lift.zones-1);

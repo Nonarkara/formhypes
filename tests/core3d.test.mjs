@@ -136,7 +136,7 @@ test("a car's height is pure, bounded by its zone, and takes the stated travel t
      the guard has to know that, or it reports a correct lift system as broken on
      the last group. A car slower than the quoted figure would be the real fault:
      it would mean the drawing showed a slower lift than the traffic sum assumed. */
-  const full=L.zoneFloors*s.height/LIFT3.carSpeed;
+  const full=L.zoneFloors*s.height/L.carSpeed;
   assert.ok(tr<=full+1e-6,
    `car ${i} takes ${tr.toFixed(2)} s, slower than the ${full.toFixed(2)} s full zone`);
   assert.ok(Math.abs(full-L.travelTime)<0.51,
