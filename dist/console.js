@@ -3,9 +3,9 @@
 import {profile,stack,grossOf} from './model.js?v=6486a0c4d9';
 import {renderFacade} from './facade.js?v=be14943cd2';
 export const CONSOLE_TEXT={
- en:{capacity:'Model gross / area allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Assembly','Façade','Place','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
- th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','การประกอบ','เปลือก','ที่ตั้ง','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
- zh:{capacity:'模型总面积 / 面积额度',crosses:'建筑超出假设地块边界',land:'用地 · m²',far:'容积率',city:'城市',assumption:'假设正方形地块 · 容积率为情景输入',work:[ '形体','任务书','核心筒','构造','幕墙','场地','视角','探索','存档' ],rail:['设计','表现'],site:['地基与文化','邻里与日照','落位','环境'],tools:'工作区',open:'参数',close:'关闭',briefTabs:['用地与任务书','方案与转角','论文参数']}
+ en:{capacity:'Model gross / area allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
+ th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
+ zh:{capacity:'模型总面积 / 面积额度',crosses:'建筑超出假设地块边界',land:'用地 · m²',far:'容积率',city:'城市',assumption:'假设正方形地块 · 容积率为情景输入',work:[ '形体','任务书','核心筒','构造','幕墙','场地','风水','视角','探索','存档' ],rail:['设计','表现'],site:['地基与文化','邻里与日照','落位','环境'],tools:'工作区',open:'参数',close:'关闭',briefTabs:['用地与任务书','方案与转角','论文参数']}
 };
 export function siteLedger(state,inputs){
  const st=stack(state),height=st.at(-1).z+st.at(-1).h,half=Math.sqrt(inputs.plot)/2;
@@ -13,7 +13,7 @@ export function siteLedger(state,inputs){
  const gross=grossOf(state),allowance=inputs.plot*inputs.far;
  return {gross,allowance,remaining:allowance-gross,fits};
 }
-export const WORKSPACES=['form','brief','core','detail','facade','place','walk','compare','studies'];
+export const WORKSPACES=['form','brief','core','detail','facade','place','feng','walk','compare','studies'];
 /* Each workspace is named by a drawing, not a word. A strip of nine words is a
    menu; nine marks are an instrument panel, and they survive being read at a
    glance while the reader is looking at the tower. Drawn the way the rest of
@@ -36,6 +36,11 @@ const WORK_GLYPHS={
  place:'<path d="M10 17.6S4.4 10.5 4.4 7.3a5.6 5.6 0 1 1 11.2 0c0 3.2-5.6 10.3-5.6 10.3z"/><path d="M10 5.1a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6z"/>',
  // one-point perspective from eye height: ground, a receding bay, a figure in it
  walk:'<path d="M1 16.5h18"/><path d="M4.5 16.5 10 9.5l5.5 7"/><circle cx="10" cy="7" r="2"/><path d="M10 9v7.5"/>',
+ // a luopan: the ring divided, and a needle laid on a bearing that is not north —
+ // pinned to 45 degrees because an upright needle reads as a target pin and this
+ // is not one. The square at the centre is the plot, the only thing on the sheet
+ // that is the building rather than the tradition.
+ feng:'<circle cx="10" cy="10" r="7.8"/><circle cx="10" cy="10" r="3.2"/><path d="M10 2.2v2.1M10 15.7v2.1M2.2 10h2.1M15.7 10h2.1M4.5 4.5l1.5 1.5M15.5 15.5l-1.5-1.5M15.5 4.5l-1.5 1.5M4.5 15.5l1.5-1.5"/><path d="M10 10 15.4 5.2"/><rect x="8.6" y="8.6" width="2.8" height="2.8"/>',
  // curtain wall: two mullions, one transom
  facade:'<rect x="3" y="4" width="14" height="12"/><path d="M7.7 4v12M12.3 4v12M3 10h14"/>',
  // alternatives held to one area: four bars off one baseline, each stepped off
@@ -43,7 +48,7 @@ const WORK_GLYPHS={
  compare:'<path d="M2 17h16"/><path d="M4 17V10M8 17V6M12 17v-3.5M16 17V8"/>',
  // the shelf: two studies, one behind the other
  studies:'<rect x="2.5" y="10" width="12" height="7"/><rect x="5.5" y="3" width="12" height="7"/>'};
-export function workspaceForTarget(id){return ({briefPanel:'brief',walkPanel:'walk',contextPanel:'place',environmentPanel:'place',sitePanel:'place',locationDesk:'place',exploreTitle:'compare',searchResults:'compare',savedStudies:'studies',facadeDesk:'facade',coreFigure:'core',coreFacts:'core',detailFigure:'detail',detailSpec:'detail'})[id]||'form'}
+export function workspaceForTarget(id){return ({briefPanel:'brief',fengshuiPanel:'feng',walkPanel:'walk',contextPanel:'place',environmentPanel:'place',sitePanel:'place',locationDesk:'place',exploreTitle:'compare',searchResults:'compare',savedStudies:'studies',facadeDesk:'facade',coreFigure:'core',coreFacts:'core',detailFigure:'detail',detailSpec:'detail'})[id]||'form'}
 const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
 /* Move a desk that already exists in the markup into a workspace panel rather
    than rebuilding it. Rebuilding is how one id ends up living in two places,
@@ -98,7 +103,7 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
   railButtons.forEach((b,i)=>{b.textContent=c.rail[i];b.setAttribute('aria-pressed',String(rail===i))});
   railNav.hidden=selected!=='form';shell.dataset.task=selected;shell.dataset.rail=String(rail);dock.hidden=selected==='form';
   for(const [k,p]of Object.entries(panels))p.hidden=k!==selected;
-  for(const [k,id]of [['brief','briefPanel'],['walk','walkPanel']])$(id).open=selected===k;
+  for(const [k,id]of [['brief','briefPanel'],['feng','fengshuiPanel'],['walk','walkPanel']])$(id).open=selected===k;
   placeButtons.forEach((b,i)=>{b.textContent=c.site[i];b.setAttribute('aria-pressed',String(place===i))});
   $('locationDesk').hidden=place!==0;$('contextPanel').hidden=place!==1;$('contextPanel').open=selected==='place'&&place===1;
   $('sitePanel').hidden=place!==2;$('sitePanel').open=selected==='place'&&place===2;

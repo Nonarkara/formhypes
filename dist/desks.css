@@ -305,3 +305,51 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 .console-dock .studies{display:block}
 #clearReference{width:fit-content;padding:6px 9px;margin:7px 0;min-height:32px}
 @media(max-width:600px){#clearReference{min-height:44px}}
+
+/* ── Feng Shui desk (moved from feng.js) ─────────────────────────────────────
+   Two columns of equal weight: the instrument and its own measurements on the
+   left, the eight palaces and what the tradition says on the right. The luopan
+   is kept square on purpose — every band on it is concentric, so an ellipse
+   would print a 15-degree division that does not measure 15 degrees.
+
+   The home palace is marked with a 2px amber rule in the row's own gutter
+   rather than an amber fill. A filled row turns the table's one piece of
+   emphasis into a slab, and the slab then outshouts the luopan it is supposed
+   to be reading. */
+#fengshuiDesk{font:inherit;font-size:13px;line-height:1.5;color:var(--ink);border-top:2px solid var(--ink);padding-top:10px}
+#fengshuiDesk .feng-head{margin:0 0 14px}
+#fengshuiDesk .feng-head h2{margin:0 0 4px;font-size:15px;font-weight:600;letter-spacing:.01em}
+#fengshuiDesk .note{margin:0;font:400 12px/1.55 var(--sans);color:var(--muted);max-width:78ch}
+#fengshuiDesk .note.strong{color:var(--ink)}
+#fengshuiDesk .feng-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 30px;align-items:start}
+/* Grid items default to min-width:auto, which lets one long unbreakable run of
+   Chinese or a wide table push a column past its share of the sheet. Both
+   columns opt out, so the luopan keeps half the width in every language. */
+#fengshuiDesk .feng-pane,#fengshuiDesk .feng-side{min-width:0}
+#fengshuiDesk h3{margin:18px 0 3px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+#fengshuiDesk .feng-side>h3:first-of-type{margin-top:0}
+#fengshuiDesk .feng-ctl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;align-items:center;margin:0 0 16px}
+#fengshuiDesk .feng-ctl label{font:400 11px/1.4 var(--sans);color:var(--muted)}
+#fengshuiDesk .feng-ctl input[type=range]{width:100%;accent-color:var(--accent)}
+#fengshuiDesk .feng-read{grid-column:1/3;font:400 14px/1.4 var(--mono);color:var(--accent);letter-spacing:.02em}
+#fengshuiDesk .feng-ctl p{grid-column:1/3;color:var(--faint)}
+#fengshuiDesk .feng-fig{margin:0}
+#fengshuiDesk .feng-lpbox{display:flex;justify-content:flex-start}
+#fengshuiDesk .feng-lp{display:block;width:100%;max-width:336px;height:auto;background:var(--dark);border:1px solid var(--line)}
+#fengshuiDesk .feng-fig .note{padding:8px 0 0}
+#fengshuiDesk .feng-forms{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 14px;margin:10px 0 0;font:400 12px/1.6 var(--sans)}
+#fengshuiDesk .feng-form{display:contents}
+#fengshuiDesk .feng-form dt{color:var(--muted)}
+#fengshuiDesk .feng-val{font-family:var(--mono);color:var(--ink)}
+#fengshuiDesk .feng-reading{margin:0 0 6px;font:400 12px/1.55 var(--sans);color:var(--ink)}
+#fengshuiDesk .feng-table{width:100%;border-collapse:collapse;font-size:12px}
+#fengshuiDesk .feng-table th{font:600 9.5px/1.7 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);text-align:left;border-bottom:1px solid var(--line);padding:0 10px 4px 0;white-space:nowrap}
+#fengshuiDesk .feng-table td{padding:4px 10px 4px 6px;border-bottom:1px solid var(--line);border-left:2px solid transparent;vertical-align:top}
+#fengshuiDesk .feng-table td b{font:400 13px/1.4 var(--sans);color:var(--ink)}
+#fengshuiDesk .feng-table td span{display:block;font:400 10px/1.5 var(--mono);color:var(--faint)}
+#fengshuiDesk .feng-table tr.is-home td{border-left-color:var(--accent)}
+#fengshuiDesk .feng-table tr.is-home td b{color:var(--accent)}
+#fengshuiDesk .feng-foot{margin-top:18px;border-top:1px solid var(--line);padding-top:10px}
+#fengshuiDesk .feng-src{margin:8px 0 0;padding-left:18px;font:400 11px/1.6 var(--sans);color:var(--faint);max-width:82ch}
+#fengshuiDesk .feng-src li{margin-bottom:3px}
+@media (max-width:900px){#fengshuiDesk .feng-grid{grid-template-columns:minmax(0,1fr);gap:0}}

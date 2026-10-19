@@ -1,7 +1,7 @@
 import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=aedf04bd4e';
 import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=a51a227b4c';
 import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=02582ef143';
-import {mountConsole} from './console.js?v=0a26b2450d';
+import {mountConsole} from './console.js?v=afaf5e9585';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=6486a0c4d9';
@@ -19,13 +19,14 @@ import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './
 import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=60cc665ee0';
 import {coreScene} from './core3d.js?v=396c530315';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
-import {renderPlay,getFengStudy} from './play.js?v=578d890470';
+import {renderPlay,getFengStudy as getFengPlayStudy} from './play.js?v=578d890470';
 import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=449ee7f788';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=08d51a7f6f';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=d8f5b776c1';
+import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=45eb3b43f7';
 import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=75392f025c';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
@@ -33,7 +34,7 @@ import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=3b0875c3f2';
-import {WORKSPACES} from './console.js?v=0a26b2450d';
+import {WORKSPACES} from './console.js?v=afaf5e9585';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -279,7 +280,7 @@ function changed(){
 }
 
 /* ── update ───────────────────────────────────────────────────────────── */
-const DESKS=[['brief',BRIEF_I18N,renderBrief],['walk',WALK_I18N,renderWalk],['context',CONTEXT_I18N,renderContext],['site',SITE_I18N,renderSite],['environment',ENV_I18N,renderEnvironment]];
+const DESKS=[['brief',BRIEF_I18N,renderBrief],['fengshui',FENG_I18N,renderFeng],['walk',WALK_I18N,renderWalk],['context',CONTEXT_I18N,renderContext],['site',SITE_I18N,renderSite],['environment',ENV_I18N,renderEnvironment]];
 function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textContent=dict[lang].title;if($(id+'Panel').open)render({lang,state,changed:applyDeskPatch,onInputs:()=>{consoleUI?.render();drawTower()}})}}
 for(const [id]of DESKS)$(id+'Panel').addEventListener('toggle',()=>{if($(id+'Panel').open)renderDesks()});
 function applyDeskPatch(patch){
@@ -2616,7 +2617,7 @@ $('exportJson').onclick=()=>download('formhypes-study.json',JSON.stringify({
  version:4,study:{name:cleanStudyName($('studyName').value),note:cleanStudyNote($('studyNote').value)},units:{length:'m',area:'m²',currency:'USD',rent:'USD/m²/year',capex:'USD paid once'},tier:'conceptual scenario',
  author:'Dr Non',affiliation:'depa + Axiom',anniversary:'2006–2026',
  source:'Inspired by Dr Non’s MIT classmate Shouheng Chen. Embedded design knowledge after Shouheng Chen, MIT SMArchS 2006. Financial and political readings are extensions.',
- contextStudies:{environment:getEnvironmentStudy(),ground:getLocationStudy(),fengShui:getFengStudy(),brief:getBriefStudy(state),walk:getWalkStudy()},
+ contextStudies:{environment:getEnvironmentStudy(),ground:getLocationStudy(),fengShui:getFengStudy(state),fengPlay:getFengPlayStudy(),brief:getBriefStudy(state),walk:getWalkStudy()},
  regime:regimes[state.regime].label,state,metrics,createdAt:new Date().toISOString()},null,2),'application/json');
 $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
  'family,regime,structure,floors,span_m,roof_scale,twist_deg,gross_m2,rentable_m2,corner_offices,height_m,total_height_m,distinctiveness,ranking_score,ranking_method,objective,annual_rent_usd,envelope_reserve_usd,structure_reserve_usd,annual_contribution_usd,capex_usd,capex_per_gross_m2,capital_over_contribution_years',

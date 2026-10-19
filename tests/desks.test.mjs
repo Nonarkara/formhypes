@@ -8,6 +8,7 @@ import {BRIEF_I18N, renderBrief} from '../dist/brief.js';
 import {t} from '../dist/i18n.js';
 import {CONTEXT_I18N, renderContext, CONTEXT_SITES, contextShadow} from '../dist/context.js';
 import {WALK_I18N, renderWalk} from '../dist/walk.js';
+import {FENG_I18N, renderFeng} from '../dist/feng.js';
 import {WORKSPACES} from '../dist/console.js';
 import {MATERIALS,MATERIAL_KEYS,materialOf,materialEnvelopeCost,surfacePattern} from '../dist/materials.js';
 
@@ -19,17 +20,19 @@ const MODULES = [
   ['brief', BRIEF_I18N, 'BRIEF_I18N'],
   ['context', CONTEXT_I18N, 'CONTEXT_I18N'],
   ['walk', WALK_I18N, 'WALK_I18N'],
+  ['feng', FENG_I18N, 'FENG_I18N'],
 ];
 
 test('the three desks are wired into the page and the controller', () => {
   const html = readDist('index.html');
-  for (const id of ['briefDesk', 'walkDesk', 'contextDesk'])
+  for (const id of ['briefDesk', 'walkDesk', 'contextDesk', 'fengshuiDesk'])
     assert.ok(html.includes(`id="${id}"`), `${id} container missing from index.html`);
   const app = readDist('app.js');
-  for (const fn of ['renderBrief', 'renderWalk', 'renderContext'])
+  for (const fn of ['renderBrief', 'renderWalk', 'renderContext', 'renderFeng'])
     assert.match(app, new RegExp(`import \\{[^}]*${fn}[^}]*\\} from`), `${fn} is not imported`);
   assert.match(app, /\['brief',BRIEF_I18N,renderBrief\]/);
   assert.match(app, /\['walk',WALK_I18N,renderWalk\]/);
+  assert.match(app, /\['fengshui',FENG_I18N,renderFeng\]/);
   assert.match(app, /\['context',CONTEXT_I18N,renderContext\]/);
 });
 
@@ -272,10 +275,19 @@ function deskText(render,id,lang,override){
 }
 
 test('every desk renderer actually runs and produces text, not just a name in app.js',()=>{
- for(const [id,fn]of [['briefDesk',renderBrief],['walkDesk',renderWalk],['contextDesk',renderContext]])
+ for(const [id,fn]of [['briefDesk',renderBrief],['walkDesk',renderWalk],['contextDesk',renderContext],['fengshuiDesk',renderFeng]])
   for(const lang of L){
    const out=deskText(fn,id,lang);
-   assert.ok(out.length>800,`${id}/${lang}: rendered only ${out.length} chars — the renderer is not really running`);
+   // The floor is measured against the desk's OWN dictionary rather than a
+   // fixed character count. A fixed count is calibrated to English, and a
+   // correct, complete Chinese render is legitimately about half the length
+   // of the same text — so the old 800 could only ever be satisfied by
+   // padding one script. What must hold is that the desk showed its reader
+   // its own words.
+   const dict={briefDesk:BRIEF_I18N,walkDesk:WALK_I18N,contextDesk:CONTEXT_I18N,fengshuiDesk:FENG_I18N}[id];
+   const own=Object.values(dict[lang]).join('').length;
+   assert.ok(out.length>own*0.9,`${id}/${lang}: rendered ${out.length} chars of its own ${own} — the renderer is not really running`);
+   assert.ok(out.length>400,`${id}/${lang}: rendered only ${out.length} chars`);
    assert.doesNotMatch(out,/undefined|NaN|\[object Object\]/,`${id}/${lang}: rendered junk into the page`);
   }
 });
@@ -335,7 +347,7 @@ test('the performance rail leads with drawings and keeps the schedule on demand'
 
 test('every workspace is named by a drawing, and the word is kept for the reader',()=>{
  const app=readDist('console.js');
- assert.equal(WORKSPACES.length,9);
+ assert.ok(WORKSPACES.includes('feng'),'the Feng Shui desk must be on the bar');
  // A strip of words is a menu; marks are an instrument panel. The keys are read
  // from WORKSPACES rather than typed here, because a hardcoded list silently
  // stops covering the workspaces added after it was written — which is exactly

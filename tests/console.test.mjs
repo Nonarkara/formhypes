@@ -20,10 +20,12 @@ test('land/FAR setters validate atomically and preserve the actual geometry ledg
  assert.ok(setBriefInputs({plot:old.plot,far:old.far}));
 });
 test('workspace navigation keeps every existing desk addressable',()=>{
- assert.equal(WORKSPACES.length,9);
- assert.deepEqual(WORKSPACES,['form','brief','core','detail','facade','place','walk','compare','studies']);
+ // The count is derived, never typed: a hardcoded 9 stopped covering the
+ // workspaces added after it was written, which is how two tools end up
+ // sharing one mark without anybody noticing.
+ assert.deepEqual(WORKSPACES,['form','brief','core','detail','facade','place','feng','walk','compare','studies']);
  for(const [id,workspace]of [['briefPanel','brief'],['contextPanel','place'],['locationDesk','place'],['walkPanel','walk'],['exploreTitle','compare'],['savedStudies','studies'],['atlas','form'],['coreFigure','core'],['detailFigure','detail']])assert.equal(workspaceForTarget(id),workspace);
- for(const l of ['en','th','zh']){assert.deepEqual(Object.keys(CONSOLE_TEXT[l]),Object.keys(CONSOLE_TEXT.en));assert.equal(CONSOLE_TEXT[l].work.length,9);assert.deepEqual(Object.keys(FACADE_TEXT[l]),Object.keys(FACADE_TEXT.en));assert.equal(FACADE_TEXT[l].parts.length,8);
+ for(const l of ['en','th','zh']){assert.deepEqual(Object.keys(CONSOLE_TEXT[l]),Object.keys(CONSOLE_TEXT.en));assert.equal(CONSOLE_TEXT[l].work.length,WORKSPACES.length);assert.deepEqual(Object.keys(FACADE_TEXT[l]),Object.keys(FACADE_TEXT.en));assert.equal(FACADE_TEXT[l].parts.length,8);
   if(l!=='en')for(const p of FACADE_TEXT[l].parts)assert.match(p,l==='th'?/[ก-๙]/:/[㐀-鿿]/);
  }
 });
@@ -342,7 +344,7 @@ test('every workspace in the switcher shows its name, not just a mark',()=>{
  const glyphs=/WORK_GLYPHS=\{([\s\S]*?)\};/.exec(js);
  assert.ok(glyphs,'WORK_GLYPHS is missing from console.js');
  const entries=[...glyphs[1].matchAll(/(\w+)\s*:\s*'([^']*)'/g)];
- assert.equal(entries.length,9,`the switcher declares ${entries.length} marks, expected 9`);
+ assert.equal(entries.length,WORKSPACES.length,`the switcher declares ${entries.length} marks, one per workspace`);
  const seen=new Map();
  for(const [,k,v] of entries){
   assert.ok(!seen.has(v),`"${k}" and "${seen.get(v)}" are the same drawing; at 18px they were one mark`);
