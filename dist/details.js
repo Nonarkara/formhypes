@@ -1,4 +1,4 @@
-import {sheet,cut,beyond,leader,flow,head,dim,brkV,cl,ground,txt,rule} from './drafting.js?v=46f473b450';
+import {sheet,cut,beyond,leader,flow,head,dim,brkV,cl,ground,txt,rule} from './drafting.js?v=59af773922';
 /* ── how the wall is put together, as distinct from what it is made of ───────
    The material library answers "what is this face?". It cannot answer "how is
    this face held on, drained, fire-stopped and got to when it fails?" — and

@@ -30,8 +30,8 @@
    behaviour, not an industry traffic simulator — the lab says so.
 
    Everything above the DOM section is pure and DOM-free so it can be tested. */
-import {liftDesign,CORE_METHOD} from './core.js';
-import {stack,evaluate} from './model.js';
+import {liftDesign,CORE_METHOD} from './core.js?v=5c2823d151';
+import {stack,evaluate} from './model.js?v=4d4eb35fb5';
 
 /* Stated assumptions. Each one is printed where it is used. */
 export const LIFT_ASSUME={

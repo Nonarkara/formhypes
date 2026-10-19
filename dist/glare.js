@@ -23,7 +23,7 @@
 
    DNI is the 0.8 kW/m² transparent reference used everywhere else here. */
 import {solarPosition,cities} from './solar.js?v=9279efc6dc';
-import {profile,stackHeight} from './model.js?v=b84188fae5';
+import {profile,stackHeight} from './model.js?v=4d4eb35fb5';
 import {cityData,ringsIntersect} from './cityscape.js?v=dcc15cb0df';
 
 export const GLARE_DNI=800;               // W/m², the project's reference beam

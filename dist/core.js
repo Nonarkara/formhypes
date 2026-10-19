@@ -46,7 +46,7 @@
    the size of the core. See escalatorDesign(). */
 
 import {podiumReach,escRun} from './core3d.js?v=396c530315';
-import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow} from './drafting.js?v=46f473b450';
+import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow} from './drafting.js?v=59af773922';
 
 export const CORE_METHOD={
  // CIBSE Guide D, restated in ISO 8100-32:2020 Table 2 — office up-peak

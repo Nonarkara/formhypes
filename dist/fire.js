@@ -57,8 +57,8 @@
    mean stair descent of mobility-impaired people without aids ≈ 0.33 m/s.
    They are modelled waiting for their floor's queue to clear, then descending
    at their own speed; with lifts in use they take the lifts first. */
-import {stack,profile,area,evaluate} from './model.js';
-import {liftDesign,CORE_METHOD} from './core.js';
+import {stack,profile,area,evaluate} from './model.js?v=4d4eb35fb5';
+import {liftDesign,CORE_METHOD} from './core.js?v=5c2823d151';
 
 /* ── SFPE constants ─────────────────────────────────────────────────────── */
 export const A_SFPE=0.266;

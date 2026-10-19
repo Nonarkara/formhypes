@@ -18,7 +18,7 @@
 
 import {SCHEMA,GROUPS,RELATIVE,ASSUMPTION} from './schema.js?v=fd56569c48';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {families,profile,defaults} from './model.js?v=b84188fae5';
+import {families,profile,defaults} from './model.js?v=4d4eb35fb5';
 
 export const manualSections=lang=>MANUAL[lang].sections;
 
