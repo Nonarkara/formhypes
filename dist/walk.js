@@ -301,8 +301,9 @@ export function renderWalk({lang,state,changed}){
  const host=document.getElementById('walkDesk');
  if(!host)return;
  host.classList.add('wk');host.replaceChildren();
- const key=pairs=>{const d=el('div',' ','wk-key');d.className='wk-key';pairs.forEach(([n,l],i)=>{
-  if(i%2===0)d.append(el('b',n));d.append(el('i',l))});return d};
+ // One number and one label per pair. Appending the number only on every
+ // second pair put labels into the 11px number column, one letter per line.
+ const key=pairs=>{const d=el('div',undefined,'wk-key');pairs.forEach(([n,l])=>d.append(el('b',n),el('i',l)));return d};
  const figure=(svg,aria,cap)=>{
   const w=el('div');w.className='wk-figwrap';
   const s=document.createElementNS('http://www.w3.org/2000/svg','svg');

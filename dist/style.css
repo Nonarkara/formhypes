@@ -834,3 +834,7 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 
 /* Comparison cells remain distinct, reachable targets on a touch screen. */
 @media(max-width:600px),(pointer:coarse){.lattice-cell{height:44px;min-width:44px}}
+
+/* The reading page has one title; it takes the display size so the section
+   headings under it read as sections. */
+#research h1{font-size:32px;line-height:1.15;letter-spacing:-.01em}

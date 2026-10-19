@@ -2642,6 +2642,7 @@ $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
 // a stale #studio hash: that combination is a research link.
 function showTab(t,push=true,behavior='smooth'){
  if(t!=='studio'&&t!=='research')t='studio';
+ document.body.dataset.tab=t;
  document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id===t));
  document.querySelectorAll('[data-tab]').forEach(x=>{
   const on=x.dataset.tab===t;

@@ -43,7 +43,9 @@ export function familyBands(alternatives){
   if(!b.best||c>b.best.metrics.contribution)b.best=a;
   b.rows.push(a);
  }
- return [...by.values()].sort((x,y)=>y.hi-x.hi||x.lo-y.lo);
+ // Families in the order the ranked table lists them, so the chart and the
+ // table above it never disagree about which family came first.
+ return [...by.values()];
 }
 const svgEl=(tag,attrs,parent)=>{
  const n=document.createElementNS('http://www.w3.org/2000/svg',tag);

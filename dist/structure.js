@@ -117,7 +117,7 @@ export function slendernessSVG(lambda,c){
  const max=25,x=v=>8+284*Math.min(v,max)/max,me=x(lambda);
  let s=`<line x1="8" y1="22" x2="292" y2="22" stroke="currentColor" stroke-width="1"/>`;
  for(const [edge] of STRUCTURE_BANDS)if(Number.isFinite(edge))s+=`<line x1="${x(edge)}" y1="16" x2="${x(edge)}" y2="28" stroke="currentColor" stroke-width="1"/><text x="${x(edge)}" y="12" text-anchor="middle" font-size="8" fill="currentColor">1:${edge}</text>`;
- for(const e of EXEMPLARS)s+=`<line x1="${x(e.ratio)}" y1="24" x2="${x(e.ratio)}" y2="34" stroke="currentColor" stroke-width="1" opacity=".55"/><text x="${x(e.ratio)}" y="44" text-anchor="middle" font-size="7.5" fill="currentColor" opacity=".7">${e.name}</text>`;
+ for(const e of EXEMPLARS)s+=`<line x1="${x(e.ratio)}" y1="24" x2="${x(e.ratio)}" y2="34" stroke="currentColor" stroke-width="1.4"/><text x="${x(e.ratio)}" y="44" text-anchor="middle" font-size="8" fill="currentColor">${e.name}</text>`;
  s+=`<line x1="8" y1="22" x2="${me.toFixed(1)}" y2="22" stroke="#f59e0b" stroke-width="3"/><path d="M${me.toFixed(1)} 22l-4 -7h8z" fill="#f59e0b"/>`;
  return `<svg viewBox="0 0 300 50" role="img" aria-label="${c.axis}: 1:${lambda.toFixed(1)}">${s}</svg>`;
 }
