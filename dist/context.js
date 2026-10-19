@@ -12,7 +12,7 @@ import {parseGround,parseCity,plotCandidates,plotFacts,plateOnPlot,landscapeSVG,
 // The lens strings live in the shared translation file, not in this desk's own
 // dictionary: they are the same words the reader has already met in the rail,
 // and a second copy is a second thing to drift.
-import {t as I18N} from './i18n.js?v=e53a211e88';
+import {t as I18N} from './i18n.js?v=b5cb69e097';
 
 // Empire Tower 58F / 227 m / 1999, floor plate ≈3,000 m² and a 2.60 m Grade A
 // clear-height benchmark for Bangkok; Dayabumi Complex 35F / 157 m / 1984;

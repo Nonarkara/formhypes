@@ -1,17 +1,17 @@
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=9235e5d15c';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=8b022e7340';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=da38386dd7';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=bad5db965c';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=42c5c2cf04';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=19b4495cb8';
 import {mountConsole} from './console.js?v=82f0a66755';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=a07152d203';
 import{familyResponse,lattice}from'./explore.js?v=d3f1e1bb35';
-import{t,langs,langMeta,translator}from'./i18n.js?v=e53a211e88';
+import{t,langs,langMeta,translator}from'./i18n.js?v=b5cb69e097';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
 import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,crownOf,gardenOf,crownPlates} from './crowns.js?v=6daba4a8ca';
-import {cityData,skyline,visibleMassings,ringArea} from './cityscape.js?v=02b4579819';
+import {cityData,skyline,visibleMassings,ringArea,splitByPlot} from './cityscape.js?v=dcc15cb0df';
 import {sweptHull,reachSteps,reachLabelled,contactOffset} from './reach.js?v=3742398937';
 import {parseGround} from './site.js?v=7cb1769785';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
@@ -25,7 +25,7 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=3
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=b9ae7da0da';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=4cf49fa71e';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=39b3294c82';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=bc2ef34bab';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
@@ -334,7 +334,7 @@ function update(){
  // about the world's skylines — only about what OpenStreetMap has mapped inside
  // the harvested radius, which the sentence says out loud.
  if($('skylineReadout')){
-  const sk=skyline(state.city,metrics.heightTotal);
+  const sk=skyline(state.city,metrics.heightTotal,profile(state,0));
   const el=$('skylineReadout');
   el.hidden=!sk;
   if(sk){
@@ -344,6 +344,13 @@ function update(){
    const cred=document.createElement('span');cred.className='sky-credit';
    cred.textContent=tt('v.skycredit',vars);
    el.replaceChildren(first,cred);
+   // Stated, not hidden: a massing the drawing drops is a massing the reader
+   // cannot check, and a rank they cannot audit is worth nothing.
+   if(sk.replaced>0){
+    const rp=document.createElement('span');rp.className='sky-credit';
+    rp.textContent=tt('v.replaced',{n:sk.replaced});
+    el.append(rp);
+   }
   }
  }
  // Sheet identification, in the sense the U.S. National CAD Standard gives it:
@@ -564,7 +571,14 @@ function drawTower(){
  // Fetched here, above every use, rather than where it is first drawn. Declared
  // at the point of use it reads as a local convenience; declared before the grid
  // it is what the whole drawing is measured against.
- const massings=city?visibleMassings(city,scale,1.4):[];
+ /* Whatever stands on the plot is the site, not the context. A harvested
+    building whose footprint covers the origin is standing exactly where the
+    tower is drawn, and painting it in front made the tower rise from inside
+    another building — which is what read as floating. Removed, counted, and
+    the count printed on the sheet. */
+ let massings=city?visibleMassings(city,scale,1.4):[];
+ let onPlot=0;
+ if(city&&massings.length){const split=splitByPlot(massings,profile(state,0));massings=split.context;onPlot=split.onPlot.length}
 
  /* The bottom band is in flow now, so its height is whatever the language, the
     width and the current figures make it. Canvas annotations are positioned in
@@ -1017,7 +1031,29 @@ const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
   drawCity(cityFar);
  }
 
- const n=profile(state,0).length;
+ /* The tower's own contact shadow, and the reason the model is not floating.
+
+    Every massing in drawCity gets one — a mass that meets the ground on a bare
+    edge hovers — and the tower, the only building the sheet is about, was the
+    one building that did not. It ended in mid-air with nothing under it while
+    every neighbour wore a black hem, and the tower read as suspended over the
+    city rather than standing in it.
+
+    Bounded by its own footprint through the same contactOffset the city uses,
+    so a 214 m tower lays a 24 m shadow rather than a 34 m one. Measured on the
+    built height, not the storey count times the floor-to-floor, so it moves
+    when the taper or the level programme does. Drawn before the body so the
+    body covers all but the downwind sliver, which is what a contact shadow
+    actually shows. */
+ const baseRing=profile(state,0);if(ringArea(baseRing)<0)baseRing.reverse();
+ if(city){
+  const slx=-LIGHT[0],sly=-LIGHT[1],sln=Math.hypot(slx,sly)||1;
+  let sx0=Infinity,sx1=-Infinity,sy0=Infinity,sy1=-Infinity;
+  for(const [bx,by]of baseRing){if(bx<sx0)sx0=bx;if(bx>sx1)sx1=bx;if(by<sy0)sy0=by;if(by>sy1)sy1=by}
+  const soff=contactOffset(total,sx1-sx0,sy1-sy0);
+  path(baseRing.map(([bx,by])=>[bx+slx/sln*soff,by+sly/sln*soff,0]),SHADOW,null,0);
+ }
+ const n=baseRing.length;
  const faces=[];
  for(const l of st){
   const a=profile(state,l.z/total),b=profile(state,(l.z+l.h)/total);
@@ -1160,6 +1196,13 @@ const GROUND_GREEN='#1d2620',GROUND_WATER='#16232c',GROUND_ROAD='#2a3540';
  // The half of the city between the camera and the model, drawn last so it
  // stands in front of the tower rather than through it. Without this the whole
  // city would sit behind and every orbit would look identical.
+ /* The ground contact itself: the footprint stroked where the walls meet the
+    plate. The city already does this for every neighbour, which is why they all
+    stand on the ground and the tower did not. Drawn after the body, so the line
+    is the last thing laid over the wall foot, and before the near massings, so a
+    building between the camera and the model still stands in front of it. */
+ path(baseRing.map(([bx,by])=>[bx,by,0]),null,'#c6d0d4',1);
+
  if(city&&cityNear.length)drawCity(cityNear);
 
  // Height dimension on the right, graduated every 50 m — the convention every
