@@ -460,7 +460,7 @@ const num=(v,d=0)=>Number(v).toLocaleString(undefined,{maximumFractionDigits:d})
    here used to pass its class name into the text slot, which produced a
    correctly-shaped desk with no class on anything: it rendered, it had the
    right amount of text, and it carried no styles and no hooks at all. */
-const put=(tag,cls)=>el(tag,null,cls);
+const put=(tag,cls)=>{const n=document.createElement(tag);n.className=cls;return n};
 
 export function renderFeng({lang,state,changed}){
  const T=FENG_I18N[lang]||FENG_I18N.en;
@@ -508,24 +508,42 @@ export function renderFeng({lang,state,changed}){
     :T.none.replace('{0}',num(st.mass.radius))],
   [T.court,st=>`${num(st.form.front.builtFoot)} m² · ${Math.round(st.form.front.foot*100)}%`],
   [T.corner,st=>`${Math.round(st.form.corners.foot*100)}% ${st.form.corners.open?T.open:T.built}`],
-  [T.heavy,st=>`${st.form.heaviest.dir} · ${num(st.form.heaviest.foot)} m²`],
-  [T.radius,st=>`${num(st.mass.radius)} m · ${num(st.mass.buildings)} ${T.count}`]
+  [T.heavy,st=>`${st.form.heaviest.dir} · ${num(st.form.heaviest.foot)} m²`]
  ];
  const cells=rows.map(([k])=>{const d=el('div',null,'feng-form');const v=put('dd','feng-val');d.append(el('dt',k),v);forms.append(d);return v});
 
  /* the eight palaces: what the tradition says, and the measurement beside it.
     The reading sits directly above its own table, so the tally is read against
     the eight rows that produce it. */
+ /* The eight palaces: what the tradition says, and the measurement beside it.
+    The reading sits directly above its own table, so the tally is read against
+    the eight rows that produce it. */
  const reading=el('p',null,'feng-reading');
- side.append(reading,el('h3',T.stars),el('p',T.starNote,'note'));
+ const measure=el('p',null,'feng-measure');
+ side.append(reading,el('h3',T.stars),el('p',T.starNote,'note'),measure);
  const tbl=el('table',null,'feng-table');
  side.append(tbl);
 
- const foot=el('div',null,'feng-foot');
- const src=el('ol',null,'feng-src');
- for(const k of ['src1','src2','src3','src4'])src.append(el('li',T[k]));
- foot.append(el('p',T.study,'note strong'),src);
- host.append(foot);
+ /* The FACES card is the other half of 坐向: the mountain the building looks
+    toward, the star that mountain names, and the mass sitting there. Three
+    lines, not five, because five would mimic its neighbour table row and
+    compete with it. This is also what fills the empty strip under the right
+    column that used to leave the desk reading as unfinished. */
+ const faces=put('div','feng-faces');
+ faces.append(put('h4','feng-faces-h'),
+             put('p','feng-faces-star'),
+             put('p','feng-faces-mass'));
+ side.append(faces);
+
+ /* Sources and study note, here, not as a bottom strip: the strip was the dead
+    zone under the right column that left the page reading as unfinished. With
+    them in the side column, the columns end together and the desk is one
+    block. */
+ const srcBox=put('div','feng-srcbox');
+ const srcList=el('ol',null,'feng-src');
+ for(const k of ['src1','src2','src3','src4'])srcList.append(el('li',T[k]));
+ srcBox.append(srcList,el('p',T.study,'note strong'));
+ side.append(srcBox);
 
  /* One paint path. Dragging the slider repaints the ring, the readings and the
     table from a single recomputation; the model is only written on release, so a
@@ -540,6 +558,8 @@ export function renderFeng({lang,state,changed}){
   reading.textContent=`${T.group}: ${T[st.group==='east'?'groupEast':'groupWest']} · `
    +`${T.auspicious} ${lucky} / ${T.inauspicious} ${8-lucky}`;
   paintTable(tbl,st,T);
+  paintFaces(faces,st,T);
+  measure.textContent=`${T.radius}: ${num(st.mass.radius)} m · ${num(st.mass.buildings)} ${T.count}`;
  };
  rng.oninput=()=>paint(Number(rng.value));
  rng.onchange=()=>changed&&changed({orientation:Number(rng.value)});
@@ -567,6 +587,26 @@ function paintTable(tbl,st,T){
  }
  tbl.replaceChildren();
  tbl.append(thead,tb);
+}
+
+/* The FACES card reads the OPPOSITE of the table's home row: the facing palace,
+   the facing mountain, the facing star, and the mass in the facing sector.
+   Three text fields. paintFaces rebuilds the card every paint rather than
+   updating existing nodes by querySelector — same pattern as paintTable, and
+   the only one that the DOM stub can drive. */
+function paintFaces(host,st,T){
+ const fpal=PALACE[st.faceIdx], face=st.faceMountain,
+       fstar=st.stars[st.faceIdx], fsect=st.mass.sectors[st.faceIdx];
+ if(!fpal||!face||!fstar||!fsect){host.replaceChildren();return}
+ const h=put('h4','feng-faces-h'),
+       stEl=put('p','feng-faces-star'),
+       msEl=put('p','feng-faces-mass');
+ h.textContent=`${T.facing} ${face.cn} · ${fpal.ro}`;
+ stEl.textContent=`${fstar.cn} · ${T[fstar.k]}`;
+ msEl.textContent=fsect.count
+   ?`${fsect.count} ${T.count} · ${num(fsect.foot)} m² · ${fsect.maxH} m`
+   :T.none.replace('{0}',num(st.mass.radius));
+ host.replaceChildren(h,stEl,msEl);
 }
 
 export function getFengStudy(state,city){return fengStudy(state,city||cityData(state?.city),null)}

@@ -335,21 +335,28 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 #fengshuiDesk .feng-ctl p{grid-column:1/3;color:var(--faint)}
 #fengshuiDesk .feng-fig{margin:0}
 #fengshuiDesk .feng-lpbox{display:flex;justify-content:flex-start}
-#fengshuiDesk .feng-lp{display:block;width:100%;max-width:336px;height:auto;background:var(--dark);border:1px solid var(--line)}
-#fengshuiDesk .feng-fig .note{padding:8px 0 0}
-#fengshuiDesk .feng-forms{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 14px;margin:10px 0 0;font:400 12px/1.6 var(--sans)}
+/* The luopan is 280, not 336, so the left column ends sooner and the right
+   column can hold the FACES card and the sources without the desk scrolling
+   forever on a laptop. The drawing stays square (R.plan at 44 px and the viewBox
+   fixed at 320), so this only affects display. */
+#fengshuiDesk .feng-lp{display:block;width:100%;max-width:280px;height:auto;background:var(--dark);border:1px solid var(--line)}
+#fengshuiDesk .feng-fig .note{padding:6px 0 0;font-size:11.5px;line-height:1.55}
+#fengshuiDesk .feng-forms{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 14px;margin:8px 0 0;font:400 12px/1.55 var(--sans)}
 #fengshuiDesk .feng-form{display:contents}
-#fengshuiDesk .feng-form dt{color:var(--muted)}
-#fengshuiDesk .feng-val{font-family:var(--mono);color:var(--ink)}
-#fengshuiDesk .feng-reading{margin:0 0 6px;font:400 12px/1.55 var(--sans);color:var(--ink)}
+#fengshuiDesk .feng-form dt{color:var(--muted);padding-top:2px}
+#fengshuiDesk .feng-val{font-family:var(--mono);color:var(--ink);padding:2px 0}
+#fengshuiDesk .feng-reading{margin:0 0 4px;font:400 12px/1.5 var(--sans);color:var(--ink)}
+/* Tightened: 4px row padding, 8px cell padding, and the bottom rule under the
+   row is a single 1px line. The home palace's amber rule is the only colour
+   on the row — a filled slab outshouts the luopan it is supposed to read. */
 #fengshuiDesk .feng-table{width:100%;border-collapse:collapse;font-size:12px}
-#fengshuiDesk .feng-table th{font:600 9.5px/1.7 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);text-align:left;border-bottom:1px solid var(--line);padding:0 10px 4px 0;white-space:nowrap}
-#fengshuiDesk .feng-table td{padding:4px 10px 4px 6px;border-bottom:1px solid var(--line);border-left:2px solid transparent;vertical-align:top}
-#fengshuiDesk .feng-table td b{font:400 13px/1.4 var(--sans);color:var(--ink)}
-#fengshuiDesk .feng-table td span{display:block;font:400 10px/1.5 var(--mono);color:var(--faint)}
+#fengshuiDesk .feng-table th{font:600 9.5px/1.6 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);text-align:left;border-bottom:1px solid var(--line);padding:0 8px 4px 4px;white-space:nowrap;font-weight:500}
+#fengshuiDesk .feng-table td{padding:4px 8px 4px 4px;border-bottom:1px solid var(--line);border-left:2px solid transparent;vertical-align:top}
+#fengshuiDesk .feng-table td b{font:500 12.5px/1.35 var(--sans);color:var(--ink)}
+#fengshuiDesk .feng-table td span{display:block;font:400 9.5px/1.4 var(--mono);color:var(--faint);margin-top:2px}
 #fengshuiDesk .feng-table tr.is-home td{border-left-color:var(--accent)}
 #fengshuiDesk .feng-table tr.is-home td b{color:var(--accent)}
-#fengshuiDesk .feng-foot{margin-top:18px;border-top:1px solid var(--line);padding-top:10px}
+/* the bottom strip became the right-column source block; see feng-srcbox */
 #fengshuiDesk .feng-src{margin:8px 0 0;padding-left:18px;font:400 11px/1.6 var(--sans);color:var(--faint);max-width:82ch}
 #fengshuiDesk .feng-src li{margin-bottom:3px}
 @media (max-width:900px){#fengshuiDesk .feng-grid{grid-template-columns:minmax(0,1fr);gap:0}}
@@ -373,3 +380,19 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 /* The walk-in section is drawn on a 1000-unit sheet shown ~425 px wide, so its
    type is set in sheet units: 26 units reads at about 11 px. */
 .wk-svg text{font-size:26px}
+
+/* The FACES card is a three-line summary of the opposite half of 坐向. It is
+   set apart from the table by its own top rule and a thin margin, so it reads
+   as the next thought, not a ninth row. */
+#fengshuiDesk .feng-faces{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+#fengshuiDesk .feng-faces-h{margin:0 0 3px;font:600 13px/1.35 var(--sans);color:var(--ink);letter-spacing:.01em}
+#fengshuiDesk .feng-faces-h::before{content:"→ ";color:var(--accent);font-weight:400}
+#fengshuiDesk .feng-faces-star{margin:0 0 2px;font:500 12px/1.4 var(--sans);color:var(--ink)}
+#fengshuiDesk .feng-faces-mass{margin:0;font:400 11px/1.5 var(--mono);color:var(--muted)}
+/* Sources and study note, here instead of a bottom strip — the strip was the
+   dead zone under the right column. A hairline closes the right column. */
+#fengshuiDesk .feng-srcbox{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+#fengshuiDesk .feng-src{margin:0 0 8px;padding-left:18px;font:400 10.5px/1.55 var(--sans);color:var(--faint)}
+#fengshuiDesk .feng-src li{margin-bottom:2px}
+#fengshuiDesk .feng-srcbox .note.strong{font:400 12px/1.55 var(--sans);color:var(--ink);margin:0;max-width:80ch}
+#fengshuiDesk .feng-measure{margin:0 0 4px;font:400 10.5px/1.5 var(--mono);color:var(--faint)}

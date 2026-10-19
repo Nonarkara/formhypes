@@ -314,10 +314,13 @@ test('every class the stylesheet targets is a class the desk actually sets', () 
   assert.deepEqual(dead, [], `the desk sets classes the stylesheet does not use: ${dead.join(', ')}`);
 });
 
-test('the desk is a real tree: head, two columns, the table and the sources', () => {
+test('the desk is a real tree: head, one grid of two columns, the table and the sources inside the right column', () => {
   const t = tree(renderFeng, 'fengshuiDesk', 'en');
-  assert.deepEqual(t.classes, ['feng-head', 'feng-grid', 'feng-foot'],
-    'the desk\'s top-level order is the argument: title, then columns, then sources');
+  // The bottom strip is gone: sources and the study note live inside the right
+  // column so the two columns end at the same height. The assertion encodes
+  // the argument — columns balance, the desk is one block.
+  assert.deepEqual(t.classes, ['feng-head', 'feng-grid'],
+    'the desk is a head plus one two-column grid; the dead strip underneath is gone');
   const grid = t.by.class['feng-grid'][0].children;
   assert.deepEqual(grid.map(n => n.cls), ['feng-pane', 'feng-side']);
   // The instrument and its readings are in the left column; the eight palaces in
@@ -326,13 +329,50 @@ test('the desk is a real tree: head, two columns, the table and the sources', ()
   assert.ok(t.by.class['feng-lpbox'].length === 1, 'the luopan is not in the desk');
   assert.equal(t.by.class['feng-table'].length, 1);
   assert.equal(t.by.class['feng-forms'].length, 1);
+  // Sources now live in the right column under the FACES card, not at the
+  // bottom of the desk — one .feng-srcbox still carries exactly one ordered list.
   assert.equal(t.by.class['feng-src'].length, 1);
+  assert.equal(t.by.class['feng-srcbox'].length, 1);
+  assert.ok(t.by.class['feng-faces'].length === 1, 'the FACES card is missing from the right column');
   assert.ok(t.by.class['feng-ctl'].length === 1, 'there is no control on this desk');
   const table = t.by.class['feng-table'][0];
   assert.equal(table.children.filter(n => n.tag === 'THEAD').length, 1);
   const body = table.children.find(n => n.tag === 'TBODY');
   assert.ok(body, 'the table has no body');
   assert.equal(body.children.length, 8, 'the eight palaces are not eight rows');
+});
+
+test('the FACES card names the facing palace and quotes the facing sector, not the home', () => {
+  // The FACES card is the half of 坐向 the table does not show: the direction
+  // the building's front looks toward. Reading the HOME here is the failure
+  // mode of the whole card — same row twice, one answer. Drive the actual
+  // render so the assertion reads the emitted text, not a string the test
+  // built itself and could quietly disagree with.
+  for (const deg of [0, 90, 180, 270]) {
+    const st = fengStudy({...defaults, orientation: deg}, cityData(defaults.city), null);
+    const {host, seen} = (() => { let host, seen;
+      withDom('fengshuiDesk', (h, s) => { host = h; seen = s;
+        renderFeng({lang:'en',state:{...defaults,orientation:deg},changed(){}}); });
+      return {host, seen}; })();
+    const findCls = (root, cls) => { const w = n => n.className===cls ? n : (n.childNodes||[]).reduce((a,c)=>a||w(c), null); return w(root); };
+    const card = findCls(host, 'feng-faces');
+    assert.ok(card, `${deg}°: the FACES card is missing`);
+    const txt = card.textContent;
+    assert.ok(txt.includes(st.faceMountain.cn), `${deg}°: FACES does not name ${st.faceMountain.cn}`);
+    assert.ok(txt.includes(st.stars[st.faceIdx].cn), `${deg}°: FACES does not quote the facing star`);
+    if (st.homeIdx !== st.faceIdx)
+      assert.ok(!txt.includes(st.stars[st.homeIdx].cn),
+        `${deg}°: FACES reads the home star ${st.stars[st.homeIdx].cn}`);
+    const fsect = st.mass.sectors[st.faceIdx];
+    // The mass line is "N buildings · FOO m² · HH m" with a thousands
+    // separator on the area. The trailing "buildings" is the i18n plural, not
+    // a separator, so the substring check stops at the formatted area.
+    if (fsect.count) {
+      const nf = new Intl.NumberFormat(undefined, {useGrouping: true});
+      assert.ok(txt.includes(nf.format(fsect.foot) + ' m²'),
+        `${deg}°: FACES omits the facing sector's area (count ${fsect.count}, foot ${fsect.foot})`);
+    }
+  }
 });
 
 test('the desk measures this plot — its own city lookup, not a null one', () => {
@@ -385,7 +425,7 @@ function stub(tag, seen) {
     appendChild(c){this.childNodes.push(c);return c},
     get children(){return this.childNodes},
     append(...cs){for(const c of cs)this.childNodes.push(c)},
-    replaceChildren(){this.childNodes=[]},
+    replaceChildren(...args){this.childNodes=[...args];return this},
     contains(){return false},
     setAttribute(k,v){this.attrs[k]=v},
     getAttribute(k){return this.attrs[k]},
