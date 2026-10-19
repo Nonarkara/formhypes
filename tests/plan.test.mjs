@@ -294,7 +294,24 @@ test('the view foot names the gesture the sheet actually responds to',()=>{
  // says "orbit" is telling the reader to do something that does nothing. The
  // same failure as printing 250 m on a line drawn at 214 m.
  const i=dist('i18n.js');
- const grab=(l,k)=>new RegExp(`t\\.${l}[\\s\\S]{0,3000}?"${k}":"([^"]*)"`).exec(i)?.[1];
+ // Keys live inside three separate `const en={…}` objects, thousands of lines
+ // long, and only some of them are ever re-stated in the `Object.assign(t.en,…)`
+ // tail. Anchoring the lookup on `t.<lang>` therefore finds half the file and
+ // reports perfectly good strings as missing — so each language is sliced out
+ // of its own block instead.
+ const langBlock=(l)=>{
+  const start=i.indexOf('const '+l+'={');
+  assert.ok(start>0,`i18n.js has no ${l} block`);
+  const rest=i.slice(start+8);
+  const next=/^const (en|th|zh)=\{/m.exec(rest.slice(1));
+  return next?rest.slice(1,next.index+1):rest;
+ };
+ // Both quote styles are in use in this file — the view-foot block is
+ // single-quoted and the view-tool block is not — so the lookup accepts either.
+ const grab=(l,k)=>{
+  const m=new RegExp(`["']${k.replace('.','\\.')}["']\\s*:\\s*["']([^"']*)["']`).exec(langBlock(l));
+  return m&&m[1];
+ };
  for(const l of ['en','th','zh']){
   assert.ok(grab(l,'v.pan'),`v.pan is missing from ${l}`);
   assert.ok(grab(l,'v.pan').length<grab(l,'v.drag').length+40,`v.pan in ${l} is not a gesture hint`);
