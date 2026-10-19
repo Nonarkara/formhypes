@@ -8,7 +8,7 @@
    clear when the last of its occupants has entered the stair.
 
    THE HYDRAULIC MODEL — SFPE Handbook of Fire Protection Engineering, 5th ed.
-   (2016), ch. 59, Gwynne & Rosenbaum, "Employing the Hydraulic Model in
+   (2016), Gwynne & Rosenbaum (chapter number not verified), "Employing the Hydraulic Model in
    Assessing Emergency Movement" (Nelson & Mowrer before them):
      · effective width W_e = clear width − boundary layers; 0.15 m each side for
        a stairway wall or tread edge, 0.15 m each side of a door;
@@ -18,9 +18,9 @@
      · specific flow F_s = S·D, a maximum at D = 1.88 p/m²;
      · stair constant k by riser/tread (inches): 7.5/10 → 1.00, 7/11 → 1.08,
        6.5/12 → 1.16, 6.5/13 → 1.23 m/s, giving F_s,max 0.94, 1.01, 1.09, 1.16
-       p/s per metre effective; doors and corridors k = 1.40, F_s,max 1.32;
+       p/s per metre effective; doors and corridors k = 1.40, F_s,max 1.3 (1.32 by the formula; PD 7974-6 prints 1.3);
      · travel along a stair = vertical rise × a conversion factor, 1.85, 2.08,
-       2.32, 2.48 for the same four stair types. Landings are not added.
+       2.32, 2.48 for the same four stair types. These equal slope length / riser x ~1.11, so they appear to include a landing allowance (not found in print; verify).
 
    THE SIMULATION — each stair is a column of short cells, each about as long
    as a freely moving person walks in one 2-second step, and the SFPE speed–
@@ -38,12 +38,12 @@
    THE HAND CHECK — Pauls, "Movement of People", SFPE Handbook (2nd ed. 1995,
    3rd ed. 2002): from drills in office buildings, mean total evacuation time
    t = 0.68 + 0.081·p^0.73 minutes, p = evacuating population per metre of
-   effective stair width. Derived for buildings of roughly 8–15 storeys;
+   effective stair width. Stated for buildings up to 15 storeys (NIST TN 1722 Eq. 31; Proulx, SFPE Handbook, Evacuation Timing);
    beyond that it is an extrapolation and is labelled so.
 
    REFUGE FLOORS — HK Code of Practice for Fire Safety in Buildings 2011: a
    building over 25 storeys has a refuge floor at intervals of not more than
-   25 storeys, with a net refuge area of at least 50% of that floor.
+   25 storeys (every 20 for Use Classification 6), with a net refuge area of at least 50% of the refuge floor's total gross floor area (B18).
    GB 50016-2014 §5.5.23: a building over 100 m has its first refuge floor no
    more than 50 m above the fire-service access level and the rest at no more
    than 50 m intervals; the refuge area is sized at 5.0 people/m². Capacity
@@ -341,11 +341,11 @@ export const FIRE_TEXT={
    tread:'Riser / tread',treadNote:'SFPE stair type: speed constant k {k} m/s, maximum specific flow {f} people/s per metre effective, travel {c} × the rise.',
    strategy:'Evacuation strategy',liftShare:'Share using evacuation lifts',liftNote:'An input, not a code value. This tower’s own lift groups: {z} zones × {c} cars at {v} m/s, one floor per trip. Occupants with reduced mobility take the lifts first.',
    refuge:'Refuge floors',fire:'Fire floor',fireOut:'level {f}',pre:'Pre-movement time',preNote:'An input. Occupants start between 0.5× and 1.5× this time, then walk to the stair at 1.19 m/s. Take it from PD 7974-6 or the fire engineer.',
-   prm:'Occupants with reduced mobility',prmSpeed:'Their stair speed',prmNote:'They wait for their floor’s queue to clear, then descend at their own speed. 0.33 m/s is the mean stair descent of mobility-impaired people without aids (Boyce, Shields & Silcock 1999).'},
+   prm:'Occupants with reduced mobility',prmSpeed:'Their stair speed',prmNote:'They wait for their floor’s queue to clear, then descend at their own speed. About 0.3 m/s: reported mobility-impaired stair descent clusters near 0.31–0.33 m/s (NIST stair-descent studies report 0.31 ± 0.16 m/s; Boyce, Shields & Silcock 1999). Verify for the project.'},
   strat:{simultaneous:'Simultaneous',phased:'Phased',lifts:'With lifts'},
   stratNote:{simultaneous:'Every floor is alarmed at once.',phased:'The fire floor and the floors directly above and below go first; the rest are alarmed when those floors have all entered the stair.',lifts:'Every floor at once; a share of occupants uses the lifts (IBC 2021 §3008 concept).'},
   ref:{off:'Off',hk:'HK · ≤25 storeys',gb:'GB · ≤50 m'},
-  refNote:{off:'No refuge floors: everyone descends to the exit level.',hk:'HK Code of Practice for Fire Safety in Buildings 2011: over 25 storeys, a refuge floor at most every 25 storeys.',gb:'GB 50016-2014 §5.5.23: over 100 m, the first refuge floor at most 50 m up, then at most every 50 m.',snap:'Placed on this tower’s refuge and mechanical levels where one falls inside the limit; otherwise an office floor is converted. Capacity 50% of the plate at 5 people/m².',notReq:'Not required at this height under the chosen code.'},
+  refNote:{off:'No refuge floors: everyone descends to the exit level.',hk:'HK Code of Practice for Fire Safety in Buildings 2011, B18: over 25 storeys, a refuge floor at most every 25 storeys (20 for Use Classification 6); net refuge area at least 50% of the floor’s gross area.',gb:'GB 50016-2014 §5.5.23: public buildings over 100 m, the first refuge floor at most 50 m up, then preferably at most 50 m apart.',snap:'Placed on this tower’s refuge and mechanical levels where one falls inside the limit; otherwise an office floor is converted. Capacity 50% of the plate at 5 people/m².',notReq:'Not required at this height under the chosen code.'},
   u:{m:'m',mm:'mm',s:'s',min:'min',p:'people',pmin:'people/min',m2p:'m²/p',pct:'%',ms:'m/s',h:'h'},
   k:{pop:'Population',total:'Total evacuation, simultaneous',pauls:'Pauls’ approximation',bound:'Flow bound, by hand',phased:'Phased: alarm floors',phasedAll:'Phased: whole building',safety:'To a refuge or the exit',queue:'Longest queue',flow:'Stair flow, each stair',refuge:'Refuge capacity',lifts:'Share using lifts',prm:'Last occupant with reduced mobility'},
   val:{pop:'{n} · {a} m²/p · lift design {l}',queue:'{n} at level {f} · {w} to clear',flow:'{f} people/min · W_e {we} m',refuge:'level {f}: {d} / {c} people',over:'over capacity',none:'—',liftsOff:'not used',lifts:'{p}% · last car down {t}',alarm:'levels {a}–{b} · {t}',pauls:'{t} · p {p}/m',extra:'extrapolated beyond 15 storeys',bound:'{t} = ½ pre + N ÷ (n·W_e·F_s,max)',off:'off',kind:{refuge:'refuge level',mech:'mechanical level',converted:'converted office floor'}},
@@ -357,7 +357,7 @@ export const FIRE_TEXT={
   chart:{title:'Evacuation time against stair width',note:'This tower with {n} stairs, simultaneous, to the exit level. Solid: the simulation. Dashed: Pauls’ approximation. The amber point is the current width.',x:'clear stair width, m',y:'min'},
   method:'How it is computed: each stair is a column of short cells. Speed and flow in a cell follow the SFPE hydraulic relations: speed S = k(1 − 0.266·D), specific flow F_s = S·D, its maximum at 1.88 people/m². A crowded stair moves slower and passes fewer people, so a queue that forms in it climbs upward. Each floor joins the stair at its door; where the stair cannot take both, the space is shared half and half between people already descending and people entering, after Pauls’ observations of merging. Refuge floors take people off the stair until they fill.',
   cannot:'Cannot claim: this is not a performance-based fire engineering assessment. No smoke, tenability or fire growth; no human-behaviour model beyond hydraulic flow; no firefighters climbing against the flow; exits at grade and landings are assumed not to limit. One occupant load for every floor, retail included. Local code and the authority having jurisdiction govern.',
-  src:'Sources: SFPE Handbook of Fire Protection Engineering, 5th ed. (2016), ch. 59, Gwynne & Rosenbaum, hydraulic model (speed, specific flow, boundary layers, stair types, travel factors) · Pauls, “Movement of People”, SFPE Handbook, t = 0.68 + 0.081·p^0.73 · NFPA 101 · BS 9999:2017 Table 1 · IBC 2021 Table 1004.5 and §3008 · HK Code of Practice for Fire Safety in Buildings 2011 · GB 50016-2014 §5.5.23 · Boyce, Shields & Silcock, Fire Technology 35 (1999) · CIBSE Guide D. Each value to be checked against the edition in force.'},
+  src:'Sources: SFPE Handbook of Fire Protection Engineering, 5th ed. (2016), Gwynne & Rosenbaum, hydraulic model (constants as reproduced in NIST TN 1722 and PD 7974-6:2019 Annex G) (speed, specific flow, boundary layers, stair types, travel factors) · Pauls; Proulx, “Evacuation Timing”, SFPE Handbook, t = 0.68 + 0.081·p^0.73, stated up to 15 storeys (NIST TN 1722 Eq. 31) · NFPA 101 · BS 9999:2017 Table 1 · IBC 2021 Table 1004.5 and §3008 · HK Code of Practice for Fire Safety in Buildings 2011 · GB 50016-2014 §5.5.23 · Boyce, Shields & Silcock, Fire Technology 35 (1999) · CIBSE Guide D. Each value to be checked against the edition in force.'},
  th:{title:'การอพยพหนีไฟ',
   lede:'ทุกคนลงบันไดพร้อมกัน หรือทยอยเป็นระยะ คิวเกิดขึ้นที่ใด บันไดเคลื่อนตัวเร็วเพียงใด และคนสุดท้ายถึงระดับทางออกเมื่อใด',
   ctl:{load:'อัตราผู้ใช้อาคาร',loadNote:'พื้นที่สุทธิต่อคน CIBSE Guide D ให้ 10–12 ตร.ม./คน สำหรับสำนักงาน (การออกแบบลิฟต์ใช้ 11) BS 9999:2017 ตาราง 1 ให้ 6 ตร.ม./คน สำหรับสำนักงาน เป็นกรณีหนาแน่น IBC 2021 ตาราง 1004.5 ให้ 150 ตร.ฟุต พื้นที่รวมต่อคน สำหรับอาคารธุรกิจ ราว 13.9 ตร.ม./คน',loadLift:'ใช้ค่าจากการออกแบบลิฟต์',
@@ -365,11 +365,11 @@ export const FIRE_TEXT={
    tread:'ลูกตั้ง / ลูกนอน',treadNote:'ประเภทบันไดตาม SFPE: ค่าคงที่ความเร็ว k {k} ม./วินาที อัตราการไหลจำเพาะสูงสุด {f} คน/วินาที ต่อเมตรประสิทธิผล ระยะเดิน {c} เท่าของความสูง',
    strategy:'กลยุทธ์การอพยพ',liftShare:'สัดส่วนผู้ใช้ลิฟต์อพยพ',liftNote:'เป็นค่าที่ป้อนเอง ไม่ใช่ค่าตามมาตรฐาน ใช้กลุ่มลิฟต์ของอาคารนี้ {z} โซน × {c} ตัว ที่ {v} ม./วินาที เที่ยวละหนึ่งชั้น ผู้มีข้อจำกัดในการเคลื่อนไหวใช้ลิฟต์ก่อน',
    refuge:'ชั้นหลบภัย',fire:'ชั้นที่เกิดเพลิงไหม้',fireOut:'ชั้น {f}',pre:'เวลาก่อนเริ่มเคลื่อนที่',preNote:'เป็นค่าที่ป้อนเอง ผู้ใช้อาคารเริ่มเคลื่อนที่ระหว่าง 0.5 ถึง 1.5 เท่าของเวลานี้ แล้วเดินไปยังบันไดที่ 1.19 ม./วินาที ให้ใช้ค่าจาก PD 7974-6 หรือวิศวกรป้องกันอัคคีภัย',
-   prm:'ผู้มีข้อจำกัดในการเคลื่อนไหว',prmSpeed:'ความเร็วบนบันไดของกลุ่มนี้',prmNote:'รอให้คิวของชั้นตนเองหมดก่อน แล้วจึงลงด้วยความเร็วของตนเอง 0.33 ม./วินาที เป็นค่าเฉลี่ยการลงบันไดของผู้มีข้อจำกัดในการเคลื่อนไหวที่ไม่ใช้อุปกรณ์ช่วย (Boyce, Shields & Silcock 1999)'},
+   prm:'ผู้มีข้อจำกัดในการเคลื่อนไหว',prmSpeed:'ความเร็วบนบันไดของกลุ่มนี้',prmNote:'รอให้คิวของชั้นตนเองหมดก่อน แล้วจึงลงด้วยความเร็วของตนเอง ราว 0.3 ม./วินาที ค่าการลงบันไดที่มีรายงานของผู้มีข้อจำกัดในการเคลื่อนไหวอยู่ราว 0.31–0.33 ม./วินาที (การศึกษาของ NIST รายงาน 0.31 ± 0.16 ม./วินาที; Boyce, Shields & Silcock 1999) ควรตรวจสอบสำหรับโครงการจริง'},
   strat:{simultaneous:'พร้อมกัน',phased:'ทยอยเป็นระยะ',lifts:'ใช้ลิฟต์ร่วม'},
   stratNote:{simultaneous:'ส่งสัญญาณทุกชั้นพร้อมกัน',phased:'ชั้นที่เกิดเพลิงไหม้และชั้นที่อยู่ติดกันด้านบนและด้านล่างออกก่อน ชั้นอื่นได้รับสัญญาณเมื่อทุกคนจากชั้นเหล่านั้นเข้าบันไดแล้ว',lifts:'ทุกชั้นพร้อมกัน โดยผู้ใช้อาคารส่วนหนึ่งใช้ลิฟต์ (แนวคิดตาม IBC 2021 ข้อ 3008)'},
   ref:{off:'ปิด',hk:'ฮ่องกง · ≤25 ชั้น',gb:'GB · ≤50 ม.'},
-  refNote:{off:'ไม่มีชั้นหลบภัย ทุกคนลงถึงระดับทางออก',hk:'HK Code of Practice for Fire Safety in Buildings 2011: อาคารสูงเกิน 25 ชั้น ต้องมีชั้นหลบภัยทุก ๆ ไม่เกิน 25 ชั้น',gb:'GB 50016-2014 ข้อ 5.5.23: อาคารสูงเกิน 100 ม. ชั้นหลบภัยแรกสูงไม่เกิน 50 ม. และชั้นถัดไปห่างกันไม่เกิน 50 ม.',snap:'วางบนชั้นหลบภัยและชั้นงานระบบของอาคารนี้เมื่ออยู่ในระยะที่กำหนด หากไม่มีจะเปลี่ยนชั้นสำนักงานหนึ่งชั้น ความจุคิดจากครึ่งหนึ่งของพื้นที่ชั้นที่ 5 คน/ตร.ม.',notReq:'มาตรฐานที่เลือกไม่กำหนดให้มีที่ความสูงนี้'},
+  refNote:{off:'ไม่มีชั้นหลบภัย ทุกคนลงถึงระดับทางออก',hk:'HK Code of Practice for Fire Safety in Buildings 2011 ข้อ B18: อาคารสูงเกิน 25 ชั้น ต้องมีชั้นหลบภัยทุก ๆ ไม่เกิน 25 ชั้น (20 ชั้นสำหรับประเภทการใช้ 6) พื้นที่หลบภัยสุทธิไม่น้อยกว่า 50% ของพื้นที่รวมของชั้นนั้น',gb:'GB 50016-2014 ข้อ 5.5.23: อาคารสาธารณะสูงเกิน 100 ม. ชั้นหลบภัยแรกสูงไม่เกิน 50 ม. และชั้นถัดไปควรห่างกันไม่เกิน 50 ม.',snap:'วางบนชั้นหลบภัยและชั้นงานระบบของอาคารนี้เมื่ออยู่ในระยะที่กำหนด หากไม่มีจะเปลี่ยนชั้นสำนักงานหนึ่งชั้น ความจุคิดจากครึ่งหนึ่งของพื้นที่ชั้นที่ 5 คน/ตร.ม.',notReq:'มาตรฐานที่เลือกไม่กำหนดให้มีที่ความสูงนี้'},
   u:{m:'ม.',mm:'มม.',s:'วินาที',min:'นาที',p:'คน',pmin:'คน/นาที',m2p:'ตร.ม./คน',pct:'%',ms:'ม./วินาที',h:'ชม.'},
   k:{pop:'จำนวนผู้ใช้อาคาร',total:'เวลาอพยพทั้งหมด แบบพร้อมกัน',pauls:'ค่าประมาณของ Pauls',bound:'ขอบเขตจากอัตราการไหล คำนวณด้วยมือ',phased:'แบบทยอย: ชั้นที่ได้รับสัญญาณ',phasedAll:'แบบทยอย: ทั้งอาคาร',safety:'ถึงชั้นหลบภัยหรือทางออก',queue:'คิวที่ยาวที่สุด',flow:'อัตราการไหลต่อบันได',refuge:'ความจุชั้นหลบภัย',lifts:'สัดส่วนผู้ใช้ลิฟต์',prm:'ผู้มีข้อจำกัดในการเคลื่อนไหวคนสุดท้าย'},
   val:{pop:'{n} · {a} ตร.ม./คน · การออกแบบลิฟต์ {l}',queue:'{n} ที่ชั้น {f} · อีก {w} จึงหมด',flow:'{f} คน/นาที · W_e {we} ม.',refuge:'ชั้น {f}: {d} / {c} คน',over:'เกินความจุ',none:'—',liftsOff:'ไม่ใช้',lifts:'{p}% · ลิฟต์เที่ยวสุดท้ายถึงชั้นล่าง {t}',alarm:'ชั้น {a}–{b} · {t}',pauls:'{t} · p {p}/ม.',extra:'ต่อเส้นเกิน 15 ชั้น',bound:'{t} = ½ เวลาก่อนเคลื่อนที่ + N ÷ (n·W_e·F_s,max)',off:'ปิด',kind:{refuge:'ชั้นหลบภัย',mech:'ชั้นงานระบบ',converted:'ชั้นสำนักงานที่เปลี่ยนเป็นชั้นหลบภัย'}},
@@ -381,7 +381,7 @@ export const FIRE_TEXT={
   chart:{title:'เวลาอพยพเทียบกับความกว้างบันได',note:'อาคารนี้ บันได {n} ชุด อพยพพร้อมกัน ถึงระดับทางออก เส้นทึบ: ผลจำลอง เส้นประ: ค่าประมาณของ Pauls จุดสีอำพันคือความกว้างปัจจุบัน',x:'ความกว้างสุทธิของบันได ม.',y:'นาที'},
   method:'วิธีคำนวณ: บันไดแต่ละชุดแบ่งเป็นช่วงสั้น ๆ ต่อกัน ความเร็วและอัตราการไหลในแต่ละช่วงเป็นไปตามความสัมพันธ์ไฮดรอลิกของ SFPE ความเร็ว S = k(1 − 0.266·D) อัตราการไหลจำเพาะ F_s = S·D สูงสุดที่ 1.88 คน/ตร.ม. บันไดที่แออัดเคลื่อนช้าลงและให้คนผ่านได้น้อยลง คิวที่เกิดในบันไดจึงลามขึ้นด้านบน แต่ละชั้นเข้าสู่บันไดที่ประตูของตน เมื่อบันไดรับทั้งสองทางไม่ไหว พื้นที่จะแบ่งครึ่งระหว่างคนที่กำลังลงกับคนที่เข้ามาใหม่ ตามข้อสังเกตเรื่องการรวมกระแสของ Pauls ชั้นหลบภัยรับคนออกจากบันไดจนเต็ม',
   cannot:'สิ่งที่อ้างไม่ได้: นี่ไม่ใช่การประเมินทางวิศวกรรมป้องกันอัคคีภัยแบบอิงสมรรถนะ ไม่มีควัน สภาวะที่ทนได้ หรือการลุกลามของไฟ ไม่มีแบบจำลองพฤติกรรมมนุษย์นอกเหนือจากการไหลแบบไฮดรอลิก ไม่มีพนักงานดับเพลิงที่เดินสวนขึ้นมา สมมติว่าทางออกที่ระดับพื้นและชานพักไม่เป็นข้อจำกัด ใช้อัตราผู้ใช้อาคารเดียวกันทุกชั้นรวมถึงพื้นที่ค้าปลีก มาตรฐานท้องถิ่นและหน่วยงานผู้มีอำนาจเป็นผู้กำหนด',
-  src:'แหล่งอ้างอิง: SFPE Handbook of Fire Protection Engineering ฉบับที่ 5 (2016) บทที่ 59 Gwynne & Rosenbaum แบบจำลองไฮดรอลิก (ความเร็ว อัตราการไหลจำเพาะ ชั้นขอบ ประเภทบันได ตัวคูณระยะเดิน) · Pauls, “Movement of People”, SFPE Handbook, t = 0.68 + 0.081·p^0.73 · NFPA 101 · BS 9999:2017 ตาราง 1 · IBC 2021 ตาราง 1004.5 และข้อ 3008 · HK Code of Practice for Fire Safety in Buildings 2011 · GB 50016-2014 ข้อ 5.5.23 · Boyce, Shields & Silcock, Fire Technology 35 (1999) · CIBSE Guide D ทุกค่าควรตรวจสอบกับฉบับที่ใช้บังคับ'},
+  src:'แหล่งอ้างอิง: SFPE Handbook of Fire Protection Engineering ฉบับที่ 5 (2016) Gwynne & Rosenbaum แบบจำลองไฮดรอลิก (ค่าคงที่ตามที่อ้างใน NIST TN 1722 และ PD 7974-6:2019 ภาคผนวก G) (ความเร็ว อัตราการไหลจำเพาะ ชั้นขอบ ประเภทบันได ตัวคูณระยะเดิน) · Pauls; Proulx, “Evacuation Timing”, SFPE Handbook, t = 0.68 + 0.081·p^0.73 ใช้กับอาคารไม่เกิน 15 ชั้น (NIST TN 1722 สมการ 31) · NFPA 101 · BS 9999:2017 ตาราง 1 · IBC 2021 ตาราง 1004.5 และข้อ 3008 · HK Code of Practice for Fire Safety in Buildings 2011 · GB 50016-2014 ข้อ 5.5.23 · Boyce, Shields & Silcock, Fire Technology 35 (1999) · CIBSE Guide D ทุกค่าควรตรวจสอบกับฉบับที่ใช้บังคับ'},
  zh:{title:'火灾疏散',
   lede:'所有人同时走楼梯撤离，或分阶段撤离：队伍在哪里形成，楼梯走得多快，最后一个人何时到达出口层。',
   ctl:{load:'人员密度',loadNote:'每人净面积。CIBSE Guide D 给出办公 10–12 平方米/人（电梯设计取 11）；BS 9999:2017 表 1 给出办公 6 平方米/人，属高密度情形；IBC 2021 表 1004.5 规定商务用途每人 150 平方英尺（总面积），约 13.9 平方米/人。',loadLift:'采用电梯设计的人数',
@@ -389,11 +389,11 @@ export const FIRE_TEXT={
    tread:'踏步高 / 踏步宽',treadNote:'SFPE 楼梯类型：速度常数 k {k} 米/秒，最大比流量 {f} 人/秒·米有效宽度，行走距离为层高的 {c} 倍。',
    strategy:'疏散策略',liftShare:'使用疏散电梯的比例',liftNote:'这是输入值，不是规范值。采用本塔楼自身的电梯分组：{z} 个分区 × {c} 台，速度 {v} 米/秒，每趟服务一层。行动不便者优先乘梯。',
    refuge:'避难层',fire:'起火层',fireOut:'第 {f} 层',pre:'疏散准备时间',preNote:'这是输入值。人员在此时间的 0.5 至 1.5 倍之间开始行动，再以 1.19 米/秒走到楼梯。应按 PD 7974-6 或消防工程师的意见取值。',
-   prm:'行动不便者比例',prmSpeed:'其楼梯速度',prmNote:'他们等本层队伍走完后，再以自己的速度下楼。0.33 米/秒为不使用辅助器具的行动不便者平均下楼速度（Boyce, Shields & Silcock 1999）。'},
+   prm:'行动不便者比例',prmSpeed:'其楼梯速度',prmNote:'他们等本层队伍走完后，再以自己的速度下楼。约 0.3 米/秒：已报道的行动不便者下楼速度约为 0.31–0.33 米/秒（NIST 楼梯疏散研究报告 0.31 ± 0.16 米/秒；Boyce, Shields & Silcock 1999），实际项目须核实。'},
   strat:{simultaneous:'同时疏散',phased:'分阶段疏散',lifts:'结合电梯'},
   stratNote:{simultaneous:'所有楼层同时报警。',phased:'起火层及其上下相邻楼层先撤离；这些楼层的人员全部进入楼梯后，其余楼层再报警。',lifts:'所有楼层同时撤离，部分人员乘电梯（IBC 2021 第 3008 节的概念）。'},
   ref:{off:'关',hk:'香港 · ≤25 层',gb:'国标 · ≤50 米'},
-  refNote:{off:'不设避难层：所有人下到出口层。',hk:'香港《建筑物消防安全守则》2011：超过 25 层的建筑，每隔不超过 25 层设一个避难层。',gb:'GB 50016-2014 第 5.5.23 条：建筑高度超过 100 米时，第一个避难层距地面不大于 50 米，两个避难层之间不大于 50 米。',snap:'在限值范围内优先落在本塔楼的避难层和设备层上；否则将一个办公层改为避难层。容量按楼板面积的 50%、每平方米 5 人计。',notReq:'在此高度下，所选规范不要求设置。'},
+  refNote:{off:'不设避难层：所有人下到出口层。',hk:'香港《建筑物消防安全守则》2011 第 B18 条：超过 25 层的建筑，每隔不超过 25 层设一个避难层（第 6 类用途为 20 层）；避难净面积不少于该层总楼面面积的 50%。',gb:'GB 50016-2014 第 5.5.23 条：建筑高度超过 100 米的公共建筑，第一个避难层距地面不大于 50 米，两个避难层之间不宜大于 50 米。',snap:'在限值范围内优先落在本塔楼的避难层和设备层上；否则将一个办公层改为避难层。容量按楼板面积的 50%、每平方米 5 人计。',notReq:'在此高度下，所选规范不要求设置。'},
   u:{m:'米',mm:'毫米',s:'秒',min:'分',p:'人',pmin:'人/分',m2p:'平方米/人',pct:'%',ms:'米/秒',h:'小时'},
   k:{pop:'总人数',total:'同时疏散总时间',pauls:'Pauls 近似值',bound:'流量下限（手算）',phased:'分阶段：报警楼层',phasedAll:'分阶段：整栋建筑',safety:'到达避难层或出口',queue:'最长队伍',flow:'每部楼梯的流量',refuge:'避难层容量',lifts:'使用电梯的比例',prm:'最后一位行动不便者'},
   val:{pop:'{n} · {a} 平方米/人 · 电梯设计 {l}',queue:'第 {f} 层 {n} 人 · {w} 后清空',flow:'{f} 人/分 · W_e {we} 米',refuge:'第 {f} 层：{d} / {c} 人',over:'超出容量',none:'—',liftsOff:'未使用',lifts:'{p}% · 最后一趟电梯 {t} 到达',alarm:'第 {a}–{b} 层 · {t}',pauls:'{t} · p {p}/米',extra:'超过 15 层为外推',bound:'{t} = ½ 准备时间 + N ÷ (n·W_e·F_s,max)',off:'关',kind:{refuge:'避难层',mech:'设备层',converted:'改作避难层的办公层'}},
@@ -405,7 +405,7 @@ export const FIRE_TEXT={
   chart:{title:'疏散时间与楼梯宽度',note:'本塔楼，{n} 部楼梯，同时疏散至出口层。实线：模拟值。虚线：Pauls 近似值。琥珀色点为当前宽度。',x:'楼梯净宽，米',y:'分'},
   method:'计算方法：每部楼梯被分成一串短单元。单元内的速度和流量遵循 SFPE 水力模型：速度 S = k(1 − 0.266·D)，比流量 F_s = S·D，在 1.88 人/平方米时达到最大。楼梯越拥挤走得越慢、通过的人越少，因此楼梯里形成的队伍会向上蔓延。各楼层从本层的门进入楼梯；当楼梯容纳不下两股人流时，按 Pauls 对汇流的观察，空间由正在下楼的人和新进入的人各占一半。避难层把人从楼梯上接走，直到住满为止。',
   cannot:'不能据此断言：这不是性能化消防评估。没有烟气、可承受条件或火灾发展；除水力流动外没有人员行为模型；没有逆向上楼的消防员；假定首层出口和楼梯平台不构成限制。所有楼层（包括零售层）采用同一人员密度。以当地规范和主管部门为准。',
-  src:'来源：SFPE Handbook of Fire Protection Engineering 第 5 版（2016）第 59 章，Gwynne & Rosenbaum，水力模型（速度、比流量、边界层、楼梯类型、行走距离系数）· Pauls，“Movement of People”，SFPE Handbook，t = 0.68 + 0.081·p^0.73 · NFPA 101 · BS 9999:2017 表 1 · IBC 2021 表 1004.5 及第 3008 节 · 香港《建筑物消防安全守则》2011 · GB 50016-2014 第 5.5.23 条 · Boyce, Shields & Silcock，Fire Technology 35（1999）· CIBSE Guide D。各数值须对照现行版本核实。'}
+  src:'来源：SFPE Handbook of Fire Protection Engineering 第 5 版（2016），Gwynne & Rosenbaum，水力模型（常数据 NIST TN 1722 与 PD 7974-6:2019 附录 G 转引）（速度、比流量、边界层、楼梯类型、行走距离系数）· Pauls；Proulx，“Evacuation Timing”，SFPE Handbook，t = 0.68 + 0.081·p^0.73，适用于不超过 15 层的建筑（NIST TN 1722 式 31）· NFPA 101 · BS 9999:2017 表 1 · IBC 2021 表 1004.5 及第 3008 节 · 香港《建筑物消防安全守则》2011 · GB 50016-2014 第 5.5.23 条 · Boyce, Shields & Silcock，Fire Technology 35（1999）· CIBSE Guide D。各数值须对照现行版本核实。'}
 };
 
 /* ── DOM ──────────────────────────────────────────────────────────────── */
