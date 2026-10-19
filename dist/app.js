@@ -1,11 +1,11 @@
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=bad5db965c';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=42c5c2cf04';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=19b4495cb8';
-import {mountConsole} from './console.js?v=82f0a66755';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=74d2205894';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=dc4a048343';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=a9eccb5186';
+import {mountConsole} from './console.js?v=2eda886fa4';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=a07152d203';
-import{familyResponse,lattice}from'./explore.js?v=d3f1e1bb35';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=0c66fed306';
+import{familyResponse,lattice}from'./explore.js?v=71324d2b16';
 import{t,langs,langMeta,translator}from'./i18n.js?v=b5cb69e097';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
@@ -15,24 +15,24 @@ import {cityData,skyline,visibleMassings,ringArea,splitByPlot} from './cityscape
 import {sweptHull,reachSteps,reachLabelled,contactOffset} from './reach.js?v=3742398937';
 import {parseGround} from './site.js?v=7cb1769785';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
-import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=1df95d7e5e';
+import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=e1bb08c0de';
 import {coreOf,coreSVG,CORE_SRC} from './core.js?v=e98b022d2a';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=36c571f058';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=fbab3e2d85';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=b9ae7da0da';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=4cf49fa71e';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=bc2ef34bab';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=f3502a1c05';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=fc9c01ac25';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=3df57f1f06';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=c6e15f87fc';
-import {WORKSPACES} from './console.js?v=82f0a66755';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=5f63bfdc65';
+import {WORKSPACES} from './console.js?v=2eda886fa4';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);

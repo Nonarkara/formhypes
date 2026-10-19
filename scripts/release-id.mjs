@@ -42,7 +42,7 @@ const stamp = (src, refs, ids) => refs.reduce(
     `${ref}?v=${ids[ref.replace(/^\.\//, '')]}`),
   src);
 
-const SHARED = ['console.css','desks.css','modulor.js','model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'vendor/SUNCALC-LICENSE.txt', 'i18n.js', 'reach.js', 'style.css', 'play.js', 'location.js',
+const SHARED = ['console.css','desks.css','modulor.js','model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'vendor/SUNCALC-LICENSE.txt', 'i18n.js', 'reach.js', 'drafting.js', 'style.css', 'play.js', 'location.js',
   'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt',
   // The crown, material and detail libraries, and the harvested cityscape. These
   // three arrived carrying literal pins (?v=crown1), which meant their bytes
@@ -69,7 +69,7 @@ const MEDIA = ['research/artifacts/ags-anchorage-2436.png','research/media/offic
   'research/artifacts/chen-fig40.png', 'research/artifacts/chen-fig49.png',
   'research/protocol-en.txt','research/protocol-th.txt','research/protocol-zh.txt'];
 const DESKS=['facade.js','brief.js','walk.js','context.js','explore.js'];
-const IN_APP = ['./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./context.js','./explore.js','./site.js','./ground.data.js','./reach.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
+const IN_APP = ['./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./context.js','./explore.js','./site.js','./ground.data.js','./reach.js','./drafting.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', 'knowledge/designon-knowledge.json'];
 const IN_HTML = ['console.css','desks.css','style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 
 for(const lang of ['en','th','zh'])await write(`research/protocol-${lang}.txt`,researchProtocol(lang));
@@ -82,6 +82,19 @@ const solar = stamp(await read('solar.js'), ['./vendor/suncalc.js'], ids);
 await write('solar.js', solar);ids['solar.js']=sha(solar);
 const cityscape = stamp(await read('cityscape.js'), ['./cityscape.data.js'], ids);
 await write('cityscape.js', cityscape);ids['cityscape.js']=sha(cityscape);
+// details.js draws its vocabulary from drafting.js, so it has to be stamped
+// against it. A hand-written stamp is a stamp that rots: edit drafting.js,
+// forget the number, and the page serves a stale drawing — which is exactly the
+// failure this whole stamping apparatus exists to prevent.
+//
+// It goes HERE, before anything that imports it. Rewriting details.js changes
+// its bytes and therefore its hash, so every module stamped earlier against the
+// old hash is left holding a number that was correct the instant it was written
+// and wrong by the time the next line ran. Stamping order is not a style
+// preference here; it is the difference between a stamp that is true and one
+// that merely looks like one.
+const det = stamp(await read('details.js'), ['./drafting.js'], ids);
+await write('details.js', det);ids['details.js']=sha(det);
 const model = stamp(await read('model.js'), ['./geometry.js','./schema.js','./solar.js','./crowns.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js'], ids);
 await write('model.js', model);ids['model.js']=sha(model);
 const manual = stamp(await read('manual.js'), ['./schema.js','./manual-text.js','./model.js'], ids);

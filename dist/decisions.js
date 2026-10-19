@@ -1,7 +1,7 @@
 // A comparison preserves the person’s reference; it does not choose a winner.
-import {evaluate,massingRings,defaults} from './model.js?v=a07152d203';
-import {normalizeBriefInputs} from './brief.js?v=b9ae7da0da';
-import {validateEnvironment} from './environment.js?v=19b4495cb8';
+import {evaluate,massingRings,defaults} from './model.js?v=0c66fed306';
+import {normalizeBriefInputs} from './brief.js?v=f3502a1c05';
+import {validateEnvironment} from './environment.js?v=a9eccb5186';
 export const cleanStudyName=value=>typeof value==='string'?value.replace(/\s+/g,' ').trim().slice(0,80):'';
 export const cleanStudyNote=value=>typeof value==='string'?value.trim().slice(0,1200):'';
 export function parseStudyPackage(text,validState){
