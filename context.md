@@ -197,3 +197,11 @@ Labs, each live and animated, with sources and "cannot claim" lines:
 - Glare (`glare.js`): specular reflection over OSM neighbours, using City of London 2017 reflectance and the 50 h/yr criterion.
 
 Labs receive `changed()` and may patch the design. Each lab has its own CSS file, because the CSP forbids inline styles. The canvas rule is scoped to `.viewport>canvas`; a bare `canvas{}` rule pinned the lab canvases over the page. Next lab candidates are vertical transport, fire evacuation, and embodied carbon / premium for height.
+
+## 2026-10-19 · Lifts and evacuation labs, drawing type floor
+
+- **Lifts** (`lifts.js`): CIBSE up-peak round-trip time (probable stops, highest reversal floor, express runs), interval and handling, Barney/Al-Sharif average wait, sky-lobby shuttles snapped to plant levels, destination dispatch and double-deck options, and shaft area per floor band. A seeded simulation with real car kinematics runs in section. The lab defaults to the typical speed for the rise. The Core desk still sizes every tower at a fixed 1.6 m/s; the lab reproduces it at that speed and prints the difference. Making the Core desk speed height-based is open.
+- **Evacuation** (`fire.js`): SFPE hydraulic model with per-floor queues merging into the stairs, refuge floors by HK B18 or GB 50016 §5.5.23, phased, simultaneous and evacuation-lift strategies, and reduced-mobility occupants. A Pauls hand check sits beside it. An independent check corrected its citations (Pauls ≤15 storeys, HK gross-area basis and the UC6 interval, GB "public buildings" and "preferably", door flow 1.3). The SFPE chapter number and the travel factors remain unverified in print, and the lab says so.
+- **Drawing type:** measured at 1024 px, then lifted to roughly a 10 px floor without collisions. Drafting notes are 7.5 units (8 overlapped in the threshold detail, which the test caught), Walk-in uses sheet units, and the eye-height figure was re-laid.
+- **Brief chart:** the allowance bar is now a dimension line with a labelled allowance tick.
+- **Edge incident:** Cloudflare's CDG edge served a 520 for one stamped `style.css` URL while every other key served the file, which left the page unstyled for Paris visitors. Re-stamping gave it a new key. If a page is ever unstyled for one region, check the failing URL with an extra query parameter before suspecting the code.
