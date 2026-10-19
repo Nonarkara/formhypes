@@ -1,1 +1,74 @@
-/* carbon lab styles. */
+/* Carbon lab. Three text sizes only: 15px heading and verdict, 12px everything
+   that is read, 11px for the sources line and band edges. Hairlines separate;
+   nothing encloses. One accent: the lateral material and this tower. */
+.cb{container-type:inline-size;display:grid;gap:10px;min-width:0;font-size:12px;line-height:1.45;color:var(--ink)}
+.cb-title{margin:0;font-size:var(--m);font-weight:600;letter-spacing:0}
+.cb-sub{margin:6px 0 0;font-size:12px;font-weight:600;padding-top:8px;border-top:1px solid var(--line)}
+.cb-prose{margin:0;max-width:68ch;color:var(--muted)}
+.cb-hint{margin:2px 0 0;max-width:68ch;color:var(--muted)}
+.cb-limits{color:var(--ink)}
+.cb-src{margin:0;font-size:11px;max-width:68ch;color:var(--muted);padding-top:8px;border-top:1px solid var(--line)}
+
+.cb-views{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;background:var(--dark)}
+.cb-canvas{position:static;inset:auto;display:block;width:100%;background:var(--dark);touch-action:auto}
+.cb-elev{height:320px}
+.cb-chart{height:300px}
+@container (min-width:640px){
+ .cb-views{grid-template-columns:minmax(0,2fr) minmax(0,3fr)}
+ .cb-elev,.cb-chart{height:400px}
+}
+
+.cb-run{margin:0;font-family:var(--mono);font-size:var(--m);font-weight:500;font-variant-numeric:tabular-nums}
+.cb-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.cb-verdict{margin:0;font-size:var(--m);max-width:68ch}
+.cb-flag{border-left:3px solid var(--accent);padding-left:8px}
+
+.cb-controls{display:grid;grid-template-columns:minmax(0,1fr);gap:10px 18px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+@container (min-width:640px){.cb-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cb-field{min-width:0}
+.cb-fieldhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.cb-label{font-size:12px;font-weight:500;margin:0}
+.cb-out{font-family:var(--mono);font-size:12px}
+.cb-field input[type=range]{width:100%}
+.cb-seg{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.cb-seg button,.cb-toggle,.cb-apply{font-size:12px;border-radius:0}
+.cb-seg button{flex:1 1 auto;justify-content:center}
+.cb-apply{margin-top:8px}
+.cb-apply:not(:disabled){border-color:var(--accent)}
+.cb-rate{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 0}
+.cb-rate label{color:var(--muted)}
+.cb-rate input{width:7.5em;font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:0;background:transparent;color:var(--ink);padding:3px 6px;text-align:right}
+.cb-rate input:focus-visible,.cb-field input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+.cb-facts{margin:0;display:grid;grid-template-columns:minmax(0,1fr)}
+@container (min-width:640px){.cb-facts{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px}}
+.cb-facts>div{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--line);min-width:0}
+.cb-facts dt{color:var(--muted)}
+.cb-facts dd{margin:0;font-family:var(--mono);text-align:right;overflow-wrap:anywhere}
+
+.cb-ledger{display:grid;grid-template-columns:minmax(0,1fr);gap:8px 18px}
+@container (min-width:640px){.cb-ledger{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cb-group{min-width:0}
+.cb-gname{margin:0 0 2px;color:var(--muted)}
+.cb-row{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr);grid-template-areas:"name track" "val val";gap:2px 10px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}
+.cb-name{grid-area:name}
+.cb-track{grid-area:track;display:block;height:8px;border-left:1px solid var(--ink)}
+.cb-barfill{display:block;height:100%;width:0;background:var(--faint);transition:width .18s ease-out}
+.cb-lat .cb-barfill{background:var(--accent)}
+.cb-val{grid-area:val;font-family:var(--mono);color:var(--muted)}
+
+.cb-scors{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));border-top:1px solid var(--line)}
+.cb-scors li{display:grid;gap:2px;padding:6px 2px 4px;border-right:1px solid var(--line);border-bottom:3px solid transparent;min-width:0;text-align:center}
+.cb-scors li:last-child{border-right:0}
+.cb-band{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.cb-edge{font-family:var(--mono);font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.cb-scors li.cb-on{border-bottom-color:var(--accent)}
+.cb-scors li.cb-on .cb-band{color:var(--ink);font-weight:600}
+
+@media(pointer:coarse){
+ .cb-seg button,.cb-toggle,.cb-apply,.cb-field input[type=range],.cb-rate input{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){.cb *{transition:none}}
+/* Mono has no Thai or CJK glyphs; those languages read in the sans stack. */
+html[lang^="th"] .cb :is(.cb-run,.cb-out,.cb-facts dd,.cb-val,.cb-edge,.cb-rate input),
+html[lang^="zh"] .cb :is(.cb-run,.cb-out,.cb-facts dd,.cb-val,.cb-edge,.cb-rate input){font-family:var(--sans)}

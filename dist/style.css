@@ -11,7 +11,9 @@
  --accent:#f59e0b;--dark:#111416;--dim:#a2aca9;
  --s:12px;--m:15px;
  --sans:'IBM Plex Sans','IBM Plex Sans Thai','Noto Sans SC',Arial,sans-serif;
- --mono:'IBM Plex Mono',ui-monospace,monospace;
+ /* Plex Mono has no Thai or CJK glyphs; without these fallbacks a Thai label
+    set in mono drops to whatever system face the OS picks, often a looped one. */
+ --mono:'IBM Plex Mono','IBM Plex Sans Thai','Noto Sans SC',ui-monospace,monospace;
  /* Measured, not guessed: app.js writes the real header + masthead height
     into this custom property, because the masthead wraps differently in Thai
     and in Chinese and a hard-coded number overflows the viewport in both. */
