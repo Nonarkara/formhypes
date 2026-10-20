@@ -14,6 +14,7 @@ test('the bare address opens the manual; every deep link skips it',()=>{
  assert.equal(entryTab('?regime=yield&objective=contribution',''),'studio');
  assert.equal(entryTab('?reading=value',''),'research');
  assert.equal(entryTab('','#ws-wind'),'studio');
+ assert.equal(entryTab('?utm_source=line&fbclid=x',''),'manual','tracking parameters still land on the manual');
 });
 
 test('the index lists every studio workspace exactly once',()=>{

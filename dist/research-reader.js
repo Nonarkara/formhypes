@@ -20,9 +20,11 @@ export function entryTab(search='',hash=''){
  const h=String(hash??'').replace(/^#/,'');
  if((q.has('reading')||q.has('chapter'))&&h!=='research') return 'research';
  if(h==='research'||h==='manual')return h;
- // The bare address opens the assembly instructions; any hash or query is a
- // deep link into the studio and skips them.
- if(!h&&!String(search).replace(/^\?/,''))return 'manual';
+ // The bare address opens the assembly instructions. A hash, or a query the
+ // studio itself reads, is a deep link and skips them; tracking parameters
+ // (utm_*, fbclid, …) on a shared link do not, so it still lands on the manual.
+ const STUDIO_PARAMS=['regime','objective','run'];
+ if(!h&&!STUDIO_PARAMS.some(k=>q.has(k)))return 'manual';
  return 'studio';
 }
 export function syncPathLabels(root=typeof document==='undefined'?null:document){

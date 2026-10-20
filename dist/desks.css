@@ -7,7 +7,7 @@
 #briefDesk .br-lede{margin:0 0 4px;font-size:12px;color:var(--muted);max-width:74ch}
 #briefDesk .br-sec{margin:0;padding:13px 0 4px;border-top:1px solid var(--line)}
 #briefDesk .br-sec:first-of-type{border-top:0}
-#briefDesk .br-sec>h4{margin:0 0 9px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+#briefDesk .br-sec>h4{margin:0 0 9px;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
 #briefDesk .br-fields{display:flex;flex-wrap:wrap;align-items:center;gap:7px 16px;margin:0 0 9px}
 #briefDesk .br-fields label{font-size:11px;color:var(--muted)}
 #briefDesk input[type=number]{width:104px;font:inherit;font-family:var(--mono);font-size:12px;padding:2px 4px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
@@ -17,7 +17,7 @@
 #briefDesk .br-ledger{width:100%;margin:0 0 9px;border-collapse:collapse;table-layout:fixed;font-size:12px}
 #briefDesk .br-ledger th{overflow-wrap:anywhere;text-align:left;font-weight:400;vertical-align:top;padding:2px 16px 2px 0;color:var(--muted)}
 #briefDesk .br-ledger td{text-align:right;vertical-align:top;padding:2px 0;font-family:var(--mono);white-space:normal;overflow-wrap:anywhere}
-#briefDesk .br-ledger thead th{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--line);padding-bottom:4px}
+#briefDesk .br-ledger thead th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--line);padding-bottom:4px}
 #briefDesk .br-cur{color:var(--accent);font-weight:600}
 #briefDesk .br-flag{color:var(--accent);font-weight:600}
 #briefDesk .br-rule{display:block;width:min(100%,360px);height:auto;margin:2px 0 9px;color:var(--ink)}
@@ -32,7 +32,7 @@
 #briefDesk .br-opt{margin:8px 0 0;font-size:11.5px;color:var(--muted)}
 #briefDesk .br-sac{margin:5px 0 0;padding-top:5px;border-top:1px dotted var(--line);font-size:11.5px}
 #briefDesk .br-note{margin:0 0 9px;font-size:11px;color:var(--muted);max-width:78ch}
-#briefDesk .br-tag{display:inline-block;margin:5px 0 0;font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--accent);border:1px solid var(--accent);padding:0 4px}
+#briefDesk .br-tag{display:inline-block;margin:5px 0 0;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--accent);border:1px solid var(--accent);padding:0 4px}
 #briefDesk .br-read{font-size:11px;color:var(--muted);margin:0 0 9px}
 #briefDesk details{margin:0 0 9px}
 #briefDesk summary{font-size:11px;color:var(--muted);cursor:pointer}
@@ -52,7 +52,7 @@
 .wk-figwrap svg{display:block;width:100%;height:auto;background:var(--dark)}
 .wk-cap{font:400 11px/1.6 var(--mono);color:var(--muted);padding:6px 0 0}
 .wk-key{display:grid;grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);gap:1px 10px;margin:8px 0 0;font:400 11px/1.5 var(--sans);color:var(--muted)}
-.wk-key b{font:400 10px/1.7 var(--mono);color:var(--accent)}
+.wk-key b{font:400 11px/1.7 var(--mono);color:var(--accent)}
 .wk-key i{overflow-wrap:anywhere;font-style:normal;font-family:var(--mono)}
 .wk-ctl{display:grid;grid-template-columns:minmax(80px,1fr) minmax(80px,2fr) auto;gap:6px 10px;align-items:center;margin:12px 0}
 .wk-ctl label,.wk-ctl output{font:400 11px/1.4 var(--sans);color:var(--muted)}
@@ -112,13 +112,13 @@
 .cx-warn{font-size:12px;line-height:1.5;border-left:2px solid var(--accent);padding:2px 0 2px 10px;margin:0 0 8px}
 .cx-fig{margin:0}
 .cx-fig svg{display:block;width:100%;height:auto;background:var(--dark)}
-.cx-legend{display:flex;flex-wrap:wrap;gap:3px 14px;margin:6px 0 0;padding:0;list-style:none;font-size:10.5px;color:var(--muted)}
+.cx-legend{display:flex;flex-wrap:wrap;gap:3px 14px;margin:6px 0 0;padding:0;list-style:none;font-size:11px;color:var(--muted)}
 .cx-legend i{display:inline-block;width:13px;height:9px;margin-right:5px;vertical-align:-1px}
 .cx-strips{margin-top:12px}
 .cx-strip{display:flex;align-items:center;gap:10px;margin:2px 0}
 .cx-strip-holder{width:392px;max-width:62vw}
 .cx-strip svg{display:block;width:100%;height:auto;background:var(--dark)}
-.cx-strip figcaption{font-family:var(--mono);font-size:10px;color:var(--muted);min-width:104px;text-align:right}
+.cx-strip figcaption{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:104px;text-align:right}
 .cx-strips .cx-strip svg{max-width:392px}
 table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:11.5px}
 .cx-table caption{text-align:left;font-family:var(--sans);font-size:11px;color:var(--muted);padding:0 0 4px}
@@ -137,9 +137,9 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 .cx-shadow{fill:var(--accent);fill-opacity:.24;stroke:none}
 .cx-bar-nb{fill:var(--panel);stroke:var(--dim);stroke-width:1}
 .cx-bar-model{fill:var(--accent)}
-.cx-t{fill:var(--dim);font-family:var(--mono);font-size:9px}
-.cx-t-d{fill:var(--dim);font-family:var(--mono);font-size:10px}
-.cx-t-a{fill:var(--accent);font-family:var(--mono);font-size:9.5px;font-weight:600}
+.cx-t{fill:var(--dim);font-family:var(--mono);font-size:11px}
+.cx-t-d{fill:var(--dim);font-family:var(--mono);font-size:11px}
+.cx-t-a{fill:var(--accent);font-family:var(--mono);font-size:11px;font-weight:600}
 .cx-t-n{fill:var(--dim);font-family:var(--mono);font-size:12px;font-weight:700}
 .cx-line{stroke:var(--accent);stroke-width:1.5}
 .cx-strip-frame{fill:none;stroke:var(--line);stroke-width:1}
@@ -168,7 +168,7 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 .lx-band{border:1px solid var(--accent);border-left-width:3px;background:var(--panel);padding:14px 18px 13px;margin:0 0 12px;display:block}
 /* Role 7 — a label, not a headline. It was 11px uppercase amber, which made it
    compete with the sentence it labels. */
-.lx-head h3{margin:0 0 5px;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.lx-head h3{margin:0 0 5px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);font-weight:600}
 /* Role 1 — the claim. The only large thing in the band, and the first thing
    read. Nothing else is allowed to be bigger than 15px. */
 .lx-head p{margin:0;max-width:50ch;font-size:22px;line-height:1.26;font-weight:500;letter-spacing:-.012em;color:var(--ink)}
@@ -194,9 +194,9 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 /* Role 6 — provenance. Demoted to the bottom, on a hairline, with no underline
    until the pointer is on it: a field of underlined links reads as content. */
 .lx-meta{margin:14px 0 0;padding-top:10px;border-top:1px solid var(--line)}
-.lx-assume{margin:0;font-size:10px;line-height:1.55;color:var(--dim);max-width:96ch}
-.lx-band h4{margin:9px 0 3px;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);font-weight:600}
-.lx-src{margin:0;padding:0;list-style:none;font-size:9.5px;line-height:1.6;color:var(--dim)}
+.lx-assume{margin:0;font-size:11px;line-height:1.55;color:var(--dim);max-width:96ch}
+.lx-band h4{margin:9px 0 3px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.lx-src{margin:0;padding:0;list-style:none;font-size:11px;line-height:1.6;color:var(--dim)}
 .lx-src li{margin:0}
 .lx-src a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line)}
 .lx-src a:hover,.lx-src a:focus-visible{color:var(--accent);border-bottom-color:var(--accent)}
@@ -205,7 +205,7 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 /* The stand-here desk. Same discipline as the lens band: one drawing, one
    reading order, nothing stretched. The landscape is the drawing and it is
    dark; the numbers sit beside it on the panel, not on top of it. */
-.st-head h3{margin:0 0 4px;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.st-head h3{margin:0 0 4px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);font-weight:600}
 .st-head p{margin:0 0 12px;max-width:62ch;font-size:19px;line-height:1.4;color:var(--ink)}
 /* THE DRAWING IS FLUID, AND THE NUMBERS ARE AN INSTRUMENT BESIDE IT — NOT A
    CAPTION UNDER IT.
@@ -250,7 +250,7 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 .st-sky{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:12px;min-width:0}
 .st-sky p{margin:0;max-width:54ch;font-size:12px;line-height:1.55;color:var(--muted)}
 .sx-s{font:9.5px var(--mono);fill:var(--muted)}
-.st-source{margin:12px 0 0;font-size:9.5px;line-height:1.6;color:var(--faint)}
+.st-source{margin:12px 0 0;font-size:11px;line-height:1.6;color:var(--faint)}
 .st-warn{border:1px solid var(--accent);border-left-width:3px;padding:10px 14px;margin:0 0 12px}
 .st-warn p{margin:0;font-size:13px;line-height:1.5;color:var(--ink)}
 /* WHICH LAYOUT APPLIES IS A QUESTION ABOUT THE PANEL, NOT THE WINDOW.
@@ -326,7 +326,7 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
    Chinese or a wide table push a column past its share of the sheet. Both
    columns opt out, so the luopan keeps half the width in every language. */
 #fengshuiDesk .feng-pane,#fengshuiDesk .feng-side{min-width:0}
-#fengshuiDesk h3{margin:18px 0 3px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+#fengshuiDesk h3{margin:18px 0 3px;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
 #fengshuiDesk .feng-side>h3:first-of-type{margin-top:0}
 #fengshuiDesk .feng-ctl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;align-items:center;margin:0 0 16px}
 #fengshuiDesk .feng-ctl label{font:400 11px/1.4 var(--sans);color:var(--muted)}
@@ -350,10 +350,10 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
    row is a single 1px line. The home palace's amber rule is the only colour
    on the row — a filled slab outshouts the luopan it is supposed to read. */
 #fengshuiDesk .feng-table{width:100%;border-collapse:collapse;font-size:12px}
-#fengshuiDesk .feng-table th{font:600 9.5px/1.6 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);text-align:left;border-bottom:1px solid var(--line);padding:0 8px 4px 4px;white-space:nowrap;font-weight:500}
+#fengshuiDesk .feng-table th{font:600 11px/1.6 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);text-align:left;border-bottom:1px solid var(--line);padding:0 8px 4px 4px;white-space:nowrap;font-weight:500}
 #fengshuiDesk .feng-table td{padding:4px 8px 4px 4px;border-bottom:1px solid var(--line);border-left:2px solid transparent;vertical-align:top}
 #fengshuiDesk .feng-table td b{font:500 12.5px/1.35 var(--sans);color:var(--ink)}
-#fengshuiDesk .feng-table td span{display:block;font:400 9.5px/1.4 var(--mono);color:var(--faint);margin-top:2px}
+#fengshuiDesk .feng-table td span{display:block;font:400 11px/1.4 var(--mono);color:var(--faint);margin-top:2px}
 #fengshuiDesk .feng-table tr.is-home td{border-left-color:var(--accent)}
 #fengshuiDesk .feng-table tr.is-home td b{color:var(--accent)}
 /* the bottom strip became the right-column source block; see feng-srcbox */
@@ -392,7 +392,7 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 /* Sources and study note, here instead of a bottom strip — the strip was the
    dead zone under the right column. A hairline closes the right column. */
 #fengshuiDesk .feng-srcbox{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
-#fengshuiDesk .feng-src{margin:0 0 8px;padding-left:18px;font:400 10.5px/1.55 var(--sans);color:var(--faint)}
+#fengshuiDesk .feng-src{margin:0 0 8px;padding-left:18px;font:400 11px/1.55 var(--sans);color:var(--faint)}
 #fengshuiDesk .feng-src li{margin-bottom:2px}
 #fengshuiDesk .feng-srcbox .note.strong{font:400 12px/1.55 var(--sans);color:var(--ink);margin:0;max-width:80ch}
-#fengshuiDesk .feng-measure{margin:0 0 4px;font:400 10.5px/1.5 var(--mono);color:var(--faint)}
+#fengshuiDesk .feng-measure{margin:0 0 4px;font:400 11px/1.5 var(--mono);color:var(--faint)}

@@ -127,7 +127,7 @@ body.is-console .form-atlas svg{height:22px;width:22px;margin:0}
     reappear the moment the scheme breaches — which is the same page jump this
     rule exists to remove, one element further down. */
  .console-site-note,.console-site-note.console-flag{display:none}
- .console-capacity,.console-capacity.console-flag{display:inline;font-size:10.5px;line-height:20px;color:var(--muted);border-left:0;padding-left:0}
+ .console-capacity,.console-capacity.console-flag{display:inline;font-size:11px;line-height:20px;color:var(--muted);border-left:0;padding-left:0}
  .console-capacity.console-flag{color:var(--ink);border-left:2px solid var(--accent);padding-left:6px}
 }
 @media(max-width:430px){.console-field select{width:112px}.console-field input{width:70px}.console-site{gap:4px 10px}.console-nav{gap:16px}}
@@ -165,7 +165,7 @@ body.is-console [hidden]{display:none!important}
     the cut-off last label is the signifier that there is more. */
  .console-nav{gap:2px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;flex-wrap:nowrap}
  .console-nav::-webkit-scrollbar{display:none}
- .console-nav .wt{font-size:10px;letter-spacing:.02em;white-space:nowrap}
+ .console-nav .wt{font-size:11px;letter-spacing:.02em;white-space:nowrap}
  .console-nav button{min-height:44px;min-width:52px;padding:2px 6px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex:none;scroll-snap-align:start}
  /* The area figure stands alone in the phone header, so it carries its name. */
  .console-capacity::before{content:attr(data-short) ' '}
