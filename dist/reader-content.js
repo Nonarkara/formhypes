@@ -14,7 +14,7 @@ export const ARTIFACTS=[
  {src:'research/artifacts/chen-fig76-detail.png?v=1e451cdc68',figure:76,page:94,alt:'One tower from Chen’s original Figure 76, with generated massing and facade details.'}
 ];
 export const READER={
- en:{nav:['The thesis','The mechanism','The economics','The city','Before the thesis','What he left open'],previous:'Previous',next:'Next',page:'Page',source:'Sources & reading trail',newDiagram:'Explanatory diagram · FormHypes, 2026',original:'Original thesis excerpt · © Shouheng Chen, 2006',fig:'Fig.',p:'p.',open:'Open original MIT record',archive:'Extended studies, diagrams & photographs',archiveNote:'These longer studies are supplementary interpretations and live model experiments. Their monetary assumptions are scenarios; none establishes code compliance or market value.',
+ en:{nav:['The thesis','The mechanism','The economics','The city','Before the thesis','What he left open','The work this is for'],previous:'Previous',next:'Next',page:'Page',source:'Sources & reading trail',newDiagram:'Explanatory diagram · FormHypes, 2026',original:'Original thesis excerpt · © Shouheng Chen, 2006',fig:'Fig.',p:'p.',open:'Open original MIT record',archive:'Extended studies, diagrams & photographs',archiveNote:'These longer studies are supplementary interpretations and live model experiments. Their monetary assumptions are scenarios; none establishes code compliance or market value.',
  pages:[
  {title:'2006: put the knowledge inside the tool.',stand:'Thesis findings · Chen, chapters 3–6',paras:[
  'Chen’s question was practical: can an architect encode the recurring decisions behind a skyscraper, then reuse them without drawing every component again? He studied HKIFC, Petronas, Cira and Hearst. Their massing rules and façade details became reusable procedures, rather than a collection of finished pictures. [chen]',
@@ -34,7 +34,7 @@ export const READER={
  'Local ground conditions add another test. Bangkok’s basin research identifies long-period amplification; a city label cannot specify a parcel’s soil profile or a tower’s capacity. Use the location desk for sources and a mechanics experiment, then commission site investigation and structural analysis. [ground] [peer]',
  'Culture is a design conversation, not a national taste score. Feng Shui offers a useful provocation about orientation and relationships, with different schools and practices. Our playground invents site arrangements; it does not certify auspiciousness. Ask local occupants and stakeholders which meanings the proposed form carries. [feng]'],diagram:'city',labels:['Owner · income','Occupant · comfort','Neighbour · access','City · infrastructure','Ground · site evidence','Community · meaning'],caption:'2006 → 2007 → 2008 → 2026: Chen’s computational methods; Dr Non’s MIT thesis; his Shanghai urbanism paper; this product by Dr Non at depa + Axiom. The synthesis belongs to FormHypes.'}
  ]},
- th:{nav:['วิทยานิพนธ์','กลไก','เศรษฐศาสตร์','เมือง','ก่อนวิทยานิพนธ์','สิ่งที่เขาทิ้งไว้'],previous:'ก่อนหน้า',next:'ถัดไป',page:'หน้า',source:'แหล่งอ้างอิงและเส้นทางการอ่าน',newDiagram:'แผนภาพอธิบาย · FormHypes, 2026',original:'ภาพจากวิทยานิพนธ์ต้นฉบับ · © Shouheng Chen, 2006',fig:'ภาพที่',p:'หน้า',open:'เปิดระเบียนต้นฉบับที่ MIT',archive:'บทศึกษาเพิ่มเติม แผนภาพ และภาพถ่าย',archiveNote:'บทศึกษาขนาดยาวเป็นการตีความและการทดลองกับโมเดล สมมติฐานทางการเงินเป็นสถานการณ์ทดลอง ไม่ยืนยันการผ่านกฎหมายหรือมูลค่าตลาด',
+ th:{nav:['วิทยานิพนธ์','กลไก','เศรษฐศาสตร์','เมือง','ก่อนวิทยานิพนธ์','สิ่งที่เขาทิ้งไว้','งานที่เครื่องมือชุดนี้ช่วย'],previous:'ก่อนหน้า',next:'ถัดไป',page:'หน้า',source:'แหล่งอ้างอิงและเส้นทางการอ่าน',newDiagram:'แผนภาพอธิบาย · FormHypes, 2026',original:'ภาพจากวิทยานิพนธ์ต้นฉบับ · © Shouheng Chen, 2006',fig:'ภาพที่',p:'หน้า',open:'เปิดระเบียนต้นฉบับที่ MIT',archive:'บทศึกษาเพิ่มเติม แผนภาพ และภาพถ่าย',archiveNote:'บทศึกษาขนาดยาวเป็นการตีความและการทดลองกับโมเดล สมมติฐานทางการเงินเป็นสถานการณ์ทดลอง ไม่ยืนยันการผ่านกฎหมายหรือมูลค่าตลาด',
  pages:[
  {title:'2006: ใส่ความรู้ไว้ในเครื่องมือ',stand:'ข้อค้นพบในวิทยานิพนธ์ · Chen บทที่ 3–6',paras:[
  'Chen ถามว่า สถาปนิกจะเข้ารหัสการตัดสินใจที่เกิดซ้ำในการออกแบบตึกสูง แล้วนำกลับมาใช้โดยไม่ต้องวาดทุกชิ้นใหม่ได้หรือไม่ เขาศึกษา HKIFC, Petronas, Cira และ Hearst แล้วแปลงกฎรูปทรงกับรายละเอียดเปลือกอาคารเป็นขั้นตอนที่ใช้ซ้ำได้ [chen]',
@@ -54,7 +54,7 @@ export const READER={
  'สภาพดินเป็นอีกการทดสอบ งานวิจัยแอ่งกรุงเทพฯ พบการขยายคลื่นคาบยาว แต่ชื่อเมืองไม่ได้บอกชั้นดินรายแปลงหรือกำลังรับแรงของตึก ใช้โต๊ะศึกษาทำเลอ่านหลักฐานและทดลองกลศาสตร์ ก่อนสำรวจดินและวิเคราะห์โครงสร้างจริง [ground] [peer]',
  'วัฒนธรรมเป็นบทสนทนา ไม่ใช่คะแนนรสนิยมประจำชาติ ฮวงจุ้ยชวนคิดเรื่องทิศและความสัมพันธ์ แต่มีหลายสำนักและหลายวิธี สนามทดลองของเราจัดฉากพื้นที่สมมติ ไม่รับรองความเป็นมงคล ต้องถามผู้ใช้งานและผู้เกี่ยวข้องในท้องถิ่นว่ารูปทรงนั้นสื่ออะไร [feng]'],diagram:'city',labels:['เจ้าของ · รายได้','ผู้ใช้ · ความสบาย','เพื่อนบ้าน · การเข้าถึง','เมือง · โครงสร้างพื้นฐาน','พื้นดิน · หลักฐาน','ชุมชน · ความหมาย'],caption:'2006 → 2007 → 2008 → 2026: วิธีคำนวณของ Chen วิทยานิพนธ์ MIT ของ ดร.นน บทความเซี่ยงไฮ้ และผลิตภัณฑ์นี้โดย ดร.นน ที่ depa + Axiom บทสังเคราะห์เป็นของ FormHypes'}
  ]},
- zh:{nav:['论文','机制','经济','城市','论文之前','他留下的空白'],previous:'上一页',next:'下一页',page:'页',source:'参考文献与阅读路径',newDiagram:'解释性图解 · FormHypes，2026',original:'论文原图节选 · © Shouheng Chen，2006',fig:'图',p:'页',open:'打开 MIT 原始记录',archive:'延伸研究、图解与照片',archiveNote:'长篇研究是补充解释与实时模型实验。货币假设属于情景，不构成规范合规或市场估值。',
+ zh:{nav:['论文','机制','经济','城市','论文之前','他留下的空白','这套工具为了什么'],previous:'上一页',next:'下一页',page:'页',source:'参考文献与阅读路径',newDiagram:'解释性图解 · FormHypes，2026',original:'论文原图节选 · © Shouheng Chen，2006',fig:'图',p:'页',open:'打开 MIT 原始记录',archive:'延伸研究、图解与照片',archiveNote:'长篇研究是补充解释与实时模型实验。货币假设属于情景，不构成规范合规或市场估值。',
  pages:[
  {title:'2006：把知识放进工具。',stand:'论文发现 · Chen 第三至六章',paras:[
  'Chen 的问题很实际：建筑师能否把摩天楼设计中反复出现的决策编码，以后不必逐件重画？他研究了 HKIFC、Petronas、Cira 和 Hearst，把体量规则与立面细节变成可复用的程序，而非一组完成图。[chen]',
@@ -161,6 +161,58 @@ const GAPS_PAGE={
  ],caption:'引文出自 2006 年论文第 6.2 节。三个方框复述他所列的缺口，标记记录 2026 年的扩展对每一项做了什么、没做什么。作图与算术不等于认证。'}
 };
 for(const l of ['en','th','zh'])READER[l].pages.push(GAPS_PAGE[l]);
+
+/* Page seven: what the desks are for.
+
+   The first six pages answer where the method came from, how it worked, what
+   it costs, what the city adds, and what it could not do. None of them says
+   plainly which design questions these desks exist to move earlier — which is
+   the question a reader actually arrives with, and the one the bar cannot
+   answer because a bar has sixteen labels and not one of them is a verb.
+
+   So this page names six questions, says which desk answers each one, and
+   puts the boundary on the same line as the answer. The status marks in the
+   drawing are the same statement without words: a filled bar where a desk
+   answers, an open bracket where a desk names the question and stops. */
+const WORK_PAGE={
+ en:{title:'The work this is for.',stand:'Six questions · what each desk answers, and the line it stops at',paras:[
+ 'These desks exist because of one habit. In practice the expensive questions about a tower arrive late — after the form has been settled, after the area has been committed, after the structure has been drawn. A shape that is cheap to make and expensive to run still gets made. A tower that empties slowly gets designed first and checked afterwards. Each desk here is one of those questions asked early, against the same geometry, with the number printed where an argument can have it.',
+ 'They share one model. Move the span and the lift count, the embodied carbon, the glare and the site context all move with it, because they read the same plan rather than a copy of it. That is the whole point of the arrangement. A form cannot be settled on one question and have the other answers quietly assumed, so the sixteen desks are sixteen readings of one building rather than sixteen buildings.',
+ 'None of them settles anything, and the drawing above says so before this paragraph does. Every desk prints the line it will not cross: a lift count is screening, not a traffic study; a period is not a drift check; a beam exposure is not a daylight assessment; an embodied figure is not a whole-life appraisal; a measured site ring is not a survey. What the group buys is timing. The question reaches the conversation while the shape is still cheap to move, instead of after the shape has been defended.'],
+  diagram:'work',labels:[
+  'Getting people up — Lifts: zones, cars and the interval between them at the morning peak. Screening for a plausible number, not a traffic study.',
+  'Getting people out — Fire: stairs, refuge levels and evacuation time, phase by phase. Arithmetic on the model, not a code check.',
+  'Standing up without swaying — Wind: slenderness, first-mode period and where vortex lock-in starts. Analytic, never a wind tunnel.',
+  'Keeping it dry and supplied — Water: roof tank, booster and storm drainage against the storm. Not connection or drainage design.',
+  'Not dazzling anyone — Glare: beam exposure swept round each façade through a real day at a real latitude. Not a daylight assessment.',
+  'Paying for its own envelope — Carbon: embodied carbon by stage, and where the cost actually sits. Not a whole-life or a financial appraisal.'],
+  caption:'The six questions, in the order a designer meets them. A filled amber bar marks the two a desk answers; an open bracket marks the four it names and draws a line against. Desk names are the workspace keys on the bar. The grouping is this project\'s, not a survey of practice.'},
+ th:{title:'งานที่เครื่องมือชุดนี้ช่วย',stand:'หกคำถาม · แต่ละโต๊ะตอบอะไร และหยุดที่เส้นไหน',paras:[
+ 'ที่มาของโต๊ะเหล่านี้คือนิสัยหนึ่งอย่าง ในทางปฏิบัติ คำถามที่แพงที่สุดเกี่ยวกับตึกมักมาช้า หลังรูปทรงถูกกำหนดแล้ว หลังพื้นที่ถูกผูกไว้แล้ว หลังโครงสร้างถูกวาดเสร็จแล้ว รูปทรงที่ผลิตได้ถูกแต่ใช้แพงยังถูกผลิตจริง ตึกที่ระบายคนได้ช้าถูกออกแบบก่อนแล้วค่อยตรวจทีหลัง แต่ละโต๊ะที่นี่คือคำถามหนึ่งข้อที่ถามเร็ว โดยใช้เรขาคณิตชุดเดียวกัน และพิมพ์ตัวเลขออกมาให้โต้แย้งกันได้',
+ 'ทุกโต๊ะใช้โมเดลเดียวกัน เมื่อเปลี่ยนความกว้าง จำนวนลิฟต์ คาร์บอนแฝง การสะท้อนแสง และบริบทของที่ดินจะขยับตามไปด้วย เพราะทุกอย่างอ่านผังเดียวกัน ไม่ใช่สำเนา นี่คือเหตุผลทั้งหมดของการจัดวาง เพราะรูปทรงไม่อาจถูกตัดสินใจด้วยคำถามข้อเดียวแล้วปล่อยให้คำตอบอื่นถูกคิดแทนไปเงียบ ๆ สิบหกโต๊ะจึงเป็นการอ่านอาคารเดียวสิบหกครั้ง ไม่ใช่สิบหกอาคาร',
+ 'ไม่มีโต๊ะใดปิดคำถามได้ และภาพด้านบนบอกไว้ก่อนย่อหน้านี้แล้ว ทุกโต๊ะพิมพ์เส้นที่มันไม่ข้าม จำนวนลิฟต์เป็นการคัดกรอง ไม่ใช่การศึกษาการจราจร คาบความถี่ไม่ใช่การตรวจการเคลื่อนที่ ปริมาณแสงที่สะท้อนไม่ใช่การประเมินแสงสว่าง ตัวเลขคาร์บอนฝังไม่ใช่การประเมินตลอดอายุ วงที่วัดได้ไม่ใช่การสำรวจที่ดิน สิ่งที่กลุ่มนี้ซื้อคือเวลา คำถามได้เข้ามาในการสนทนาตอนที่รูปทรงยังถูกแก้ได้ถูก ไม่ใช่หลังจากรูปทรงถูกต่อรองมาแล้ว'],
+  diagram:'work',labels:[
+  'การขึ้นไปด้านบน — ลิฟต์: โซน จำนวนตู้ และช่วงห่างในชั่วโมงเร่งด่วนเช้า เป็นการคัดกรองเพื่อหาตัวเลขที่สมเหตุสมผล ไม่ใช่การศึกษาการจราจร',
+  'การออกด้านล่าง — อัคคีภัย: บันได ชั้นหลบ และเวลาถ่ายเทตาย คิดจากโมเดลเป็นช่วง ๆ ไม่ใช่การตรวจตามกฎหมาย',
+  'ยืนได้โดยไม่แกว่ง — ลม: ความเพรียว คาบโหมดแรก และจุดเริ่มล็อกอินวอร์เท็กซ์ เป็นการวิเคราะห์ ไม่ใช่อุโยงลม',
+  'แห้งและมีน้ำใช้ — น้ำ: ถังบนดาดฟ้า ปั๊มส่งน้ำ และการระบายน้ำฝนเทียบกับพายุ ไม่ใช่งานออกแบบการเชื่อมต่อหรือระบายน้ำ',
+  'ไม่ทำให้ใครตาบอด — แสงสะท้อน: ปริมาณแสงที่สะท้อนรอบแต่ละด้านตลอดวันจริงที่ละติจูดจริง ไม่ใช่การประเมินแสงสว่าง',
+  'จ่ายค่าของเปลือกตัวเอง — คาร์บอน: คาร์บอนฝังแยกตามขั้นตอน และต้นทุนอยู่ที่ไหนจริง ไม่ใช่การประเมินตลอดอายุหรือการเงิน'],
+  caption:'หกคำถาม เรียงตามลำดับที่สถาปนิกพบ แถบสีเหลืองอุดเต็มหมายถึงสองข้อที่โต๊ะตอบได้ วงเหลี่ยมเปิดหมายถึงสี่ข้อที่โต๊ะเอ่ยถึงแล้วลากเส้น ชื่อโต๊ะคือคีย์พื้นที่ทำงานบนแถบ การจัดกลุ่มนี้เป็นของโครงการนี้ ไม่ใช่ผลสำรวจของวงการ'},
+ zh:{title:'这套工具是为了什么工作。',stand:'六个问题 · 每个工作台回答什么，以及它停在哪一条线',paras:[
+ '这些工作台之所以存在，是因为一个习惯。实践中，关于一座塔最昂贵的问题总是来得太晚——在体量落定之后，在面积被锁定之后，在结构画完之后。一个造价低而运营贵的形状照样会被造出来；一座疏散缓慢的塔先被设计，再被检查。这里每一个工作台，就是把其中一个问题提前提出，对着同一套几何，把数字印在可以争论的地方。',
+ '它们共用一个模型。改变跨度，电梯数量、隐含碳、眩光与场地背景都会跟着动，因为它们读的是同一张平面，而不是它的副本。这正是这套编排的全部理由：一个形状不能只凭一个问题定案，再让其他答案被默认掉。所以十六个工作台是对同一栋楼的十六次阅读，而不是十六栋楼。',
+ '它们没有一个能定案，上面的图在写这段话之前就说明了。每个工作台都印出它不会越过的那条线：电梯台数是筛查，不是交通研究；周期不是位移校核；受照量不是采光评估；隐含碳数字不是全生命周期评价；实测环不是场地测绘。这一组工具买到的是时机——问题在形状还容易改动的时候进入对话，而不是在形状已经被辩护过之后。'],
+  diagram:'work',labels:[
+  '把人送上去 — 电梯：分区、台数与早高峰间隔。用于筛查出合理数字，不是交通研究。',
+  '把人带出来 — 消防：楼梯、避难层与分阶段疏散时间。按模型算术，不是规范校核。',
+  '站得住而不晃 — 风：长细比、第一阶周期与涡激振动起始位置。是分析，不是风洞。',
+  '不进水、供得上 — 水：屋面水箱、变频供水与暴雨排水对比。不是给排水连接设计。',
+  '不让谁眩光 — 眩光：按真实纬度与真实日期扫过每一面幕墙的受照量。不是采光评估。',
+  '自己付得起外壳的钱 — 碳：分阶段隐含碳，以及成本实际落在哪里。不是全生命周期评价，也不是财务评价。'],
+  caption:'六个问题，按设计师遇到的顺序排列。琥珀色实心条表示该工作台确实回答的问题；开口括号表示它提出问题并划定界限。工作台名称对应顶部栏的工作区键。这一分组属于本项目，不是对行业实践的调查。'}
+};
+for(const l of ['en','th','zh'])READER[l].pages.push(WORK_PAGE[l]);
 
 SOURCES.push(
  {id:'trinity',author:'Trinity Church Boston',year:'1877 / archive',title:'Art and Architecture; parish history',where:'Own architectural history and consecration record; Boston, 9 February 1877',url:'https://trinitychurchboston.org/art-and-architecture/'},

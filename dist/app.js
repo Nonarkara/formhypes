@@ -22,7 +22,7 @@ import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=deb2864e7f';
 import {coreScene} from './core3d.js?v=702aed5396';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy as getFengPlayStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=6b68f7f4e6';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=b0ce49e843';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.

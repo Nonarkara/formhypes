@@ -1,6 +1,6 @@
 // Three short reading paths. Thesis quotations are image excerpts; prose is a
 // new interpretation. Locators refer to printed pages of Chen's 2006 thesis.
-import {SOURCES,ARTIFACTS} from './reader-content.js?v=7e2203cd00';
+import {SOURCES,ARTIFACTS} from './reader-content.js?v=ba530f000e';
 export const RESEARCH_SOURCES=[...SOURCES,
  {id:'agency',author:'Non Arkaraprasertkul',year:'2016',title:'Gentrification from within: urban social change as anthropological process',where:'Asian Anthropology · author manuscript / abstract',url:'https://doi.org/10.1080/1683478X.2016.1158227'},
  {id:'carbon',author:'RICS',year:'2023',title:'Whole life carbon assessment for the built environment, 2nd edition',where:'Professional standard · methodology reference only',url:'https://www.rics.org/profession-standards/rics-standards-and-guidance/sector-standards/construction-standards/whole-life-carbon-assessment'}

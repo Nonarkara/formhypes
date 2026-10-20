@@ -1,4 +1,4 @@
-import {READER,SOURCES,ARTIFACTS} from './reader-content.js?v=7e2203cd00';
+import {READER,SOURCES,ARTIFACTS} from './reader-content.js?v=ba530f000e';
 let current=0;
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
 function diagram(kind,labels){
@@ -37,6 +37,58 @@ function diagram(kind,labels){
   d+=`<path d="M30 140H570" ${line}/>`;
   d+=`<text x="30" y="158" font-size="9" fill="currentColor" opacity=".6">2006 · Chapter 6.2</text>`;
   d+=`<text x="570" y="158" text-anchor="end" font-size="9" fill="currentColor" opacity=".6">2026 · this instrument</text>`;
+  wrap.innerHTML=shell(d);
+ }
+ if(kind==='work'){
+  // The six questions, in the order a designer meets them. Each glyph is a 44x44
+  // schematic of the thing itself, and above it a status mark: a filled amber bar
+  // where the desk actually answers the question, an open bracket where the desk
+  // names it and draws the line. The two marks are the argument — a tool that
+  // could close all six would be claiming six certifications, and this project
+  // makes none of them.
+  const F='fill="none" stroke="currentColor"';
+  const G=[
+   // a shaft and a car: the question is how many, and how long between
+   `<g ${F} stroke-width="1.4"><rect x="6" y="2" width="32" height="40"/></g>
+    <path d="M16 2V42M28 2V42" ${F} stroke-width="1" opacity=".55"/>
+    <rect x="17" y="22" width="10" height="10" fill="#f59e0b"/>
+    <path d="M22 42V35" stroke="currentColor" stroke-width="1.4"/>`,
+   // a stair going down and out: the question is how long to empty
+   `<g ${F} stroke-width="1.3"><rect x="2" y="2" width="40" height="40"/></g>
+    <path d="M10 30h8v-8h8v-8h8" ${F} stroke-width="1.6"/>
+    <path d="M14 10v14M10 14l4 4 4-4" ${F} stroke-width="1.5"/>`,
+   // a tower with the wind going round it: the question is sway, not strength
+   `<g ${F} stroke-width="1.3"><rect x="17" y="6" width="10" height="34"/></g>
+    <path d="M4 16c6-7 12 7 20 0M40 26c-6 7-12-7-20 0" ${F} stroke-width="1.5"/>
+    <path d="M4 12l2 4-4 2M40 30l-2-4 4-2" ${F} stroke-width="1.2"/>`,
+   // a tank, a pump and a drain: the question is whether it stays dry
+   `<g ${F} stroke-width="1.3"><rect x="7" y="5" width="16" height="14"/></g>
+    <path d="M15 19v8h10v13" ${F} stroke-width="1.5"/>
+    <rect x="25" y="14" width="9" height="9" ${F} stroke-width="1.2"/>
+    <path d="M6 40h32" ${F} stroke-width="1.6"/>`,
+   // a facade with the sun on one face: the question is who gets dazzled
+   `<g ${F} stroke-width="1.3"><rect x="15" y="3" width="20" height="38"/></g>
+    <path d="M15 12h20M15 21h20M15 30h20" ${F} stroke-width="1" opacity=".6"/>
+    <circle cx="7" cy="11" r="4" fill="#f59e0b"/>
+    <path d="M3 11H0M11 11h3M7 7V4M7 15v3" ${F} stroke-width="1.2"/>`,
+   // stacked stages: the question is what the shape costs before it is built
+   `<g ${F} stroke-width="1.3"><rect x="4" y="28" width="16" height="14"/></g>
+    <rect x="4" y="18" width="26" height="9" ${F} stroke-width="1.2"/>
+    <rect x="4" y="8" width="34" height="9" fill="#f59e0b" fill-opacity=".85"/>
+    <path d="M2 42h40" ${F} stroke-width="1.6"/>`];
+  const pitch=100;
+  let d='';
+  G.forEach((glyph,i)=>{
+   const x=50+i*pitch;
+   // status: a filled bar answers; an open bracket names it and stops there.
+   if(i<2)d+=`<rect x="${x-16}" y="34" width="32" height="5" fill="#f59e0b"/>`;
+   else d+=`<path d="M${x-16} 40v-6h32v6" fill="none" stroke="currentColor" stroke-width="1.5"/>`;
+   d+=`<g transform="translate(${x-22},52)">${glyph}</g>`;
+   d+=`<path d="M${x-24} 102H${x+24}" stroke="currentColor" stroke-width="1" opacity=".35"/>`;
+   d+=`<circle cx="${x}" cy="102" r="10" fill="var(--panel)" stroke="currentColor"/>`;
+   d+=`<text x="${x}" y="106" text-anchor="middle" font-size="10" fill="currentColor">${i+1}</text>`;
+  });
+  d+=`<path d="M50 102H550" stroke="currentColor" stroke-width="1" opacity=".2"/>`;
   wrap.innerHTML=shell(d);
  }
  if(kind==='timeline'){

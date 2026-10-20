@@ -54,7 +54,7 @@ test('Feng Shui geometry is an angular relationship, not a rent multiplier',()=>
 });
 test('guided reader has six substantial, fully translated pages and every citation resolves',()=>{
  for(const lang of ['en','th','zh']){
-  assert.equal(READER[lang].pages.length,6);assert.equal(READER[lang].nav.length,6);
+  assert.equal(READER[lang].pages.length,7);assert.equal(READER[lang].nav.length,7);
   for(const p of READER[lang].pages){assert.ok(p.paras.length>=3);assert.ok(p.title&&p.caption&&p.labels.length>=3);
    for(const text of p.paras)for(const [,id]of text.matchAll(/\[([a-z]+)\]/g))assert.ok(SOURCES.some(s=>s.id===id),id);
   }
@@ -549,4 +549,43 @@ test('the level schedule keeps every storey, garden or not',()=>{
   assert.ok(Math.abs(withG.reduce((a,l)=>a+l.h,0)-plain.reduce((a,l)=>a+l.h,0))<1e-9,
    `${g} changed the building height`);
  }
+});
+
+test('the reader says what the desks are for, and puts each boundary on the same line as its answer',()=>{
+ // The bar has sixteen labels and not one of them is a verb, so the reader has
+ // to answer "what is this for" in words — and every answer has to carry the
+ // line it does not cross, in the same breath, or the page reads as marketing.
+ for(const lang of ['en','th','zh']){
+  const w=READER[lang].pages.find(p=>p.diagram==='work');
+  assert.ok(w,lang+' is missing the what-this-is-for page');
+  assert.equal(w.labels.length,6,lang+': six questions, one per drawn glyph');
+  assert.equal(w.paras.length,3);
+  // Every question names the desk that answers it and the limit it stops at.
+  // Threshold scales with script density: Chinese carries the same answer and the
+  // same boundary in about half the characters English needs. A flat 60 could
+  // only be satisfied by padding one script, which is the same mis-calibration
+  // the desk render floor had.
+  const MIN={en:60,th:50,zh:26}[lang];
+  for(let i=0;i<w.labels.length;i++){
+   const l=w.labels[i];
+   assert.ok(l.length>MIN,`${lang} label ${i} is too thin to carry an answer and a boundary (${l.length})`);
+   assert.match(l,/—|,|·|：|:|:/,`${lang} label ${i} does not separate the desk from the limit`);
+  }
+  // The boundary vocabulary must be present in every language, in its own script.
+  const LIMIT={en:/screening|not a |never /i,th:/ไม่ใช่|เป็นการคัดกรอง/,zh:/不是|是筛查/};
+  assert.match(w.labels.join(' '),LIMIT[lang],lang+': no label states a limit');
+ }
+ // English specifically: the six questions, and the two/四 split the drawing shows.
+ const we=READER.en.pages.find(p=>p.diagram==='work');
+ for(const q of ['Lifts','Fire','Wind','Water','Glare','Carbon'])
+  assert.ok(we.labels.some(l=>l.includes(q)),`the ${q} desk is not named on the purpose page`);
+ assert.match(we.paras[2],/screening|not a |never /i,'page 7 does not say what the group does not do');
+ assert.match(we.paras[1],/one model|sixteen readings/,'page 7 does not say the desks share one model');
+ // The drawing must mark exactly two as answered and four as bounded: a tool
+ // that closed all six would be claiming six certifications.
+ const rjs=dist('reader.js');
+ const block=rjs.slice(rjs.indexOf("kind==='work'"),rjs.indexOf("kind==='timeline'"));
+ assert.equal((block.match(/fill="#f59e0b"\/>`/g)||[]).length,1,'the work diagram must fill exactly one status bar per glyph');
+ assert.equal((block.match(/i<2/g)||[]).length,1,'the answered/bounded split must be a single rule');
+ assert.ok(block.includes('v-6h32v6'),'the bounded glyph must draw an open bracket, not a bar');
 });
