@@ -19,7 +19,11 @@ export function entryTab(search='',hash=''){
  const q=new URLSearchParams(String(search).replace(/^\?/,''));
  const h=String(hash??'').replace(/^#/,'');
  if((q.has('reading')||q.has('chapter'))&&h!=='research') return 'research';
- return h==='research'?'research':'studio';
+ if(h==='research'||h==='manual')return h;
+ // The bare address opens the assembly instructions; any hash or query is a
+ // deep link into the studio and skips them.
+ if(!h&&!String(search).replace(/^\?/,''))return 'manual';
+ return 'studio';
 }
 export function syncPathLabels(root=typeof document==='undefined'?null:document){
  if(!root?.querySelectorAll) return;

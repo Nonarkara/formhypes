@@ -1,0 +1,119 @@
+/* Assembly instructions — the landing page, drawn as a flat-pack manual.
+   White sheets on the studio's paper, black line drawings, three type sizes
+   (display for the cover and step numbers, 14 px body, 11 px labels), one
+   amber mark on the last step. No shadows, no radius, no gradients. */
+#assembly{display:none}
+body[data-tab="manual"]{background:var(--paper)}
+body[data-tab="manual"]>header,body[data-tab="manual"]>main{display:none}
+body[data-tab="manual"] #assembly{display:block}
+
+.am-book{max-width:1180px;margin:0 auto;padding:16px;display:grid;grid-template-columns:minmax(0,1fr);gap:16px;color:#111;font-family:var(--sans)}
+.am-page{background:#fff;border:1px solid var(--line);padding:24px 20px 12px;display:flex;flex-direction:column;gap:18px;min-width:0;container-type:inline-size}
+.am-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:baseline;font:400 11px/1 var(--mono);color:var(--muted);padding-top:10px}
+.am-pn{font-weight:600;color:#111}
+.am-h{font:700 32px/1.05 var(--sans);letter-spacing:-.01em;margin:0}
+.am-sub{font:600 14px/1.3 var(--sans);margin:0}
+.am-sub b{font-family:var(--mono);font-weight:500}
+
+/* drawing ink */
+.am-line{fill:none;stroke:#111;stroke-width:1.3;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.am-thin{fill:none;stroke:#111;stroke-width:.55;vector-effect:non-scaling-stroke}
+.am-solid{fill:#111}
+.am-x{stroke:#111;stroke-width:3;vector-effect:non-scaling-stroke}
+.am-arrow{width:40px;height:16px;flex:none}
+.am-glyph{width:28px;height:28px;display:block;color:#111}
+.am-glyph.am-big{width:36px;height:36px}
+
+/* 1 · cover */
+.am-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.am-langs{display:flex;gap:2px}
+.am-langs button{border:1px solid transparent;background:none;font:600 11px/1 var(--mono);padding:8px 10px;color:var(--muted);cursor:pointer}
+.am-langs button.on{color:#111;border-color:#111}
+.am-skip{font:500 14px/1.2 var(--sans);color:#111;text-underline-offset:3px}
+.am-title{font:800 min(104px,15cqi)/.9 var(--sans);letter-spacing:-.02em;margin:8px 0 0}
+.am-cover-art{display:flex;justify-content:center;align-items:flex-end;gap:12%;flex:1}
+.am-cover-art .am-tw{height:min(340px,70cqi);width:auto}
+.am-credit{font:400 11px/1.5 var(--mono);color:#111;margin:0;max-width:52ch}
+.am-credit b{font-weight:600}
+
+/* 2 · before you start */
+.am-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.am-tools>svg{width:150px;height:auto;flex:none}
+.am-toolcap{margin:0;font:400 11px/1.3 var(--mono)}
+.am-tools>svg{width:200px}
+.am-panels{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.am-panel{border:1.5px solid #111;padding:10px;display:flex;align-items:center;gap:10px;color:#111;text-decoration:none}
+.am-panel svg{width:120px;height:auto;flex:none}
+.am-panel p{margin:0;font:500 14px/1.35 var(--sans)}
+a.am-panel:hover p,a.am-panel:focus-visible p{text-decoration:underline}
+
+/* 3 · parts */
+.am-plans{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:8px 6px}
+.am-desks{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:12px 6px}
+.am-part{margin:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.am-part svg{width:64px;height:64px}
+.am-desk svg{width:30px;height:30px}
+.am-part figcaption{font:400 11px/1.25 var(--mono);text-align:center}
+
+/* 4–5 · steps */
+.am-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:22px 18px}
+.am-step{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;align-items:baseline}
+.am-step-n{font:700 32px/1 var(--sans)}
+.am-step-t{font:600 14px/1.3 var(--sans);margin:0}
+.am-art{grid-column:1/-1;display:flex;align-items:flex-end;justify-content:center;gap:10px;flex-wrap:wrap;min-height:0}
+/* Every drawing in a step is set to one height by kind, so a sequence reads as
+   one row with its arrow, never a tower that wraps away from it. */
+.am-art .am-tw{height:170px;width:auto;flex:none}
+.am-art .am-pl{height:96px;width:auto;flex:none}
+.am-art .am-arrow{align-self:center}
+.am-note{flex-basis:100%;text-align:center;font:400 11px/1.3 var(--mono)}
+.am-test{align-items:center}
+.am-test .am-tw{height:190px}
+.am-ring{display:grid;grid-template-columns:repeat(2,minmax(0,auto));gap:10px 16px}
+.am-ring span{display:flex;align-items:center;gap:6px}
+.am-ring i{font:400 11px/1.2 var(--mono);font-style:normal}
+.am-value{flex-direction:column;align-items:stretch;gap:12px}
+.am-value>div:first-child{display:flex;flex-direction:column;gap:2px}
+.am-k{font:400 11px/1.3 var(--mono)}
+.am-value strong{font:700 32px/1.05 var(--mono);letter-spacing:-.02em}
+.am-warn{display:flex;align-items:center;gap:10px;border:1.5px solid #111;padding:8px 10px;font:500 14px/1.3 var(--sans)}
+.am-warn svg{width:24px;height:22px;flex:none}
+.am-shelf{display:flex;align-items:center;gap:6px;font:700 32px/1 var(--sans)}
+.am-shelf i{font-style:normal}
+.am-enter{flex-direction:column;align-items:flex-start}
+.am-enter svg{width:150px;max-width:60%}
+.am-go{background:var(--accent);color:#111;border:0;font:700 14px/1 var(--sans);padding:14px 22px;min-height:48px;cursor:pointer;letter-spacing:.01em}
+.am-go:focus-visible,.am-idx-i:focus-visible,.am-skip:focus-visible,.am-langs button:focus-visible{outline:2px solid #111;outline-offset:2px}
+
+/* 6 · index */
+.am-idx{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.am-idx-g h3{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;margin:0 0 8px;padding-bottom:6px;border-bottom:1.5px solid #111}
+.am-idx-row{display:flex;flex-wrap:wrap;gap:4px 14px}
+.am-idx-i{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:#111;text-decoration:none;font:500 14px/1.2 var(--sans)}
+.am-idx-i:hover span{text-decoration:underline;text-underline-offset:3px}
+
+@media(pointer:coarse){.am-langs button{min-height:44px;min-width:44px}.am-skip{display:inline-flex;align-items:center;min-height:44px}}
+@media(min-width:560px){
+ .am-panels{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .am-panel{flex-direction:column;align-items:flex-start}
+ .am-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .am-idx{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* A laptop reads the booklet as spreads: two pages side by side. */
+@media(min-width:900px){
+ .am-book{grid-template-columns:repeat(2,minmax(0,1fr));gap:0;padding:28px 24px}
+ .am-page{padding:32px 30px 14px}
+ .am-page:nth-child(even){border-left:0}
+ .am-page:nth-child(n+3){border-top:0}
+}
+@media(prefers-reduced-motion:no-preference){.am-go{transition:transform .12s ease-out}.am-go:active{transform:scale(.97)}}
+.am-step:nth-child(4n+3) .am-art .am-tw{height:140px} /* three towers side by side in step 7 */
+.am-value{align-items:stretch}
+.am-value .am-note{text-align:left}
+.am-colophon{margin-top:8px;display:flex;flex-direction:column;align-items:flex-start;gap:14px;border-top:1.5px solid #111;padding-top:14px}
+.am-colophon p{margin:0;font:400 14px/1.5 var(--sans);max-width:62ch}
+
+/* 404: the missing part, in the manual's own grammar. */
+.am-404{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;background:var(--paper)}
+.am-404 .am-page{max-width:520px;width:100%}
+.am-404 svg{width:220px;height:auto}

@@ -26,7 +26,7 @@ export const WORKSPACES=['form','brief','core','lifts','fire','wind','water','gl
    the sheet is drawn: 20-unit box, 1.2 stroke, no fill, no radius. The label
    stays in the accessibility tree and in the hover title, in all three
    languages — a glyph that cannot be named is a glyph that cannot be found. */
-const WORK_GLYPHS={
+export const WORK_GLYPHS={
  // cruciform plan with its core: the form the model is currently on
  form:'<path d="M7.5 2h5v5.5H18v5h-5.5V18h-5v-5.5H2v-5h5.5z"/><rect x="8.5" y="8.5" width="3" height="3"/>',
  // a brief: sheet, plot square, and the headroom left at the top

@@ -137,7 +137,7 @@ test('2026-10-15 audit: inherited names, stale search, unknown hashes and failed
  assert.match(dist('research-reader.js'),/Object\.hasOwn\(regimes,/);assert.match(app,/Object\.hasOwn\(objectives,/);
  assert.match(app,/own\(regimes,x\.regime\)/);
  assert.match(app,/function changed\(\)\{\n searchToken\+\+/);
- assert.match(app,/showTab\(h==='research'\?h:'studio',false\)/);assert.match(app,/entryTab\(location\.search,location\.hash\)/);
+ assert.match(app,/showTab\(h==='research'\|\|h==='manual'\?h:\(h\?'studio':'manual'\),false\)/); // unknown hash -> studio, empty -> manualassert.match(app,/entryTab\(location\.search,location\.hash\)/);
  assert.match(app,/if\(!persist\(\)\)\{studies\.pop\(\);toast\(tt\('s\.saveFail'\)\)/);
  assert.match(app,/filter\(x=>x&&validState\(x\.state\)\)/);
 });

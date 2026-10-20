@@ -1,8 +1,9 @@
 import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=a3cb54129b';
 import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=25b035f7b8';
 import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=1f07292d4e';
+import {renderAssembly} from './assembly.js?v=b62be0c583';
 import {renderStructure} from './structure.js?v=5c4abd9e39';
-import {mountConsole} from './console.js?v=75f5daf9a7';
+import {mountConsole} from './console.js?v=262eeff3f4';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=4d4eb35fb5';
@@ -21,7 +22,7 @@ import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=deb2864e7f';
 import {coreScene} from './core3d.js?v=702aed5396';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy as getFengPlayStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=ad3557ea73';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=05fc0c3589';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
@@ -35,7 +36,7 @@ import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=8d66bc0eff';
-import {WORKSPACES} from './console.js?v=75f5daf9a7';
+import {WORKSPACES} from './console.js?v=262eeff3f4';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -119,6 +120,7 @@ function setLang(l){
  for(const id of ['reset','save','export'])$(id).setAttribute('aria-label',tt(id));
  buildLangButtons();buildSelectors();buildRanges();sync();
  renderResearch();renderMethod();renderStudies();renderDecisionStudy();
+ if(document.body.dataset.tab==='manual')renderAssemblyPage();
  update();
  // The search result is DOM built from tt(), so it has to be redrawn when tt()
  // changes. Redraw, never re-run: the numbers are language-independent and
@@ -2644,8 +2646,17 @@ $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
 // The hash is the tab, so a link to #research is a link to the research and a
 // screenshot of it can be taken without driving the UI. Reading params win over
 // a stale #studio hash: that combination is a research link.
+/* ── the assembly instructions (landing) ─────────────────────────────── */
+function renderAssemblyPage(){
+ renderAssembly({host:$('assembly'),lang,langs,langLabel:l=>langMeta[l].label,
+  onLang:l=>setLang(l),
+  // Entering pushes a history entry, so Back returns to the manual.
+  onEnter:()=>{location.hash='studio'},
+  onWorkspace:k=>{location.hash='ws-'+k}});
+}
 function showTab(t,push=true,behavior='smooth'){
- if(t!=='studio'&&t!=='research')t='studio';
+ if(t!=='studio'&&t!=='research'&&t!=='manual')t='studio';
+ if(t==='manual')renderAssemblyPage();
  document.body.dataset.tab=t;
  document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id===t));
  document.querySelectorAll('[data-tab]').forEach(x=>{
@@ -2666,6 +2677,7 @@ function showTab(t,push=true,behavior='smooth'){
 }
 function openFromLocation(behavior='auto'){
  const tab=entryTab(location.search,location.hash);
+ if(location.hash.startsWith('#ws-')){showTab('studio',false,behavior);consoleUI?.show(location.hash.slice(4));return}
  const q=new URLSearchParams(location.search);
  if((q.has('reading')||q.has('chapter'))&&tab==='research'&&location.hash!=='#research'){
   const url=new URL(location.href);url.hash='research';history.replaceState(null,'',url);
@@ -2687,7 +2699,12 @@ document.querySelector('.tabs').addEventListener('click',e=>{
  e.preventDefault();
  showTab(link.dataset.tab);
 });
-addEventListener('hashchange',()=>{const h=location.hash.slice(1);showTab(h==='research'?h:'studio',false)});
+addEventListener('hashchange',()=>{
+ const h=location.hash.slice(1);
+ // #ws-wind opens the studio on that workspace (the manual's index links here).
+ if(h.startsWith('ws-')){showTab('studio',false);consoleUI?.show(h.slice(3));return}
+ showTab(h==='research'||h==='manual'?h:(h?'studio':'manual'),false);
+});
 // Delegated so the binding survives any later markup change in the rail.
 document.addEventListener('click',e=>{
  if(e.target.closest('#search'))runSearch();
