@@ -224,3 +224,27 @@ Labs receive `changed()` and may patch the design. Each lab has its own CSS file
 The Core desk's round trip now uses CIBSE's split: travel per floor is h/v, and acceleration plus door time is charged once per stop. The old version charged v/a on every floor, which doubled the round trip at about 6 m/s.
 
 The default 48-storey tower now has 3 zones × 5 cars at 6.5 m/s with a 16.8 s interval (it was 18 cars at 1.6 m/s). The Lifts lab reproduces the Core desk's round trip from the t_v and t_s that `liftDesign` returns. The earlier open item ("Core desk fixed 1.6 m/s") is closed.
+
+## 2026-10-20 · Front door: assembly instructions; audit of the audit
+
+**Landing.** The bare address opens `assembly.js` / `assembly.css`, a flat-pack manual in the IKEA instruction grammar:
+- cover, tools and ✕/✓/? panels, a parts list (11 plans, 16 desks), eight steps, and an index;
+- every tower and plan drawn by the model's own `profile()`, projected axonometrically with back faces removed;
+- amber only on Enter, EN/TH/ZH, two-page spreads from 900 px wide and stacked pages below that.
+
+**Routing.**
+- `#studio`, `#research`, `?regime`/`objective`/`run` and `?reading`/`chapter` skip the manual.
+- `#ws-<key>` opens a workspace, Back returns to the manual, and the wordmark links to `#manual`.
+- Tracking parameters (utm, fbclid) still land on the manual.
+
+**Review.** An independent reviewer on a different model audited the landing, and its findings were fixed: a balance instead of a KPI, terse captions, matched ✕/✓/? panels, Thai wording and leading, and 44 px targets. The studio's 64 sub-11 px font rules were raised to 11 px. `404.html` now answers unknown paths with a 404 instead of the SPA's 200. A test syntax-checks every `dist` module; a duplicate `renderManual` declaration once shipped with all tests green.
+
+**Audit of the 2026-10-19 shipability report.**
+- False: the lift speed rule is about rise/30 s, not √(0.5·H); 38 commits had landed since e8a9237, not 35; there are 16 workspaces, not 15; `width: fit-content` covers only two elements; the "headless CDP audit" has no committed script.
+- True: 459 tests, 20/20 mutation probes (they cover the older modules only), gitleaks clean, security headers in place.
+
+**Open.**
+- PR #3 (Cursor, per-level quantity schedule, 726 lines) is unreviewed and unmerged.
+- The `cursor/shdt-minimax-finish` branch looks superseded.
+- 25 old Pages preview deployments could not be deleted: the API refuses aliased ones and the OAuth token can't force it.
+- `SHDT/.scratch` (26 MB) and `_archive` sit outside the repo.
