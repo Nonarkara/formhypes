@@ -7,6 +7,7 @@ import {planLibrary,polyArea,polyPerimeter} from '../dist/geometry.js';
 import {cantileverPeriod,quarterWavePeriod,LC} from '../dist/location.js';
 import {angularGap,PROMPTS,PLAY} from '../dist/play.js';
 import {READER,SOURCES,ARTIFACTS} from '../dist/reader-content.js';
+import {renderReader} from '../dist/reader.js';
 import {t} from '../dist/i18n.js';
 import {solarDefaults,solarPosition,cities,facadeExposure} from '../dist/solar.js';
 import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,CROWN_RATES,crownMetrics,gardenIndices} from '../dist/crowns.js';
@@ -52,9 +53,9 @@ test('Feng Shui geometry is an angular relationship, not a rent multiplier',()=>
  near(angularGap(0,360),0);near(angularGap(355,5),10);near(angularGap(180,0),180);
  assert.match(dist('play.js'),/No effect on rent/);assert.doesNotMatch(dist('model.js'),/feng|suitability/i);
 });
-test('guided reader has six substantial, fully translated pages and every citation resolves',()=>{
+test('guided reader has eight substantial, fully translated pages and every citation resolves',()=>{
  for(const lang of ['en','th','zh']){
-  assert.equal(READER[lang].pages.length,7);assert.equal(READER[lang].nav.length,7);
+  assert.equal(READER[lang].pages.length,8);assert.equal(READER[lang].nav.length,8);
   for(const p of READER[lang].pages){assert.ok(p.paras.length>=3);assert.ok(p.title&&p.caption&&p.labels.length>=3);
    for(const text of p.paras)for(const [,id]of text.matchAll(/\[([a-z]+)\]/g))assert.ok(SOURCES.some(s=>s.id===id),id);
   }
@@ -588,4 +589,114 @@ test('the reader says what the desks are for, and puts each boundary on the same
  assert.equal((block.match(/fill="#f59e0b"\/>`/g)||[]).length,1,'the work diagram must fill exactly one status bar per glyph');
  assert.equal((block.match(/i<2/g)||[]).length,1,'the answered/bounded split must be a single rule');
  assert.ok(block.includes('v-6h32v6'),'the bounded glyph must draw an open bracket, not a bar');
+});
+
+/* ── the reader, rendered ───────────────────────────────────────────────────
+   A DOM stub just big enough for the reader, and a helper that renders a page
+   and hands back the SVG it actually emitted.
+
+   The point is that the page-eight guard measures the DRAWING rather than
+   matching reader.js as text. A page that says "the readings go back into the
+   shape" and then draws a straight line is a page that lies, and only the
+   emitted markup can tell the difference. */
+function stubNode(tag){
+  const n={tagName:String(tag||'').toUpperCase(),childNodes:[],attrs:{},style:{},_t:'',_h:'',
+    className:'',id:'',htmlFor:'',type:'',value:'',tabIndex:-1,
+    classList:{add(){},remove(){},toggle(){},contains(){return false}},
+    querySelector(sel){const t=String(sel).toUpperCase();for(const c of walk(this))if(c.tagName===t)return c;return null},closest(){return null},focus(){},click(){},scrollIntoView(){},
+    appendChild(c){this.childNodes.push(c);return c},
+    get children(){return this.childNodes},
+    append(...cs){for(const c of cs)this.childNodes.push(c)},
+    replaceChildren(){this.childNodes=[]},
+    contains(){return false},
+    setAttribute(k,v){this.attrs[k]=v},
+    getAttribute(k){return this.attrs[k]},
+    addEventListener(){},removeEventListener(){},
+    get textContent(){return this._t+this.childNodes.map(c=>c.textContent).join('')},
+    set textContent(v){this._t=String(v);this.childNodes=[]},
+    get innerHTML(){return this._h},
+    set innerHTML(v){this._h=String(v)}};
+  return n;
+}
+const walk=(n,out=[])=>{for(const c of (n.childNodes||[])){out.push(c);walk(c,out)}return out};
+/* Render the reader and return the SVG markup emitted for the page whose
+   diagram kind is `kind`. The page is selected by what it IS, not by its
+   position: the nav button is matched on the page's own title, so inserting a
+   page later cannot silently re-point this guard at the wrong drawing. */
+function readerSVG(lang,kind){
+  const host=stubNode('div');
+  const real=globalThis.document;
+  globalThis.document={
+    createElement:t=>stubNode(t),
+    createElementNS:(ns,t)=>stubNode(t),
+    createTextNode:t=>{const n=stubNode('#text');n.textContent=t;return n},
+    getElementById:()=>null};
+  try{
+    renderReader(lang,host);
+    const nav=host.childNodes[0];
+    // nav[i] and pages[i] are the same page -- renderReader's own button handler
+    // sets current=i -- so the page's own index is the button to press. The page
+    // is still located by what it IS (its diagram kind), never by a fixed
+    // position, so inserting a page later cannot re-point this at the wrong one.
+    const idx=READER[lang].pages.findIndex(p=>p.diagram===kind);
+    assert.ok(idx>=0,`the ${lang} reader has no ${kind} page`);
+    const btn=nav.childNodes[idx];
+    assert.ok(btn&&btn.onclick,`the ${lang} nav has no button for the ${kind} page`);
+    btn.onclick();
+    const fig=walk(host).find(n=>n.className==='reader-diagram');
+    assert.ok(fig,`the ${lang} ${kind} page emitted no diagram`);
+    return fig.childNodes[0].innerHTML;
+  } finally{globalThis.document=real}
+}
+
+test('the reader says why working this way is worth it, and the drawing is a loop',()=>{
+ // Page seven answers "what is this for". Page eight owes the reader the next
+ // question, which is the one that decides whether any of it gets used: what
+ // does this cost me? Three claims, and none of them is about the building's
+ // economics — page three covered that, and it is a different subject.
+ for(const lang of ['en','th','zh']){
+  const w=READER[lang].pages.find(p=>p.diagram==='loop');
+  assert.ok(w,lang+' is missing the why-this-way page');
+  assert.equal(w.labels.length,6,lang+': six desks, one per drawn glyph');
+  assert.equal(w.paras.length,3,lang+': three claims');
+ }
+ const we=READER.en.pages.find(p=>p.diagram==='loop');
+ assert.match(we.paras[0],/when you ask it/i,'page 8 does not say a question costs what it costs depending on WHEN');
+ assert.match(we.paras[1],/answers back|wrong about/i,'page 8 does not say the model answers back');
+ assert.match(we.paras[2],/know the building/i,'page 8 does not say you come to know the building');
+ for(const q of ['Lifts','Fire','Wind','Water','Glare','Carbon'])
+  assert.ok(we.labels.some(l=>l.includes(q)),`the ${q} desk is not named on the loop page`);
+ // The Thai and Chinese have to carry the same three claims in their own script.
+ assert.match(READER.th.pages.find(p=>p.diagram==='loop').paras[0],/เมื่อไร/,'the Thai page does not say WHEN');
+ assert.match(READER.th.pages.find(p=>p.diagram==='loop').paras[1],/ตอบกลับมา/,'the Thai page does not say the model answers back');
+ assert.match(READER.zh.pages.find(p=>p.diagram==='loop').paras[0],/什么时候问/,'the Chinese page does not say WHEN');
+ assert.match(READER.zh.pages.find(p=>p.diagram==='loop').paras[1],/回答你/,'the Chinese page does not say the model answers back');
+
+ // The drawing is the argument, so measure it.
+ const svg=readerSVG('en','loop');
+ assert.ok(svg.includes('<svg'),'the loop page drew no svg');
+ assert.equal((svg.match(/<g transform="translate/g)||[]).length,6,'the loop must draw the six desks');
+ assert.ok(svg.includes('stroke="#f59e0b" stroke-width="2"'),'the loop has no amber return path');
+ // The return path must actually RETURN: it starts at the last desk on the
+ // right and ends back at the tower on the left, travelling leftwards.
+ const m=/d="M(\d+) ([\d.]+)V([\d.]+)H(\d+)V([\d.]+)"[^>]*stroke="#f59e0b"/.exec(svg);
+ assert.ok(m,'the amber path does not run back along the bottom');
+ assert.ok(+m[4]<+m[1],'the return path does not travel back towards the shape');
+ assert.ok(+m[3]>+m[2],'the return path does not drop below the spine before travelling back');
+ // The shape is drawn on the LEFT of the desks, and its width is dimensioned
+ // but not numbered — the width is still open, which is why the questions are
+ // still cheap to ask.
+ const tower=svg.indexOf('<rect x="34"');
+ assert.ok(tower>=0,'the loop draws no tower');
+ assert.ok(tower<svg.indexOf('<g transform="translate'),'the tower must come before the desks, not after them');
+ assert.ok(/M30 32H78/.test(svg),'the open width dimension is missing');
+ // Every text on the sheet is a desk number and nothing else. If the open
+ // dimension had been given a number, this list would be longer than six.
+ const texts=[...svg.matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map(x=>x[1]);
+ assert.deepEqual(texts,['1','2','3','4','5','6'],'the loop sheet must carry the six desk numbers and nothing else');
+ // The same six glyphs as the page before, so a reader recognises them.
+ const work=readerSVG('en','work');
+ assert.equal((work.match(/<g transform="translate/g)||[]).length,6,'the work page must draw six desks too');
+ assert.equal((svg.match(/<g transform="translate/g)||[]).length,(work.match(/<g transform="translate/g)||[]).length,
+  'the loop and the work page must show the same number of desks');
 });

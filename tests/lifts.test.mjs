@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {defaults,evaluate} from '../dist/model.js';
 import {liftDesign,CORE_METHOD} from '../dist/core.js';
 import {flightTime,travelPos,probableStops,highestReversal,rttFormula,groupRTT,shuttleRTT,awtCibse,sizeGroup,
- liftPlan,waitCurve,waitCurveDelta,skyCandidates,simulate,createSim,stepSim,simStats,timeScale,shaftArea,LIFTS_TEXT,LIFT_ASSUME,renderLiftsLab} from '../dist/lifts.js';
+ liftPlan,waitCurve,waitCurveDelta,skyCandidates,simulate,createSim,stepSim,simStats,timeScale,shaftArea,LIFTS_TEXT,LIFT_ASSUME,renderLiftsLab,
+ liftsMethodSVG,liftsMethodPayload} from '../dist/lifts.js';
 
 const near=(a,b,e=1e-6)=>assert.ok(Math.abs(a-b)<=e,`${a} != ${b}`);
 
@@ -170,4 +171,252 @@ test('renderer never throws without a DOM',()=>{
  assert.doesNotThrow(()=>renderLiftsLab({host:{},state:defaults,lang:'xx',active:true}));
  assert.doesNotThrow(()=>renderLiftsLab({host:{},state:defaults,active:false}));
  assert.equal(LIFT_ASSUME.intervalMax,30);
+});
+
+/* ── the method, drawn ──────────────────────────────────────────────────────
+   The paragraph that explained the round trip time was replaced by a drawing.
+   These guards read the EMITTED SHEET, not the source: a drawing that has
+   quietly drifted from the arithmetic looks perfectly fine on screen, and the
+   only thing that catches it is a number read back off the paper and compared
+   with the number the lab computed. */
+
+/* The notes on a sheet, with their wrapped lines joined back together. A note
+   that wraps is still ONE note, and the resolver lays it out as one. */
+function sheetNotes(svg){
+ const raw=[...svg.matchAll(
+  /<text x="([-\d.]+)" y="([-\d.]+)"[^>]*font-size="([\d.]+)"[^>]*text-anchor="(\w+)"[^>]*>([^<]*)<\/text>/g)]
+  .map(m=>({x:+m[1],y:+m[2],size:+m[3],anchor:m[4],s:m[5]}));
+ const groups=new Map();
+ for(const r of raw){
+  const k=`${r.x}|${r.size}|${r.anchor}`;
+  if(!groups.has(k))groups.set(k,[]);
+  groups.get(k).push(r);
+ }
+ return [...groups.values()].flatMap(g=>{
+  g.sort((a,b)=>a.y-b.y);
+  // A note's lines are set one line-height apart. Two DIFFERENT notes can
+  // share an x — the title and the figure below it both start at the same
+  // margin — so the pitch, not the x, is what says which lines belong
+  // together.
+  const runs=[];let cur=[g[0]];
+  for(let i=1;i<g.length;i++){
+   if(Math.abs((g[i].y-g[i-1].y)-g[i-1].size*1.2)<0.01)cur.push(g[i]);
+   else{runs.push(cur);cur=[g[i]]}
+  }
+  runs.push(cur);
+  return runs.map(run=>({x:run[0].x,y:run[0].y,size:run[0].size,anchor:run[0].anchor,
+   lines:run.map(r=>r.s),text:run.map(r=>r.s).join(' ')}));
+ });
+}
+/* The bar's three segments: the only group of three rectangles that share a
+   top and a bottom edge. Read back off the markup, so a drawing that stops
+   drawing the bar cannot pass. */
+function barSegments(svg){
+ const rects=[...svg.matchAll(/<path d="M([-\d.]+) ([-\d.]+) H([-\d.]+) V([-\d.]+) H[-\d.]+ Z"/g)]
+  .map(m=>({x0:+m[1],y0:+m[2],x1:+m[3],y1:+m[4]}));
+ const groups=new Map();
+ for(const r of rects){
+  const k=r.y0+'|'+r.y1;
+  if(!groups.has(k))groups.set(k,[]);
+  groups.get(k).push(r);
+ }
+ let best=null;
+ for(const g of groups.values()){
+  if(g.length!==3)continue;
+  const w=g.reduce((a,b)=>a+(b.x1-b.x0),0);
+  if(!best||w>best.w)best={w,g};
+ }
+ return best?best.g.sort((a,b)=>a.x0-b.x0).map(r=>r.x1-r.x0):[];
+}
+/* Where a note sits on the sheet: the box its text actually occupies. A note
+   that wraps is as wide as its longest line and as tall as all of them. */
+const noteBox=n=>{
+ const w=Math.max(...n.lines.map(l=>[...l].length*n.size*.6));
+ const x=n.anchor==='middle'?n.x-w/2:n.anchor==='end'?n.x-w:n.x;
+ return {x0:x,x1:x+w,top:n.y-0.75*n.size,
+  bot:n.y+(n.lines.length-1)*n.size*1.2+0.25*n.size};
+};
+
+const SHEET_PLANS=[{},{speed:5},{speed:5,zones:4},{speed:5,sky:true},{speed:5,dd:true},{speed:5,dispatch:'destination'}];
+
+test('the method sheet states the numbers the lab actually computed',()=>{
+ const m=evaluate(defaults);
+ for(const o of SHEET_PLANS){
+  const plan=liftPlan(defaults,o,m);
+  const pay=liftsMethodPayload(plan);
+  assert.ok(pay,`no zone to draw for ${JSON.stringify(o)}`);
+  const svg=liftsMethodSVG(pay,{lang:'en'});
+  assert.ok(svg.includes('<svg'),'the method must be an svg');
+  assert.doesNotMatch(svg,/NaN|undefined|Infinity/,'a non-number reached the drawing');
+  const notes=sheetNotes(svg);
+  const nums=notes.flatMap(n=>[...n.text.matchAll(/-?\d+(?:\.\d+)?/g)].map(x=>+x[0]));
+  const has=(v,tol)=>nums.some(n=>Math.abs(n-v)<=tol);
+  assert.ok(has(pay.rtt,0.06),`RTT ${pay.rtt} is not on the sheet`);
+  assert.ok(has(pay.interval,0.06),`interval ${pay.interval} is not on the sheet`);
+  assert.ok(has(pay.S,0.06),`S ${pay.S} is not on the sheet`);
+  assert.ok(has(pay.P,0.06),`P ${pay.P} is not on the sheet`);
+  assert.ok(has(pay.H,0.06),`H ${pay.H} is not on the sheet`);
+  assert.ok(has(pay.E,0.6),`E ${pay.E} is not on the sheet`);
+  assert.ok(has(pay.N,0.6),`N ${pay.N} is not on the sheet`);
+  assert.ok(has(pay.tv,0.01),`t_v ${pay.tv} is not on the sheet`);
+  assert.ok(has(pay.ts,0.01),`t_s ${pay.ts} is not on the sheet`);
+  assert.ok(has(pay.tp,0.01),`t_p ${pay.tp} is not on the sheet`);
+  // the three contributions, read back off the sheet in seconds
+  const segs=notes.filter(n=>/\d\s*%/.test(n.text)&&/-?\d/.test(n.text));
+  assert.equal(segs.length,3,`the bar must be labelled in three parts, found ${segs.length}`);
+  const secs=segs.map(n=>+n.text.match(/-?\d+(?:\.\d+)?/)[0]);
+  const sum=secs.reduce((a,b)=>a+b,0);
+  assert.ok(Math.abs(sum-pay.rtt)<0.2,`the three segments total ${sum} s, not the RTT ${pay.rtt} s`);
+  for(const sec of [pay.travel,pay.doors,pay.people])
+   assert.ok(secs.some(v=>Math.abs(v-sec)<0.06),`${sec} s is not among the segments ${secs}`);
+  // and the bar itself is in proportion: each segment as long as its seconds
+  const widths=barSegments(svg);
+  assert.equal(widths.length,3,'the sheet must draw the round trip as one bar in three parts');
+  const tot=widths.reduce((a,b)=>a+b,0);
+  for(let i=0;i<3;i++){
+   const want=[pay.travel,pay.doors,pay.people][i]/pay.rtt*tot;
+   assert.ok(Math.abs(widths[i]-want)<0.8,`bar segment ${i} is ${widths[i]} wide, not ${want.toFixed(2)}`);
+  }
+  // the probable stops are drawn as ticks on the shaft, and the passengers as
+  // dots at the lobby: a sheet that claims S and P must show them
+  const ticks=(svg.match(/<path d="M[\d.]+ [\d.]+ L[\d.]+ [\d.]+" fill="none" stroke="var\(--ink\)"/g)||[]).length;
+  assert.equal(ticks,Math.max(1,Math.min(12,Math.round(pay.S))),`the sheet must draw a tick for each probable stop`);
+  const dots=(svg.match(/<circle[^>]*fill="var\(--ink\)"/g)||[]).length;
+  assert.equal(dots,Math.max(1,Math.min(16,Math.round(pay.P))),`the sheet must draw the passengers waiting`);
+  // the zone and the express run are two bands, drawn in proportion to the
+  // floors they hold — the express run is the point of the section
+  const bands=[...svg.matchAll(/<path d="M[\d.]+ ([\d.]+) H[\d.]+ V([\d.]+) H[\d.]+ Z" fill="none" stroke="var\(--faint\)" stroke-width="\.6" stroke-dasharray="3 2"\/>/g)]
+   .map(m=>({y0:+m[1],y1:+m[2]})).sort((a,b)=>a.y0-b.y0);
+  assert.equal(bands.length,2,
+   `the sheet must separate the zone from the express run below it, found ${bands.length}`);
+  const zoneH=bands[0].y1-bands[0].y0;
+  const expH=bands.length>1?bands[1].y1-bands[1].y0:0;
+  const share=zoneH/(zoneH+expH);
+  assert.ok(Math.abs(share-pay.N/(pay.N+pay.E))<0.02,
+   `the zone band is ${(share*100).toFixed(0)}% of the shaft, not ${(pay.N/(pay.N+pay.E)*100).toFixed(0)}%`);
+ }
+});
+
+test('the method sheet is drawn for every language, from the same numbers',()=>{
+ const m=evaluate(defaults),plan=liftPlan(defaults,{speed:5},m);
+ const pay=liftsMethodPayload(plan);
+ for(const lang of ['en','th','zh']){
+  const svg=liftsMethodSVG(pay,{lang});
+  assert.ok(svg.includes('<svg'),`${lang}: no sheet`);
+  assert.doesNotMatch(svg,/NaN|undefined|Infinity/,`${lang}: a non-number reached the drawing`);
+  assert.ok(svg.includes('aria-label='),`${lang}: the sheet must describe itself`);
+  const notes=sheetNotes(svg);
+  const nums=notes.flatMap(n=>[...n.text.matchAll(/-?\d+(?:\.\d+)?/g)].map(x=>+x[0]));
+  assert.ok(nums.some(n=>Math.abs(n-pay.rtt)<=0.06),`${lang}: the RTT is not on the sheet`);
+  assert.ok(nums.some(n=>Math.abs(n-pay.interval)<=0.06),`${lang}: the interval is not on the sheet`);
+ }
+});
+
+test('the sheet annotation can be read: no note on another, none cut off',()=>{
+ const m=evaluate(defaults);
+ for(const o of SHEET_PLANS){
+  for(const lang of ['en','th','zh']){
+   const pay=liftsMethodPayload(liftPlan(defaults,o,m));
+   const svg=liftsMethodSVG(pay,{lang});
+   const vb=svg.match(/viewBox="([^"]+)"/);
+   assert.ok(vb,`${lang}: no viewBox`);
+   const [vx,,vw]=vb[1].split(/\s+/).map(Number);
+   const notes=sheetNotes(svg);
+   for(let i=0;i<notes.length;i++)for(let j=i+1;j<notes.length;j++){
+    const a=noteBox(notes[i]),b=noteBox(notes[j]);
+    if(a.x1<=b.x0||b.x1<=a.x0)continue;
+    if(a.bot<=b.top||b.bot<=a.top)continue;
+    assert.fail(`${JSON.stringify(o)}/${lang}: "${notes[i].text}" printed on "${notes[j].text}"`);
+   }
+   for(const n of notes){
+    const b=noteBox(n);
+    assert.ok(b.x0>=vx-0.5,`${lang}: "${n.text}" cut off at the left`);
+    assert.ok(b.x1<=vx+vw+0.5,`${lang}: "${n.text}" cut off at the right`);
+   }
+   // And the same check with the width a CJK glyph ACTUALLY has: one em, not
+   // the .6 em the layout engine assumes for its monospace face. A Chinese
+   // label is a third wider than the box reserved for it, and a label that
+   // runs past the frame is a label the browser clips in silence.
+   const adv=s=>[...s].reduce((a,c)=>a+(/[㐀-鿿豈-﫿]/.test(c)?1:0.6),0);
+   for(const n of notes){
+    const w=Math.max(...n.lines.map(l=>adv(l)*n.size));
+    const x=n.anchor==='middle'?n.x-w/2:n.anchor==='end'?n.x-w:n.x;
+    assert.ok(x>=vx-0.5,`${lang}: "${n.text}" runs off the left of the frame`);
+    assert.ok(x+w<=vx+vw+0.5,`${lang}: "${n.text}" runs off the right of the frame`);
+   }
+  }
+ }
+});
+
+test('the method prose really did shrink to a caption',()=>{
+ // The prose this replaced explained the formula in eight hundred characters.
+ // A caption is a caption: the drawing carries the method now.
+ assert.ok(LIFTS_TEXT.en.m1.length<=260,`en m1 is ${LIFTS_TEXT.en.m1.length} characters`);
+ assert.ok(LIFTS_TEXT.th.m1.length<=260,`th m1 is ${LIFTS_TEXT.th.m1.length} characters`);
+ assert.ok(LIFTS_TEXT.zh.m1.length<=110,`zh m1 is ${LIFTS_TEXT.zh.m1.length} characters`);
+ for(const l of ['en','th','zh'])assert.ok(LIFTS_TEXT[l].m1.trim().length>20,`${l} m1 is empty`);
+});
+
+test('the method drawing is translated, and the Chinese carries its own words',()=>{
+ const CJK=/[㐀-鿿豈-﫿]/;
+ const keysOf=o=>Object.entries(o).flatMap(([k,v])=>v&&typeof v==='object'?keysOf(v).map(x=>k+'.'+x):[k]).sort();
+ const en=keysOf(LIFTS_TEXT.en).filter(k=>k.startsWith('m.'));
+ assert.ok(en.length>=12,'the method drawing needs its own vocabulary');
+ for(const l of ['en','th','zh'])assert.deepEqual(keysOf(LIFTS_TEXT[l]).filter(k=>k.startsWith('m.')),en,`${l}: the method vocabulary differs`);
+ const get=(l,k)=>k.split('.').reduce((o,x)=>o[x],LIFTS_TEXT[l]);
+ for(const l of ['en','th','zh'])for(const k of en)assert.ok(get(l,k).trim().length,`${l} ${k} is empty`);
+ for(const l of ['en','th'])for(const k of en)
+  assert.doesNotMatch(get(l,k),CJK,`${l} ${k} contains CJK`);
+ for(const k of en)
+  assert.match(get('zh',k),CJK,`zh ${k} falls back to Latin: "${get('zh',k)}"`);
+});
+
+/* A DOM small enough to read. The desk renderers were never invoked by the
+   suite, so a desk could throw on the first line of its body and every test
+   would stay green. This stub runs it for real and reads the drawing back
+   out of the tree. */
+function stubNode(tag){
+ const n={tagName:String(tag||'').toUpperCase(),childNodes:[],attrs:{},_t:'',_h:'',
+  className:'',id:'',htmlFor:'',type:'',value:'',min:'',max:'',step:'',inputMode:'',hidden:false,
+  isConnected:false,clientWidth:0,clientHeight:0,
+  classList:{add(){},remove(){},toggle(){},contains(){return false}},
+  querySelector(){return null},closest(){return null},focus(){},click(){},
+  appendChild(c){this.childNodes.push(c);return c},
+  get children(){return this.childNodes},
+  append(...cs){for(const c of cs)this.childNodes.push(c)},
+  replaceChildren(...cs){this.childNodes=[];if(cs.length)this.append(...cs)},
+  contains(){return false},
+  setAttribute(k,v){this.attrs[k]=v},
+  getAttribute(k){return this.attrs[k]},
+  addEventListener(){},removeEventListener(){},
+  getContext(){return null},
+  get textContent(){return this._t+this.childNodes.map(c=>c.textContent).join('')},
+  set textContent(v){this._t=String(v);this.childNodes=[]},
+  get innerHTML(){return this._h},
+  set innerHTML(v){this._h=String(v)}};
+ return n;
+}
+const walk=(node,pred,out=[])=>{if(pred(node))out.push(node);for(const c of node.childNodes)walk(c,pred,out);return out};
+
+test('the lab renders the drawing, not a paragraph',()=>{
+ const host=stubNode('div'),real=globalThis.document;
+ globalThis.document={createElement:t=>stubNode(t),createElementNS:(ns,t)=>stubNode(t),
+  createTextNode:t=>({textContent:t}),getElementById:()=>null,activeElement:{id:''}};
+ try{
+  const m=evaluate(defaults);
+  for(const lang of ['en','th','zh']){
+   renderLiftsLab({host,state:defaults,metrics:m,lang,active:true});
+   const boxes=walk(host,n=>String(n._h).includes('<svg'));
+   assert.equal(boxes.length,1,`${lang}: the lab must draw the method`);
+   assert.ok(boxes[0]._h.includes('<svg class="dsec"'),`${lang}: the drawing must be a drafting sheet`);
+   const figs=walk(host,n=>n.tagName==='FIGURE');
+   assert.equal(figs.length,1,`${lang}: the drawing must sit in a figure`);
+   const caps=walk(host,n=>n.tagName==='FIGCAPTION');
+   assert.equal(caps.length,1,`${lang}: the figure must carry a caption`);
+   assert.equal(caps[0].textContent,LIFTS_TEXT[lang].m1);
+   // and the paragraph it replaced is gone from the page
+   assert.equal(walk(host,n=>n.className==='lt-prose lt-formula'&&n.textContent===LIFTS_TEXT[lang].m1).length,0,
+    `${lang}: the old method paragraph is still on the page`);
+  }
+ }finally{globalThis.document=real}
 });

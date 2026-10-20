@@ -163,12 +163,22 @@ export function layout(items,W=CW,H=CH){
  for(const it of ordered){
   // Drawings are shown at about 1.3 px per unit; 7.5 units is the 10 px floor.
   const size=Math.max(7.5,it.o.size||7.5), side=it.tx<it.x?'L':'R';
-  const lines=wrap(it.text, GUT-2*PAD, size);
+  /* A ROTATED label is one line, turned on its side. It was never wrapped on
+     the sheet, so wrapping it here invented a second line that does not
+     exist — and a label measured by its wrapped width is shorter than the
+     label that was drawn. */
+  const lines=it.o.rot?[it.text]:wrap(it.text, GUT-2*PAD, size);
   const w=Math.max(...lines.map(l=>adv(l,size)));
   const x0=it.o.anchor==='middle'?it.tx-w/2:it.o.anchor==='end'?it.tx-w:side==='R'?it.tx+3:it.tx-3-w;
   const box=p=>[p.x0,p.x0+p.w];
   const [ax0,ax1]=box({x0,w});
-  const lo=TOP+3,hi=H+BOT-4;
+  /* The band a note may stand in is the FRAME, not the field: a note may sit
+     in the head and foot margins as well as over the field, which is what the
+     comment above says. The old bound stopped at the top of the field, so a
+     note the drawing placed in the head margin was silently moved back down
+     into the field — and then collided with whatever was there. The bounds
+     are now the note's own BOX against the frame's edges. */
+  const lo=-TOP+2.4-.75*size, hi=H+BOT-2.4-(lines.length-1)*size*1.2-.25*size;
   let ty=Math.max(lo, Math.min(hi, it.ty));
   if(!it.o.fixed){
    // One collision per pass, then rescan. Applying a shift for EVERY obstacle in
@@ -182,31 +192,78 @@ export function layout(items,W=CW,H=CH){
    // were box edges put the clearance out by a whole line height — which is
    // exactly enough to leave two labels touching, which is what "clearance"
    // was supposed to mean.
-   const gap=5, LEAD=.75*size+.25*size+2.4;   // baseline distance for one clear step
-   const ctop=()=>ty+2.4-.75*size, cbot=()=>ty+2.4+.25*size;
-   const ptop=p=>p.ty+2.4-.75*p.size, pbot=p=>p.ty+2.4+.25*p.size;
+   //
+   // A note that WRAPS is taller than one line, and the box has to say so.
+   // It did not: the box was measured from the first line only, so a wrapped
+   // note was treated as one line tall and the note below it was placed on
+   // top of the second line. The Thai wind sheet had exactly that — a
+   // two-line terrain name with the roughness length printed through it.
+   const gap=5;
+   const LEADD=(lines.length-1)*size*1.2;      // the extra height of a wrapped note
+   /* A VERTICAL dimension's label is turned on its side: its length runs DOWN
+      the sheet from the dimension's own baseline, and its depth is a cap
+      height. Measured as if it lay flat, it was a short wide box sitting
+      ABOVE the pivot, while the ink is a narrow strip BELOW it — so the
+      resolver reserved the wrong ground and a note was placed on the label.
+      The box here contains the real ink: narrow in x, the label's own length
+      in y. */
+   const ptop=p=>p.ty+2.4-.75*p.size,
+         pbot=p=>p.o.rot?p.ty+2.4+p.w
+           :p.ty+2.4+(p.lines.length-1)*p.size*1.2+.25*p.size;
+   /* The overlap between this note's box and one obstacle's box, measured as a
+      DEPTH. Zero means they do not touch. A collision is a depth greater
+      than the gap — two notes that are merely close are not two notes
+      printed on one another. */
+   const depth=(t,p)=>{
+    if(ax1<=p.x0-2||ax0>=p.x0+p.w+2) return 0;   // clear in x
+    const t1=t+2.4-.75*size,t2=t+2.4+LEADD+.25*size;
+    return Math.max(0,Math.min(t2,pbot(p))-Math.max(t1,ptop(p)));
+   };
+   /* A GLOBAL SEARCH, NOT A FIRST-COLLISION STEP.
+
+      The old resolver took the FIRST obstacle it met and stepped to one side
+      of it, then began again from the first obstacle. A note standing between
+      two others could therefore walk in a circle: the step that cleared one
+      of them landed on the other, and the step that cleared the other landed
+      back on the first. Two hundred passes later the note was exactly where
+      it started, printed on top of something. The lifts sheet had the
+      round-trip time as a dimension and the passengers bar's label had
+      nowhere to stand.
+
+      So the note now tries EVERY position at which it would stand clear of
+      something — just above, or just below, each obstacle it is touching —
+      and takes the one that is clear of EVERYTHING. A note that cannot be
+      made clear anywhere takes the position with the least overlap left,
+      which is at least the best answer the sheet can give. */
    for(let pass=0;pass<200;pass++){
-    let shift=null;
-    for(const p of out){
-     const [b0x,b1x]=box(p);
-     if(ax1<=b0x-2||ax0>=b1x+2) continue;                 // clear in x
-     // AND clear in y. Testing only the x band makes every note in a column a
-     // permanent collision with every other: the note escapes its neighbour,
-     // lands in the next one's band, and never settles. A collision is a box
-     // overlap, and a box has two dimensions.
-     if(cbot()+gap<=ptop(p)||ctop()-gap>=pbot(p)) continue; // clear in y
-     const aboveT=p.ty-LEAD-gap, belowT=p.ty+LEAD+gap;
-     const want=ty<=p.ty?aboveT:belowT;
-     const alt=want===aboveT?belowT:aboveT;
-     // If the side we want is off the sheet, take the other one. A note that
-     // is pinned against the frame must step the other way or it stays printed
-     // on top of its neighbour forever.
-     shift=want>=lo&&want<=hi?want:(alt>=lo&&alt<=hi?alt:want);
-     break;
+    /* ANY overlap is a collision. The gap is the margin the note aims for,
+       not a tolerance it is allowed to eat: two labels that touch are two
+       labels printed on one another, and the guard that reads the sheet
+       measures touching as touching. */
+    const touch=out.filter(p=>depth(ty,p)>0);
+    if(!touch.length) break;
+    const cands=[];
+    for(const p of touch){
+     const aboveT=ptop(p)-gap-2.4-LEADD-.25*size,
+           belowT=pbot(p)+gap-2.4+.75*size;
+     // Prefer the side the note is already on, so a note is not dragged
+     // across the sheet to solve a collision it could have left alone.
+     if(ty+2.4<=((ptop(p)+pbot(p))/2)){cands.push(aboveT,belowT);}
+     else{cands.push(belowT,aboveT);}
     }
-    if(shift===null) break;
-    ty=Math.max(LO,Math.min(HI,shift));
+    let best=null,bestScore=Infinity;
+    for(const t of cands){
+     if(t<lo||t>hi) continue;
+     let worst=0;
+     for(const p of out){const d=depth(t,p);if(d>worst)worst=d;}
+     if(worst<bestScore-1e-9){bestScore=worst;best=t;}
+    }
+    if(best===null) break;                    // nothing on the sheet to stand on
+    if(bestScore<=0){ty=best;break;}         // clear of everything: done
+    if(Math.abs(best-ty)<1e-9) break;         // no progress: this is the best
+    ty=best;
    }
+   ty=Math.max(lo,Math.min(hi,ty));
   }
   out.push({...it,size,side,lines,w,x0,ty});
   if(x0+w+3>W) needR=Math.max(needR,x0+w+3-W);
@@ -224,7 +281,15 @@ function drawNotes(items,W=CW,H=CH){
   // edge is the box's right, not its left — anchoring 'end' at x0 puts the text
   // one whole width further left than the collision pass reserved room for, and
   // the sheet grows leftward by exactly the width it had already accounted for.
-  const ax=anchor==='end'?p.x0+p.w:p.x0;
+  //
+  // A MIDDLE-anchored note had the same disease, and worse: the box was placed
+  // at tx − w/2 (correct), and the text was then drawn AT THAT X with the
+  // anchor still set to 'middle', so the browser centred it there as well. The
+  // label landed half a label to the left of where it was asked to be, every
+  // time. Two workers on different labs hit it independently before either
+  // could explain it, which is the signature of a bug in the vocabulary rather
+  // than in either drawing.
+  const ax=anchor==='end'?p.x0+p.w:anchor==='middle'?p.x0+p.w/2:p.x0;
   const body=p.lines.map((l,i)=>`<text x="${ax}" y="${p.ty+2.4+i*p.size*1.2}"`
    +` font-family="var(--mono)" font-size="${p.size}" text-anchor="${anchor}"`
    +` fill="${c}" stroke="none">${l}</text>`).join('');
@@ -276,7 +341,15 @@ export function dim(x1,y1,x2,y2,label,off=6){
  // slides off its line stops being the measurement of that distance. It is
  // registered for one reason only — so every other note is laid out around it.
  // It draws itself, as it always has, and this pass must not draw it twice.
- note(vert?x1-3:mx, vert?my:y1-3, label,{fixed:true,obstacle:true,size:8,anchor:vert?'end':'middle'});
+ //
+ // IT REGISTERS AT ITS DRAWN BASELINE, MINUS THE 2.4 THE LAYOUT ADDS. Every
+ // note the layout places is drawn at ty + 2.4, but a dimension label draws
+ // ITSELF, at its own coordinate. Registering it at the drawn baseline put
+ // the model's box 2.4 units LOWER than the ink, so the resolver reserved
+ // 2.4 units of room that was never there — and the note it placed in that
+ // room landed on the label. The lifts sheet had the round-trip time as a
+ // dimension, and the passengers bar's label printed straight through it.
+ note(vert?x1-3:mx, vert?my-2.4:y1-3-2.4, label,{fixed:true,obstacle:true,size:8,anchor:vert?'end':'middle',rot:vert});
  return `<g>${vert
   ?`<path d="M${x1} ${y1} V${y2}" stroke="var(--muted)" stroke-width=".5" stroke-dasharray="3 1.5"/>${slash(x1,y1)}${slash(x1,y2)}`
    +`<text x="${x1-3}" y="${my}" font-family="var(--mono)" font-size="8" fill="var(--muted)" text-anchor="end" stroke="none" transform="rotate(-90 ${x1-3} ${my})">${label}</text>`

@@ -23,8 +23,9 @@
 
    DNI is the 0.8 kW/m² transparent reference used everywhere else here. */
 import {solarPosition,cities} from './solar.js?v=9279efc6dc';
-import {profile,stackHeight} from './model.js?v=4d4eb35fb5';
+import {profile,stackHeight} from './model.js?v=4739b9a107';
 import {cityData,ringsIntersect} from './cityscape.js?v=dcc15cb0df';
+import {sheet,cut,leader,head,dim,rule,txt,flow,layout,cl} from './drafting.js?v=895b148bec';
 
 export const GLARE_DNI=800;               // W/m², the project's reference beam
 export const GLARE_LEVELS=12;
@@ -212,7 +213,7 @@ export function glareDay(s,{city=s.city,date=s.solarDate,rhoN=.13,frit=0,lean=nu
   const at=(idx,rho)=>{const [x,y]=cellCentre(g,idx),edges=new Set();for(const b of beams)if(b.kind==='ground'&&pointInRing(x,y,b.foot))edges.add(b.f.edge);return {time,count:ov.count.get(idx),rho,W:GLARE_DNI*rho,x,y,edges:[...edges],frame:out.length}};
   if(ov.maxIdx>=0&&(!worst||ov.maxRho>worst.rho+1e-9))worst=at(ov.maxIdx,ov.maxRho);
   if(ov.focusIdx>=0&&(!focus||ov.focusRho>focus.rho+1e-9))focus=at(ov.focusIdx,ov.focusRho);
-  if(frames)out.push({time,sun,beams:beams.filter(b=>b.kind==='ground'||b.kind==='sky'||b.kind==='neighbour').map(b=>({e:b.f.edge,k:b.f.level,cx:b.f.c[0],cy:b.f.c[1],x:b.x,y:b.y,kind:b.kind,foot:b.foot||null,nb:b.nb?b.nb.id:-1})),cells,hot:Int32Array.from(hot),peakIdx:ov.focusIdx,count:ov.focusCount,W:GLARE_DNI*ov.maxRho});
+  if(frames)out.push({time,sun,beams:beams.filter(b=>b.kind==='ground'||b.kind==='sky'||b.kind==='neighbour').map(b=>({e:b.f.edge,k:b.f.level,cx:b.f.c[0],cy:b.f.c[1],x:b.x,y:b.y,kind:b.kind,foot:b.foot||null,nb:b.nb?b.nb.id:-1,rho:b.rho})),cells,hot:Int32Array.from(hot),peakIdx:ov.focusIdx,count:ov.focusCount,W:GLARE_DNI*ov.maxRho});
   else out.push(null);
  }
  const nbs=nb.list.filter(n=>nbHours.has(n.id)).map(n=>({...n,hours:nbHours.get(n.id)})).sort((a,b)=>b.hours-a.hours);
@@ -268,6 +269,18 @@ export const GLARE_TEXT={
   prec:'In 2013 the concave south face of 20 Fenchurch Street, London, was reported to focus sunlight onto the street strongly enough to warp parts of a parked car; a sunshade of horizontal fins was later fitted. Guests at Vdara, Las Vegas, reported burning heat on the pool deck below its curved glass, and a film was applied to cut the reflection. At the Walt Disney Concert Hall, Los Angeles, polished steel panels reflected into nearby flats and pavements, and were dulled in 2005. The City of London has asked for solar glare assessment at planning stage since its 2017 advice note, and the London Plan 2021 (Policy D9) asks tall buildings to avoid adverse reflected glare.',
   cannotHead:'Cannot claim',
   cannot:'Mirror reflection from flat facets, traced from facet centres; the sun as a point with no 0.5° disc spread; no sky or diffuse light, no atmospheric loss, no second bounces. No disability-glare metric (no DGP, no driver sightlines), no neighbour windows or occupants; neighbour heights are as mapped or inferred. A screening sketch only: a formal solar glare and convergence study is required for planning.',
+  m1:'One facet, at the angle the sun meets it: the ray in, the normal, the ray out at the same angle to the normal. The bar is the peak on the ground, split in proportion into the beams that land on one cell.',
+  mth:{aria:'Method drawing: the reflection at one facet — the sun ray in, the facet normal, the mirror beam out — and the peak reflected irradiance on the ground, split in proportion into the beams that land on one cell.',
+   title:'peak {w} W/m², {t}',
+   cell:'{n} beams on one {c} {u} cell, {d} {u} {b}°',
+   seg:'{f} · ρ {r} · {w} W/m²',
+   total:'DNI {d} · Σρ {s}',
+   inc:'{a}° in, {a}° out',
+   sunUp:'sun {a}° up',
+   normal:'normal',
+   law1:'r = d − 2(d·n)n',
+   law2:'ρ(θ)=ρn+(1−ρn)·w(θ)',
+   law3:'peak = DNI · Σρ'},
   sourcesHead:'Sources',
   sources:'City of London, Planning Advice Note: Solar Glare, July 2017 (with P. Littlefair) · BRE IP 3/87, Solar dazzle reflected from sloping glazed facades · Mayor of London, The London Plan 2021, Policy D9 · 20 Fenchurch Street: National Geographic, 4 Sep 2013 · Vdara: NBC News and ENR, 2010 · Disney Hall: Playbill, 2004; Texas Tech Architecture Library archive · Sun: SunCalc 2.1.0 · DNI reference 0.8 kW/m², as elsewhere in FormHypes · Neighbours © OpenStreetMap contributors, ODbL',
   compass:['N','NE','E','SE','S','SW','W','NW'],
@@ -306,6 +319,18 @@ export const GLARE_TEXT={
   prec:'ปี 2013 มีรายงานว่าผนังเว้าด้านใต้ของ 20 Fenchurch Street กรุงลอนดอน รวมแสงแดดลงบนถนนจนชิ้นส่วนของรถที่จอดอยู่บิดเสียรูป ภายหลังจึงติดแผงบังแดดแบบครีบแนวนอน แขกของโรงแรม Vdara ในลาสเวกัสรายงานความร้อนแผดเผาบนลานสระว่ายน้ำใต้ผนังกระจกโค้ง จึงมีการติดฟิล์มเพื่อลดแสงสะท้อน ที่ Walt Disney Concert Hall ในลอสแอนเจลิส แผ่นเหล็กขัดเงาสะท้อนแสงเข้าห้องพักและทางเท้าใกล้เคียง และถูกทำให้ด้านลงในปี 2005 City of London กำหนดให้ประเมินแสงสะท้อนตั้งแต่ขั้นขออนุญาตตามเอกสารแนะนำปี 2017 และ London Plan 2021 (นโยบาย D9) ให้อาคารสูงหลีกเลี่ยงแสงสะท้อนที่ก่อผลกระทบ',
   cannotHead:'สิ่งที่สรุปไม่ได้',
   cannot:'คิดเฉพาะการสะท้อนแบบกระจกเงาจากแผ่นเรียบ ลากจากจุดกึ่งกลางแผ่น ถือดวงอาทิตย์เป็นจุดโดยไม่มีการกระจายของจานสุริยะ 0.5° ไม่มีแสงจากท้องฟ้าหรือแสงกระจาย ไม่คิดการสูญเสียในบรรยากาศ ไม่ติดตามการสะท้อนซ้ำ ไม่มีตัวชี้วัดแสงจ้าบดบังการมองเห็น (ไม่มี DGP ไม่มีแนวสายตาผู้ขับขี่) ไม่มีหน้าต่างหรือผู้ใช้อาคารข้างเคียง ความสูงอาคารข้างเคียงมาจากข้อมูลแผนที่หรือการอนุมาน เป็นเพียงการคัดกรองเบื้องต้น การขออนุญาตต้องมีการศึกษาแสงสะท้อนและการรวมแสงอย่างเป็นทางการ',
+  m1:'หนึ่งแผ่นเรียบ ณ มุมที่แสงเข้ามา: ลำแสงเข้า เส้นปกติ ลำแสงออกที่ทำมุมกับเส้นปกติเท่ากัน แถบคือค่าสูงสุดบนพื้น แบ่งตามสัดส่วนเป็นลำแสงที่ตกบนช่องเดียวกัน',
+  mth:{aria:'ภาพวิธีคำนวณ: การสะท้อนที่แผ่นเรียบหนึ่งแผ่น คือลำแสงที่เข้ามา เส้นปกติของแผ่น และลำแสงที่สะท้อนออก พร้อมค่าความเข้มแสงสะท้อนสูงสุดบนพื้น แบ่งตามสัดส่วนเป็นลำแสงที่ตกบนช่องเดียวกัน',
+   title:'ค่าสูงสุด {w} W/m² เวลา {t}',
+   cell:'{n} ลำแสงตกบนช่อง {c} {u} ห่างจากศูนย์กลางอาคาร {d} {u} ทิศ {b}°',
+   seg:'ลำแสง {f} · ρ {r} · {w} W/m²',
+   total:'รังสีตรง {d} · Σρ {s}',
+   inc:'{a}° เข้า {a}° ออก',
+   sunUp:'แสดดสูง {a}°',
+   normal:'เส้นปกติ',
+   law1:'สะท้อน: r = d − 2(d·n)n',
+   law2:'การสะท้อนแสง: ρ(θ)=ρn+(1−ρn)·w(θ)',
+   law3:'ค่าสูงสุด = DNI · Σρ'},
   sourcesHead:'แหล่งอ้างอิง',
   sources:'City of London, Planning Advice Note: Solar Glare, กรกฎาคม 2017 (ร่วมกับ P. Littlefair) · BRE IP 3/87, Solar dazzle reflected from sloping glazed facades · Mayor of London, The London Plan 2021, นโยบาย D9 · 20 Fenchurch Street: National Geographic, 4 ก.ย. 2013 · Vdara: NBC News และ ENR, 2010 · Disney Hall: Playbill, 2004; คลังเอกสาร Texas Tech Architecture Library · ดวงอาทิตย์: SunCalc 2.1.0 · ค่าอ้างอิง DNI 0.8 kW/m² เช่นเดียวกับส่วนอื่นของ FormHypes · อาคารข้างเคียง © OpenStreetMap contributors, ODbL',
   compass:['เหนือ','ตะวันออกเฉียงเหนือ','ตะวันออก','ตะวันออกเฉียงใต้','ใต้','ตะวันตกเฉียงใต้','ตะวันตก','ตะวันตกเฉียงเหนือ'],
@@ -344,6 +369,18 @@ export const GLARE_TEXT={
   prec:'2013 年，据报道伦敦 20 Fenchurch Street 内凹的南立面把阳光聚焦到街上，致使一辆停放汽车的部分部件变形，后来加装了水平遮阳百叶。拉斯维加斯 Vdara 酒店的住客反映，弧形玻璃下方的泳池平台热得灼人，酒店随后贴膜以减少反射。洛杉矶华特·迪士尼音乐厅的抛光不锈钢板把光反射进附近住宅和人行道，这些板材于 2005 年做了消光处理。伦敦金融城自 2017 年的规划指引起要求在规划阶段评估反光，《伦敦规划 2021》（D9 政策）也要求高层建筑避免造成不良反射眩光。',
   cannotHead:'不能据此断言',
   cannot:'仅计算平面单元的镜面反射，从单元中心追踪；把太阳视为点光源，不计 0.5° 日盘扩散；不含天空光或漫射光，不计大气衰减，不追踪二次反射。没有失能眩光指标（无 DGP，无驾驶视线），不含相邻建筑的窗户或使用者；相邻建筑高度取自地图标注或推断。这只是初步筛查：规划报批需要正式的反光与聚光研究。',
+  m1:'一个立面单元在阳光入射角下的反射：入射、法线、与法线成等角的出射。条形图为地面峰值，按落在同一网格的光束比例拆分。',
+  mth:{aria:'方法图示：一个立面单元的反射——入射阳光、单元法线、镜面反射光束，以及地面上的峰值反射辐照度，按落在同一网格的光束比例拆分。',
+   title:'峰值 {w} W/m²，{t}',
+   cell:'{n} 束 {c} {u} {d} {u} {b}°',
+   seg:'立面 {f} · ρ {r} · {w} W/m²',
+   total:'直射 {d} · Σρ {s}',
+   inc:'角 {a}°',
+   sunUp:'日 {a}°',
+   normal:'法线',
+   law1:'反射: r = d − 2(d·n)n',
+   law2:'反射率: ρ(θ)=ρn+(1−ρn)·w(θ)',
+   law3:'峰值 = DNI · Σρ'},
   sourcesHead:'资料来源',
   sources:'City of London, Planning Advice Note: Solar Glare，2017 年 7 月（与 P. Littlefair 合作）· BRE IP 3/87, Solar dazzle reflected from sloping glazed facades · Mayor of London, The London Plan 2021，D9 政策 · 20 Fenchurch Street：National Geographic，2013 年 9 月 4 日 · Vdara：NBC News 与 ENR，2010 · 迪士尼音乐厅：Playbill，2004；Texas Tech Architecture Library 档案 · 太阳位置：SunCalc 2.1.0 · DNI 参考值 0.8 kW/m²，与 FormHypes 其他部分一致 · 相邻建筑 © OpenStreetMap contributors，ODbL',
   compass:['北','东北','东','东南','南','西南','西','西北'],
@@ -352,6 +389,155 @@ export const GLARE_TEXT={
   h:'小时',m:'米',w:'W/m²'
  }
 };
+
+/* ── the method, drawn ──────────────────────────────────────────────────────
+   The paragraph this replaces explained, in one long breath, how a flat facet
+   turns sunlight into a mirror beam and how a mirror beam becomes heat on the
+   ground. A paragraph cannot show an ANGLE, and it cannot show a PROPORTION.
+
+   The sheet does both. On the left, the reflection at one facet: the ray in,
+   the normal, the ray out — the ray out at the same angle to the normal as
+   the ray in, which is what makes a mirror a mirror and not a lamp. On the
+   right, the peak on the ground as a bar split in proportion into the beams
+   that land on the same cell. That sum is the whole argument of the lab: one
+   beam only moves light around, and it is several beams on one square metre
+   that add up.
+
+   Every number on the sheet is a number the lab has already computed. The
+   payload comes from glareMethodPayload(), which reads the SAME glareDay()
+   result the lab reports from — the same peak cell, the same beams, the same
+   reflectance for each — so the drawing and the arithmetic cannot drift apart.
+   Nothing here is drawn from a constant.
+
+   Every WORD on the sheet comes out of GLARE_TEXT[lang]. */
+const MW=330,MH=240;
+/* One material per beam: two beams are two materials, so the eye can count
+   them without reading the labels. */
+const PMAT=['conc','wool','earth','board'];
+
+/* One instant of the lab, taken apart: the peak cell, the beams that land on
+   it, and the geometry of the reflection that threw each of them. */
+export function glareMethodPayload(day){
+ if(!day||!day.geom||!Array.isArray(day.frames)||!day.frames.length)return null;
+ const src=day.focus||day.worst;          // the strongest cell, overlapped if it is
+ if(!src)return null;
+ const fr=day.frames[src.frame];
+ if(!fr||!fr.sun||!Array.isArray(fr.beams))return null;
+ /* The beams that land on that cell: the same test the raster used, so the
+    split of the bar is the lab's own arithmetic and not a second opinion. */
+ const hits=fr.beams.filter(b=>b.kind==='ground'&&b.foot&&pointInRing(src.x,src.y,b.foot));
+ if(!hits.length)return null;
+ const F=day.geom.facets,d=[-fr.sun.east,-fr.sun.north,-fr.sun.up];
+ const parts=hits.map(b=>{
+  const f=F.find(x=>x.edge===b.e&&x.level===b.k);
+  if(!f)return null;
+  const rho=Number.isFinite(b.rho)?b.rho:0;
+  return {edge:b.e,level:b.k,rho,W:GLARE_DNI*rho,
+   theta:Math.acos(Math.max(-1,Math.min(1,-dot(d,f.n))))/RAD,
+   bearing:day.geom.edgeBearing[b.e],n:f.n,c:f.c,x:b.x,y:b.y};
+ }).filter(Boolean).sort((a,b)=>b.rho-a.rho||a.edge-b.edge||a.level-b.level);
+ if(!parts.length)return null;
+ return {peak:src.W,count:src.count,time:src.time,x:src.x,y:src.y,
+  dist:Math.hypot(src.x,src.y),bearing:(Math.atan2(src.y,src.x)/RAD+360)%360,
+  cell:day.grid?day.grid.cell:0,rhoN:day.rhoN,frit:day.frit,dni:GLARE_DNI,
+  sun:{east:fr.sun.east,north:fr.sun.north,up:fr.sun.up,altitude:fr.sun.altitude},
+  parts,rhoSum:parts.reduce((a,b)=>a+b.rho,0),main:parts[0]};
+}
+
+export function glareMethodSVG(p,{lang='en'}={}){
+ const c=GLARE_TEXT[lang]||GLARE_TEXT.en,M=c.mth;
+ if(!p)return sheet('',MW,MH,'');
+ const f0=v=>Number.isFinite(v)?v.toFixed(0):'—';
+ const f1=v=>Number.isFinite(v)?v.toFixed(1):'—';
+ const f2=v=>Number.isFinite(v)?v.toFixed(2):'—';
+ const dirWord=b=>(c.compass[Math.round(((b%360)+360)%360/45)%8]||'');
+ const faceLabel=(i,b)=>String(i+1).padStart(2,'0')+' · '+dirWord(b)+' '+Math.round(b)+'°';
+ /* The house's own ruler: a note is centred under its segment, and the width
+    it is centred by has to be the width the layout engine reserved for it. */
+ const wOf=t=>layout([{k:'txt',x:0,y:0,tx:0,ty:0,text:t,o:{}}]).out[0].w;
+ const m=p.main;
+ /* The section: the horizontal axis is the face's own outward normal, so the
+    normal, the two rays and the facet's lean are the lab's real angles. */
+ const nl=Math.hypot(m.n[0],m.n[1])||1;
+ const u=[m.n[0]/nl,m.n[1]/nl];          // the face's outward normal, horizontal
+ const n2=[nl,m.n[2]],fd=[-m.n[2],nl];   // the normal in the section, and up the face
+ const d=[-p.sun.east,-p.sun.north,-p.sun.up];
+ const d2=[d[0]*u[0]+d[1]*u[1],d[2]];    // the ray in, in the section
+ const r=reflect(d,m.n);
+ const r2=[r[0]*u[0]+r[1]*u[1],r[2]];    // the ray out
+ const FX=100,FY=76,RAY=72,NRM=46,HALF=13,EXT=30,BACK=40;
+ const S=(x,y)=>[FX+x,FY-y];
+ const poly=pts=>'M'+pts.map(q=>`${q[0].toFixed(2)} ${q[1].toFixed(2)}`).join(' L')+' Z';
+ /* An arrowhead on a ray that is not vertical: the vocabulary's own head,
+    turned to the ray's direction, the way the fire lab turns it to a stair. */
+ const headOn=(x,y,v,on)=>{
+  const L=Math.hypot(v[0],v[1])||1,ux=v[0]/L,uy=v[1]/L;
+  const th=Math.atan2(-ux,uy),ax=x-2.6*Math.cos(th),ay=y-2.6*Math.sin(th);
+  return `<g transform="rotate(${th.toFixed(4)} ${ax.toFixed(2)} ${ay.toFixed(2)})">${head(ax,ay,'d',on)}</g>`;
+ };
+ let g='';
+ /* The tower's mass, cut: hatched concrete, and the facet is a part of it. */
+ const b0=[-fd[0]*HALF,-fd[1]*HALF],b1=[fd[0]*HALF,fd[1]*HALF];
+ const m0=[-fd[0]*(HALF+EXT),-fd[1]*(HALF+EXT)],m1=[fd[0]*(HALF+EXT),fd[1]*(HALF+EXT)];
+ const P2=(x,y)=>S(x,y);
+ g+=cut(poly([P2(m0[0],m0[1]),P2(m1[0],m1[1]),
+  P2(m1[0]-u[0]*BACK,m1[1]-u[1]*BACK),P2(m0[0]-u[0]*BACK,m0[1]-u[1]*BACK)]),'conc');
+ /* The glazing: glass is drawn as an outline, never as a poché — a cut pane
+    of glass would be a lie about what glass looks like. */
+ const G=2.6,off=(v,o)=>[v[0]+u[0]*o,v[1]+u[1]*o];
+ g+=cut(poly([P2(m0[0],m0[1]),P2(m1[0],m1[1]),
+  P2(off(m1,G)[0],off(m1,G)[1]),P2(off(m0,G)[0],off(m0,G)[1])]),'glass');
+ /* The facet itself: the pane that does the reflecting, marked as a solid
+    bead in the face, the way a detail marks the unit it is talking about. */
+ g+=cut(poly([P2(b0[0],b0[1]),P2(b1[0],b1[1]),
+  P2(off(b1,G)[0],off(b1,G)[1]),P2(off(b0,G)[0],off(b0,G)[1])]),'seal');
+ /* The normal, and the two rays: the ray in travels along d, the ray out
+    along r = d − 2(d·n)n, which is the same length and the same angle. */
+ const nrm=[n2[0]*NRM,-n2[1]*NRM];
+ g+=cl(FX-nrm[0],FY-nrm[1],FX+nrm[0],FY+nrm[1]);
+ const inc=[-d2[0]*RAY,d2[1]*RAY],out=[r2[0]*RAY,-r2[1]*RAY];
+ g+=flow(`M${FX} ${FY} L${(FX+inc[0]).toFixed(2)} ${(FY+inc[1]).toFixed(2)}`,false);
+ g+=headOn(FX,FY,[d2[0],-d2[1]],false);
+ g+=flow(`M${FX} ${FY} L${(FX+out[0]).toFixed(2)} ${(FY+out[1]).toFixed(2)}`,true);
+ g+=headOn(FX+out[0],FY+out[1],[r2[0],-r2[1]],true);
+
+ /* ── the bar: the peak on the ground, split in proportion ───────────────── */
+ const BX0=196,BX1=316,BY0=48,BY1=72,BW=BX1-BX0;
+ const tot=p.parts.reduce((a,b)=>a+b.W,0)||1;
+ let bx=BX0;const mids=[];
+ p.parts.forEach((part,i)=>{
+  const w=Math.max(0,BW*part.W/tot);
+  mids.push(bx+w/2);
+  g+=cut(`M${bx.toFixed(2)} ${BY0} H${(bx+w).toFixed(2)} V${BY1} H${bx.toFixed(2)} Z`,PMAT[i%PMAT.length]);
+  bx+=w;
+ });
+ g+=txt(BX0-3,24,fill(M.title,{w:f0(p.peak),t:p.time}),{anchor:'start'});
+ /* The total, dimensioned over the bar. It sits ABOVE the bar so that the
+    leaders to the segments below it never cross it. */
+ g+=dim(BX0,40,BX1,40,fill(M.total,{d:f0(p.dni),s:f2(p.rhoSum)}));
+ /* The beams, each named: which face it came from, how much of the light it
+    carried back, and how much of the peak it is. */
+ for(let i=0;i<p.parts.length;i++){
+  const part=p.parts[i];
+  const text=fill(M.seg,{f:faceLabel(part.edge,part.bearing),r:f2(part.rho),w:f0(part.W)});
+  g+=leader(mids[i],BY1,mids[i]+wOf(text)/2,112+i*24,text,{anchor:'end'});
+ }
+ /* Where the peak is: how many beams, on one cell of the raster, how far out.
+    It captions the bar it belongs to, so it sits under it and not in a margin. */
+ g+=txt(BX0-3,202,fill(M.cell,{n:p.count,c:p.cell,u:c.m,d:f0(p.dist),b:f0(p.bearing)}),{anchor:'start'});
+
+ /* ── the laws, in the sheet's own free space ────────────────────────────── */
+ g+=txt(6,160,M.law1,{anchor:'start'});
+ g+=txt(6,186,M.law2,{anchor:'start'});
+ g+=txt(6,212,M.law3,{anchor:'start'});
+
+ /* ── the annotation, in the margin columns ──────────────────────────────── */
+ const LM=-4;
+ g+=leader(FX+inc[0]*0.34,FY+inc[1]*0.34,LM,54,fill(M.inc,{a:f1(p.main.theta)}));
+ g+=leader(FX+inc[0]*0.76,FY+inc[1]*0.76,LM,104,fill(M.sunUp,{a:f0(p.sun.altitude)}));
+ g+=leader(FX-nrm[0]*0.62,FY-nrm[1]*0.62,LM,154,M.normal);
+ return sheet(g,MW,MH,M.aria);
+}
 
 /* ── the lab ────────────────────────────────────────────────────────────── */
 const MAT_RHO={'float':.08,'low-e':.13,'reflective':.30,'pv':.08};
@@ -418,8 +604,13 @@ function build(host){
  yearBox.append(yearBtn,yearOut,node('p','gl-hint',t.yearNote));
  const prose=node('div','gl-prose');
  for(const [h,p]of [['howHead','how'],['precHead','prec'],['cannotHead','cannot'],['sourcesHead','sources']]){const s=node('section','gl-note'+(p==='sources'?' gl-sources':''));s.append(node('h3','gl-h',t[h]),node('p','',t[p]));prose.append(s)}
- root.append(fig,legend,zoom,tr,ctl,verdict,dl,barsBox,yearBox,prose);host.append(root);
- L.els={zoomBtns,root,plan,sec,secCap,play,scrub,clock,city,date,quickBtns,rho,rhoV,matP,frit,fritV,lean,leanV,leanOn,leanModel,barsList,verdict,dd,yearBtn,yearOut};
+ /* The method is a drawing now, not a paragraph. The prose that stood in for
+    it explained the reflection and the summation; the sheet is what those
+    words mean. */
+ const methodFig=node('figure','gl-method'),methodBox=node('div','gl-methodsvg');
+ methodFig.append(methodBox,node('figcaption','gl-cap',t.m1));
+ root.append(fig,legend,zoom,tr,ctl,verdict,dl,barsBox,yearBox,methodFig,prose);host.append(root);
+ L.els={zoomBtns,root,plan,sec,secCap,play,scrub,clock,city,date,quickBtns,rho,rhoV,matP,frit,fritV,lean,leanV,leanOn,leanModel,barsList,verdict,dd,yearBtn,yearOut,methodBox};
  // events
  play.onclick=()=>{L.playing=!L.playing;syncTransport();loop()};
  scrub.oninput=()=>{L.playing=false;setFrame(+scrub.value);syncTransport();loop()};
@@ -465,6 +656,14 @@ function recompute(){
   L.acc=null;L.accTo=-1;L.off=null;
   const w=L.result.focus||L.result.worst;L.frame=w?w.frame:Math.floor(L.result.frames.length/2);
   if(!L.ctrl.facePicked||L.ctrl.face==null||L.ctrl.face>=L.result.geom.n){L.ctrl.facePicked=false;L.ctrl.face=w&&w.edges.length?w.edges[0]:null}
+  /* The sheet is drawn from the SAME result the lab reports from, so the
+     numbers on it cannot drift from the numbers on the page. It is drawn
+     before the readouts, so a readout that throws cannot take the drawing
+     down with it. */
+  try{
+   const pay=glareMethodPayload(L.result);
+   L.els.methodBox.innerHTML=pay?glareMethodSVG(pay,{lang:L.lang}):'';
+  }catch{L.els.methodBox.innerHTML=''}
   readouts();bars();syncTransport();setFrame(L.frame);
   L.els.yearOut.textContent='';L.els.yearBtn.disabled=false;
  }catch(err){if(L.els)L.els.verdict.textContent='—'}

@@ -63,9 +63,13 @@
      ACI 318-19 Table 6.6.3.1.1(a): uncracked walls 0.70·Ig.
      EN 1991-1-1 Table 6.2: offices, category B1, q_k 2.5 kN/m²; RC 25 kN/m³.
    ASSUMPTIONS are marked ASSUMPTION where they are set. */
-import {profile,stack,area} from './model.js?v=4d4eb35fb5';
-import {leastWidth} from './structure.js?v=5c4abd9e39';
-import {windRead} from './wind.js?v=8024108437';
+import {profile,stack,area} from './model.js?v=4739b9a107';
+import {leastWidth} from './structure.js?v=5b4dff40fe';
+import {windRead} from './wind.js?v=7955f30d5d';
+// The drafting vocabulary this drawing is made of. The release stamper pins
+// this against drafting.js; a hand-written token would rot the moment the
+// vocabulary changed, which is the whole reason the stamper exists.
+import {sheet,cut,beyond,leader,dim,rule,txt,ground,layout} from './drafting.js?v=895b148bec';
 
 /* ── factors ─────────────────────────────────────────────────────────── */
 // IStructE Table 2.3, UK in-situ concrete (ICE V3), kgCO2e/kg, at 0%, 25% and
@@ -260,7 +264,7 @@ export function carbonRead(s,o={}){
  const ref=summary(tower(w.state,40,vb),system,ctl);
  // the same floor area at the original base width, for the slenderness reading
  const same=w.f===1?here:summary(tower({...s,floors:w.base},w.base,vb),system,ctl);
- return {system,vb,f:w.f,state:w.state,here,ref,same,
+ return {system,vb,f:w.f,state:w.state,here,ref,same,hereTw:tw,
   premiumKg:here.totalM2/ref.totalM2-1,premiumCarbon:here.carbonM2/ref.carbonM2-1,
   slimKg:here.totalM2/same.totalM2-1};
 }
@@ -279,7 +283,7 @@ export function curves(s,o={},list=CURVE_STOREYS){
 /* ── text ─────────────────────────────────────────────────────────────── */
 export const CARBON_TEXT={
  en:{title:'Embodied carbon and the premium for height',
-  lede:'The structure grows with the tower. A floor costs the same at every height; a column carries every floor above it; the lateral system holds the wind’s overturning moment across a lever arm no wider than the core or the plan. Shape the criteria and watch the take-off answer.',
+  lede:'Where the carbon sits: the frame, the reinforcement inside it and the steel beside it — each priced at its own factor, hauled to site, and charged again for waste.',
   run:'Storey {n} of {N} · {kg} kg/m² · {c} kgCO₂e/m²',
   metric:{steel:'Steel kg/m²',carbon:'kgCO₂e/m²'},metricLabel:'Chart reading',
   replay:'Grow again',hold:'Hold',
@@ -304,11 +308,21 @@ export const CARBON_TEXT={
    grav:'Gravity still sizes most of this structure; the wind takes {p}%. The premium for height here is {q}% over a 40-storey tower of the same plan.'},
   chart:{x:'Storeys',ySteel:'Steel kg/m² gross',yCarbon:'kgCO₂e/m² gross, A1–A5 structure',limit:'studio limit 70',extrap:'Dashed beyond 70: extrapolated',hancock:'Hancock 100',empire:'Empire State 102',sears:'Sears 108',khan:'Khan, steel only',riba:'RIBA 2030 · 156',leti:'LETI 2030 · 228',same:'same area, original width'},
   elev:'Material per level · gravity grey · lateral amber',elevFoot:'H {h} m · 1:{l}',
+  m:{aria:'Section-elevation of the tower with the carbon-bearing members cut, and the stages that turn them into carbon per square metre',
+   total:'Total embodied carbon, A1–A5',
+   gross:'gross floor area',
+   class:'Concrete {cls}, {g}% GGBS',
+   ground:'Grade: no foundations or substructure counted',
+   byStage:'By stage',
+   sA13:'A1–A3 product',sA4:'A4 transport',sA5:'A5 waste',
+   scope:'B, C and D are not modelled: upfront carbon A1–A5 only',
+   transport:'Road: concrete {c} km, steel and rebar {s} km, at {f} gCO₂e/kg/km',
+   perkg:'kgCO₂e/kg'},
   assume:'Assumptions: floor slabs per m² — 250 mm flat slab with 25 kg/m² reinforcement (core + grid), 130 mm composite slab with 35 or 40 kg/m² steel framing (outrigger, diagrid); superimposed dead 2.5 kN/m²; imposed 2.5 kN/m² (EN 1991-1-1, B1); working stress 0.4·f_ck in concrete, 213 MPa in S355 steel; walls at 0.70·E_cm (ACI 318-19); reinforcement 2% in columns, 1% in walls; lever arm 0.9 of the core or the least plan width; an outrigger moves half the moment to the perimeter (40–60% is published); a diagrid uses 0.8 of a conventional perimeter frame (Hearst Tower), that frame 1.6 × ideal flanges. Steel quantities are calibrated so a 68 m square, 108-storey steel tower lands inside Khan’s 142–205 kg/m².',
   cannot:'Cannot claim: an order-of-magnitude scaling law, not a structural design and not a certified life-cycle assessment. No foundations or substructure (SCORS includes them, so the band shown flatters the tower), no transfer structures, no site activities A5a, no seismic design, no dynamic wind response. Carbon factors vary by country and supplier; use EPDs once the supply chain is known.',
   src:'Sources: IStructE, How to calculate embodied carbon, 2nd ed. 2022, Tables 2.3–2.6 (ICE V3, CARES, worldsteel; EAF/BOF bounds for sections from the UK row, global average 1.580) · Arnold, Cook, Cox, Gibbons & Orr, SCORS (bands read from Fig. 1; per m² GIA), The Structural Engineer 98(10) 2020 · Price & Myers carbon data · Khan, premium for height (Lehigh; Construction 1972; Britannica) · Hearst Tower steel (Foster + Partners via BD+C) · outrigger moment relief (Designing Buildings Wiki) · Foraboschi, Mercanzin & Trabucco, Energy and Buildings 68, 2014 · EN 1991-1-4 via the Wind tab · EN 1991-1-1 · EN 1992-1-1 Table 3.1 · ACI 318-19 Table 6.6.3.1.1.'},
  th:{title:'คาร์บอนแฝงและต้นทุนส่วนเพิ่มของความสูง',
-  lede:'โครงสร้างโตตามความสูงของอาคาร พื้นแต่ละชั้นใช้วัสดุเท่าเดิมทุกระดับ เสาต้องรับทุกชั้นที่อยู่เหนือมัน ส่วนระบบต้านแรงด้านข้างต้องรับโมเมนต์พลิกคว่ำจากลมด้วยระยะแขนโมเมนต์ที่กว้างได้ไม่เกินแกนกลางหรือผังอาคาร ปรับเกณฑ์แล้วดูปริมาณวัสดุตอบกลับ',
+  lede:'คาร์บอนอยู่ตรงไหน: โครงสร้าง เหล็กเสริมในโครง และเหล็กรูปพรรณที่อยู่ข้าง ๆ — แต่ละอย่างคิดด้วยตัวค่าของตัวเอง ขนมาที่ไซต์ แล้วคิดค่าของเสียอีกครั้ง',
   run:'ชั้น {n} จาก {N} · {kg} กก./ตร.ม. · {c} กก.CO₂e/ตร.ม.',
   metric:{steel:'เหล็ก กก./ตร.ม.',carbon:'กก.CO₂e/ตร.ม.'},metricLabel:'ค่าที่แสดงในกราฟ',
   replay:'ให้อาคารโตอีกครั้ง',hold:'หยุดไว้',
@@ -333,11 +347,21 @@ export const CARBON_TEXT={
    grav:'น้ำหนักยังเป็นตัวกำหนดโครงสร้างส่วนใหญ่ ลมคิดเป็น {p}% ส่วนเพิ่มจากความสูงคือ {q}% เมื่อเทียบกับอาคาร 40 ชั้นที่ผังเดียวกัน'},
   chart:{x:'จำนวนชั้น',ySteel:'เหล็ก กก./ตร.ม. พื้นที่รวม',yCarbon:'กก.CO₂e/ตร.ม. พื้นที่รวม A1–A5 โครงสร้าง',limit:'ขีดจำกัดสตูดิโอ 70',extrap:'เส้นประเกิน 70 ชั้นเป็นการประมาณต่อ',hancock:'Hancock 100',empire:'Empire State 102',sears:'Sears 108',khan:'Khan เฉพาะเหล็ก',riba:'RIBA 2030 · 156',leti:'LETI 2030 · 228',same:'พื้นที่เท่าเดิม ความกว้างเดิม'},
   elev:'วัสดุต่อชั้น · รับน้ำหนักสีเทา · รับแรงด้านข้างสีอำพัน',elevFoot:'สูง {h} ม. · 1:{l}',
+  m:{aria:'ภาคตัดแนวตั้งของอาคาร พร้อมชิ้นส่วนที่ให้คาร์บอนถูกตัด และขั้นตอนที่เปลี่ยนมันเป็นคาร์บอนต่อตารางเมตร',
+   total:'คาร์บอนแฝงรวม A1–A5',
+   gross:'พื้นที่รวม',
+   class:'คอนกรีต {cls} ใช้ GGBS {g}%',
+   ground:'ระดับดิน: ไม่มีฐานรากและโครงสร้างใต้ดินในการคิดนี้',
+   byStage:'แยกตามขั้นตอน',
+   sA13:'A1–A3 การผลิต',sA4:'A4 การขนส่ง',sA5:'A5 ของเสีย',
+   scope:'B, C และ D ไม่ได้อยู่ในแบบจำลองนี้: คิดเฉพาะคาร์บอนเริ่มต้น A1–A5',
+   transport:'ทางถนน: คอนกรีต {c} กม. เหล็กและเหล็กเสริม {s} กม. ที่ {f} กก.CO₂e/กก./กม.',
+   perkg:'กก.CO₂e/กก.'},
   assume:'สมมติฐาน: พื้นต่อ ตร.ม. — พื้นไร้คาน 250 มม. เหล็กเสริม 25 กก./ตร.ม. (แกนกลาง + เสา) พื้นคอมโพสิต 130 มม. โครงเหล็ก 35 หรือ 40 กก./ตร.ม. (เอาท์ริกเกอร์ ไดอะกริด) น้ำหนักบรรทุกคงที่เพิ่มเติม 2.5 kN/ตร.ม. น้ำหนักบรรทุกจร 2.5 kN/ตร.ม. (EN 1991-1-1 B1) หน่วยแรงใช้งาน 0.4·f_ck สำหรับคอนกรีต 213 MPa สำหรับเหล็ก S355 ผนังใช้ 0.70·E_cm (ACI 318-19) เหล็กเสริม 2% ในเสา 1% ในผนัง ระยะแขนโมเมนต์ 0.9 ของแกนกลางหรือความกว้างผังด้านแคบสุด เอาท์ริกเกอร์ย้ายโมเมนต์ครึ่งหนึ่งไปที่เสารอบนอก (ข้อมูลที่เผยแพร่ 40–60%) ไดอะกริดใช้เหล็ก 0.8 เท่าของโครงรอบนอกแบบทั่วไป (Hearst Tower) และโครงแบบทั่วไปใช้ 1.6 เท่าของปีกในอุดมคติ ปริมาณเหล็กปรับเทียบให้อาคารเหล็กผังสี่เหลี่ยม 68 ม. สูง 108 ชั้น อยู่ในช่วง 142–205 กก./ตร.ม. ของ Khan',
   cannot:'สิ่งที่อ้างไม่ได้: เป็นกฎการปรับขนาดระดับลำดับขนาด ไม่ใช่การออกแบบโครงสร้าง และไม่ใช่การประเมินวัฏจักรชีวิตที่ได้รับการรับรอง ไม่รวมฐานรากและโครงสร้างใต้ดิน (SCORS รวมไว้ ระดับที่แสดงจึงดูดีกว่าความจริง) ไม่รวมโครงสร้างถ่ายแรง กิจกรรมในสถานที่ก่อสร้าง A5a การออกแบบต้านแผ่นดินไหว และการตอบสนองเชิงพลวัตต่อลม ค่าคาร์บอนแตกต่างตามประเทศและผู้ผลิต เมื่อทราบแหล่งวัสดุให้ใช้ EPD',
   src:'แหล่งอ้างอิง: IStructE, How to calculate embodied carbon ฉบับที่ 2 ปี 2022 ตาราง 2.3–2.6 (ICE V3, CARES, worldsteel; ค่าขอบเขต EAF/BOF ของเหล็กรูปพรรณจากแถวสหราชอาณาจักร ค่าเฉลี่ยโลก 1.580) · Arnold, Cook, Cox, Gibbons และ Orr, SCORS (ช่วงคะแนนอ่านจากรูปที่ 1 ต่อ ตร.ม. พื้นที่ภายในรวม), The Structural Engineer 98(10) 2020 · ข้อมูลคาร์บอนของ Price & Myers · Khan ส่วนเพิ่มของความสูง (Lehigh; Construction 1972; Britannica) · เหล็กของ Hearst Tower (Foster + Partners ผ่าน BD+C) · การลดโมเมนต์ด้วยเอาท์ริกเกอร์ (Designing Buildings Wiki) · Foraboschi, Mercanzin และ Trabucco, Energy and Buildings 68, 2014 · EN 1991-1-4 ผ่านแท็บลม · EN 1991-1-1 · EN 1992-1-1 ตาราง 3.1 · ACI 318-19 ตาราง 6.6.3.1.1'},
  zh:{title:'隐含碳与高度溢价',
-  lede:'结构随塔楼一起长高。每层楼板在任何高度用料都一样；柱子要承担其上所有楼层；抗侧力体系则要以不超过核心筒或平面宽度的力臂抵抗风的倾覆力矩。调整条件，看材料用量如何回应。',
+  lede:'碳在哪里：混凝土框架、其中的钢筋、旁边的型钢——各按自身排放因子计价，运到工地，再加一次损耗。',
   run:'第 {n} 层 / 共 {N} 层 · {kg} 千克/平方米 · {c} 千克CO₂e/平方米',
   metric:{steel:'钢材 千克/平方米',carbon:'千克CO₂e/平方米'},metricLabel:'图表读数',
   replay:'重新生长',hold:'暂停',
@@ -362,6 +386,16 @@ export const CARBON_TEXT={
    grav:'重力仍决定大部分结构用量，风占 {p}%。与同一平面的 40 层塔楼相比，高度溢价为 {q}%。'},
   chart:{x:'层数',ySteel:'钢材 千克/平方米建筑面积',yCarbon:'千克CO₂e/平方米建筑面积，A1–A5 结构',limit:'工作室上限 70',extrap:'70 层以上虚线为外推',hancock:'汉考克 100',empire:'帝国大厦 102',sears:'西尔斯 108',khan:'Khan，仅钢材',riba:'RIBA 2030 · 156',leti:'LETI 2030 · 228',same:'同面积，原宽度'},
   elev:'每层材料 · 竖向灰色 · 抗侧琥珀色',elevFoot:'高 {h} 米 · 1:{l}',
+  m:{aria:'塔楼竖向剖面，切出承碳构件，以及把构件换算成每平方米碳排的阶段',
+   total:'前期碳排合计 A1–A5',
+   gross:'建筑面积',
+   class:'混凝土 {cls}，矿渣粉 {g}%',
+   ground:'地面：本次计算不含基础与地下结构',
+   byStage:'按阶段',
+   sA13:'A1–A3 生产',sA4:'A4 运输',sA5:'A5 损耗',
+   scope:'B、C、D 阶段未建模：仅计算前期碳排 A1–A5',
+   transport:'公路：混凝土 {c} 公里，钢筋与型钢 {s} 公里，{f} 克CO₂e/千克/公里',
+   perkg:'千克CO₂e/千克'},
   assume:'假定：每平方米楼板——250 毫米无梁楼板配筋 25 千克/平方米（核心筒 + 柱网）；130 毫米组合楼板配钢梁 35 或 40 千克/平方米（伸臂桁架、斜交网格）；附加恒载 2.5 kN/平方米；活载 2.5 kN/平方米（EN 1991-1-1，B1 类）；工作应力混凝土取 0.4·f_ck，S355 钢取 213 MPa；墙体刚度取 0.70·E_cm（ACI 318-19）；柱配筋率 2%，墙 1%；力臂取核心筒或平面最窄宽度的 0.9；伸臂桁架将一半力矩转移到外围（文献为 40–60%）；斜交网格用钢为常规外框的 0.8（赫斯特大厦），常规外框为理想翼缘的 1.6 倍。钢材用量经校准，使 68 米见方、108 层的钢结构塔楼落在 Khan 的 142–205 千克/平方米范围内。',
   cannot:'不能据此断言：这是数量级的比例关系，不是结构设计，也不是经认证的生命周期评估。不含基础和地下结构（SCORS 包含这些，因此所示等级偏乐观），不含转换结构、现场施工活动 A5a、抗震设计和风致动力响应。碳排放因子因国家和供应商而异；供应链明确后应使用 EPD。',
   src:'来源：IStructE《How to calculate embodied carbon》第 2 版，2022，表 2.3–2.6（ICE V3、CARES、worldsteel；型钢 EAF/BOF 取值来自英国行，全球平均 1.580）· Arnold、Cook、Cox、Gibbons、Orr，SCORS（等级取自图 1；按建筑内部面积计），The Structural Engineer 98(10)，2020 · Price & Myers 碳数据 · Khan 高度溢价（理海大学；Construction 1972；大英百科）· 赫斯特大厦（Hearst Tower）用钢（Foster + Partners，经 BD+C）· 伸臂桁架力矩折减（Designing Buildings Wiki）· Foraboschi、Mercanzin、Trabucco，Energy and Buildings 68，2014 · EN 1991-1-4（经“风”页）· EN 1991-1-1 · EN 1992-1-1 表 3.1 · ACI 318-19 表 6.6.3.1.1'}
@@ -396,7 +430,13 @@ function build(host,lang){
  const metricB=['carbon','steel'].map(k=>{const b=el('button',null,c.metric[k]);b.type='button';b.onclick=()=>{metric=k;refresh(false)};mseg.append(b);return [k,b]});
  const holdB=el('button','cb-toggle');holdB.type='button';holdB.onclick=()=>{held=!held;if(!held)restart();else{stop();drawAll()}sync()};
  bar.append(mseg,holdB);
- const lede=el('p','cb-prose',c.lede);
+ // The method, drawn. The prose that used to stand here is now the caption
+ // under the sheet, and the sheet carries the numbers the paragraph only
+ // promised. The figure is a <figure> so the caption is a real <figcaption>,
+ // which is what a screen reader and a printer both expect.
+ const method=el('figure','cb-method');
+ const methodSheet=el('div','cb-sheet');
+ method.append(methodSheet,el('figcaption','cb-caption',c.lede));
  const ctls=el('div','cb-controls');
  const field=()=>{const w=el('div','cb-field');ctls.append(w);return w};
  const range=(key,label,min,max,step,note,on,later)=>{
@@ -446,11 +486,11 @@ function build(host,lang){
  const scT=el('h3','cb-sub',c.scorsTitle),sc=el('ol','cb-scors'),scItems=[];
  let lo=0;for(const [edge,band] of SCORS){const li=el('li');li.append(el('span','cb-band',band),el('span','cb-edge',Number.isFinite(edge)?fmt(lo)+'–'+fmt(edge):'≥ '+fmt(lo)));sc.append(li);scItems.push([band,li]);lo=edge}
  const assume=el('p','cb-prose',c.assume),cannot=el('p','cb-prose cb-limits',c.cannot),src=el('p','cb-src',c.src);
- root.append(head,views,run,bar,lede,ctls,verdict,dl,ledT,ledger,scT,sc,assume,cannot,src);
+ root.append(head,views,run,bar,method,ctls,verdict,dl,ledT,ledger,scT,sc,assume,cannot,src);
  host.append(root);
  const ro=typeof ResizeObserver==='function'?new ResizeObserver(()=>{size();drawAll()}):null;
  if(ro){ro.observe(elevC);ro.observe(chartC)}
- ui={host,lang,c,elevC,chartC,run,metricB,holdB,floors,slender,sys,applyB,applyN,conc,ggbs,rebar,steel,km,vb,rateIn,verdict,rows,bars,scItems,ro,font:'12px monospace'};
+ ui={host,lang,c,elevC,chartC,run,metricB,holdB,floors,slender,sys,applyB,applyN,conc,ggbs,rebar,steel,km,vb,rateIn,verdict,rows,bars,scItems,ro,methodSheet,svgN:0,font:'12px monospace'};
  // Thai and Chinese labels use the sans stack: the mono face has no Thai or
  // CJK glyphs and the fallback can be a looped Thai face.
  try{const f=getComputedStyle(host).getPropertyValue(lang==='en'?'--mono':'--sans').trim();if(f)ui.font='12px '+f}catch{}
@@ -471,6 +511,13 @@ function sync(){
 
 /* Recompute the read. geometry: restart the growth; light: skip the curves
    (they are recomputed when a dragged slider is released). */
+/* The method sheet, repainted from the reading in hand. The drawing is not a
+   picture of an idea: it is the same accounting the ledger shows, cut. */
+function paintMethod(h,tw,system){
+ if(!ui||!ui.methodSheet||!h)return;
+ try{ui.methodSheet.innerHTML=carbonMethodSVG({h,tower:tw,system,options:ctl},{lang:ui.lang});}catch{}
+}
+
 function refresh(geometry,light){
  if(!ui||!last)return;
  const {state,metrics}=last,c=ui.c;
@@ -496,6 +543,7 @@ function refresh(geometry,light){
  ui.vb.inp.value=ctl.vb;ui.vb.out.textContent=fmt(ctl.vb)+' m/s';
  for(const k of ['conc','rebar','steel'])if(document.activeElement!==ui.rateIn[k])ui.rateIn[k].value=String(ctl.rates[k]);
  const h=r.here,R=ui.rows,u=c.u;
+ paintMethod(r.here,r.hereTw,r.system);
  R.kg.textContent=fmt(h.gravM2)+' / '+fmt(h.latM2)+' / '+fmt(h.totalM2)+' '+u.kgm2;
  R.steel.textContent=fmt(h.steelM2)+' '+u.kgm2;
  R.tonnes.textContent=fmt(h.tonnes)+' '+u.t+' · '+fmt(h.concreteM3)+' '+u.m3;
@@ -554,6 +602,13 @@ function drawAll(){
  try{
   const n=Math.max(1,Math.floor(anim.g)),now=n===anim.N?ui.r.here:at(n)||ui.r.here;
   const c=ui.c;
+  // The sheet is repainted as the tower grows, but only when the storey count
+  // actually changes: rebuilding a sheet on every frame is a waste of a frame.
+  if(ui.svgN!==now.n){
+   ui.svgN=now.n;
+   const twn=now===ui.r.here?ui.r.hereTw:tower(whatIf(last.state,ctl).state,now.n,ui.r.vb);
+   paintMethod(now,twn,ui.r.system);
+  }
   ui.run.textContent=fill(c.run,{n:fmt(now.n),N:fmt(anim.N),kg:fmt(now.totalM2),c:fmt(now.carbonM2)});
   drawElev(now);drawChart(now);
  }catch{}
@@ -683,4 +738,171 @@ export function renderCarbonLab({host,state,metrics,lang='en',active=false,chang
   if(reduced()){stop();if(anim){anim.g=anim.N;anim.done=true}drawAll()}
   else go();
  }catch{stop()}
+}
+
+/* ── the method, drawn ─────────────────────────────────────────────────────
+   The paragraph this replaces was a paragraph. It told the reader that a floor
+   costs the same at every height, that a column carries every floor above it,
+   and that the number on the run line is a mass times a factor. None of that
+   is a picture, and a picture is what it wants to be.
+
+   So: the tower, cut, with the members that carry carbon poched by material —
+   concrete hatched, reinforcement and section steel solid — each annotated with
+   the mass it puts into every square metre of gross floor area and the
+   emission factor the IStructE table gives that material. Beside it, the two
+   splits the number is made of, drawn to scale: the stages (A1–A3, A4, A5) and
+   the materials. Each bar is the total; each segment is its share of it.
+
+   EVERY number here is read out of the lab's own accounting. None of it is
+   hard-coded and none of it is rounded into a nicer shape, and where a stage
+   is not modelled the sheet says so rather than inventing one. The members
+   drawn are the members the take-off actually charges for, so a concrete frame
+   shows no steel and a diagrid shows no concrete columns: a drawing that
+   showed a member the accounting does not contain would be a better-looking
+   lie. */
+const CM={w:600,h:320};
+const f2=v=>(+v).toFixed(2);
+const num=(v,d=0,l='en')=>Number.isFinite(v)
+ ?v.toLocaleString(l==='th'?'th-TH':l==='zh'?'zh-CN':'en-US',{minimumFractionDigits:d,maximumFractionDigits:d})
+ :'—';
+
+export function carbonMethodSVG(payload,{lang='en'}={}){
+ const c=CARBON_TEXT[lang]||CARBON_TEXT.en;
+ const p=payload||{},h=p.h||{},tw=p.tower||{},o=p.options||{};
+ const G=Number.isFinite(h.gross)&&h.gross>0?h.gross:1;
+ const ac=h.account||{},kg=h.kg||{},byMat=ac.byMat||{},ecf=ac.ecf||{};
+ const N=(v,d=0)=>num(v,d,lang);
+ const PC=v=>Number.isFinite(v)?(v*100).toFixed(1)+'%':'—';
+ const massOf=m=>((kg['grav_'+m]||0)+(kg['lat_'+m]||0))/G;
+ const carbOf=m=>(byMat[m]||0)/G;
+ const tot=Number.isFinite(h.carbonM2)&&h.carbonM2>0?h.carbonM2:((ac.total||0)/G);
+ const cls=String(o.concrete||'C40/50');
+ const gg=Number.isFinite(o.ggbs)?o.ggbs:0;
+ const kmS=Number.isFinite(o.km)?o.km:0;
+ const sys=SYSTEMS[p.system]||SYSTEMS['column-grid'];
+ let g='';
+
+ /* ── the tower, cut ─────────────────────────────────────────────────────── */
+ const L=(tw.levels&&tw.levels.length)?tw.levels:[];
+ const HH=Number.isFinite(tw.H)&&tw.H>0?tw.H:1;
+ const wK=Math.min(1.15,72/Math.max(1,...L.map(l=>l.width||0)));
+ const CX=88,TY=34,GY=250,K=(GY-TY)/HH;
+ const hw=i=>((L[i]&&L[i].width)||0)*wK/2;
+ const yT=i=>GY-(((L[i]&&L[i].z)||0)+((L[i]&&L[i].h)||0))*K;
+ const yB=i=>GY-((L[i]&&L[i].z)||0)*K;
+ const edge=(side,ins)=>{const q=[];
+  for(let i=0;i<L.length;i++){
+   const w=Math.max(0.6,hw(i)-(typeof ins==='function'?ins(i):ins));
+   q.push([CX+side*w,yB(i)],[CX+side*w,yT(i)]);}
+  return q;};
+ const pts=a=>a.map(q=>`${f2(q[0])} ${f2(q[1])}`).join(' L');
+ const band=(a,b)=>'M'+pts(a)+' L'+pts(b.slice().reverse())+' Z';
+ const box=(x0,y0,x1,y1)=>`M${f2(x0)} ${f2(y0)} H${f2(x1)} V${f2(y1)} H${f2(x0)} Z`;
+ const mConc=(kg.grav_conc||0)+(kg.lat_conc||0);
+ const mSteel=(kg.grav_steel||0)+(kg.lat_steel||0);
+ const hasCol=sys.grav.conc>0,hasCore=(kg.lat_conc||0)>0,hasSteel=mSteel>0;
+
+ // the silhouette, beyond the cut plane: an outline, never a fill
+ if(L.length)g+=beyond('M'+pts(edge(-1,0))+' L'+pts(edge(1,0).slice().reverse())+' Z',.6);
+ // the core wall, cut: it is what the wind pushes on
+ if(hasCore)g+=cut(box(CX-2.6,TY,CX+2.6,GY),'conc');
+ // the columns, cut; and the steel that stands in their place in a steel frame
+ const colIn=hasSteel?3.1:0;
+ if(hasCol)for(const s of [-1,1])g+=cut(band(edge(s,colIn),edge(s,i=>colIn+2.4)),'conc');
+ if(hasSteel)for(const s of [-1,1])g+=cut(band(edge(s,.6),edge(s,2.8)),'metal');
+ // the slabs, cut, with the reinforcement inside them
+ const pick=[];
+ if(L.length){const n=L.length;for(const f of [0,.25,.5,.75,1]){const i=Math.min(n-1,Math.round(f*(n-1)));if(!pick.includes(i))pick.push(i);}}
+ for(const i of pick){
+  const w=hw(i),y=yT(i);
+  g+=cut(box(CX-w,y-1.5,CX+w,y+1.5),'conc');
+  for(let j=1;j<=4;j++){const x=CX-w+(2*w)*(j/5);g+=cut(box(x-.8,y-.8,x+.8,y+.8),'steel');}
+ }
+ // the grade, and what is not below it
+ g+=ground(6,GY,144);
+ g+=dim(32,TY,32,GY,`${N(HH,0)} ${c.u.m}`,0);
+ if(L.length)g+=dim(CX-hw(0),GY+22,CX+hw(0),GY+22,`${N(L[0].width,0)} ${c.u.m}`);
+
+ /* ── the members, named and priced ─────────────────────────────────────────
+    A note is placed by the resolver, and the resolver moves a note by its
+    FIRST line. A note that wraps to three lines therefore has to be given
+    room for all three by whoever places it, so the height is measured with
+    the house's own wrapper instead of guessed at: Thai runs to a third more
+    lines than English, and a sheet laid out for English would print one
+    language over the other. */
+ const noteH=(text,size=7.5)=>{
+  const {out}=layout([{k:'txt',x:0,y:0,tx:0,ty:0,text,o:{size}}],CM.w,CM.h);
+  return (out[0]?out[0].lines.length:1)*size*1.2+3;
+ };
+ const NX=152;
+ const pMid=pick[2]!==undefined?pick[2]:0,pLow=pick[0]!==undefined?pick[0]:0;
+ const pTop=pick[pick.length-1]!==undefined?pick[pick.length-1]:0;
+ let ay=40;
+ const putA=(text,size=7.5)=>{const ty=ay;ay+=noteH(text,size)+5;return ty;};
+ // The column is filled from the top of the tower down, so that no two
+ // leaders cross: the class note names the highest member, the reinforcement
+ // the lowest.
+ {const t=fill(c.m.class,{cls,g:N(gg,0)});
+  g+=leader(hasCore?CX+2:CX+hw(pTop)*.5,hasCore?TY+(GY-TY)*.22:yT(pTop),NX,putA(t),t);}
+ if(mConc>0){const t=`${c.mat.conc} · ${N(massOf('conc'),0)} ${c.u.kgm2} · ${N(ecf.conc,3)} ${c.m.perkg}`;
+  g+=leader(CX+hw(pMid)*.5,yT(pMid),NX,putA(t),t);}
+ if(hasSteel){const t=`${c.mat.steel} · ${N(massOf('steel'),0)} ${c.u.kgm2} · ${N(ecf.steel,2)} ${c.m.perkg}`;
+  g+=leader(CX+hw(0)-1,yT(pMid),NX,putA(t),t);}
+ if((kg.grav_rebar||0)+(kg.lat_rebar||0)>0){const t=`${c.mat.rebar} · ${N(massOf('rebar'),0)} ${c.u.kgm2} · ${N(ecf.rebar,2)} ${c.m.perkg}`;
+  g+=leader(CX+hw(pLow)*.2,yT(pLow),NX,putA(t),t);}
+ {const t=c.m.ground;
+  g+=leader(140,GY,NX,putA(t),t);}
+
+ /* ── the two splits, drawn to scale ─────────────────────────────────────── */
+ const BX=268,BW=162,COL=443,GAP=1.6;
+ const barRect=(x0,y0,x1,y1,fillc)=>`<path d="M${f2(x0)} ${f2(y0)} H${f2(x1)} V${f2(y1)} H${f2(x0)} Z" fill="${fillc}" stroke="var(--ink)" stroke-width=".7"/>`;
+ const segments=(rows,total,val)=>{const use=BW-GAP*(rows.length-1);let x=BX;const out=[];
+  for(const r of rows){const v=val(r);const w=total>0?Math.max(0,(v/total)*use):0;out.push({x,w,v,r});x+=w+GAP;}
+  return out;};
+
+ let py=18;
+ const putP=(text,size=7.5)=>{const ty=py;py+=noteH(text,size)+5;return ty;};
+
+ // the headline: the number the whole lab is about, and what it is per
+ g+=txt(BX,putP(c.m.total,8),c.m.total,{size:8,fixed:true});
+ const valTxt=`${N(tot,1)} ${c.u.co2m2} ${c.m.gross}`;
+ g+=txt(BX,putP(valTxt,10),valTxt,{size:10,fixed:true});
+ g+=rule(BX,py-2,BX+BW,py-2,{c:'var(--line)',w:.6});
+ py+=8;
+
+ // the stages: A1–A3, A4, A5 — and the ones this model does not carry
+ const stRows=[[c.m.sA13,(ac.a13||0)/G],[c.m.sA4,(ac.a4||0)/G],[c.m.sA5,(ac.a5||0)/G]];
+ const stTotal=stRows.reduce((a,r)=>a+r[1],0);
+ g+=txt(BX,putP(c.m.byStage,7.5),c.m.byStage,{size:7.5});
+ const SY0=py,SY1=py+16;
+ const stSeg=segments(stRows,stTotal,r=>r[1]),SF=['var(--muted)','var(--accent)','var(--faint)'];
+ for(let i=0;i<stSeg.length;i++){const s=stSeg[i];if(s.w>0)g+=barRect(s.x,SY0,s.x+s.w,SY1,SF[i]);}
+ py=SY1+12;
+
+ // the materials: the same three the frame is cut of
+ const mtRows=[[c.mat.conc,'conc',carbOf('conc')],[c.mat.rebar,'rebar',carbOf('rebar')],[c.mat.steel,'steel',carbOf('steel')]];
+ const mtTotal=mtRows.reduce((a,r)=>a+r[2],0);
+ g+=txt(BX,putP(c.m.scope,7.5),c.m.scope,{size:7.5});
+ g+=txt(BX,putP(c.byMat,7.5),c.byMat,{size:7.5});
+ const MY0=py,MY1=py+16;
+ const mtSeg=segments(mtRows,mtTotal,r=>r[2]);
+ for(const s of mtSeg){if(s.w<=0)continue;
+  g+=cut(`M${f2(s.x)} ${f2(MY0)} H${f2(s.x+s.w)} V${f2(MY1)} H${f2(s.x)} Z`,s.r[1]==='conc'?'conc':'steel');}
+
+ // the key to both bars, one note per segment, in the column beside them
+ let ny=SY0-10;
+ const putB=text=>{const ty=ny;ny+=noteH(text,7.5)+5;return ty;};
+ for(const s of stSeg){
+  const t=`${s.r[0]} ${PC(stTotal>0?s.v/stTotal:0)} · ${N(s.v,1)} ${c.u.co2m2}`;
+  g+=leader(s.x+s.w/2,(SY0+SY1)/2,COL,putB(t),t);
+ }
+ {const t=fill(c.m.transport,{c:N(CONCRETE_KM,0),s:N(kmS,0),f:N(TEF_ROAD*1000,5)});
+  g+=leader(stSeg[1].x+stSeg[1].w/2,SY1,COL,putB(t),t);}
+ for(const s of mtSeg){
+  const t=`${s.r[0]} ${PC(mtTotal>0?s.v/mtTotal:0)} · ${N(s.v,1)} ${c.u.co2m2}`;
+  // A material the take-off does not contain gets no leader: a leader pointing
+  // at a neighbour's block would say the wrong thing about the wrong material.
+  if(s.w>0)g+=leader(s.x+s.w/2,(MY0+MY1)/2,COL,putB(t),t);else g+=txt(COL,putB(t),t);
+ }
+ return sheet(g,CM.w,CM.h,(c.m.aria||'').replace(/"/g,'&quot;'));
 }

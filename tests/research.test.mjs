@@ -119,3 +119,25 @@ test('new research dependency graph and all excerpts carry content-derived relea
   }
  }
 });
+
+test('the architecture table names every desk, and the limit each one carries',()=>{
+ // The reading path is where a reader learns what this instrument is FOR.
+ // The six desks are the instrument's working parts, and each of them draws
+ // a line: this is what it computes, and this is what it is not. A row that
+ // named the desk without naming its limit would be an advertisement.
+ const DESKS=['lifts','fire','wind','water','glare','carbon'];
+ for(const l of ['en','th','zh']){
+  const p=TRACKS[l].find(t=>t.id==='system').pages.find(x=>x.id==='architecture');
+  const rows=p.table.rows.filter(r=>/\.js$/.test(r[0])&&DESKS.some(d=>r[0].endsWith(d+'.js')));
+  assert.equal(rows.length,6,`${l}: the table must name all six desks, not ${rows.length}`);
+  assert.deepEqual(rows.map(r=>DESKS.find(d=>r[0].endsWith(d+'.js'))),DESKS,`${l}: the desks must appear in the same order in every language`);
+  for(const r of rows){
+   // A Chinese glyph carries more meaning per character, so the floor scales
+   // with the script, as every threshold in this project does.
+   const min=l==='zh'?12:20;
+   assert.ok(r[1].length>min,`${l}: "${r[0]}" says nothing about what it runs`);
+   assert.ok(r[2].length>min,`${l}: "${r[0]}" states no limit`);
+   assert.doesNotMatch(r[2],/\b(is safe|approved|guarantees?|proves?)\b/i,`${l}: "${r[0]}" overclaims`);
+  }
+ }
+});

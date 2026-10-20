@@ -32,8 +32,9 @@
    than the stacks carry, the difference stands on the roof, and the figure
    shows it standing there. */
 
-import {stack,profile,area,evaluate} from './model.js?v=4d4eb35fb5';
-import {liftDesign,servicesDesign,CORE_SRC} from './core.js?v=deb2864e7f';
+import {stack,profile,area,evaluate} from './model.js?v=4739b9a107';
+import {liftDesign,servicesDesign,CORE_SRC} from './core.js?v=7612d67571';
+import {sheet,cut,leader,dim,rule,txt,ground} from './drafting.js?v=895b148bec';
 
 export const WATER_METHOD={
  rho:1000,g:9.81,
@@ -286,9 +287,21 @@ export const WATER_TEXT={
   cannot:'Cannot claim: no hydraulic network model, no fixture-unit simulation of peak flow, no local code check. Pump energy is hydraulic work with stated allowances, not a selection.',
   assumes:'Assumes: friction 10% of lift; boosters at 0.85 of rated efficiency through the day; filling pumps at 2.5× mean demand; at least two rainwater stacks; outlets at floor level; the demand profile is illustrative, not measured.',
   sources:'Sources',
-  note:'Every litre for a low floor that goes to the roof first is lifted twice — once by the pump, once more as head that a valve must destroy. Direct boosters lift each zone only as high as it needs but hold nothing; tanks on the plant floors lift almost as little and still keep water flowing when the power stops. Drag the outage and watch which riser keeps running.',
-  noteDrain:'Rain on the roof is Q = i·A/3600. A stack carries a fixed flow; what the stacks cannot take stands on the roof until the storm passes, and a ponded roof is a structural load. Wastewater runs in its own stacks, with velocity breakers every ten floors on a tall one.',
-  aria:'Water lab, live section'
+  note:'Every litre for a low floor that goes to the roof first is lifted twice: once by the pump, once as head a valve must destroy. Drag the outage and watch which riser keeps running.',
+  noteDrain:'Rain on the roof is Q = i·A/3600. A stack carries a fixed flow; what the stacks cannot take stands on the roof until the storm passes, and a ponded roof is a structural load. Wastewater runs in its own stacks, with velocity breakers every ten floors.',
+  aria:'Water lab, live section',
+  /* The method sheet's own words. Flat keys, so the dict stays a flat dict. */
+  m1:'The tower in section, cut into pressure zones: one zone spans (Pmax − Pmin)/ρg. The three ways of feeding those zones side by side: E = ρgVH/η, split into the head the tap needs and the head burnt in a valve.',
+  mAria:'Method drawing: the tower in section, cut into pressure zones, with the roof tank, the tanks on the plant floors and the booster at each zone top marked, and the pumping energy of the three strategies drawn as three bars, each split into the head the tap needs and the head burnt in a valve.',
+  mTitleSup:'Supply',mTitleBar:'Pumping energy, a day',
+  mLabelA:'A · roof tank',mLabelB:'B · zone boosters',mLabelC:'C · plant-floor tanks',
+  mLabelAC:'A and C · the roof tank',
+  mPump:'pump',
+  mWindow:'{a} → {b} bar',
+  mStoreAC:'A and C hold {s} h of water aloft',mStoreNone:'no strategy holds water aloft',mStoreB:'B holds no water aloft',
+  mBarVal:'{e} kWh/d',mBarBurnt:'{p}% burnt',
+  mKeyNeed:'head the tap needs',mKeyBurnt:'head burnt in a valve',
+  mFormula:'energy E = ρgVH/η'
  },
  th:{
   viewSupply:'ระบบจ่ายน้ำ',viewDrain:'ระบบระบายน้ำ',view:'มุมมอง',strategy:'แนวทาง',play:'เล่น',pause:'หยุด',
@@ -324,9 +337,20 @@ export const WATER_TEXT={
   cannot:'ข้อจำกัด: ไม่ใช่แบบจำลองโครงข่ายชลศาสตร์ ไม่ได้จำลองอัตราการไหลสูงสุดด้วยหน่วยสุขภัณฑ์ และไม่ได้ตรวจสอบตามกฎหมายท้องถิ่น พลังงานปั๊มเป็นงานทางชลศาสตร์ตามสมมติฐานที่ระบุ ไม่ใช่การเลือกปั๊มจริง',
   assumes:'สมมติฐาน: แรงเสียดทาน 10% ของความสูงยก ปั๊มเพิ่มแรงดันทำงานที่ 0.85 ของประสิทธิภาพพิกัดตลอดวัน ปั๊มเติมถังขนาด 2.5 เท่าของอัตราใช้เฉลี่ย ท่อน้ำฝนอย่างน้อยสองท่อ จุดใช้น้ำอยู่ที่ระดับพื้น และรูปแบบการใช้น้ำรายชั่วโมงเป็นเพียงตัวอย่าง ไม่ใช่ข้อมูลตรวจวัด',
   sources:'แหล่งอ้างอิง',
-  note:'น้ำทุกลิตรสำหรับชั้นล่างที่ต้องขึ้นไปถึงหลังคาก่อนถูกยกสองครั้ง ครั้งแรกโดยปั๊ม อีกครั้งในรูปเฮดที่วาล์วต้องทำลายทิ้ง ปั๊มเพิ่มแรงดันแยกโซนยกน้ำเท่าที่แต่ละโซนต้องการแต่ไม่มีน้ำสำรอง ส่วนถังบนชั้นเครื่องกลยกน้อยเกือบเท่ากันและยังจ่ายน้ำได้เมื่อไฟดับ ลองเลื่อนช่วงไฟดับแล้วดูว่าท่อใดยังมีน้ำไหล',
+  note:'น้ำทุกลิตรสำหรับชั้นล่างที่ต้องขึ้นถึงหลังคาก่อนถูกยกสองครั้ง ครั้งแรกโดยปั๊ม อีกครั้งในรูปเฮดที่วาล์วต้องทำลายทิ้ง ลองเลื่อนช่วงไฟดับแล้วดูว่าท่อใดยังมีน้ำไหล',
   noteDrain:'น้ำฝนบนหลังคาคือ Q = i·A/3600 ท่อดิ่งแต่ละท่อรับน้ำได้จำกัด ส่วนที่รับไม่ทันจะขังบนหลังคาจนพายุผ่านไป และน้ำขังคือน้ำหนักที่โครงสร้างต้องรับ น้ำเสียแยกท่อดิ่งของตัวเอง และอาคารสูงต้องมีข้อลดความเร็วทุกสิบชั้น',
-  aria:'ห้องทดลองระบบน้ำ รูปตัดเคลื่อนไหว'
+  aria:'ห้องทดลองระบบน้ำ รูปตัดเคลื่อนไหว',
+  m1:'ภาคตัดอาคารที่ถูกแบ่งเป็นโซนแรงดัน โซนหนึ่งสูงไม่เกิน (Pmax − Pmin)/ρg ภาพเทียบสามแนวทางจ่ายน้ำ E = ρgVH/η แยกเป็นเฮดที่จุดใช้น้ำต้องการกับเฮดที่วาล์วทำลายทิ้ง',
+  mAria:'ภาพวิธีคำนวณ: ภาคตัดอาคารที่แบ่งเป็นโซนแรงดัน พร้อมถังบนหลังคา ถังบนชั้นเครื่องกล และปั๊มเพิ่มแรงดันที่ยอดโซน พลังงานสูบน้ำของสามแนวทางวาดเป็นแท่งสามแท่ง แต่ละแท่งแบ่งเป็นเฮดที่จุดใช้น้ำต้องการกับเฮดที่วาล์วทำลายทิ้ง',
+  mTitleSup:'ระบบจ่ายน้ำ',mTitleBar:'พลังงานสูบน้ำต่อวัน',
+  mLabelA:'A · ถังบนหลังคา',mLabelB:'B · ปั๊มแยกโซน',mLabelC:'C · ถังชั้นเครื่องกล',
+  mLabelAC:'A และ C · ถังบนหลังคา',
+  mPump:'ปั๊ม',
+  mWindow:'{a} → {b} บาร์',
+  mStoreAC:'A และ C เก็บน้ำบนที่สูง {s} ชม.',mStoreNone:'ไม่มีแนวทางใดเก็บน้ำไว้บนที่สูง',mStoreB:'B ไม่เก็บน้ำไว้บนที่สูง',
+  mBarVal:'{e} kWh ต่อวัน',mBarBurnt:'{p}% สูญเสียในวาล์ว',
+  mKeyNeed:'เฮดที่จุดใช้น้ำต้องการ',mKeyBurnt:'เฮดที่วาล์วทำลายทิ้ง',
+  mFormula:'พลังงาน E = ρgVH/η'
  },
  zh:{
   viewSupply:'给水',viewDrain:'排水',view:'视图',strategy:'方案',play:'播放',pause:'暂停',
@@ -362,9 +386,20 @@ export const WATER_TEXT={
   cannot:'不能声称：未建立水力管网模型，未按卫生器具当量模拟峰值流量，未核对当地规范。水泵能耗为附带假设的水力功，并非选型结果。',
   assumes:'假设：摩阻按提升高度的 10%；加压泵全天按额定效率的 0.85 运行；补水泵按平均用水量的 2.5 倍；雨水立管至少两根；用水点位于楼面标高；逐时用水曲线仅为示意，并非实测。',
   sources:'来源',
-  note:'低层用水若先送上屋顶，就等于被提升了两次——一次靠水泵，一次化作必须由阀门消耗掉的水头。分区直接加压只把每区提升到所需高度，却没有储水；设备层水箱提升得几乎一样少，停电时仍能供水。拖动停电时长，看看哪根立管还在流。',
+  note:'低层用水若先送上屋顶，就等于被提升了两次——一次靠水泵，一次化作阀门必须消耗掉的水头。拖动停电时长，看看哪根立管还在流。',
   noteDrain:'屋面雨水 Q = i·A/3600。每根立管的排水能力是固定的；排不走的水会留在屋面上，直到雨停，而屋面积水就是结构荷载。污水走独立立管，超高层每十层设一组消能弯。',
-  aria:'水系统实验室，动态剖面'
+  aria:'水系统实验室，动态剖面',
+  m1:'塔楼剖面按压力分区：每区不超过 (Pmax − Pmin)/ρg。右侧并列三种供水方式：E = ρgVH/η，分为龙头所需的扬程与阀门消耗的扬程。',
+  mAria:'方法图：塔楼剖面按压力分区，标出屋顶水箱、设备层水箱与各区顶部的加压泵；三套方案的泵送能耗各画成一条横条，分为龙头所需的扬程与阀门消耗的扬程。',
+  mTitleSup:'给水',mTitleBar:'每日泵送能耗',
+  mLabelA:'A · 屋顶水箱',mLabelB:'B · 分区加压泵',mLabelC:'C · 设备层水箱',
+  mLabelAC:'A 与 C · 屋顶水箱',
+  mPump:'水泵',
+  mWindow:'{a} → {b} 巴',
+  mStoreAC:'A 与 C 高位储水 {s} 小时',mStoreNone:'各方案均不在高位储水',mStoreB:'B 高位不储水',
+  mBarVal:'{e} 千瓦时/天',mBarBurnt:'{p}% 耗于减压阀',
+  mKeyNeed:'龙头所需的扬程',mKeyBurnt:'阀门消耗的扬程',
+  mFormula:'能耗 E = ρgVH/η'
  }
 };
 const fill=(t,o)=>t.replace(/\{(\w+)\}/g,(_,k)=>o[k]??'');
@@ -382,6 +417,119 @@ export function drainSentence(r,lang='en'){
   (r.excess>0?fill(T.recPond,{n:r.n,mm:nf(r.pond),d:nf(r.inp.dur)}):fill(T.recPondNo,{n:r.n}));
 }
 function nfmt(lang){return(v,dec=0)=>Number.isFinite(v)?(+v).toLocaleString(lang==='zh'?'zh-CN':lang==='th'?'th-TH':'en-GB',{minimumFractionDigits:dec,maximumFractionDigits:dec}):'—'}
+
+/* ── the method, drawn ──────────────────────────────────────────────────────
+   The water lab's method was a paragraph: how the pressure window cuts the
+   tower into zones, and what becomes of the head the pumps put in before it
+   reaches the tap. A paragraph cannot show a PROPORTION. The sheet can: the
+   section says where each strategy takes its water from, and the three bars
+   say how much of the head each one destroys in a valve.
+
+   Every NUMBER on the sheet is a number the lab has already computed. The
+   payload comes from waterMethodPayload(), which is built from the SAME
+   supplyDesign() call that produces the numbers the lab reports, so the
+   drawing and the arithmetic cannot drift apart. Nothing here is drawn from
+   a constant.
+
+   Every WORD on the sheet comes out of WATER_TEXT[lang]. There is no English
+   left lying about on the Thai sheet or the Chinese one. */
+const MW=490,MH=215;
+
+/* The payload is the lab's own design and nothing else. If a quantity the
+   sheet needs is not in it, the fix is to carry it here — never to invent it
+   in the drawing. */
+export function waterMethodPayload(d){
+ if(!d||!d.inp||!Array.isArray(d.zones)||!d.zones.length)return null;
+ const strats=['A','B','C'].map(k=>{
+  const s=d[k];if(!s)return null;
+  return {key:k,energy:s.energy,waste:s.waste,head:s.head,
+   tanks:(s.tanks||[]).length,pumps:s.pumps,storage:s.storageH};
+ }).filter(Boolean);
+ if(!strats.length)return null;
+ return {H:d.H,zTop:d.zTop,band:d.band,nZones:d.zones.length,
+  zones:d.zones.map(z=>({zBot:z.zBot,zTop:z.zTop,count:z.count})),
+  pmax:d.inp.pmax,pmin:d.inp.pmin,V:d.V,pop:d.pop,lpd:d.inp.lpd,
+  tanks:(d.C&&d.C.tanks||[]).map(t=>({z:t.z,roof:!!t.roof})),
+  strats,maxE:Math.max(...strats.map(s=>s.energy))||1};
+}
+
+export function waterMethodSVG(p,{lang='en'}={}){
+ const c=WATER_TEXT[lang]||WATER_TEXT.en;
+ if(!p)return sheet('',MW,MH,'');
+ const nf=nfmt(lang);
+ const f1=v=>Number.isFinite(v)?v.toFixed(1):'—';
+ const GY=150,TY=48,k=(GY-TY)/Math.max(1,p.H),yOf=z=>GY-z*k;
+ const labelOf=s=>s.key==='A'?c.mLabelA:s.key==='B'?c.mLabelB:c.mLabelC;
+ const A=p.strats.find(s=>s.key==='A');
+ let g='';
+ /* the ground, and the tower cut through it */
+ g+=ground(12,GY,100);
+ g+=cut(`M46 ${TY} H54 V${GY} H46 Z`,'conc');
+ g+=cut(`M88 ${TY} H96 V${GY} H88 Z`,'conc');
+ g+=cut(`M42 ${TY} H100 V${TY+3} H42 Z`,'conc');
+ /* the tank on the roof: where A takes its water from */
+ g+=cut(`M58 39 H86 V${TY} H58 Z`,'metal');
+ /* the tanks on the plant floors: where C takes its water from */
+ const plant=(p.tanks||[]).filter(t=>!t.roof).sort((a,b)=>b.z-a.z);
+ let plantY=null,lastY=TY;
+ for(const t of plant){
+  let yb=yOf(t.z);
+  if(yb<TY+10)yb=TY+10;                       // never drawn through the roof slab
+  if(Math.abs(yb-lastY)<9)continue;
+  g+=cut(`M64 ${(yb-6).toFixed(2)} H80 V${yb.toFixed(2)} H64 Z`,'metal');
+  lastY=yb;if(plantY===null)plantY=yb-3;
+ }
+ /* the pump, in the basement */
+ g+=cut(`M60 152 H76 V162 H60 Z`,'metal');
+ /* the pressure zones, as dashed bands, and the top of each one marked: that
+    is where B puts its booster */
+ for(const z of p.zones){
+  const y0=yOf(z.zTop),y1=yOf(z.zBot);
+  g+=rule(42,y0.toFixed(2),104,y0.toFixed(2),{c:'var(--faint)',w:.6,dash:'3 2'});
+  g+=rule(104,y0.toFixed(2),104,y1.toFixed(2),{c:'var(--faint)',w:.6,dash:'3 2'});
+  g+=rule(104,y1.toFixed(2),42,y1.toFixed(2),{c:'var(--faint)',w:.6,dash:'3 2'});
+  g+=rule(42,y1.toFixed(2),42,y0.toFixed(2),{c:'var(--faint)',w:.6,dash:'3 2'});
+  g+=rule(104,y0.toFixed(2),112,y0.toFixed(2),{c:'var(--accent)',w:1.2});
+ }
+ /* the height of the tower, dimensioned */
+ g+=dim(34,GY,34,TY,`${f1(p.H)} m`);
+ /* the names, in the margin, each landing on the thing it names */
+ g+=txt(12,20,c.mTitleSup);
+ g+=leader(86,42,128,26,plant.length?c.mLabelA:c.mLabelAC);
+ if(plantY!==null)g+=leader(80,plantY,128,50,c.mLabelC);
+ g+=leader(112,yOf(p.zones[Math.floor(p.zones.length/2)].zTop),128,74,c.mLabelB);
+ g+=leader(104,GY,128,98,fill(c.mWindow,{a:f1(p.pmax),b:f1(p.pmin)}));
+ g+=leader(104,yOf(p.zones[0].zTop),128,122,fill(c.zonesV,{n:p.nZones,b:f1(p.band)}));
+ g+=leader(76,157,128,146,c.mPump);
+ const st=A?A.storage:0;
+ g+=txt(128,172,st>0?fill(c.mStoreAC,{s:nf(st)}):c.mStoreNone);
+ g+=txt(128,196,c.mStoreB);
+ /* ── the bars: the pumping energy of each strategy, in proportion, split
+      into the head the tap needs and the head the valve has to destroy ──── */
+ const BX0=270,BX1=405,BH=16,rows=[62,96,130];
+ p.strats.forEach((s,i)=>{
+  const y=rows[i]!==undefined?rows[i]:50+i*34;
+  const w=Math.max(0,(BX1-BX0)*s.energy/p.maxE);
+  const wB=w*(Number.isFinite(s.waste)?s.waste:0),wN=w-wB;
+  let x=BX0;
+  if(wN>0.05){g+=cut(`M${x} ${y} H${(x+wN).toFixed(2)} V${y+BH} H${x} Z`,'metal');x+=wN}
+  if(wB>0.05){g+=cut(`M${x.toFixed(2)} ${y} H${(x+wB).toFixed(2)} V${y+BH} H${x.toFixed(2)} Z`,'wool')}
+  g+=txt(BX0,y-6,labelOf(s),{anchor:'start'});   // clear of the bar it names
+  g+=txt(415,y+2,fill(c.mBarVal,{e:nf(s.energy,1)}));
+  g+=txt(415,y+15,fill(c.mBarBurnt,{p:Math.round((Number.isFinite(s.waste)?s.waste:0)*100)}));
+ });
+ /* the key to the two materials, and the formula the bars are the picture of */
+ g+=cut(`M${BX0} 158 H${BX0+12} V166 H${BX0} Z`,'metal');
+ g+=txt(BX0+16,164,c.mKeyNeed,{anchor:'start'});
+ g+=cut(`M${BX0} 174 H${BX0+12} V182 H${BX0} Z`,'wool');
+ g+=txt(BX0+16,180,c.mKeyBurnt,{anchor:'start'});
+ /* The resolver will not set a note above the top margin, so the panel's own
+    heading starts there and everything else is laid out below it. */
+ g+=txt(BX0,25,c.mTitleBar,{anchor:'start'});
+ g+=txt(BX0,39,c.mFormula,{anchor:'start'});
+ g+=txt(BX0,196,fill(c.demandV,{p:nf(p.pop),l:nf(p.lpd),v:nf(p.V,1)}),{anchor:'start'});
+ return sheet(g,MW,MH,c.mAria);
+}
 
 /* ── the lab ──────────────────────────────────────────────────────────── */
 const C={bg:'#111416',dim:'#a2aca9',faint:'#3a4245',grid:'#1c2124',band:'#171c1f',plant:'#22282b',
@@ -455,9 +603,13 @@ function build(host,lang){
  dr.append(dc[0].node,modeLab,dnLab,dc[1].node,dc[2].node);
  const read=el('dl','wat-read');
  const rec=el('p','wat-rec'),note=el('p','wat-note'),cannot=el('p','wat-cannot'),assumes=el('p','wat-cannot'),src=el('p','wat-src');
- root.append(canvas,bar,time.node,storm.node,sup,dr,read,rec,note,cannot,assumes,src);
+ /* the method, drawn: a figure, so the caption is a figcaption */
+ const methodFig=el('figure','wat-method');
+ const methodBox=el('div','wat-methodsvg');
+ methodFig.append(methodBox,el('figcaption','wat-methodcap',T.m1));
+ root.append(canvas,bar,time.node,storm.node,sup,dr,read,rec,methodFig,note,cannot,assumes,src);
  host.append(root);
- S.ui={root,canvas,view,strat,play,stratName,time,storm,sup,dr,sc,dc,useSeg,modeSeg,dnSeg,popIn,read,rec,note,cannot,assumes,src,rows:{},T};
+ S.ui={root,canvas,view,strat,play,stratName,time,storm,sup,dr,sc,dc,useSeg,modeSeg,dnSeg,popIn,read,rec,note,cannot,assumes,src,methodFig,methodBox,rows:{},T};
  if(S.ro)S.ro.disconnect();
  if(typeof ResizeObserver==='function'){S.ro=new ResizeObserver(()=>{size();if(S.active||reduced())draw()});S.ro.observe(canvas)}
  S.mono=(getComputedStyle(host).getPropertyValue('--mono')||'').trim()||'monospace';
@@ -530,6 +682,8 @@ function update(){
    u.src.textContent=T.sources+': '+[WATER_SRC.rain,WATER_SRC.drains].join(' · ');
   }
   u.cannot.textContent=T.cannot;u.assumes.textContent=T.assumes;
+  /* the method sheet, drawn from the SAME design the numbers above came from */
+  try{const pay=waterMethodPayload(S.d);u.methodBox.innerHTML=pay?waterMethodSVG(pay,{lang:S.lang}):''}catch{u.methodBox.innerHTML=''}
   u.canvas.setAttribute('aria-label',T.aria+'. '+u.rec.textContent);
   loop();draw();
  }catch(e){/* never throw into the console */}

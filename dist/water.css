@@ -25,6 +25,14 @@
 .wat-rec{margin:0;max-width:68ch;padding-left:10px;border-left:2px solid var(--accent)}
 .wat-note,.wat-cannot{margin:0;max-width:68ch;color:var(--muted)}
 .wat-src{margin:0;max-width:68ch;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* The method sheet: a drawing that scales to the panel, and the caption under
+   it. The sheet is a fixed number of drawing units, so it is given the width
+   and keeps its own proportions — no rounded corners, no shadow, no fill. */
+.wat-method{margin:0;padding-top:8px;border-top:1px solid var(--line)}
+.wat-methodsvg{margin:0;min-width:0}
+.wat-methodsvg svg{display:block;width:100%;height:auto;background:var(--paper)}
+.wat-methodcap{margin:6px 0 0;font-size:12px;line-height:1.45;color:var(--muted);max-width:68ch}
+.wat-methodcap:empty{display:none}
 @media (max-width:600px){
  .wat-canvas{height:360px}
  .wat-ctl{grid-template-columns:1fr}

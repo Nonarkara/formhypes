@@ -3,7 +3,7 @@
 // quoted as given. Every neighbouring block below is contextual massing composed
 // for this study: not surveyed, every height indicative. Both facts are printed
 // on screen, not merely held here.
-import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=4d4eb35fb5';
+import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=4739b9a107';
 import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposure} from './solar.js?v=9279efc6dc';
 import {lensOf,lensSVG,lensFormula,LENS_KEY,LIFE_YEARS} from './lens.js?v=2949cf8b98';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';

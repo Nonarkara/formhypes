@@ -57,8 +57,9 @@
    mean stair descent of mobility-impaired people without aids ≈ 0.33 m/s.
    They are modelled waiting for their floor's queue to clear, then descending
    at their own speed; with lifts in use they take the lifts first. */
-import {stack,profile,area,evaluate} from './model.js?v=4d4eb35fb5';
-import {liftDesign,CORE_METHOD} from './core.js?v=deb2864e7f';
+import {stack,profile,area,evaluate} from './model.js?v=4739b9a107';
+import {liftDesign,CORE_METHOD} from './core.js?v=7612d67571';
+import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow,brkV} from './drafting.js?v=895b148bec';
 
 /* ── SFPE constants ─────────────────────────────────────────────────────── */
 export const A_SFPE=0.266;
@@ -356,7 +357,8 @@ export const FIRE_TEXT={
   verdict:{base:'{n} stairs at {w} m clear move {f} people a minute between them; the crowd reaches the exit level by {t}.',wider:'Each stair {w2} m wide: {t2}. One more stair: {t3}.',prm:'The slowest group is the occupants with reduced mobility: the last of them arrives at {t}. Evacuation lifts or refuge floors shorten that; a wider stair barely does.',over:'Refuge level {f} would need room for {d} people against {c}.',need:'A refuge floor is required at this height under {code}, and none is switched on.',lifts:'The lifts finish at {t}: with these cars, more lift users would lengthen the evacuation, not shorten it.'},
   code:{hk:'the HK Code (over 25 storeys)',gb:'GB 50016 (over 100 m)'},
   chart:{title:'Evacuation time against stair width',note:'This tower with {n} stairs, simultaneous, to the exit level. Solid: the simulation. Dashed: Pauls’ approximation. The amber point is the current width.',x:'clear stair width, m',y:'min'},
-  method:'How it is computed: each stair is a column of short cells. Speed and flow in a cell follow the SFPE hydraulic relations: speed S = k(1 − 0.266·D), specific flow F_s = S·D, its maximum at 1.88 people/m². A crowded stair moves slower and passes fewer people, so a queue that forms in it climbs upward. Each floor joins the stair at its door; where the stair cannot take both, the space is shared half and half between people already descending and people entering, after Pauls’ observations of merging. Refuge floors take people off the stair until they fill.',
+  method:'Each stair is a column of short cells: speed S = k(1 − 0.266·D) and specific flow F_s = S·D, so a crowded stair moves slower and passes fewer. Floors join at their door, sharing the space half and half. Refuge floors take people off the stair until they fill.',
+  m:{pre:'pre-movement',p1:'phase 1: refuge',p1b:'phase 1: fire floor',p2:'phase 2: exit',tail:'last: reduced',tailLift:'lifts still going',times:'min : sec',total:'total',fire:'fire · level {f}',refuge:'refuge {f} · {h} held',exit:'exit level {f}',stair:'riser/tread {r}/{t}',pitch:'pitch {a}°',flow:'people move down',skip:'{n} storeys',storeys:'{n} storeys',people:'{n} in the tower',onStairs:'{n} on the stairs',prm:'{n} reduced mobility',strategy:'strategy: {s}',release:'the rest is released',aria:'Schematic section of the escape stair. The refuge level and the fire floor are marked, and people move down the flights to the exit level at the bottom. Beside it, the total evacuation time is split in proportion into the pre-movement allowance, the descent to the refuge level, the descent from the refuge level to the exit, and the last occupant with reduced mobility.'},
   cannot:'Cannot claim: this is not a performance-based fire engineering assessment. No smoke, tenability or fire growth; no human-behaviour model beyond hydraulic flow; no firefighters climbing against the flow; exits at grade and landings are assumed not to limit. One occupant load for every floor, retail included. Local code and the authority having jurisdiction govern.',
   src:'Sources: SFPE Handbook of Fire Protection Engineering, 5th ed. (2016), Gwynne & Rosenbaum, hydraulic model (constants as reproduced in NIST TN 1722 and PD 7974-6:2019 Annex G) (speed, specific flow, boundary layers, stair types, travel factors) · Pauls; Proulx, “Evacuation Timing”, SFPE Handbook, t = 0.68 + 0.081·p^0.73, stated up to 15 storeys (NIST TN 1722 Eq. 31) · NFPA 101 · BS 9999:2017 Table 1 · IBC 2021 Table 1004.5 and §3008 · HK Code of Practice for Fire Safety in Buildings 2011 · GB 50016-2014 §5.5.23 · Boyce, Shields & Silcock, Fire Technology 35 (1999) · CIBSE Guide D. Each value to be checked against the edition in force.'},
  th:{title:'การอพยพหนีไฟ',
@@ -380,7 +382,8 @@ export const FIRE_TEXT={
   verdict:{base:'บันได {n} ชุด กว้างสุทธิ {w} ม. รับคนได้รวม {f} คนต่อนาที ฝูงชนลงถึงระดับทางออกหมดภายใน {t}',wider:'ถ้าบันไดแต่ละชุดกว้าง {w2} ม.: {t2} ถ้าเพิ่มบันไดอีกหนึ่งชุด: {t3}',prm:'กลุ่มที่ช้าที่สุดคือผู้มีข้อจำกัดในการเคลื่อนไหว คนสุดท้ายของกลุ่มนี้ถึงที่ {t} ลิฟต์อพยพหรือชั้นหลบภัยช่วยลดเวลานี้ได้ แต่การขยายบันไดแทบไม่ช่วย',over:'ชั้นหลบภัยชั้น {f} ต้องรับคน {d} คน แต่รับได้ {c} คน',need:'ที่ความสูงนี้ {code} กำหนดให้มีชั้นหลบภัย แต่ยังไม่ได้เปิดใช้',lifts:'ลิฟต์เสร็จสิ้นที่ {t} ด้วยจำนวนลิฟต์เท่านี้ การเพิ่มผู้ใช้ลิฟต์จะทำให้การอพยพนานขึ้น ไม่ใช่สั้นลง'},
   code:{hk:'มาตรฐานฮ่องกง (เกิน 25 ชั้น)',gb:'GB 50016 (เกิน 100 ม.)'},
   chart:{title:'เวลาอพยพเทียบกับความกว้างบันได',note:'อาคารนี้ บันได {n} ชุด อพยพพร้อมกัน ถึงระดับทางออก เส้นทึบ: ผลจำลอง เส้นประ: ค่าประมาณของ Pauls จุดสีอำพันคือความกว้างปัจจุบัน',x:'ความกว้างสุทธิของบันได ม.',y:'นาที'},
-  method:'วิธีคำนวณ: บันไดแต่ละชุดแบ่งเป็นช่วงสั้น ๆ ต่อกัน ความเร็วและอัตราการไหลในแต่ละช่วงเป็นไปตามความสัมพันธ์ไฮดรอลิกของ SFPE ความเร็ว S = k(1 − 0.266·D) อัตราการไหลจำเพาะ F_s = S·D สูงสุดที่ 1.88 คน/ตร.ม. บันไดที่แออัดเคลื่อนช้าลงและให้คนผ่านได้น้อยลง คิวที่เกิดในบันไดจึงลามขึ้นด้านบน แต่ละชั้นเข้าสู่บันไดที่ประตูของตน เมื่อบันไดรับทั้งสองทางไม่ไหว พื้นที่จะแบ่งครึ่งระหว่างคนที่กำลังลงกับคนที่เข้ามาใหม่ ตามข้อสังเกตเรื่องการรวมกระแสของ Pauls ชั้นหลบภัยรับคนออกจากบันไดจนเต็ม',
+  method:'บันไดแต่ละชุดแบ่งเป็นช่วงสั้น ๆ ความเร็ว S = k(1 − 0.266·D) อัตราการไหลจำเพาะ F_s = S·D บันไดที่แออัดจึงเคลื่อนช้าลงและให้คนผ่านได้น้อยลง แต่ละชั้นเข้าสู่บันไดที่ประตูของตนและแบ่งพื้นที่กันครึ่งหนึ่ง ชั้นหลบภัยรับคนออกจากบันไดจนเต็ม',
+  m:{pre:'ก่อนเคลื่อนที่',p1:'ระยะที่ 1: หลบภัย',p1b:'ระยะที่ 1: ชั้นเพลิง',p2:'ระยะที่ 2: ทางออก',tail:'คนสุดท้าย: ช้า',tailLift:'ลิฟต์ยังทำงาน',times:'นาที : วินาที',total:'รวม',fire:'เพลิงไหม้ · ชั้น {f}',refuge:'หลบภัย {f} {h} คน',exit:'ระดับทางออก {f}',stair:'บันได {r}/{t} มม.',pitch:'มุม {a}°',flow:'เคลื่อนที่ลง',skip:'{n} ชั้น',storeys:'{n} ชั้น',people:'{n} คนในอาคาร',onStairs:'{n} คนบนบันได',prm:'{n} เคลื่อนที่ช้า',strategy:'วิธี: {s}',release:'ชั้นอื่นได้รับสัญญาณ',aria:'ภาพตัดแบบแผนผังของบันไดหนีไฟ มีการกำหนดชั้นหลบภัยและชั้นที่เกิดเพลิงไหม้ ผู้ใช้อาคารเคลื่อนที่ลงตามชั้นบันไดไปยังระดับทางออกด้านล่าง ข้าง ๆ คือเวลาอพยพทั้งหมดที่แบ่งตามสัดส่วนเป็นเวลาก่อนเริ่มเคลื่อนที่ ช่วงลงถึงชั้นหลบภัย ช่วงลงจากชั้นหลบภัยถึงทางออก และผู้มีข้อจำกัดในการเคลื่อนไหวคนสุดท้าย'},
   cannot:'สิ่งที่อ้างไม่ได้: นี่ไม่ใช่การประเมินทางวิศวกรรมป้องกันอัคคีภัยแบบอิงสมรรถนะ ไม่มีควัน สภาวะที่ทนได้ หรือการลุกลามของไฟ ไม่มีแบบจำลองพฤติกรรมมนุษย์นอกเหนือจากการไหลแบบไฮดรอลิก ไม่มีพนักงานดับเพลิงที่เดินสวนขึ้นมา สมมติว่าทางออกที่ระดับพื้นและชานพักไม่เป็นข้อจำกัด ใช้อัตราผู้ใช้อาคารเดียวกันทุกชั้นรวมถึงพื้นที่ค้าปลีก มาตรฐานท้องถิ่นและหน่วยงานผู้มีอำนาจเป็นผู้กำหนด',
   src:'แหล่งอ้างอิง: SFPE Handbook of Fire Protection Engineering ฉบับที่ 5 (2016) Gwynne & Rosenbaum แบบจำลองไฮดรอลิก (ค่าคงที่ตามที่อ้างใน NIST TN 1722 และ PD 7974-6:2019 ภาคผนวก G) (ความเร็ว อัตราการไหลจำเพาะ ชั้นขอบ ประเภทบันได ตัวคูณระยะเดิน) · Pauls; Proulx, “Evacuation Timing”, SFPE Handbook, t = 0.68 + 0.081·p^0.73 ใช้กับอาคารไม่เกิน 15 ชั้น (NIST TN 1722 สมการ 31) · NFPA 101 · BS 9999:2017 ตาราง 1 · IBC 2021 ตาราง 1004.5 และข้อ 3008 · HK Code of Practice for Fire Safety in Buildings 2011 · GB 50016-2014 ข้อ 5.5.23 · Boyce, Shields & Silcock, Fire Technology 35 (1999) · CIBSE Guide D ทุกค่าควรตรวจสอบกับฉบับที่ใช้บังคับ'},
  zh:{title:'火灾疏散',
@@ -404,7 +407,8 @@ export const FIRE_TEXT={
   verdict:{base:'{n} 部净宽 {w} 米的楼梯合计每分钟通过 {f} 人；人流在 {t} 前全部到达出口层。',wider:'每部楼梯加宽到 {w2} 米：{t2}。再加一部楼梯：{t3}。',prm:'最慢的是行动不便者，其中最后一人在 {t} 到达。疏散电梯或避难层可以缩短这一时间，加宽楼梯几乎无济于事。',over:'第 {f} 层避难层需要容纳 {d} 人，但只能容纳 {c} 人。',need:'按{code}，此高度需要设置避难层，但目前未开启。',lifts:'电梯在 {t} 才完成：以现有电梯数量，增加乘梯人数只会延长疏散，而不会缩短。'},
   code:{hk:'香港守则（超过 25 层）',gb:'GB 50016（超过 100 米）'},
   chart:{title:'疏散时间与楼梯宽度',note:'本塔楼，{n} 部楼梯，同时疏散至出口层。实线：模拟值。虚线：Pauls 近似值。琥珀色点为当前宽度。',x:'楼梯净宽，米',y:'分'},
-  method:'计算方法：每部楼梯被分成一串短单元。单元内的速度和流量遵循 SFPE 水力模型：速度 S = k(1 − 0.266·D)，比流量 F_s = S·D，在 1.88 人/平方米时达到最大。楼梯越拥挤走得越慢、通过的人越少，因此楼梯里形成的队伍会向上蔓延。各楼层从本层的门进入楼梯；当楼梯容纳不下两股人流时，按 Pauls 对汇流的观察，空间由正在下楼的人和新进入的人各占一半。避难层把人从楼梯上接走，直到住满为止。',
+  method:'每部楼梯分成一串短单元：速度 S = k(1 − 0.266·D)，比流量 F_s = S·D，楼梯越拥挤走得越慢、通过的人越少。各楼层从本层的门进入，容纳不下时各占一半。避难层把人从楼梯上接走，直到住满为止。',
+  m:{pre:'疏散准备',p1:'第一阶段: 避难层',p1b:'第一阶段: 起火层',p2:'第二阶段: 出口层',tail:'最后: 行动不便',tailLift:'电梯仍在运行',times:'分 : 秒',total:'合计',fire:'起火 · 第 {f} 层',refuge:'避难层 {f} · {h} 人',exit:'出口层 {f}',stair:'踏步高/宽 {r}/{t} 毫米',pitch:'坡度 {a}°',flow:'人员向下移动',skip:'{n} 层',storeys:'{n} 层',people:'楼内 {n} 人',onStairs:'楼梯上 {n} 人',prm:'{n} 人行动不便',strategy:'方式：{s}',release:'其余楼层开始疏散',aria:'疏散楼梯剖面示意。标出避难层与起火层，人员沿梯段下行至底部出口层。旁边按比例划分总疏散时间：疏散准备、下行至避难层、从避难层下行至出口层，以及最后一位行动不便者。'},
   cannot:'不能据此断言：这不是性能化消防评估。没有烟气、可承受条件或火灾发展；除水力流动外没有人员行为模型；没有逆向上楼的消防员；假定首层出口和楼梯平台不构成限制。所有楼层（包括零售层）采用同一人员密度。以当地规范和主管部门为准。',
   src:'来源：SFPE Handbook of Fire Protection Engineering 第 5 版（2016），Gwynne & Rosenbaum，水力模型（常数据 NIST TN 1722 与 PD 7974-6:2019 附录 G 转引）（速度、比流量、边界层、楼梯类型、行走距离系数）· Pauls；Proulx，“Evacuation Timing”，SFPE Handbook，t = 0.68 + 0.081·p^0.73，适用于不超过 15 层的建筑（NIST TN 1722 式 31）· NFPA 101 · BS 9999:2017 表 1 · IBC 2021 表 1004.5 及第 3008 节 · 香港《建筑物消防安全守则》2011 · GB 50016-2014 第 5.5.23 条 · Boyce, Shields & Silcock，Fire Technology 35（1999）· CIBSE Guide D。各数值须对照现行版本核实。'}
 };
@@ -464,12 +468,14 @@ function build(host,lang){
  const dl=el('dl','fe-facts'),rows={};
  for(const k of ['pop','total','pauls','bound','phased','phasedAll','safety','queue','flow','refuge','lifts','prm']){const d=el('div'),dd=el('dd');d.append(el('dt',null,c.k[k]),dd);dl.append(d);rows[k]=dd}
  const chartT=el('h3','fe-sub',c.chart.title),chart=el('canvas','fe-canvas fe-chart'),chartN=el('p','fe-hint');chart.setAttribute('role','img');
- const method=el('p','fe-prose',c.method),cannot=el('p','fe-prose fe-limits',c.cannot),src=el('p','fe-src',c.src);
- root.append(head,hero,status,lede,ctls,verdict,dl,chartT,chart,chartN,method,cannot,src);
+ const methodFig=el('figure','fe-method');
+ const method=el('figcaption','fe-prose',c.method),cannot=el('p','fe-prose fe-limits',c.cannot),src=el('p','fe-src',c.src);
+ methodFig.append(method);
+ root.append(head,hero,status,lede,ctls,verdict,dl,chartT,chart,chartN,methodFig,cannot,src);
  host.append(root);
  const ro=typeof ResizeObserver==='function'?new ResizeObserver(()=>{size();drawChart();if(!raf)drawStatic()}):null;
  if(ro){ro.observe(hero);ro.observe(chart)}
- ui={host,lang,c,hero,chart,chartN,status,load,stairs,width,tread,strat,lift,refuge,fire,pre,prm,prmV,rows,verdict,ro,occ:[],font:'12px monospace',fontL:'15px monospace',key:''};
+ ui={host,lang,c,hero,chart,chartN,status,load,stairs,width,tread,strat,lift,refuge,fire,pre,prm,prmV,rows,verdict,ro,occ:[],font:'12px monospace',fontL:'15px monospace',key:'',methodFig,method};
  try{const f=getComputedStyle(host).getPropertyValue('--mono').trim();if(f){ui.font='12px '+f;ui.fontL='15px '+f}}catch{}
  size();
 }
@@ -544,6 +550,11 @@ function refresh(force){
  const st=fill(c.status[r.strategy],{target,t:T(r.chosen.total),a:T(r.phasedAlarm)});
  ui.status.textContent=st;
  ui.hero.setAttribute('aria-label',c.canvas.section+'. '+st);
+ // the method, drawn: the same read, drawn rather than described
+ try{
+  const node=svgElement(fireMethodSVG(r,{lang:ui.lang}));
+  ui.methodFig.replaceChildren(...(node?[node]:[]),ui.method);
+ }catch{}
  // animation: restart the clock from zero on any change
  const run=r.chosen,pop=Math.max(1,r.stairPop);
  const per=Math.max(1,Math.ceil(pop/1400));
@@ -700,4 +711,180 @@ export function renderFireLab({host,state,metrics,lang='en',active=false,changed
   if(reduced()){stop();drawStatic()}
   else if(!raf&&typeof requestAnimationFrame==='function')loop();
  }catch{stop()}
+}
+
+/* ── the method, drawn ─────────────────────────────────────────────────────
+   The paragraph said how the time is worked out; the sheet says it. A
+   schematic section of the escape stair with the refuge level and the fire
+   floor marked and the flow going down, and — the point of the drawing — the
+   total evacuation time as one bar split into its real parts, in proportion.
+
+   Every number on it is READ OUT of the run it explains. None is worked out
+   again here: a number that is recomputed is a number that can drift from
+   the simulation it claims to describe, and a drawing that has drifted is
+   worse than the paragraph it replaced. */
+export function fireMethodSVG(r,{lang='en'}={}){
+ const L=FIRE_TEXT[lang]||FIRE_TEXT.en,M=L.m;
+ const f2=v=>Math.round(v*100)/100;
+ const W=300,H=222;
+ const c=r.c,run=r.chosen,res=run.res;
+ const nfmt=(v,d=0)=>Number.isFinite(v)?v.toLocaleString(loc(lang),{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
+ const mmss=s=>{const t=Math.max(0,Math.round(s));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
+
+ /* ── the timeline the model actually keeps ───────────────────────────────
+    pre-movement: the model's arrival window opens at half the pre-movement
+    time, so nobody has moved at all before that (scenario(), win()).
+    phase 1:   the descent to the refuge level — the last person taken off
+                the stair into a refuge (simulate(), tRef). With no refuge in
+                use it is the moment the fire floor's queue is empty.
+    phase 2:   the rest of the descent, to the exit level (simulate(),
+                tExit).
+    the tail:  whoever is still going when the crowd is out — the occupants
+                with reduced mobility, or the lifts. */
+ const total=Math.max(1,run.total);
+ const tPre=0.5*c.pre;
+ const tExit=Math.min(total,Number.isFinite(res.tExit)?res.tExit:total);
+ const refs=r.refuge.list||[];
+ const hasRef=refs.length>0;
+ const tRef=hasRef&&Number.isFinite(res.tRef)?res.tRef:null;
+ const fireClear=r.fire!=null&&Number.isFinite(res.clear[r.fire])?res.clear[r.fire]:null;
+ const tP1=Math.min(tExit,Math.max(tPre,tRef!=null?tRef:(fireClear!=null?fireClear:tPre)));
+ const liftsLast=!!(run.lifts&&run.lifts.time>run.crowd+0.5);
+ const segs=[{id:'pre',name:M.pre,a:0,b:tPre},
+  {id:'p1',name:hasRef?M.p1:M.p1b,a:tPre,b:tP1},
+  {id:'p2',name:M.p2,a:tP1,b:tExit}];
+ if(total>tExit+0.5)segs.push({id:'tail',name:liftsLast?M.tailLift:M.tail,a:tExit,b:total});
+ const live=segs.filter(s=>s.b-s.a>0.5);
+
+ /* ── the stair ────────────────────────────────────────────────────────────
+    The pitch is the stair type's own: the rise is the level height and the
+    run follows from the riser/tread the model walks down, so the angle the
+    reader measures off the sheet is the angle the simulation used. */
+ const lv=r.levels||[];
+ const hL=(lv[r.fire!=null?r.fire:1]||lv[1]||{h:4}).h||4;
+ const GAP=16,Y_EXIT=126,Y_TOP=8;
+ const K=Math.max(2,Math.min(7,(Y_EXIT-Y_TOP-2*GAP)/(3*hL)));
+ const rise=Math.max(8,hL*K);
+ const runPx=rise*(r.treadMM/r.riser);
+ const X={w0:16,wi:20,f0:21};
+ X.f1=X.f0+runPx;X.w1=X.f1+4;
+ const Y={exit:Y_EXIT,ref:Y_EXIT-rise-GAP,fire:Y_EXIT-2*rise-2*GAP};
+ Y.top=Y.fire-rise;
+ const refRow=refs.find(x=>r.fire==null||x.i<r.fire)||refs[0]||null;
+ const refLv=refRow?refRow.i:null;
+ const fireLv=r.fire!=null?r.fire:null;
+ const mid=X.f0+runPx/2;
+ const skipLow=refLv!=null?refLv-1:null;
+ const skipHigh=(refLv!=null&&fireLv!=null)?fireLv-refLv-1:null;
+
+ let g='';
+ g+=ground(4,Y.exit,X.w1+2);
+ g+=cut(`M${X.w0} ${f2(Y.top)} H${X.wi} V${f2(Y.exit)} H${X.w0} Z`,'conc');
+ g+=cut(`M${f2(X.f1)} ${f2(Y.top)} H${f2(X.w1)} V${f2(Y.exit)} H${f2(X.f1)} Z`,'conc');
+ const slab=y=>cut(`M6 ${f2(y)} H${f2(X.w1+2)} V${f2(y+2)} H6 Z`,'conc');
+ g+=slab(Y.exit)+slab(Y.ref)+slab(Y.fire);
+
+ /* the flights: treads and risers at the stair type's own pitch, with the
+    soffit under them. A zigzag of triangles is not a stair. */
+ const steps=Math.max(5,Math.min(12,Math.round(rise/2.4)));
+ const flight=(yb,yt)=>{
+  const dx=(X.f1-X.f0)/steps,dy=(yt-yb)/steps;
+  let d=`M${f2(X.f0)} ${f2(yb)}`;
+  for(let i=0;i<steps;i++)d+=` H${f2(X.f0+dx*(i+1))} V${f2(yb+dy*(i+1))}`;
+  return d;
+ };
+ for(const yb of [Y.exit,Y.ref,Y.fire]){
+  const yt=yb-rise;
+  g+=`<path d="${flight(yb,yt)}" fill="none" stroke="var(--muted)" stroke-width=".9"/>`;
+  g+=beyond(`M${f2(X.f0)} ${f2(yb+1.9)} L${f2(X.f1)} ${f2(yt+1.9)}`,.45);
+ }
+ /* the storeys the sheet does not show, cut with the freehand break */
+ g+=brkV(f2(mid),f2(Y.exit-rise+1),f2(GAP-2),1.2);
+ g+=brkV(f2(mid),f2(Y.ref-rise+1),f2(GAP-2),1.2);
+
+ /* the flow, running down */
+ const pitch=Math.atan2(rise,runPx)*180/Math.PI;
+ for(const yb of [Y.exit,Y.ref,Y.fire]){
+  const ax=X.f0+runPx*0.84,ay=yb-rise*0.84,bx=X.f0+runPx*0.16,by=yb-rise*0.16;
+  g+=flow(`M${f2(ax)} ${f2(ay)} L${f2(bx)} ${f2(by)}`,'fe-flow-down');
+  g+=`<g transform="rotate(${f2(pitch)} ${f2(bx)} ${f2(by)})">${head(bx,by,'d',true)}</g>`;
+ }
+ /* the pitch, dimensioned where it is drawn */
+ g+=dim(12,Y.fire,12,Y.top,pitch.toFixed(1)+'°',0);
+
+ /* the levels that matter, numbered on their own line */
+ const lvlNo=(y,i,on)=>txt(X.w1+6,y+3,String(i),{anchor:'start',size:7.5,fixed:true,on});
+ if(fireLv!=null)g+=lvlNo(Y.fire,fireLv,true);
+ if(refLv!=null)g+=lvlNo(Y.ref,refLv);
+ g+=lvlNo(Y.exit,0);
+
+ /* The annotation, on leaders with a dot terminator. The sheet's gutter
+    holds twenty-two characters a line and the layout pass moves a note that
+    collides into a fixed band, so every note here is written to fit one line
+    and the column is stepped far enough apart that none of them has to
+    move. */
+ const NX=X.w1+22;
+ const stair=(x,y,ty,text,o)=>leader(x,y,NX,ty,text,o);
+ g+=stair(X.f1-3,Y.top+2,38,fill(M.stair,{r:r.riser,t:r.treadMM}));
+ if(fireLv!=null)g+=stair(X.w1,Y.fire+1,51.5,fill(M.fire,{f:fireLv}),{on:true});
+ if(skipHigh!=null&&skipHigh>0)g+=stair(mid,Y.ref-rise+1+GAP/2,65,fill(M.skip,{n:skipHigh}));
+ g+=stair(X.f0+runPx*0.62,Y.ref-rise*0.38,78.5,fill(M.flow,{}));
+ if(refRow)g+=stair(X.w1,Y.ref+1,92,fill(M.refuge,{f:refLv,h:nfmt(refRow.held)}));
+ if(skipLow!=null&&skipLow>0)g+=stair(mid,Y.exit-rise+1+GAP/2,105.5,fill(M.skip,{n:skipLow}));
+ g+=stair(X.w1,Y.exit+1,119,fill(M.exit,{f:0}));
+
+ /* ── the time bar ────────────────────────────────────────────────────────
+    One bar, the total evacuation time, split in proportion: t = 0 at the
+    bottom, the total at the top. Each part is labelled with its own length
+    and its share of the whole. */
+ const BX=214,BW=18,BY1=42,BY0=192,barH=BY0-BY1;
+ const yOf=t=>BY0-(t/total)*barH;
+ g+=`<rect x="${BX}" y="${BY1}" width="${BW}" height="${f2(barH)}" fill="none" stroke="var(--ink)" stroke-width=".9"/>`;
+ g+='<g id="fe-bar">';
+ for(const s of live){
+  const y0=yOf(s.a),y1=yOf(s.b);
+  const tone=s.id==='pre'?'none':s.id==='p1'?'var(--ink)':s.id==='p2'?'var(--muted)':'var(--accent)';
+  g+=`<rect x="${BX}" y="${f2(y1)}" width="${BW}" height="${f2(y0-y1)}" fill="${tone}" stroke="var(--ink)" stroke-width=".7"/>`;
+ }
+ g+='</g>';
+ /* the labels sit beside their own part of the bar, a clear step apart, so
+    that two of them can never be printed on one another */
+ const parts=live.map(s=>({s,ym:(yOf(s.a)+yOf(s.b))/2})).sort((a,b)=>a.ym-b.ym);
+ for(let i=1;i<parts.length;i++)
+  if(parts[i].ym-parts[i-1].ym<24)parts[i].ym=parts[i-1].ym+24;
+ for(const {s,ym} of parts){
+  const pct=Math.round((s.b-s.a)/total*100);
+  g+=leader(BX+BW,ym,BX+BW+5,ym,`${s.name} · ${mmss(s.b-s.a)} · ${pct}%`,{size:7.5});
+ }
+ g+=txt(BX-3,BY0+9,'0',{anchor:'end',size:7.5,fixed:true});
+ /* where the rest of the building is let go, on a phased evacuation */
+ if(run.phaseDelay>0.5){
+  const yr=yOf(run.phaseDelay);
+  g+=rule(BX-4,yr,BX+BW+4,yr,{c:'var(--accent)',w:1,dash:'2 2'});
+  g+=leader(BX-4,yr,BX-9,yr-9,M.release,{size:7.5,on:true});
+ }
+
+ /* the headline and the counts the drawing is about */
+ g+=txt(BX,26,`${M.total} ${mmss(total)}`,{anchor:'start',size:7.5,on:true});
+ g+=txt(BX+58,26,M.times,{anchor:'start',size:7.5});
+ const prmN=(run.prmDots||[]).reduce((a,d)=>a+(d.count||0),0);
+ g+=txt(10,150,fill(M.storeys,{n:nfmt(lv.length-1)}),{size:7.5});
+ g+=txt(10,165,fill(M.people,{n:nfmt(r.pop)}),{size:7.5});
+ g+=txt(10,180,fill(M.onStairs,{n:nfmt(r.stairPop)}),{size:7.5});
+ g+=txt(10,195,fill(M.prm,{n:nfmt(prmN)}),{size:7.5});
+ g+=txt(10,210,fill(M.strategy,{s:L.strat[r.strategy]}),{size:7.5});
+
+ return sheet(g,W,H,(M.aria||'').replace(/"/g,'&quot;'));
+}
+
+/* The drawing arrives as a string and this lab never writes one into the
+   page as markup: the string is parsed as SVG and the element imported, so
+   the browser builds the tree the sheet described and nothing in it is read
+   as HTML. */
+function svgElement(markup){
+ if(typeof DOMParser!=='function'||typeof document==='undefined')return null;
+ if(typeof document.importNode!=='function')return null;
+ let el=null;
+ try{const d=new DOMParser().parseFromString(markup,'image/svg+xml');el=d&&d.documentElement;}catch{}
+ return el&&el.nodeName==='svg'?document.importNode(el,true):null;
 }

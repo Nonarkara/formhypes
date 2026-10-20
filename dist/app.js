@@ -1,13 +1,13 @@
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=a3cb54129b';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=25b035f7b8';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=1f07292d4e';
-import {renderAssembly} from './assembly.js?v=4cb53c4a58';
-import {renderStructure} from './structure.js?v=5c4abd9e39';
-import {mountConsole} from './console.js?v=262eeff3f4';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=b4aa051593';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=dd10822a6f';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=85e0177a9d';
+import {renderAssembly} from './assembly.js?v=b0d86f34a7';
+import {renderStructure} from './structure.js?v=5b4dff40fe';
+import {mountConsole} from './console.js?v=9e3f98c612';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=4d4eb35fb5';
-import{familyResponse,lattice}from'./explore.js?v=8aec3db075';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=4739b9a107';
+import{familyResponse,lattice}from'./explore.js?v=74ce85cc3a';
 import{t,langs,langMeta,translator}from'./i18n.js?v=27230efac0';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
@@ -17,26 +17,26 @@ import {cityData,skyline,visibleMassings,ringArea,splitByPlot} from './cityscape
 import {sweptHull,reachSteps,reachLabelled,contactOffset} from './reach.js?v=3742398937';
 import {parseGround} from './site.js?v=7cb1769785';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
-import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=707811bbf9';
-import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=deb2864e7f';
+import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=9b027e20b8';
+import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=7612d67571';
 import {coreScene} from './core3d.js?v=702aed5396';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy as getFengPlayStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=b0ce49e843';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=57c3bbc32a';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=abb4b17713';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=26aa5505ed';
-import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=cb6d72542e';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=fa73720bcb';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=f50bd7649b';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=01cf6c9f9f';
+import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=e7627211f7';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=515365175f';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=8d66bc0eff';
-import {WORKSPACES} from './console.js?v=262eeff3f4';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=46436947b4';
+import {WORKSPACES} from './console.js?v=9e3f98c612';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);

@@ -248,3 +248,35 @@ The default 48-storey tower now has 3 zones × 5 cars at 6.5 m/s with a 16.8 s i
 - The `cursor/shdt-minimax-finish` branch looks superseded.
 - 25 old Pages preview deployments could not be deleted: the API refuses aliased ones and the OAuth token can't force it.
 - `SHDT/.scratch` (26 MB) and `_archive` sit outside the repo.
+
+## 2026-10-20 · Method drawings, the research reader, and the layout engine's three lies
+
+**The ask.** Dr Non: turn as much of the system into diagrams rather than text; make it ready for all kinds of work; make the research section expansive and clearer about the kinds of work these systems help alleviate; make building like this more interesting, fun and cost-effective; then do a shiftability audit.
+
+**The shiftability audit, delivered.** Verdict: *highly shiftable in principle, blocked in fact.* Scored on loose coupling, pivotability, living with being wrong, and insouciance. What was cleared: the half-landed quantity merge, and the 16-tab bar that hid the last two workspaces at 1366 px (it now wraps on desktop; the phone keeps its sideways scroll because at 374 px the icons are all that fits and a cut-off last label is the signifier). What remains: `app.js` (2,739 lines) and `i18n.js` (1,658 lines) are hubs; 13 identifier assertions in `tests/extensions.test.mjs` and 11 in `tests/desks.test.mjs` are the fragile kind; `_archive` and a 26 MB `.scratch` sit outside the repo.
+
+**The deliverable with teeth.** `EXTENDING.md`: the system shape, a six-file recipe for a workspace, how to add a lab, the drawing rules, the language rules, the guard rules, the command order, the traps, and what is deliberately not finished. `tests/extending.test.mjs` checks it against the live `WORKSPACES`, the release graph's `DESKS` array, the language list and the drafting vocabulary's actual exports — in both directions, so the guide cannot go stale in either direction. Six mutations, six red.
+
+**The research reader, pages seven and eight.**
+- Page 7, "The work this is for": six questions (Lifts, Fire, Wind, Water, Glare, Carbon), each naming the desk AND its limit. A new `work` diagram kind: six 44×44 glyphs, a filled amber bar for the two the method answers, an open bracket for the four it bounds.
+- Page 8, "Why this way of working": the cheap moment (a question's price depends on WHEN it is asked — the economics is the cost of finding out, not rent or yield), the model answers back (being wrong is still free), and you come to know the building (sixteen readings of one geometry). A new `loop` diagram kind: the tower on the left with an unnumbered width dimension, an arrow to the six desk glyphs, and an amber return path along the bottom carrying the readings back into the shape.
+- Both guards render the page through a DOM stub and measure the emitted SVG — glyph positions, the direction of the return path, and that the only text on the sheet is `1 2 3 4 5 6`. Five mutations, five red.
+
+**The method drawings.** Each lab's METHOD became a sheet, because a paragraph cannot show a proportion and the proportional bar is the thing prose can never say. The pattern: a `xxxMethodPayload()` built from the same call that produces the reported number, and a `xxxMethodSVG(payload,{lang})` that only draws. The dense formula paragraph shrinks to a caption; the formula moves into the picture. Lifts (one zone in section, with the round trip split into travel, doors and passengers as a bar), Fire (a stair section with refuge and fire floor, and a bar split by evacuation phase), Carbon (a bar split by gravity, lateral and structure), Wind (the tower with its first mode, the wind profile over the terrain, the slenderness scale, and the lock-in band with the tower's own ratio standing on it). The method prose fell from 393 to 213 characters in English, 374 to 206 in Thai, 226 to 99 in Chinese.
+
+**The layout engine, and the three lies it was telling.** The Thai wind sheet had two labels printed on one another, and chasing it found three separate false beliefs in `dist/drafting.js`:
+1. *A note's neighbours were measured from their baselines.* "Below the baseline" of a note that wraps to two lines is inside the note. Targets are now derived from the obstacle's BOX.
+2. *The resolver took the first collision and stepped.* A note standing between two others walked in a circle — the step that cleared one landed on the other — until the passes ran out, and it finished exactly where it started. It is now a global search: the note tries every position at which it would stand clear of something and takes the one clear of everything.
+3. *A dimension label was modelled as a short wide box above its pivot, while its ink is a narrow strip running downward from that pivot.* The model now contains the real ink, and the guards measure it the same way.
+A fourth: every note the layout places is drawn at ty + 2.4, but a dimension label draws ITSELF at its own coordinate. Registering it at the drawn baseline put the model's box 2.4 units off the ink, and the note placed in that 2.4 units of nothing landed on the label. The lifts sheet had the round trip time as a dimension and the passengers bar's label printed through it.
+Six mutations of the four fixes, six red.
+
+**What the guards could not see.** A note printed over a DRAWING is invisible to a text-only guard: the people waiting at the lobby are dots, and the lifts sheet's "zone N floors" label was printed straight through them. The label stack now stops short of the lobby floor, and the two labels that name what is below it stand below it. The wind sheet's Chinese terrain note was clipped at the frame edge, because the layout measures a CJK glyph as half an em and the real glyph is a full one — the wind sheet now carries the CJK-width check the lifts sheet already had, and the terrain note is a heading and a value on two lines of the column's own pitch.
+
+**Laws kept.**
+- A payload/drawing split is the anti-drift mechanism: the drawing is built from the arithmetic, so it cannot drift from it.
+- A guard must measure the emitted artifact. Where the renderer can be driven, render it and measure the markup; where a layout is involved, measure boxes.
+- Every guard is mutation-tested, or it is decoration.
+- Render the sheet and look at it. Every number was right and the Thai sheet was still wrong.
+
+**Open.** Water and Glare method sheets in flight. `app.js` and `i18n.js` still hubs. The identifier assertions still fragile. PR #3 (quantity, per-level schedule) has passed an independent review and is ready to land whenever Dr Non wants it; it is not merged. Chen's licensing stays deferred and untouched.

@@ -27,8 +27,9 @@
    - Occupant comfort: ISO 10137:2007; ISO 6897; NatHaz (Kareem), 10-year
      return peak acceleration about 10–15 milli-g residential, 20–25 milli-g
      office. Quoted, never computed here. */
-import {profile,stackHeight,families,inside} from './model.js?v=4d4eb35fb5';
-import {structureRead,STRUCT_TEXT} from './structure.js?v=5c4abd9e39';
+import {profile,stackHeight,families,inside} from './model.js?v=4739b9a107';
+import {structureRead,STRUCT_TEXT,STRUCTURE_BANDS} from './structure.js?v=5b4dff40fe';
+import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow,cl} from './drafting.js?v=895b148bec';
 
 export const RHO=1.25;
 // EN 1991-1-4 Table 4.1. Category I is omitted to keep four choices.
@@ -103,8 +104,11 @@ export function defaultZeta(system){return (SYSTEM_DELTA[system]??0.10)/(2*Math.
 /* Vortex reading. r = v_m(z_e)/v_crit, which is also f_s/n1.
    'clear'  : v_crit > 1.25·v_m (E.1.2(3)), r < 0.8
    'lockin' : r in [0.8, 1.25] — shedding at the tower's own frequency now
-   'below'  : r > 1.25 — resonance happens at a lower, more frequent wind */
-export function vortexState(r){if(!(r>=0.8))return 'clear';return r<=1.25?'lockin':'below'}
+   'below'  : r > 1.25 — resonance happens at a lower, more frequent wind
+   The band is named once, here, so the drawing and the rule cannot disagree
+   about where lock-in starts and stops. */
+export const LOCK_BAND=[0.8,1.25];
+export function vortexState(r){if(!(r>=LOCK_BAND[0]))return 'clear';return r<=LOCK_BAND[1]?'lockin':'below'}
 export function scBand(sc){return sc<10?'low':sc<20?'mid':'high'}
 
 /* The whole read. Pure: no DOM, never throws for a model state. */
@@ -150,11 +154,11 @@ export function timeScale(pxPerMetre,widthPx){
 
 export const WIND_TEXT={
  en:{title:'Wind tunnel',
-  lede:'The tower in a steady wind: what the code formulas say it must carry, and whether its own sway frequency meets the vortices its plan sheds.',
+  lede:'The tower in a steady wind: profile up the height, first sway mode, and where the lock-in band falls.',
   ctl:{vb:'Basic wind velocity v_b',vbNote:'An input. Take it from the national annex or local code for the site.',terrain:'Terrain category',dir:'Wind direction to the plan axis',damp:'Structural damping ζ',dampDefault:'Default for {mat}: δ {d} → ζ {z}%',tmd:'Tuned mass damper',tmdOn:'On · +2.0% ζ assumed',tmdOff:'Off',tmdNote:'Taipei 101 carries a 660 t pendulum damper. The added 2% is an illustrative assumption; a real device is tuned to its tower.'},
   terr:{'0':'0 · sea','II':'II · open','III':'III · suburb','IV':'IV · city'},
   mat:{'column-grid':'reinforced concrete','outrigger':'mixed steel–concrete','diagrid':'steel'},
-  u:{ms:'m/s',kpa:'kPa',mn:'MN',mnm:'MN·m',hz:'Hz',deg:'°',pct:'%',m:'m'},
+  u:{ms:'m/s',kpa:'kPa',mn:'MN',mnm:'MN·m',hz:'Hz',deg:'°',pct:'%',m:'m',s:'s'},
   k:{vTop:'Mean wind at the top',qTop:'Peak pressure at the top',shear:'Along-wind base shear',moment:'Overturning moment',ratio:'Shedding ÷ sway frequency',vcrit:'Lock-in wind speed v_crit',sc:'Scruton number',damping:'Damping',lambda:'Slenderness',cf:'Force coefficient c_f at z_e'},
   basis:{tabulated:'tabulated',interpolated:'interpolated',assumed:'assumed'},
   sc:{low:'low — vortex response can be large',mid:'moderate',high:'high — vortex response is suppressed'},
@@ -169,13 +173,20 @@ export const WIND_TEXT={
   comfort:'Occupant comfort is judged on peak acceleration at a 10-year return: about 10–15 milli-g for residential and 20–25 milli-g for offices (ISO 10137, North American practice, NatHaz). It is not computed here.',
   cannot:'Cannot claim: no wind-tunnel test, no CFD, no site wind climate, no stiffness model, no acceleration. The flow picture is an illustration around an equivalent cylinder; the frequencies are computed. EN 1991-1-4 covers buildings up to 200 m; above that its profile is extrapolated. Codes require a specialist wind study for tall and slender buildings.',
   src:'Sources: EN 1991-1-4:2005 §4.3–4.5 (Eq. 4.3–4.8, Table 4.1), §7.6 Fig. 7.23, §7.8 Table 7.11, Annex E (E.1.2, E.1.3, Eq. E.4, Table E.1), Annex F (F.2, Tables F.1–F.2, F.5) · ψ_λ = 1, c_s·c_d = 1 · ISO 10137:2007 · NatHaz Modeling Laboratory (Kareem) · Taipei 101 damper (Thornton Tomasetti / Motioneering).',
-  fam:{box:'Rectilinear',chamfer:'Chamfered',cross:'Cruciform',octagon:'Octagonal',star:'Eight-point',rub:'Rub el Hizb',triangle:'Triangular',hexagon:'Hexagonal',oval:'Faceted oval',petal:'Four-petal',pinwheel:'Pinwheel'}},
+  fam:{box:'Rectilinear',chamfer:'Chamfered',cross:'Cruciform',octagon:'Octagonal',star:'Eight-point',rub:'Rub el Hizb',triangle:'Triangular',hexagon:'Hexagonal',oval:'Faceted oval',petal:'Four-petal',pinwheel:'Pinwheel'},
+  m:{aria:'Method drawing: the tower with its first sway mode on it, the wind speed profile over this terrain, the slenderness scale and the vortex lock-in band.',
+  elev:'Tower, first mode',profile:'Wind profile',slen:'Slenderness',lock:'Lock-in',
+  mode:'first mode, exaggerated',ghost:'undeflected',
+  period:'n1 {n} {u}',tsec:'T {t} {u}',damp:'ζ {z} % · δ {d}',cf:'c_f {c} at z_e',
+  z0:'z0 {z} {u}',vb:'v_b {v} {u}',vtop:'v_m {v} {u}',zmin:'z_min {z} {u}',ze:'z_e {z} {u}',
+  stiff:'stiff enough',sway:'swaying',ve:'v_m {v} {u}',vcrit:'v_crit {v} {u}',ratio:'r {r}',terrCat:'terrain',terr:'{t}',
+  band:{conventional:'conventional',slender:'slender',damped:'damped',super:'super-slender'}}},
  th:{title:'อุโมงค์ลม',
-  lede:'อาคารในกระแสลมคงที่ แรงที่สูตรตามมาตรฐานกำหนดให้รับ และความถี่การโยกตัวของอาคารตรงกับกระแสวนที่ผังหลุดออกมาหรือไม่',
+  lede:'อาคารในกระแสลมคงที่ โปรไฟล์ตามความสูง โหมดการโยกแรก และช่วงที่กระแสวนจะล็อกตัว',
   ctl:{vb:'ความเร็วลมพื้นฐาน v_b',vbNote:'เป็นค่าที่ต้องป้อนเอง ให้ใช้ค่าจากภาคผนวกแห่งชาติหรือมาตรฐานท้องถิ่นของที่ตั้ง',terrain:'ประเภทภูมิประเทศ',dir:'ทิศลมเทียบกับแกนผัง',damp:'อัตราการหน่วงของโครงสร้าง ζ',dampDefault:'ค่าเริ่มต้นของ{mat}: δ {d} → ζ {z}%',tmd:'ตัวหน่วงมวลปรับจูน',tmdOn:'เปิด · สมมติเพิ่ม ζ 2.0%',tmdOff:'ปิด',tmdNote:'ไทเป 101 ติดตั้งตัวหน่วงแบบลูกตุ้มหนัก 660 ตัน ค่าที่เพิ่ม 2% เป็นสมมติฐานเพื่อแสดงผล อุปกรณ์จริงต้องปรับจูนให้เข้ากับอาคารแต่ละหลัง'},
   terr:{'0':'0 · ทะเล','II':'II · ที่โล่ง','III':'III · ชานเมือง','IV':'IV · ใจกลางเมือง'},
   mat:{'column-grid':'คอนกรีตเสริมเหล็ก','outrigger':'โครงสร้างผสมเหล็กกับคอนกรีต','diagrid':'เหล็ก'},
-  u:{ms:'ม./วินาที',kpa:'กิโลปาสกาล',mn:'เมกะนิวตัน',mnm:'เมกะนิวตัน·ม.',hz:'เฮิรตซ์',deg:'°',pct:'%',m:'ม.'},
+  u:{ms:'ม./วินาที',kpa:'กิโลปาสกาล',mn:'เมกะนิวตัน',mnm:'เมกะนิวตัน·ม.',hz:'เฮิรตซ์',deg:'°',pct:'%',m:'ม.',s:'วินาที'},
   k:{vTop:'ความเร็วลมเฉลี่ยที่ยอดอาคาร',qTop:'แรงดันลมสูงสุดที่ยอดอาคาร',shear:'แรงเฉือนที่ฐานตามทิศลม',moment:'โมเมนต์พลิกคว่ำ',ratio:'ความถี่กระแสวน ÷ ความถี่การโยก',vcrit:'ความเร็วลมที่เกิดการล็อก v_crit',sc:'เลขสครูตัน',damping:'การหน่วง',lambda:'ความชะลูด',cf:'สัมประสิทธิ์แรง c_f ที่ z_e'},
   basis:{tabulated:'ค่าจากตาราง',interpolated:'ค่าประมาณช่วงกลาง',assumed:'ค่าสมมติ'},
   sc:{low:'ต่ำ การตอบสนองต่อกระแสวนอาจรุนแรง',mid:'ปานกลาง',high:'สูง การตอบสนองต่อกระแสวนถูกกดไว้'},
@@ -190,13 +201,20 @@ export const WIND_TEXT={
   comfort:'ความสบายของผู้ใช้อาคารประเมินจากความเร่งสูงสุดที่คาบการกลับ 10 ปี ราว 10–15 มิลลิจี สำหรับที่พักอาศัย และ 20–25 มิลลิจี สำหรับสำนักงาน (ISO 10137 แนวปฏิบัติในอเมริกาเหนือ NatHaz) ระบบนี้ไม่ได้คำนวณค่านี้',
   cannot:'สิ่งที่อ้างไม่ได้: ไม่มีการทดสอบในอุโมงค์ลม ไม่มี CFD ไม่มีสถิติลมของที่ตั้ง ไม่มีแบบจำลองความแข็ง ไม่มีค่าความเร่ง ภาพการไหลเป็นภาพประกอบรอบทรงกระบอกเทียบเท่า ส่วนความถี่เป็นค่าคำนวณ EN 1991-1-4 ครอบคลุมอาคารสูงไม่เกิน 200 ม. ที่สูงกว่านั้นเป็นการต่อเส้นโปรไฟล์ออกไป มาตรฐานกำหนดให้อาคารสูงและชะลูดต้องศึกษาลมโดยผู้เชี่ยวชาญ',
   src:'แหล่งอ้างอิง: EN 1991-1-4:2005 ข้อ 4.3–4.5 (สมการ 4.3–4.8 ตาราง 4.1) ข้อ 7.6 รูป 7.23 ข้อ 7.8 ตาราง 7.11 ภาคผนวก E (E.1.2, E.1.3, สมการ E.4, ตาราง E.1) ภาคผนวก F (F.2, ตาราง F.1–F.2, F.5) · ψ_λ = 1, c_s·c_d = 1 · ISO 10137:2007 · NatHaz Modeling Laboratory (Kareem) · ตัวหน่วงไทเป 101 (Thornton Tomasetti / Motioneering)',
-  fam:{box:'สี่เหลี่ยม',chamfer:'ลบมุม',cross:'กากบาท',octagon:'แปดเหลี่ยม',star:'ดาวแปดแฉก',rub:'รุบอัลฮิซบ์',triangle:'สามเหลี่ยม',hexagon:'หกเหลี่ยม',oval:'วงรีเหลี่ยม',petal:'สี่กลีบ',pinwheel:'กังหัน'}},
+  fam:{box:'สี่เหลี่ยม',chamfer:'ลบมุม',cross:'กากบาท',octagon:'แปดเหลี่ยม',star:'ดาวแปดแฉก',rub:'รุบอัลฮิซบ์',triangle:'สามเหลี่ยม',hexagon:'หกเหลี่ยม',oval:'วงรีเหลี่ยม',petal:'สี่กลีบ',pinwheel:'กังหัน'},
+  m:{aria:'ผังวิธีคำนวณ: อาคารพร้อมโหมดการโยกแรกบนตัวอาคาร โปรไฟล์ความเร็วลมบนภูมิประเทศนี้ มาตราความชะลูด และช่วงการล็อกของกระแสวน',
+  elev:'อาคาร โหมดแรก',profile:'โปรไฟล์ลม',slen:'ความชะลูด',lock:'การล็อก',
+  mode:'โหมดแรก ขยายเกินจริง',ghost:'ก่อนแอ่น',
+  period:'n1 {n} {u}',tsec:'T {t} {u}',damp:'ζ {z} % · δ {d}',cf:'c_f {c} ที่ z_e',
+  z0:'z0 {z} {u}',vb:'v_b {v} {u}',vtop:'v_m {v} {u}',zmin:'z_min {z} {u}',ze:'z_e {z} {u}',
+  stiff:'แข็งแรงพอ',sway:'โยกได้มาก',ve:'v_m {v} {u}',vcrit:'v_crit {v} {u}',ratio:'r {r}',terrCat:'ภูมิประเทศ',terr:'{t}',
+  band:{conventional:'ทั่วไป',slender:'ชะลูด',damped:'ชะลูดมาก',super:'ชะลูดพิเศษ'}}},
  zh:{title:'风洞',
-  lede:'稳定风中的塔楼：规范公式要求它承受多少风荷载，以及它自身的摆动频率是否与平面脱落的旋涡相遇。',
+  lede:'稳定风中的塔楼：沿高度的廓线、第一阶振型，以及锁定的位置。',
   ctl:{vb:'基本风速 v_b',vbNote:'这是输入值，应按场地所在国家附录或当地规范取值。',terrain:'地面粗糙度类别',dir:'风向与平面轴线夹角',damp:'结构阻尼比 ζ',dampDefault:'{mat}默认值：δ {d} → ζ {z}%',tmd:'调谐质量阻尼器',tmdOn:'开 · 假定增加 ζ 2.0%',tmdOff:'关',tmdNote:'台北 101 装有 660 吨摆式阻尼器。此处增加的 2% 只是示意性假定，实际装置需针对具体塔楼调谐。'},
   terr:{'0':'0 · 海面','II':'II · 开阔地','III':'III · 郊区','IV':'IV · 市中心'},
   mat:{'column-grid':'钢筋混凝土','outrigger':'钢-混凝土混合结构','diagrid':'钢结构'},
-  u:{ms:'米/秒',kpa:'千帕',mn:'兆牛',mnm:'兆牛·米',hz:'赫兹',deg:'°',pct:'%',m:'米'},
+  u:{ms:'米/秒',kpa:'千帕',mn:'兆牛',mnm:'兆牛·米',hz:'赫兹',deg:'°',pct:'%',m:'米',s:'秒'},
   k:{vTop:'顶部平均风速',qTop:'顶部峰值风压',shear:'顺风向基底剪力',moment:'倾覆力矩',ratio:'脱落频率 ÷ 摆动频率',vcrit:'锁定风速 v_crit',sc:'斯克鲁顿数',damping:'阻尼',lambda:'高宽比',cf:'z_e 处体型系数 c_f'},
   basis:{tabulated:'查表值',interpolated:'插值',assumed:'假定值'},
   sc:{low:'低：涡激响应可能很大',mid:'中等',high:'高：涡激响应受到抑制'},
@@ -211,8 +229,188 @@ export const WIND_TEXT={
   comfort:'人员舒适度以 10 年重现期的峰值加速度评判：住宅约 10–15 毫重力加速度，办公约 20–25 毫重力加速度（ISO 10137、北美惯例、NatHaz）。此处不作计算。',
   cannot:'不能据此断言：没有风洞试验，没有 CFD，没有场地风气候，没有刚度模型，没有加速度计算。流场图是围绕等效圆柱的示意，频率为计算值。EN 1991-1-4 适用于 200 米以内的建筑，超出部分的风剖面为外推。规范要求高层和细长建筑进行专项风工程研究。',
   src:'来源：EN 1991-1-4:2005 第 4.3–4.5 节（式 4.3–4.8，表 4.1）、第 7.6 节图 7.23、第 7.8 节表 7.11、附录 E（E.1.2、E.1.3、式 E.4、表 E.1）、附录 F（F.2、表 F.1–F.2、F.5）· ψ_λ = 1，c_s·c_d = 1 · ISO 10137:2007 · NatHaz 实验室（Kareem）· 台北 101 阻尼器（Thornton Tomasetti / Motioneering）',
-  fam:{box:'矩形',chamfer:'切角',cross:'十字',octagon:'八边形',star:'八芒星',rub:'鲁布·希兹布',triangle:'三角形',hexagon:'六边形',oval:'折面椭圆',petal:'四瓣',pinwheel:'风车'}}
+  fam:{box:'矩形',chamfer:'切角',cross:'十字',octagon:'八边形',star:'八芒星',rub:'鲁布·希兹布',triangle:'三角形',hexagon:'六边形',oval:'折面椭圆',petal:'四瓣',pinwheel:'风车'},
+  m:{aria:'方法图：塔楼及其第一阶振型、该地面粗糙度下的风速廓线、高宽比标尺与涡激锁定区间。',
+  elev:'塔楼与第一振型',profile:'风廓线',slen:'高宽比',lock:'锁定',
+  mode:'第一振型，已放大',ghost:'未变形',
+  period:'n1 {n} {u}',tsec:'T {t} {u}',damp:'ζ {z} % · δ {d}',cf:'z_e 处 c_f {c}',
+  z0:'z0 {z} {u}',vb:'v_b {v} {u}',vtop:'v_m {v} {u}',zmin:'z_min {z} {u}',ze:'z_e {z} {u}',
+  stiff:'足够刚劲',sway:'容易摆动',ve:'v_m {v} {u}',vcrit:'v_crit {v} {u}',ratio:'r {r}',terrCat:'地形类别',terr:'{t}',
+  band:{conventional:'常规',slender:'细长',damped:'很细长',super:'超细长'}}}
 };
+
+/* ── the method, drawn ──────────────────────────────────────────────────────
+   The paragraph this replaces said what the wind does to the tower in one
+   long sentence — what the code formulas ask it to carry, and whether its own
+   sway frequency meets the vortices its plan sheds. A sentence cannot show a
+   PROFILE, a MODE or a BAND. The sheet can:
+
+     · the elevation, with the first sway mode drawn on the tower's own
+       silhouette, so the reader can see where the movement sits up the height;
+     · the wind speed profile the code actually computes over the terrain
+       category in use — the logarithm, with the flat part below z_min;
+     · the slenderness scale with the band edges the structure module uses,
+       and the lock-in band with the tower's own ratio standing on it.
+
+   Every NUMBER on the sheet is a number the lab has already computed. The
+   payload comes from windMethodPayload(), built from the SAME windRead() that
+   produces the numbers the lab reports, so the drawing and the arithmetic
+   cannot drift apart. Nothing here is drawn from a constant.
+
+   Every WORD on the sheet comes out of WIND_TEXT[lang]. There is no English
+   left lying about on the Thai sheet or the Chinese one. */
+const MW=360,MH=322;
+
+/* The payload is the lab's own reading and nothing else. If a quantity the
+   sheet needs is not in it, the fix is to carry it here — never to invent it
+   in the drawing. */
+export function windMethodPayload(r){
+ if(!r||!Number.isFinite(r.H)||!(r.H>0))return null;
+ const t=TERRAIN[r.terrain]||TERRAIN.IV;
+ const strips=(r.strips||[]).filter(s=>Number.isFinite(s.z)&&Number.isFinite(s.v)&&Number.isFinite(s.b));
+ if(strips.length<2)return null;
+ return {H:r.H,lambda:r.lambda,band:r.band,n1:r.n1,zeta:r.zeta,delta:r.delta,mode:r.mode,
+  cf:r.cfE,cfBasis:r.cfBasis,ze:r.ze,vb:r.vb,terrain:r.terrain,z0:t.z0,zmin:t.zmin,
+  vMin:vm(t.zmin,r.vb,r.terrain),vTop:r.vTop,vE:r.vE,vCrit:r.vCrit,ratio:r.ratio,state:r.state,
+  strips:strips.map(s=>({z:s.z,v:s.v,b:s.b}))};
+}
+
+export function windMethodSVG(p,{lang='en'}={}){
+ const c=WIND_TEXT[lang]||WIND_TEXT.en;
+ if(!p)return sheet('',MW,MH,'');
+ const M=c.m,U=c.u;
+ const f1=v=>Number.isFinite(v)?v.toFixed(1):'—';
+ const f2=v=>Number.isFinite(v)?v.toFixed(2):'—';
+ const f3=v=>Number.isFinite(v)?v.toFixed(3):'—';
+
+ const GY=180,TY=46,CX=44;   // the ground line, the top of the tower, the tower's centre
+ const AX=214,AW=78;          // the profile's height axis, and the width of its speed axis
+ const k=(GY-TY)/p.H;         // ONE scale: the tower and the profile share it
+ const yOf=z=>GY-z*k;
+
+ /* The silhouette is drawn from the same strips the load was computed on, so
+    the taper on the sheet is the taper in the arithmetic. */
+ const n=p.strips.length,every=Math.max(1,Math.round(n/16)),pts=[];
+ for(let i=0;i<n;i+=every)pts.push(p.strips[i]);
+ if(pts[pts.length-1].z<p.strips[n-1].z)pts.push(p.strips[n-1]);
+ const poly=(e,o)=>{let s='';for(let i=1;i<e.length;i++)s+=rule(e[i-1][0].toFixed(2),e[i-1][1].toFixed(2),e[i][0].toFixed(2),e[i][1].toFixed(2),o);return s};
+ const bBase=pts[0].b;
+ /* The first-mode shape, drawn at one building width at the top. The drift is
+    NOT computed — there is no stiffness model — so the offset is a drawing
+    convention and the label says so. */
+ const off=z=>bBase*k*Math.pow(Math.max(0,z)/p.H,p.mode);
+ const edge=(sgn,d)=>pts.map(s=>[CX+sgn*s.b/2*k+d(s.z),yOf(s.z)]);
+ const tower=(d,o)=>{const L=edge(-1,d),R=edge(1,d),j=L.length-1;
+  return poly(L,o)+rule(L[j][0].toFixed(2),L[j][1].toFixed(2),R[j][0].toFixed(2),R[j][1].toFixed(2),o)
+  +poly(R.slice().reverse(),o)+rule(R[0][0].toFixed(2),R[0][1].toFixed(2),L[0][0].toFixed(2),L[0][1].toFixed(2),o)};
+
+ let g='';
+ /* ── A · the tower, and the first sway mode on it ───────────────────────── */
+ g+=txt(12,26,M.elev,{size:8});
+ g+=ground(10,GY,166);
+ g+=rule(176,GY,352,GY,{c:'var(--ink)',w:1});
+ g+=tower(()=>0,{c:'var(--faint)',w:.6,dash:'3 2'});   // where it stands
+ g+=tower(off,{c:'var(--ink)',w:.9});                 // where it goes
+ g+=cl(CX,TY-8,CX,GY+4);
+ /* The height is dimensioned on the LEFT of the tower, clear of the note
+    column. On the right it shared a band with the tower panel's notes, and a
+    long Thai label ran straight through it. */
+ g+=dim(22,GY,22,TY,`${f1(p.H)} ${U.m}`,0);
+ /* The numbers, in a column clear of the tower.
+    The deflected shape reaches x = CX + b/2·k + off(H), which for a wide tower
+    is well past where the numbers used to sit — and where they used to sit was
+    ON the drawing, which is how a note ends up printed over the thing it
+    names. The column starts past the widest the tower can get. */
+ const towerR=Math.max(...edge(1,off).map(q=>q[0]));
+ const NX=Math.max(96,Math.round(towerR)+8);
+ g+=txt(NX,60,fill(M.period,{n:f3(p.n1),u:U.hz}),{size:7.5});
+ g+=txt(NX,74,fill(M.tsec,{t:f2(1/p.n1),u:U.s}),{size:7.5});
+ g+=txt(NX,88,fill(M.damp,{z:f1(p.zeta*100),d:f3(p.delta)}),{size:7.5});
+ g+=txt(NX,102,fill(M.cf,{c:f2(p.cf)}),{size:7.5});
+ /* A KEY for the two outlines, rather than leaders. The undeflected line is
+    only visible where the deflected one has moved away from it, and a leader
+    reaching it from a label off to the side has to cross the tower to get
+    there. A swatch says the same thing without crossing anything. */
+ g+=rule(NX-13,116,NX-3,116,{c:'var(--ink)',w:.9});
+ g+=txt(NX,119,M.mode,{size:7.5});
+ g+=rule(NX-13,146,NX-3,146,{c:'var(--faint)',w:.6,dash:'3 2'});
+ g+=txt(NX,149,M.ghost,{size:7.5});
+
+ /* ── B · the wind profile over this terrain ────────────────────────────── */
+ g+=txt(206,26,M.profile,{size:8});
+ const vMax=Math.max(1,p.vTop),xv=v=>AX+AW*v/vMax;
+ g+=rule(AX,TY,AX,GY,{c:'var(--muted)',w:.6});
+ g+=rule(AX,GY,AX+AW,GY,{c:'var(--muted)',w:.6});
+ const cur=[[p.vMin,0],[p.vMin,p.zmin]];
+ for(const s of pts)if(s.z>p.zmin)cur.push([s.v,s.z]);
+ g+=poly(cur.map(([v,z])=>[xv(v),yOf(z)]),{c:'var(--ink)',w:.9});
+ g+=rule(AX,yOf(p.ze),xv(p.vE),yOf(p.ze),{c:'var(--faint)',w:.5,dash:'2 2'});
+ g+=rule(AX,yOf(p.zmin),AX+5,yOf(p.zmin),{c:'var(--faint)',w:.5});
+ g+=txt(AX,GY+10,U.ms,{size:7.5,fixed:true});
+ /* The height, on the profile's own side of its axis. It used to sit to the
+    LEFT of the axis, where it shared a band with the tower panel's notes and
+    a long Thai label ran straight through it. */
+ g+=txt(AX+5,TY-4,`${f1(p.H)} ${U.m}`,{size:7.5,fixed:true});
+ const top=cur[cur.length-1];
+ g+=leader(xv(top[0]),yOf(top[1]),296,44,fill(M.vtop,{v:f1(p.vTop),u:U.ms}),{size:7.5});
+ /* The profile's note column is pitched at 14, and the terrain name is given
+    room for TWO lines. The Thai name wraps, and a wrapped note is two lines
+    tall: at the old pitch the roughness length was printed straight through
+    the second line of it. */
+ /* The terrain is a HEADING and a VALUE, on two lines of the note column's
+    own pitch. As one line it was too wide for the column in Chinese — the
+    layout measures a CJK glyph as half an em, and the real glyph is a full
+    one, so the note ran off the sheet and the browser clipped it in silence.
+    Split, every line of the column fits in every language. */
+ g+=txt(296,78,M.terrCat,{size:7.5});
+ g+=txt(296,92,fill(M.terr,{t:c.terr[p.terrain]}),{size:7.5});
+ g+=txt(296,116,fill(M.z0,{z:f2(p.z0),u:U.m}),{size:7.5});
+ g+=leader(xv(p.vMin),yOf(p.zmin),296,130,fill(M.zmin,{z:f1(p.zmin),u:U.m}),{size:7.5});
+ g+=txt(296,144,fill(M.vb,{v:f1(p.vb),u:U.ms}),{size:7.5});
+ g+=leader(xv(p.vE),yOf(p.ze),296,158,fill(M.ze,{z:f1(p.ze),u:U.m}),{size:7.5});
+
+ /* ── C · the slenderness scale, and the lock-in band ───────────────────── */
+ g+=rule(10,200,352,200,{c:'var(--faint)',w:.5});
+ g+=txt(20,210,M.slen,{size:8});
+ const SL0=20,SL1=170,SLMAX=25,slx=v=>SL0+(SL1-SL0)*Math.min(v,SLMAX)/SLMAX;
+ g+=rule(SL0,232,SL1,232,{c:'var(--muted)',w:.6});
+ /* The band labels are ALTERNATED above and below the axis. Four of them sit
+    on a scale 150 units long, and "1:4.5" is 22 units wide on its own: put
+    them all on one row and the first two printed on each other. */
+ STRUCTURE_BANDS.forEach(([edge],i)=>{if(!Number.isFinite(edge))return;
+  g+=rule(slx(edge),226,slx(edge),238,{c:'var(--muted)',w:.6});
+  g+=txt(slx(edge),i%2?222:246,'1:'+edge,{anchor:'middle',size:7.5,fixed:true});});
+ g+=rule(slx(p.lambda),224,slx(p.lambda),240,{c:'var(--accent)',w:1.4});
+ g+=txt(slx(p.lambda),262,'1:'+f1(p.lambda),{anchor:'middle',size:7.5,fixed:true});
+ /* The band name stands directly under the marker rather than on a leader. A
+    leader from the marker to a name on the right crosses the band labels
+    themselves; a leader to a name on the left runs off the sheet. */
+ g+=txt(slx(p.lambda),276,M.band[p.band]||'',{anchor:'middle',size:7.5});
+ g+=txt(SL0,290,M.stiff,{size:7.5});
+ g+=txt(SL1,290,M.sway,{anchor:'end',size:7.5});
+
+ g+=txt(200,214,M.lock,{size:8});
+ const LK0=200,LK1=350,LKMAX=1.5,lkx=v=>LK0+(LK1-LK0)*Math.min(v,LKMAX)/LKMAX;
+ g+=rule(LK0,232,LK1,232,{c:'var(--muted)',w:.6});
+ g+=rule(lkx(LOCK_BAND[0]),224,lkx(LOCK_BAND[1]),224,{c:'var(--accent)',w:1});
+ g+=rule(lkx(LOCK_BAND[0]),224,lkx(LOCK_BAND[0]),232,{c:'var(--accent)',w:1});
+ g+=rule(lkx(LOCK_BAND[1]),224,lkx(LOCK_BAND[1]),232,{c:'var(--accent)',w:1});
+ g+=txt(LK0,248,'0',{size:7.5,fixed:true});
+ g+=txt(lkx(LOCK_BAND[0]),248,String(LOCK_BAND[0]),{anchor:'middle',size:7.5,fixed:true});
+ g+=txt(lkx(LOCK_BAND[1]),248,String(LOCK_BAND[1]),{anchor:'middle',size:7.5,fixed:true});
+ g+=txt(LK1,248,String(LKMAX),{anchor:'end',size:7.5,fixed:true});
+ g+=rule(lkx(p.ratio),222,lkx(p.ratio),240,{c:'var(--accent)',w:1.6});
+ g+=txt(lkx(p.ratio),260,fill(M.ratio,{r:f2(p.ratio)}),{anchor:'middle',size:7.5,fixed:true});
+ /* The verdict and the two speeds are a COLUMN, in every language. Set side by
+    side they collided in Thai — the unit alone is longer there — and the
+    resolver moved one of them so far that it stopped reading as part of the
+    lock-in panel at all. */
+ g+=txt(LK0,278,c.cmp[p.state],{size:7.5});
+ g+=txt(LK0,292,fill(M.ve,{v:f1(p.vE),u:U.ms}),{size:7.5});
+ g+=txt(LK0,306,fill(M.vcrit,{v:f1(p.vCrit),u:U.ms}),{size:7.5});
+
+ return sheet(g,MW,MH,M.aria);
+}
 
 /* ── DOM ──────────────────────────────────────────────────────────────── */
 const fill=(t,v)=>t.replace(/\{(\w+)\}/g,(_,k)=>v[k]??'');
@@ -228,7 +426,7 @@ function build(host,lang){
  if(ui&&ui.ro)ui.ro.disconnect();
  host.replaceChildren();
  const root=el('section','wl');
- const head=el('h2','wl-title',c.title),lede=el('p','wl-prose',c.lede);
+ const head=el('h2','wl-title',c.title);
  const views=el('div','wl-views');
  const planC=el('canvas','wl-canvas wl-plan'),elevC=el('canvas','wl-canvas wl-elev');
  for(const cv of [planC,elevC])cv.setAttribute('role','img');
@@ -260,11 +458,18 @@ function build(host,lang){
  const verdict=el('p','wl-verdict'),hint=el('p','wl-prose',c.hint);
  const cmpT=el('h3','wl-sub',c.compare),cmpN=el('p','wl-hint',c.compareNote),cmp=el('ol','wl-compare');
  const comfort=el('p','wl-prose',c.comfort),cannot=el('p','wl-prose wl-limits',c.cannot),src=el('p','wl-src',c.src);
- root.append(head,views,status,lede,ctls,verdict,dl,hint,cmpT,cmpN,cmp,comfort,cannot,src);
+ /* The method is a drawing now, not a paragraph. The prose that stood in for
+    it was one long sentence about what the code asks the tower to carry; the
+    sheet is what those numbers look like, and the sentence is now the caption
+    under it. */
+ const methodFig=el('figure','wl-method');
+ const methodBox=el('div','wl-methodsvg');
+ methodFig.append(methodBox,el('figcaption','wl-methodcap',c.lede));
+ root.append(head,views,status,methodFig,ctls,verdict,dl,hint,cmpT,cmpN,cmp,comfort,cannot,src);
  host.append(root);
  const ro=typeof ResizeObserver==='function'?new ResizeObserver(()=>{size();if(!raf)drawStatic()}):null;
  if(ro){ro.observe(planC);ro.observe(elevC)}
- ui={host,lang,c,planC,elevC,status,vb,dir,damp,terrB,tmdB,rows,verdict,cmp,ro,font:'12px monospace'};
+ ui={host,lang,c,planC,elevC,status,vb,dir,damp,terrB,tmdB,rows,verdict,cmp,ro,font:'12px monospace',methodBox};
  try{const f=getComputedStyle(host).getPropertyValue('--mono').trim();if(f)ui.font='12px '+f}catch{}
  size();
 }
@@ -324,6 +529,9 @@ function refresh(geometryChanged){
   li.append(name,track,val);return li}));
  if(geometryChanged||!sim||sim.key!==keyOf(r))resetSim(r);
  else sim.r=r;
+ /* The method sheet is drawn from the SAME reading the facts above are read
+    from, so the drawing cannot show a number the lab does not report. */
+ try{ui.methodBox.innerHTML=windMethodSVG(windMethodPayload(r),{lang:ui.lang});}catch{ui.methodBox.innerHTML=''}
  if(!raf)drawStatic();
 }
 const keyOf=r=>r.section.length+':'+r.dir+':'+r.bE.toFixed(3)+':'+r.H.toFixed(2);

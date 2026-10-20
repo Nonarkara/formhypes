@@ -52,6 +52,14 @@
 .lt-me td{color:var(--ink);font-weight:600}
 .lt-me td:first-child{border-left:3px solid var(--accent);padding-left:8px}
 
+/* The method, drawn. The sheet is a fixed number of drawing units and the
+   panel is not, so the sheet scales: width 100%, height auto, and nothing
+   else. The drawing sits on the paper, not in a card — no border, no fill. */
+.lt-method{margin:0;padding-top:8px;border-top:1px solid var(--line)}
+.lt-methodsvg svg{display:block;width:100%;height:auto;background:var(--paper)}
+.lt-method figcaption{margin:6px 0 0;font-size:12px;color:var(--muted);max-width:68ch}
+.lt-method figcaption:empty{display:none}
+
 @media(pointer:coarse){
  .lt-seg button,.lt-btn,.lt-num,.lt-field input[type=range]{min-height:44px}
 }

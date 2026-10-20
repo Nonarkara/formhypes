@@ -21,6 +21,14 @@
 .wl-verdict{margin:0;font-size:var(--m);max-width:68ch}
 .wl-flag{color:var(--ink);border-left:3px solid var(--accent);padding-left:8px}
 
+/* The method sheet: a drawing that scales to the panel, and the caption that
+   stands under it. The sheet carries its own margins, so the figure adds
+   none of its own. */
+.wl-method{margin:0}
+.wl-methodsvg{margin:0}
+.wl-methodsvg svg{width:100%;height:auto;display:block}
+.wl-methodcap{margin:6px 0 0;font-size:12px;line-height:1.45;color:var(--muted);max-width:68ch}
+
 .wl-controls{display:grid;grid-template-columns:minmax(0,1fr);gap:10px 18px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 @container (min-width:640px){.wl-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .wl-field{min-width:0}

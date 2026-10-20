@@ -15,6 +15,18 @@
 .fe-chart{height:220px}
 @container (min-width:640px){.fe-hero{height:600px}.fe-chart{height:240px}}
 
+/* The method, drawn. The sheet scales to the panel and keeps its own
+   proportions; the caption under it is the one line of prose that is left. */
+.fe-method{margin:0;padding:10px 0 2px;border-top:1px solid var(--line)}
+.fe-method svg{display:block;width:100%;height:auto}
+.fe-method figcaption{margin:8px 0 0;max-width:68ch;color:var(--muted)}
+
+/* The flow of people down the stair. The dashes march downwards, so the
+   direction of travel is animated rather than described. */
+.fe-flow-down{fill:none;stroke:var(--accent);stroke-width:1.2;stroke-linecap:butt;stroke-dasharray:6 4;animation:fe-flow 1.1s linear infinite}
+@keyframes fe-flow{from{stroke-dashoffset:0}to{stroke-dashoffset:-10}}
+@media (prefers-reduced-motion:reduce){.fe-flow-down{animation:none}}
+
 .fe-status{margin:0;font-family:var(--mono);font-size:var(--m);font-weight:500;max-width:68ch}
 .fe-verdict{margin:0;font-size:var(--m);max-width:68ch}
 .fe-flag{border-left:3px solid var(--accent);padding-left:8px}

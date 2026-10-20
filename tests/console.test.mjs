@@ -359,3 +359,23 @@ test('every workspace in the switcher shows its name, not just a mark',()=>{
   'the workspace button drops its label span, so the visible name and the '+
   'accessible name can drift apart or the label can disappear on its own');
 });
+
+test('the desktop workspace bar wraps instead of hiding workspaces off the edge',()=>{
+ // 2026-10-20: the bar needed 1408px and scrolled sideways. At 1366px — an
+ // ordinary laptop — the last two workspaces were simply not on the page, and
+ // nothing said so. A pivot surface that hides pivots is not a pivot surface,
+ // and every workspace added after this would have pushed one more out of
+ // sight rather than adding a row.
+ const css=read('console.css');
+ const desktop=css.replace(/@media[^}]*\{(?:[^{}]|\{[^{}]*\})*\}/g,'');
+ const rule=/\.console-nav\{([^}]*)\}/.exec(desktop);
+ assert.ok(rule,'there is no .console-nav rule outside a media query');
+ assert.match(rule[1],/flex-wrap:\s*wrap/,'the desktop bar must wrap: a seventeenth workspace would otherwise be off the edge');
+ assert.doesNotMatch(rule[1],/overflow-x:\s*auto/,'the desktop bar must not scroll sideways and hide the last workspaces');
+ // The phone keeps its sideways scroll, because at 374px the icons are all that
+ // fit and a cut-off last label is the signifier that there is more.
+ const blocks=[...css.matchAll(/@media\(max-width:(\d+)px\)\{((?:[^{}]|\{[^{}]*\})*)\}/g)];
+ const narrow=blocks.filter(b=>parseInt(b[1],10)<=600).map(b=>b[2]).join('\n');
+ assert.match(narrow,/\.console-nav\{[^}]*overflow-x:auto/,'the phone strip must still scroll sideways');
+ assert.match(narrow,/\.console-nav\{[^}]*flex-wrap:nowrap/,'the phone strip must not wrap');
+});

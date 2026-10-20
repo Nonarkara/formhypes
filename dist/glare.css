@@ -57,6 +57,14 @@
 .gl-prose{display:grid;gap:12px;border-top:1px solid var(--line);padding-top:10px}
 .gl-note p{margin:0;max-width:68ch;line-height:1.5}
 .gl-sources p{color:var(--muted)}
+/* The method, drawn. The sheet is a fixed number of drawing units and scales
+   to the panel; the caption is the figcaption, and the prose it replaced is
+   gone. Hairlines only, like every other sheet in the app. */
+.gl-method{margin:0;padding-top:10px;border-top:1px solid var(--line)}
+.gl-methodsvg{min-width:0}
+.gl-methodsvg svg{display:block;width:100%;height:auto;background:var(--paper)}
+.gl-method figcaption{margin:6px 0 0;max-width:68ch}
+.gl-method figcaption:empty{display:none}
 @media(pointer:coarse){
  .gl button,.gl-select,.gl-date,.gl-range,.gl-check{min-height:44px}
  .gl-bar{min-height:44px}

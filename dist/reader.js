@@ -1,6 +1,46 @@
-import {READER,SOURCES,ARTIFACTS} from './reader-content.js?v=ba530f000e';
+import {READER,SOURCES,ARTIFACTS} from './reader-content.js?v=7c74be3254';
 let current=0;
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
+/* The six desks, as 44x44 schematics of the thing itself: a shaft and a car, a
+   stair going down and out, a tower with wind going round it, a tank and a pump,
+   a facade with the sun on one face, stacked stages.
+
+   They are pictorial on purpose. A diagram that spells its labels in English
+   is an English diagram, and this reader runs in Thai and Chinese as well — so
+   the glyph carries the idea and the numbered legend beside it carries the
+   words, in the reader's own language. Page seven and page eight use the same
+   six glyphs on purpose: the second page is about what the desks do TO the
+   shape, and a reader should recognise them from the page before. */
+const GLYPH_F='fill="none" stroke="currentColor"';
+const DESK_GLYPHS=[
+ // a shaft and a car: the question is how many, and how long between
+ `<g ${GLYPH_F} stroke-width="1.4"><rect x="6" y="2" width="32" height="40"/></g>
+  <path d="M16 2V42M28 2V42" ${GLYPH_F} stroke-width="1" opacity=".55"/>
+  <rect x="17" y="22" width="10" height="10" fill="#f59e0b"/>
+  <path d="M22 42V35" stroke="currentColor" stroke-width="1.4"/>`,
+ // a stair going down and out: the question is how long to empty
+ `<g ${GLYPH_F} stroke-width="1.3"><rect x="2" y="2" width="40" height="40"/></g>
+  <path d="M10 30h8v-8h8v-8h8" ${GLYPH_F} stroke-width="1.6"/>
+  <path d="M14 10v14M10 14l4 4 4-4" ${GLYPH_F} stroke-width="1.5"/>`,
+ // a tower with the wind going round it: the question is sway, not strength
+ `<g ${GLYPH_F} stroke-width="1.3"><rect x="17" y="6" width="10" height="34"/></g>
+  <path d="M4 16c6-7 12 7 20 0M40 26c-6 7-12-7-20 0" ${GLYPH_F} stroke-width="1.5"/>
+  <path d="M4 12l2 4-4 2M40 30l-2-4 4-2" ${GLYPH_F} stroke-width="1.2"/>`,
+ // a tank, a pump and a drain: the question is whether it stays dry
+ `<g ${GLYPH_F} stroke-width="1.3"><rect x="7" y="5" width="16" height="14"/></g>
+  <path d="M15 19v8h10v13" ${GLYPH_F} stroke-width="1.5"/>
+  <rect x="25" y="14" width="9" height="9" ${GLYPH_F} stroke-width="1.2"/>
+  <path d="M6 40h32" ${GLYPH_F} stroke-width="1.6"/>`,
+ // a facade with the sun on one face: the question is who gets dazzled
+ `<g ${GLYPH_F} stroke-width="1.3"><rect x="15" y="3" width="20" height="38"/></g>
+  <path d="M15 12h20M15 21h20M15 30h20" ${GLYPH_F} stroke-width="1" opacity=".6"/>
+  <circle cx="7" cy="11" r="4" fill="#f59e0b"/>
+  <path d="M3 11H0M11 11h3M7 7V4M7 15v3" ${GLYPH_F} stroke-width="1.2"/>`,
+ // stacked stages: the question is what the shape costs before it is built
+ `<g ${GLYPH_F} stroke-width="1.3"><rect x="4" y="28" width="16" height="14"/></g>
+  <rect x="4" y="18" width="26" height="9" ${GLYPH_F} stroke-width="1.2"/>
+  <rect x="4" y="8" width="34" height="9" fill="#f59e0b" fill-opacity=".85"/>
+  <path d="M2 42h40" ${GLYPH_F} stroke-width="1.6"/>`];
 function diagram(kind,labels){
  const f=node('figure',undefined,'reader-diagram');
  const wrap=node('div');const line='fill="none" stroke="currentColor" stroke-width="2"';
@@ -46,36 +86,8 @@ function diagram(kind,labels){
   // names it and draws the line. The two marks are the argument — a tool that
   // could close all six would be claiming six certifications, and this project
   // makes none of them.
-  const F='fill="none" stroke="currentColor"';
-  const G=[
-   // a shaft and a car: the question is how many, and how long between
-   `<g ${F} stroke-width="1.4"><rect x="6" y="2" width="32" height="40"/></g>
-    <path d="M16 2V42M28 2V42" ${F} stroke-width="1" opacity=".55"/>
-    <rect x="17" y="22" width="10" height="10" fill="#f59e0b"/>
-    <path d="M22 42V35" stroke="currentColor" stroke-width="1.4"/>`,
-   // a stair going down and out: the question is how long to empty
-   `<g ${F} stroke-width="1.3"><rect x="2" y="2" width="40" height="40"/></g>
-    <path d="M10 30h8v-8h8v-8h8" ${F} stroke-width="1.6"/>
-    <path d="M14 10v14M10 14l4 4 4-4" ${F} stroke-width="1.5"/>`,
-   // a tower with the wind going round it: the question is sway, not strength
-   `<g ${F} stroke-width="1.3"><rect x="17" y="6" width="10" height="34"/></g>
-    <path d="M4 16c6-7 12 7 20 0M40 26c-6 7-12-7-20 0" ${F} stroke-width="1.5"/>
-    <path d="M4 12l2 4-4 2M40 30l-2-4 4-2" ${F} stroke-width="1.2"/>`,
-   // a tank, a pump and a drain: the question is whether it stays dry
-   `<g ${F} stroke-width="1.3"><rect x="7" y="5" width="16" height="14"/></g>
-    <path d="M15 19v8h10v13" ${F} stroke-width="1.5"/>
-    <rect x="25" y="14" width="9" height="9" ${F} stroke-width="1.2"/>
-    <path d="M6 40h32" ${F} stroke-width="1.6"/>`,
-   // a facade with the sun on one face: the question is who gets dazzled
-   `<g ${F} stroke-width="1.3"><rect x="15" y="3" width="20" height="38"/></g>
-    <path d="M15 12h20M15 21h20M15 30h20" ${F} stroke-width="1" opacity=".6"/>
-    <circle cx="7" cy="11" r="4" fill="#f59e0b"/>
-    <path d="M3 11H0M11 11h3M7 7V4M7 15v3" ${F} stroke-width="1.2"/>`,
-   // stacked stages: the question is what the shape costs before it is built
-   `<g ${F} stroke-width="1.3"><rect x="4" y="28" width="16" height="14"/></g>
-    <rect x="4" y="18" width="26" height="9" ${F} stroke-width="1.2"/>
-    <rect x="4" y="8" width="34" height="9" fill="#f59e0b" fill-opacity=".85"/>
-    <path d="M2 42h40" ${F} stroke-width="1.6"/>`];
+  const F=GLYPH_F;
+  const G=DESK_GLYPHS;
   const pitch=100;
   let d='';
   G.forEach((glyph,i)=>{
@@ -89,6 +101,43 @@ function diagram(kind,labels){
    d+=`<text x="${x}" y="106" text-anchor="middle" font-size="10" fill="currentColor">${i+1}</text>`;
   });
   d+=`<path d="M50 102H550" stroke="currentColor" stroke-width="1" opacity=".2"/>`;
+  wrap.innerHTML=shell(d);
+ }
+ if(kind==='loop'){
+  // The loop. The tower being drawn on the left, the six desks reading the same
+  // geometry across the middle, and the amber path along the bottom that carries
+  // the readings BACK into the shape.
+  //
+  // That return path is the whole argument, and it is the only new mark on the
+  // page: nothing else in the reader loops. Without it the six glyphs are a
+  // checklist, and a checklist is what the profession already has.
+  //
+  // The dimension over the tower carries no number. That is the point of it —
+  // the width is still open, which is why the questions are still cheap to ask.
+  const F=GLYPH_F;
+  let d='';
+  // the shape, an outline because it is still open to change
+  d+=`<g ${F} stroke-width="1.4"><rect x="34" y="46" width="40" height="72"/></g>`;
+  d+=`<g ${F} stroke-width=".8" opacity=".5"><path d="M34 64H74M34 82H74M34 100H74"/></g>`;
+  // the width, dimensioned but not yet numbered
+  d+=`<path d="M30 32H78" stroke="currentColor" stroke-width=".8"/>`;
+  d+=`<path d="M30 29v6M78 29v6" stroke="currentColor" stroke-width=".8"/>`;
+  // the shape feeds the readings
+  d+=`<path d="M74 76H120" stroke="currentColor" stroke-width="1.4"/>`;
+  d+=`<path d="M117 72l5 4l-5 4" fill="none" stroke="currentColor" stroke-width="1.4"/>`;
+  // the six desks on a shared spine
+  const pitch=72,x0=150;
+  DESK_GLYPHS.forEach((g,i)=>{
+   const x=x0+i*pitch;
+   d+=`<g transform="translate(${x-22},52)">${g}</g>`;
+   d+=`<path d="M${x-26} 102H${x+26}" stroke="currentColor" stroke-width="1" opacity=".35"/>`;
+   d+=`<circle cx="${x}" cy="102" r="10" fill="var(--panel)" stroke="currentColor"/>`;
+   d+=`<text x="${x}" y="106" text-anchor="middle" font-size="10" fill="currentColor">${i+1}</text>`;
+  });
+  // the return: the readings go back into the shape, and this is the argument
+  const last=x0+5*pitch+26;
+  d+=`<path d="M${last} 102V156H54V124" fill="none" stroke="#f59e0b" stroke-width="2"/>`;
+  d+=`<path d="M49 128l5-5l5 5" fill="none" stroke="#f59e0b" stroke-width="2"/>`;
   wrap.innerHTML=shell(d);
  }
  if(kind==='timeline'){

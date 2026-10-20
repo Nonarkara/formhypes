@@ -14,7 +14,7 @@ export const ARTIFACTS=[
  {src:'research/artifacts/chen-fig76-detail.png?v=1e451cdc68',figure:76,page:94,alt:'One tower from Chen’s original Figure 76, with generated massing and facade details.'}
 ];
 export const READER={
- en:{nav:['The thesis','The mechanism','The economics','The city','Before the thesis','What he left open','The work this is for'],previous:'Previous',next:'Next',page:'Page',source:'Sources & reading trail',newDiagram:'Explanatory diagram · FormHypes, 2026',original:'Original thesis excerpt · © Shouheng Chen, 2006',fig:'Fig.',p:'p.',open:'Open original MIT record',archive:'Extended studies, diagrams & photographs',archiveNote:'These longer studies are supplementary interpretations and live model experiments. Their monetary assumptions are scenarios; none establishes code compliance or market value.',
+ en:{nav:['The thesis','The mechanism','The economics','The city','Before the thesis','What he left open','The work this is for','Why this way of working'],previous:'Previous',next:'Next',page:'Page',source:'Sources & reading trail',newDiagram:'Explanatory diagram · FormHypes, 2026',original:'Original thesis excerpt · © Shouheng Chen, 2006',fig:'Fig.',p:'p.',open:'Open original MIT record',archive:'Extended studies, diagrams & photographs',archiveNote:'These longer studies are supplementary interpretations and live model experiments. Their monetary assumptions are scenarios; none establishes code compliance or market value.',
  pages:[
  {title:'2006: put the knowledge inside the tool.',stand:'Thesis findings · Chen, chapters 3–6',paras:[
  'Chen’s question was practical: can an architect encode the recurring decisions behind a skyscraper, then reuse them without drawing every component again? He studied HKIFC, Petronas, Cira and Hearst. Their massing rules and façade details became reusable procedures, rather than a collection of finished pictures. [chen]',
@@ -34,7 +34,7 @@ export const READER={
  'Local ground conditions add another test. Bangkok’s basin research identifies long-period amplification; a city label cannot specify a parcel’s soil profile or a tower’s capacity. Use the location desk for sources and a mechanics experiment, then commission site investigation and structural analysis. [ground] [peer]',
  'Culture is a design conversation, not a national taste score. Feng Shui offers a useful provocation about orientation and relationships, with different schools and practices. Our playground invents site arrangements; it does not certify auspiciousness. Ask local occupants and stakeholders which meanings the proposed form carries. [feng]'],diagram:'city',labels:['Owner · income','Occupant · comfort','Neighbour · access','City · infrastructure','Ground · site evidence','Community · meaning'],caption:'2006 → 2007 → 2008 → 2026: Chen’s computational methods; Dr Non’s MIT thesis; his Shanghai urbanism paper; this product by Dr Non at depa + Axiom. The synthesis belongs to FormHypes.'}
  ]},
- th:{nav:['วิทยานิพนธ์','กลไก','เศรษฐศาสตร์','เมือง','ก่อนวิทยานิพนธ์','สิ่งที่เขาทิ้งไว้','งานที่เครื่องมือชุดนี้ช่วย'],previous:'ก่อนหน้า',next:'ถัดไป',page:'หน้า',source:'แหล่งอ้างอิงและเส้นทางการอ่าน',newDiagram:'แผนภาพอธิบาย · FormHypes, 2026',original:'ภาพจากวิทยานิพนธ์ต้นฉบับ · © Shouheng Chen, 2006',fig:'ภาพที่',p:'หน้า',open:'เปิดระเบียนต้นฉบับที่ MIT',archive:'บทศึกษาเพิ่มเติม แผนภาพ และภาพถ่าย',archiveNote:'บทศึกษาขนาดยาวเป็นการตีความและการทดลองกับโมเดล สมมติฐานทางการเงินเป็นสถานการณ์ทดลอง ไม่ยืนยันการผ่านกฎหมายหรือมูลค่าตลาด',
+ th:{nav:['วิทยานิพนธ์','กลไก','เศรษฐศาสตร์','เมือง','ก่อนวิทยานิพนธ์','สิ่งที่เขาทิ้งไว้','งานที่เครื่องมือชุดนี้ช่วย','ทำไมต้องทำงานแบบนี้'],previous:'ก่อนหน้า',next:'ถัดไป',page:'หน้า',source:'แหล่งอ้างอิงและเส้นทางการอ่าน',newDiagram:'แผนภาพอธิบาย · FormHypes, 2026',original:'ภาพจากวิทยานิพนธ์ต้นฉบับ · © Shouheng Chen, 2006',fig:'ภาพที่',p:'หน้า',open:'เปิดระเบียนต้นฉบับที่ MIT',archive:'บทศึกษาเพิ่มเติม แผนภาพ และภาพถ่าย',archiveNote:'บทศึกษาขนาดยาวเป็นการตีความและการทดลองกับโมเดล สมมติฐานทางการเงินเป็นสถานการณ์ทดลอง ไม่ยืนยันการผ่านกฎหมายหรือมูลค่าตลาด',
  pages:[
  {title:'2006: ใส่ความรู้ไว้ในเครื่องมือ',stand:'ข้อค้นพบในวิทยานิพนธ์ · Chen บทที่ 3–6',paras:[
  'Chen ถามว่า สถาปนิกจะเข้ารหัสการตัดสินใจที่เกิดซ้ำในการออกแบบตึกสูง แล้วนำกลับมาใช้โดยไม่ต้องวาดทุกชิ้นใหม่ได้หรือไม่ เขาศึกษา HKIFC, Petronas, Cira และ Hearst แล้วแปลงกฎรูปทรงกับรายละเอียดเปลือกอาคารเป็นขั้นตอนที่ใช้ซ้ำได้ [chen]',
@@ -54,7 +54,7 @@ export const READER={
  'สภาพดินเป็นอีกการทดสอบ งานวิจัยแอ่งกรุงเทพฯ พบการขยายคลื่นคาบยาว แต่ชื่อเมืองไม่ได้บอกชั้นดินรายแปลงหรือกำลังรับแรงของตึก ใช้โต๊ะศึกษาทำเลอ่านหลักฐานและทดลองกลศาสตร์ ก่อนสำรวจดินและวิเคราะห์โครงสร้างจริง [ground] [peer]',
  'วัฒนธรรมเป็นบทสนทนา ไม่ใช่คะแนนรสนิยมประจำชาติ ฮวงจุ้ยชวนคิดเรื่องทิศและความสัมพันธ์ แต่มีหลายสำนักและหลายวิธี สนามทดลองของเราจัดฉากพื้นที่สมมติ ไม่รับรองความเป็นมงคล ต้องถามผู้ใช้งานและผู้เกี่ยวข้องในท้องถิ่นว่ารูปทรงนั้นสื่ออะไร [feng]'],diagram:'city',labels:['เจ้าของ · รายได้','ผู้ใช้ · ความสบาย','เพื่อนบ้าน · การเข้าถึง','เมือง · โครงสร้างพื้นฐาน','พื้นดิน · หลักฐาน','ชุมชน · ความหมาย'],caption:'2006 → 2007 → 2008 → 2026: วิธีคำนวณของ Chen วิทยานิพนธ์ MIT ของ ดร.นน บทความเซี่ยงไฮ้ และผลิตภัณฑ์นี้โดย ดร.นน ที่ depa + Axiom บทสังเคราะห์เป็นของ FormHypes'}
  ]},
- zh:{nav:['论文','机制','经济','城市','论文之前','他留下的空白','这套工具为了什么'],previous:'上一页',next:'下一页',page:'页',source:'参考文献与阅读路径',newDiagram:'解释性图解 · FormHypes，2026',original:'论文原图节选 · © Shouheng Chen，2006',fig:'图',p:'页',open:'打开 MIT 原始记录',archive:'延伸研究、图解与照片',archiveNote:'长篇研究是补充解释与实时模型实验。货币假设属于情景，不构成规范合规或市场估值。',
+ zh:{nav:['论文','机制','经济','城市','论文之前','他留下的空白','这套工具为了什么','为什么这样工作'],previous:'上一页',next:'下一页',page:'页',source:'参考文献与阅读路径',newDiagram:'解释性图解 · FormHypes，2026',original:'论文原图节选 · © Shouheng Chen，2006',fig:'图',p:'页',open:'打开 MIT 原始记录',archive:'延伸研究、图解与照片',archiveNote:'长篇研究是补充解释与实时模型实验。货币假设属于情景，不构成规范合规或市场估值。',
  pages:[
  {title:'2006：把知识放进工具。',stand:'论文发现 · Chen 第三至六章',paras:[
  'Chen 的问题很实际：建筑师能否把摩天楼设计中反复出现的决策编码，以后不必逐件重画？他研究了 HKIFC、Petronas、Cira 和 Hearst，把体量规则与立面细节变成可复用的程序，而非一组完成图。[chen]',
@@ -213,6 +213,78 @@ const WORK_PAGE={
   caption:'六个问题，按设计师遇到的顺序排列。琥珀色实心条表示该工作台确实回答的问题；开口括号表示它提出问题并划定界限。工作台名称对应顶部栏的工作区键。这一分组属于本项目，不是对行业实践的调查。'}
 };
 for(const l of ['en','th','zh'])READER[l].pages.push(WORK_PAGE[l]);
+
+/* Page eight: why work this way.
+
+   Page seven says what the desks are for. It does not say why the way of
+   working is worth adopting — and the reader who has just been told that six
+   questions get answered early is owed the answer to the next question, which
+   is the one that decides whether any of it gets used: what does this cost me?
+
+   Three claims, and none of them is about the building's economics, because
+   page three already covered that and it is a different subject entirely.
+
+   The first is the CHEAP MOMENT. A question's price depends entirely on when
+   it is asked. Asked while the form is still a line, it costs an afternoon.
+   Asked after the area is committed and the frame is on the market, the same
+   question costs the building — and the honest answer then is that it cannot
+   be answered at all. So the economics of this method is not rent and not
+   yield. It is the cost of finding out.
+
+   The second is that the model ANSWERS BACK. A rulebook hands you an answer
+   you look up. A model hands you an answer you can be wrong about, and being
+   wrong is the point: the pleasure is catching yourself while being wrong is
+   still free.
+
+   The third is that you come to KNOW the building. Sixteen readings of one
+   geometry is one building asked sixteen ways, and the answer that is worth
+   acting on is not "what should this tower be" — no desk knows that — but
+   "what does the tower you have already drawn imply".
+
+   The drawing is the loop: the shape being drawn on the left, the six desks
+   reading the same geometry across the middle, and the amber path along the
+   bottom that carries the readings back into the shape. That return path is
+   the whole argument. Without it this is a checklist, and a checklist is
+   what the profession already has. */
+const LOOP_PAGE={
+ en:{title:'Why this way of working.',stand:'The loop · one shape, six readings, and the answer that comes back',paras:[
+ 'A question about a tower costs what it costs depending on when you ask it. Ask while the form is still a line on a screen and it costs an afternoon and a redraw. Ask after the area is committed, the structure is drawn and the frame is on the market, and the same question costs the building — and the honest answer at that point is that it cannot be answered at all. Moving a question forward is cheap. Moving one back is not. Every desk here exists to move questions forward, and the timing is the economics. Not the rent and not the yield: the cost of finding out.',
+ 'The model answers back, and that is the part worth doing. A rulebook gives you an answer you can look up. A model gives you an answer you can be wrong about. Move the span and the lift count, the embodied carbon, the glare and the site all move with it, because they read the same geometry rather than a copy of it. A hunch can be tested in the time it takes to change one number, and the test is a drawing. The pleasure is not the number. It is catching yourself being wrong while being wrong is still free.',
+ 'And you come to know the building. Sixteen readings of one geometry is not sixteen buildings; it is one building asked sixteen ways. Lifts tell you whether the morning peak clears. Fire tells you how long the tower takes to empty. Wind tells you where the sway starts. Water tells you whether it stays dry. Glare tells you whether anyone opposite is dazzled. Carbon tells you what the envelope costs before a brick is laid. None of them knows what the tower should be. Each of them will tell you what the tower you have already drawn implies — and that is the only answer worth acting on while the drawing is still cheap to change.'],
+  diagram:'loop',labels:[
+  'Lifts — whether the morning peak clears, and how many cars it takes.',
+  'Fire — how long the tower takes to empty, phase by phase.',
+  'Wind — where the sway starts, and whether the damping is enough.',
+  'Water — whether it stays dry and supplied on a bad day.',
+  'Glare — whether anyone opposite gets dazzled.',
+  'Carbon — what the envelope costs before a brick is laid.'],
+  caption:'The loop. The tower on the left is the one being drawn, and the dimension across it has no number yet. The six desks read the same geometry. The amber path along the bottom is the return: a reading is an input to the next version of the shape, not a line to be ticked. The order is this project\'s, not a survey of practice.'},
+ th:{title:'ทำไมต้องทำงานแบบนี้',stand:'วงจร · รูปทรงเดียว หกคำตอบ และคำตอบที่ย้อนกลับมา',paras:[
+ 'คำถามเกี่ยวกับตึกมีราคาขึ้นอยู่กับว่าถามเมื่อไร ถามตอนที่รูปทรงยังเป็นเส้นบนหน้าจอ ก็เสียแค่บ่ายหนึ่งกับการวาดใหม่ ถามหลังพื้นที่ถูกผูกไว้แล้ว โครงสร้างถูกวาดเสร็จ และกรอบอาคารออกขายไปแล้ว คำถามเดียวกันก็กลายเป็นราคาของตึกทั้งตึก และคำตอบที่ซื่อสัตย์ในจุดนั้นคือคำตอบว่ามันตอบไม่ได้เลย การย้ายคำถามไปข้างหน้าราคาถูก การย้ายกลับมาราคาแพง โต๊ะทุกตัวที่อยู่ตรงนี้มีไว้เพื่อย้ายคำถามไปข้างหน้า และเวลานั้นแหละคือเศรษฐศาสตร์ ไม่ใช่ค่าเช่า ไม่ใช่ผลตอบแทน แต่คือราคาของการค้นหา',
+ 'โมเดลตอบกลับมา และนั่นคือส่วนที่คุ้มค่า หนังสือกฎให้คำตอบที่คุณเปิดหาได้ โมเดลให้คำตอบที่คุณผิดได้ เปลี่ยนความกว้างแล้ว จำนวนลิฟต์ คาร์บอนแฝง การสะท้อนแสง และบริบทของที่ดินจะขยับตามไป เพราะทุกอย่างอ่านเรขาคณิตชุดเดียวกัน ไม่ใช่สำเนา ความคิดเดียวทดสอบได้ในเวลาที่ใช้แก้ตัวเลขหนึ่งค่า และผลของการทดสอบคือภาพ ความสุขไม่ได้อยู่ที่ตัวเลข แต่อยู่ที่การได้จับความผิดพลาดของตัวเอง ตอนที่ยังผิดได้ฟรี',
+ 'และคุณจะได้รู้จักตึกนั้น การอ่านเรขาคณิตชุดเดียวสิบหกครั้ง ไม่ใช่สิบหกอาคาร แต่คืออาคารเดียวที่ถูกถามสิบหกทาง ลิฟต์บอกว่าชั่วโมงเร่งด่วนเช้าจะล้างได้ไหม อัคคีภัยบอกว่าตึกใช้เวลาถ่ายเทอออกนานเท่าไร ลมบอกว่าการแกว่งเริ่มที่ไหน น้ำบอกว่ามันจะแห้งและมีน้ำใช้ไหม แสงสะท้อนบอกว่าฝั่งตรงข้ามจะตาบอดไหม คาร์บอนบอกว่าเปลือกตัวนี้จะกินเงินเท่าไรก่อนจะมีอิฐสักก้อน ไม่มีโต๊ะไหนรู้ว่าตึกควรเป็นรูปอะไร แต่ทุกโต๊ะยอมบอกว่าตึกที่คุณวาดไว้นั้นส่งอะไรมาบ้าง ซึ่งเป็นคำตอบเดียวที่คุ้มค่าจะทำตาม ตอนที่ยังแก้รูปทรงได้ถูก'],
+  diagram:'loop',labels:[
+  'ลิฟต์ — ชั่วโมงเร่งด่วนเช้าจะล้างได้ไหม และต้องใช้กี่ตู้',
+  'อัคคีภัย — ตึกใช้เวลาถ่ายเทอออกนานเท่าไร เป็นช่วง ๆ',
+  'ลม — การแกว่งเริ่มที่ไหน และการสั่นพ้องเพียงพอไหม',
+  'น้ำ — จะแห้งและมีน้ำใช้ไหมในวันที่อากาศแย่',
+  'แสงสะท้อน — ฝั่งตรงข้ามจะตาบอดไหม',
+  'คาร์บอน — เปลือกตัวนี้กินเงินเท่าไรก่อนจะมีอิฐสักก้อน'],
+  caption:'วงจร ตึกทางซ้ายคือตึกที่กำลังวาด และเส้นมิติที่ข้ามมันยังไม่มีตัวเลข โต๊ะทั้งหกอ่านเรขาคณิตชุดเดียวกัน เส้นสีเหลืองตามขอบล่างคือทางกลับ คำตอบหนึ่งข้อเป็นข้อมูลของรูปทรงเวอร์ชันถัดไป ไม่ใช่บรรทัดที่ต้องติ๊ก ลำดับนี้เป็นของโครงการนี้ ไม่ใช่ผลสำรวจของวงการ'},
+ zh:{title:'为什么这样工作。',stand:'这个循环 · 一个形状，六次读取，以及回到原点的答案',paras:[
+ '关于一座塔的问题，代价取决于你什么时候问。在形体还只是屏幕上一条线的时候问，代价是一个下午加一次重画。在面积已经锁定、结构已经画完、框架已经上市之后再问，同一个问题的代价就是整座塔——而那时唯一诚实的回答是：这个问题已经无法回答了。把问题往前挪很便宜，往后挪很贵。这里每一张工作台存在的意义，就是把问题往前挪。而"时间"本身就是经济学。不是租金，也不是回报率，而是"找出答案"这件事的代价。',
+ '模型会回答你，而这才是值得做的部分。规范给你一个可以去查的答案；模型给你一个你可能答错的答案。改变跨度，电梯数量、隐含碳、眩光与场地背景都会跟着动，因为它们读的是同一套几何，而不是它的副本。一个猜想可以在改动一个数字的时间里被验证，而验证的结果是一张图。乐趣不在那个数字，而在于发现自己错了的时候，错还不要钱。',
+ '而且你会认识这座楼。同一个几何的十六次阅读不是十六栋楼，而是一栋楼被问了十六种方式。电梯说早高峰清得空吗；消防说这座塔多久能撤空；风说晃动从哪里开始；水说它会不会淹、供不供得上；眩光说对面的人会不会被闪到；碳说在砌第一块砖之前这层外壳要花多少钱。没有任何一张工作台知道这座塔应该长什么样。它们都愿意告诉你，你已经画出来的这座塔意味着什么——而这正是唯一一种在你还改得起的时候能据以行动的答案。'],
+  diagram:'loop',labels:[
+  '电梯 — 早高峰清得空吗，需要几台轿厢。',
+  '消防 — 这座塔多久撤空，分阶段看。',
+  '风 — 晃动从哪里开始，减振够不够。',
+  '水 — 坏天气里会不会淹，供不供得上。',
+  '眩光 — 对面的人会不会被闪到。',
+  '碳 — 砌第一块砖之前，外壳要花多少钱。'],
+  caption:'这个循环。左边是正在画的那座塔，横跨它的尺寸线还没有数字。六张工作台读的是同一套几何。底部那道琥珀色的线是回程：一次读取是下一版形状的输入，不是要打勾的清单。这个顺序属于本项目，不是对行业实践的调查。'}
+};
+for(const l of ['en','th','zh'])READER[l].pages.push(LOOP_PAGE[l]);
 
 SOURCES.push(
  {id:'trinity',author:'Trinity Church Boston',year:'1877 / archive',title:'Art and Architecture; parish history',where:'Own architectural history and consecration record; Boston, 9 February 1877',url:'https://trinitychurchboston.org/art-and-architecture/'},

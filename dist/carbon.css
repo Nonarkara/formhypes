@@ -19,6 +19,11 @@
 }
 
 .cb-run{margin:0;font-family:var(--mono);font-size:var(--m);font-weight:500;font-variant-numeric:tabular-nums}
+/* The method sheet. A figure, so the caption is a figcaption; the drawing
+   scales to the panel and nothing else on the page has to move for it. */
+.cb-method{margin:0;display:block;min-width:0}
+.cb-method svg{display:block;width:100%;height:auto}
+.cb-caption{margin:6px 0 0;max-width:68ch;color:var(--muted)}
 .cb-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
 .cb-verdict{margin:0;font-size:var(--m);max-width:68ch}
 .cb-flag{border-left:3px solid var(--accent);padding-left:8px}

@@ -10,8 +10,8 @@
    level, projected axonometrically with back faces removed — so the manual
    cannot show a building the studio would not make. Nothing is clip art. The
    one amber mark is the last step: enter. */
-import {profile,stackHeight,families,defaults,evaluate} from './model.js?v=4d4eb35fb5';
-import {WORK_GLYPHS,WORKSPACES,CONSOLE_TEXT} from './console.js?v=262eeff3f4';
+import {profile,stackHeight,families,defaults,evaluate} from './model.js?v=4739b9a107';
+import {WORK_GLYPHS,WORKSPACES,CONSOLE_TEXT} from './console.js?v=9e3f98c612';
 
 const NS='http://www.w3.org/2000/svg';
 const C30=Math.cos(Math.PI/6),S30=Math.sin(Math.PI/6);

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {detailSVG,DETAIL_DRAWS,DETAILS,DETAIL_KEYS} from '../dist/details.js';
-import {layout,pendingNotes,DEFS,matOf,cut,beyond,dim,brkV} from '../dist/drafting.js';
+import {layout,pendingNotes,DEFS,matOf,cut,beyond,dim,brkV,sheet,txt} from '../dist/drafting.js';
 
 /* The complaint these guards exist for: "it looks like a stickman drawing,
    which doesn't tell us anything."
@@ -35,6 +35,15 @@ function readSheet(key){
   /<text x="([-\d.]+)" y="([-\d.]+)"[^>]*font-size="([\d.]+)"[^>]*text-anchor="(\w+)"[^>]*>([^<]*)<\/text>/g)]
   .map(m=>{
    const size=+m[3],x=+m[1],y=+m[2],anchor=m[4],s=m[5],w=widthOf(s,size);
+   // A label turned on its side: its length runs DOWN from its own baseline
+   // and its depth is a cap height. Measured flat, it is a short wide box
+   // sitting above the pivot, and the guard looks at ground the ink never
+   // occupies — while the ink, running down the sheet, goes unseen. This is
+   // the same box the layout engine reserves for it.
+   if(/rotate\(-?\d/.test(m[0])){
+    const down=/rotate\(-90/.test(m[0]);
+    return {s,size,x0:x-w,x1:x,top:y-CAP*size,bot:down?y+w:y+DESC*size};
+   }
    const x0=anchor==='end'?x-w:anchor==='middle'?x-w/2:x;
    return {s,size,x0,x1:x0+w,top:y-CAP*size,bot:y+DESC*size};
   });
@@ -181,6 +190,60 @@ test('a note is never stacked on a dimension label',()=>{
  assert.ok(Math.abs(moved.ty-fixed.ty)>=8,'the note must clear the dimension label');
 });
 
+test('a note with nowhere to fit between two labels escapes BOTH of them',()=>{
+ // Two fixed labels with a gap too narrow for a third note to stand in. The
+ // old resolver stepped to one side, hit the other, and walked in a circle
+ // until the passes ran out — leaving the note printed on a label. The note
+ // must end up standing clear of BOTH.
+ const {out}=layout([
+  {k:'txt',x:100,y:80,tx:100,ty:80,text:'upper label',o:{fixed:true,obstacle:true,size:8,anchor:'start'}},
+  {k:'txt',x:100,y:92,tx:100,ty:92,text:'lower label',o:{fixed:true,obstacle:true,size:8,anchor:'start'}},
+  {k:'txt',x:100,y:86,tx:100,ty:86,text:'a note that has to fit somewhere',o:{}}]);
+ const [u,l,n]=out;
+ const top=p=>p.ty+2.4-.75*p.size, bot=p=>p.ty+2.4+(p.lines.length-1)*p.size*1.2+.25*p.size;
+ const overlap=(a,b)=>Math.min(bot(a),bot(b))-Math.max(top(a),top(b));
+ assert.ok(overlap(n,u)<=0,`the note still sits on the upper label by ${overlap(n,u).toFixed(2)} units`);
+ assert.ok(overlap(n,l)<=0,`the note still sits on the lower label by ${overlap(n,l).toFixed(2)} units`);
+});
+
+test('a vertical dimension label is a strip running down the sheet, not a wide box',()=>{
+ // Turned on its side, a dimension label's length runs DOWN from its own
+ // baseline. Measured flat it is a short wide box ABOVE the pivot, and the
+ // resolver then reserves ground the ink never occupies — while the ink,
+ // running down the sheet, goes straight through whatever stands there.
+ const d=dim(20,100,20,40,'1000');
+ const t=d.match(/<text x="([-\d.]+)" y="([-\d.]+)"[^>]*transform="rotate\(-90 [^)]*\)"[^>]*>([^<]*)</);
+ assert.ok(t,'the vertical dimension must draw its label turned on its side');
+ const px=+t[1],py=+t[2],label=t[3];
+ const w=[...label].length*8*.6;
+ // Registered the way dim() registers it.
+ const {out}=layout([
+  {k:'txt',x:px,y:py,tx:px,ty:py-2.4,text:label,o:{fixed:true,obstacle:true,size:8,anchor:'end',rot:true}},
+  {k:'txt',x:24,y:py+6,tx:10,ty:py+6,text:'a note beside the dimension',o:{}}]);
+ const n=out[1];
+ const nTop=n.ty+2.4-.75*n.size, nBot=n.ty+2.4+(n.lines.length-1)*n.size*1.2+.25*n.size;
+ // The ink of the turned label runs from its baseline down its own length.
+ const clearBelow=py+w;
+ assert.ok(nTop>=clearBelow||nBot<=py,
+  `the note at ${nTop.toFixed(1)}..${nBot.toFixed(1)} is printed on the label's ink (${py.toFixed(1)}..${clearBelow.toFixed(1)})`);
+});
+
+test('the layout reserves the ground a dimension label is actually drawn on',()=>{
+ // Every note the layout places is drawn at ty + 2.4. A dimension label
+ // draws ITSELF, at its own coordinate — so registering it at the drawn
+ // baseline put the model's box 2.4 units off the ink, and the note the
+ // resolver put in that 2.4 units of nothing landed on the label.
+ const d=dim(30,120,90,120,'1000');
+ const t=d.match(/<text x="([-\d.]+)" y="([-\d.]+)"[^>]*text-anchor="middle"[^>]*>1000</);
+ assert.ok(t,'the dimension must draw its own label');
+ const y=+t[2];
+ const {out}=layout([
+  {k:'txt',x:60,y,y:120,tx:60,ty:y-2.4,text:'1000',o:{fixed:true,obstacle:true,size:8,anchor:'middle'}}]);
+ const m=out[0];
+ assert.equal(m.ty+2.4-.75*m.size,y-0.75*8,'the reserved box must start at the drawn cap line');
+ assert.equal(m.ty+2.4+.25*m.size,y+0.25*8,'the reserved box must end at the drawn descender line');
+});
+
 test('a break line stays inside the length it was given',()=>{
  // A break drawn with absolute points under a RELATIVE command compounds: a
  // four-unit zigzag walks off the assembly as a long diagonal across the sheet.
@@ -250,4 +313,30 @@ test('every module import on the detail path carries a live content stamp',()=>{
 test('the hatch patterns are defined and referenced, never orphaned',()=>{
  for(const id of ['d-wool','d-conc','d-earth'])
   assert.ok(DEFS.includes(`id="${id}"`),`${id} is referenced by a material but never defined`);
+});
+test('a middle-anchored note is drawn ON its point, not half a label to the left',()=>{
+ // The bug: layout() places a 'middle' note's BOX at tx - w/2, which is
+ // correct, and then drawNotes drew the text AT THAT X with text-anchor still
+ // set to 'middle'. The browser centred it there as well, so the label sat
+ // half a label to the left of where it was asked to be — every time, on every
+ // drawing in the project. Two workers on two different labs hit it before
+ // either could explain it.
+ //
+ // The test is behavioural: render a note through the vocabulary and measure
+ // where the text actually landed.
+
+ const w=40,ADV=.6;
+ for(const text of ['8','1:4.5','conventional']){
+  const size=7.5,tx=100;
+  const svg=sheet(txt(tx,60,text,{anchor:'middle',size}),300,150,'test');
+  const m=/<text x="([-\d.]+)" y="([-\d.]+)"[^>]*font-size="([\d.]+)"[^>]*text-anchor="middle"[^>]*>([^<]*)<\/text>/.exec(svg);
+  assert.ok(m,'no middle-anchored note was drawn for "'+text+'"');
+  const x=+m[1],drawnWidth=[...text].length*size*ADV;
+  // The text is centred on x, so its box is x - w/2 .. x + w/2, and that box
+  // must straddle the point the note was registered at.
+  const lo=x-drawnWidth/2,hi=x+drawnWidth/2;
+  assert.ok(lo<=tx&&tx<=hi,`"${text}" was drawn centred on ${x}, not on ${tx}`);
+  // and it must be within half a label of it, not a whole label
+  assert.ok(Math.abs((x)-tx)<=0.01,`"${text}" was drawn at ${x}, not at ${tx}`);
+ }
 });

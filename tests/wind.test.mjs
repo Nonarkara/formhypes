@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {defaults,families} from '../dist/model.js';
-import {kr,cr,Iv,qp,vm,projectedWidth,cfOf,cf0Rect,vortexState,windRead,familyComparison,defaultZeta,timeScale,WIND_TEXT,TERRAIN_KEYS,renderWindLab} from '../dist/wind.js';
+import {windMethodPayload,windMethodSVG,LOCK_BAND,TERRAIN,kr,cr,Iv,qp,vm,projectedWidth,cfOf,cf0Rect,vortexState,windRead,familyComparison,defaultZeta,timeScale,WIND_TEXT,TERRAIN_KEYS,renderWindLab} from '../dist/wind.js';
 
 const near=(a,b,e=1e-6)=>assert.ok(Math.abs(a-b)<=e,`${a} != ${b}`);
 
@@ -92,4 +92,148 @@ test('wind.css keeps the house rules',()=>{
  assert.ok(sizes.size<=3,[...sizes].join(','));
  const js=readFileSync(new URL('../dist/wind.js',import.meta.url),'utf8');
  assert.doesNotMatch(js,/style="|<style/);
+});
+
+/* ── the method, drawn ──────────────────────────────────────────────────────
+   The wind lab's method was a sentence: what the code formulas ask the tower
+   to carry, and whether its own sway frequency meets the vortices its plan
+   sheds. A sentence cannot show a PROFILE, a MODE or a BAND. The sheet does.
+
+   These guards read the emitted sheet, not the source. */
+const METHOD_LANGS=['en','th','zh'];
+const said=svg=>svg.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+const TOWER={...defaults,program:'petronas',floors:48};
+
+test('the method drawing is a sheet, and nothing but numbers reached it',()=>{
+ const r=windRead(TOWER,{});
+ for(const lang of METHOD_LANGS){
+  const svg=windMethodSVG(windMethodPayload(r),{lang});
+  assert.equal(typeof svg,'string');
+  assert.ok(svg.includes('<svg'),lang+': no svg');
+  assert.ok(/viewBox="[-\d. ]+"/.test(svg),lang+': no viewBox — the frame must be sized from its notes');
+  assert.doesNotMatch(svg,/NaN|undefined|Infinity/,lang+': a non-number reached the sheet');
+  for(const m of svg.matchAll(/="([^"]*)"/g))
+   assert.doesNotMatch(m[1],/NaN|undefined/,lang+': "'+m[1]+'" in an attribute');
+ }
+});
+
+test('the drawing carries the numbers the wind read actually produced',()=>{
+ const r=windRead(TOWER,{});
+ const text=said(windMethodSVG(windMethodPayload(r),{lang:'en'}));
+ // the headline numbers, each in the form the sheet prints it
+ assert.ok(text.includes(r.H.toFixed(1)+' m'),'the height is not on the sheet');
+ assert.ok(text.includes(r.n1.toFixed(3)+' Hz'),'the first-mode frequency is not on the sheet');
+ assert.ok(text.includes((1/r.n1).toFixed(2)+' s'),'the period is not on the sheet');
+ assert.ok(text.includes((r.zeta*100).toFixed(1)+' %'),'the damping is not on the sheet');
+ assert.ok(text.includes(r.cfE.toFixed(2)),'the force coefficient is not on the sheet');
+ assert.ok(text.includes(r.ze.toFixed(1)+' m'),'the equivalent height is not on the sheet');
+ assert.ok(text.includes(r.vb.toFixed(1)+' m/s'),'the basic wind speed is not on the sheet');
+ assert.ok(text.includes(r.ratio.toFixed(2)),'the frequency ratio is not on the sheet');
+ assert.ok(text.includes(r.lambda.toFixed(1)),'the slenderness is not on the sheet');
+ // the profile's own numbers: the top of the run and the critical wind
+ assert.ok(text.includes(r.vTop.toFixed(1)+' m/s'),'the wind speed at the top is not on the sheet');
+ assert.ok(text.includes(r.vCrit.toFixed(1)+' m/s'),'the critical wind speed is not on the sheet');
+ // the terrain the profile was computed over
+ assert.ok(text.includes(TERRAIN[r.terrain].z0.toFixed(2)+' m'),'the terrain roughness length is not on the sheet');
+ assert.ok(text.includes(TERRAIN[r.terrain].zmin.toFixed(1)+' m'),'the terrain minimum height is not on the sheet');
+});
+
+test('the lock-in band on the sheet is the band the rule uses',()=>{
+ // The band edges are stated once, in LOCK_BAND, and both the rule and the
+ // drawing read them. If the drawing grew its own copy of 0.8 and 1.25 the
+ // sheet would eventually say something the code no longer believes.
+ for(const r of [0.5,0.9,1.1,1.4]){
+  assert.equal(vortexState(r), r<LOCK_BAND[0]?'clear':r<=LOCK_BAND[1]?'lockin':'below');
+ }
+ const svg=windMethodSVG(windMethodPayload(windRead(TOWER,{})),{lang:'en'});
+ assert.ok(svg.includes('0.8')&&svg.includes('1.25'),'the lock-in band edges are not on the sheet');
+ // and the tower's own ratio is placed on the scale, not asserted in prose
+ const p=windMethodPayload(windRead(TOWER,{}));
+ assert.ok(said(svg).includes(p.ratio.toFixed(2)),'the tower stands nowhere on the slenderness scale');
+});
+
+test('no two notes on the wind drawing overlap, and none is clipped',()=>{
+ // The house measure: the face is monospace with a .6 em advance, so a note's
+ // width is its length. Two notes printed on one another are not "adjacent" —
+ // they are unreadable.
+ const ADV=.6,CAP=.75,DESC=.25;
+ const widthOf=(s,size)=>[...s].length*size*ADV;
+ for(const lang of METHOD_LANGS){
+  const svg=windMethodSVG(windMethodPayload(windRead(TOWER,{})),{lang});
+  const box=svg.match(/viewBox="([^"]+)"/)[1].split(/\s+/).map(Number);
+  const notes=[...svg.matchAll(/<text x="([-\d.]+)" y="([-\d.]+)"[^>]*font-size="([\d.]+)"[^>]*text-anchor="(\w+)"[^>]*>([^<]*)<\/text>/g)]
+   .map(m=>{const size=+m[3],x=+m[1],y=+m[2],anchor=m[4],s=m[5],w=widthOf(s,size);
+    // A ROTATED note (a vertical dimension's label) is not a wide box: turned
+    // on its side, its length runs down the sheet and its depth is its cap
+    // height. Measuring it as if it were horizontal puts a phantom overlap on
+    // every vertical dimension on the sheet.
+    if(/rotate\(-?\d/.test(m[0])){
+     // The same box the layout engine reserves: a label turned on its side
+     // runs its length DOWN from its baseline, and its depth is a cap height.
+     const down=/rotate\(-90/.test(m[0]);
+     return {s,size,x,y,anchor,rot:true,x0:x-w,x1:x,top:y-CAP*size,bot:down?y+w:y+DESC*size};
+    }
+    const x0=anchor==='end'?x-w:anchor==='middle'?x-w/2:x;
+    return {s,size,x,y,anchor,rot:false,x0,x1:x0+w,top:y-CAP*size,bot:y+DESC*size};});
+  assert.ok(notes.length>8,lang+': the sheet carries almost no annotation');
+  for(let i=0;i<notes.length;i++)for(let j=i+1;j<notes.length;j++){
+   const a=notes[i],b=notes[j];
+   if(a.x1<=b.x0||b.x1<=a.x0)continue;
+   if(a.bot<=b.top||b.bot<=a.top)continue;
+   assert.fail(lang+': "'+a.s+'" and "'+b.s+'" are printed on one another');
+  }
+  for(const n of notes){
+   assert.ok(n.x0>=box[0]-0.5,lang+': "'+n.s+'" runs off the left of the sheet');
+   assert.ok(n.x1<=box[0]+box[2]+0.5,lang+': "'+n.s+'" runs off the right of the sheet');
+  }
+  /* And the same check with the width a CJK glyph ACTUALLY has: one em, not
+     the .6 em the layout engine assumes for its monospace face. A Chinese
+     label is a third wider than the box reserved for it, and a label that
+     runs past the frame is a label the browser clips in silence. The Thai
+     sheet clipped its terrain note this way, and nothing said so. */
+  const adv=s=>[...s].reduce((a,c)=>a+(/[\u3400-\u9fff\uf900-\ufaff]/.test(c)?1:0.6),0);
+  for(const n of notes){
+   const w=adv(n.s)*n.size;
+   if(n.rot){
+    // A label on its side: its LENGTH is what a CJK glyph widens, and the
+    // length runs down the sheet, not across it.
+    assert.ok(n.x0>=box[0]-0.5,lang+': "'+n.s+'" runs off the left of the frame');
+    assert.ok(n.x1<=box[0]+box[2]+0.5,lang+': "'+n.s+'" runs off the right of the frame');
+    assert.ok(n.y+w<=box[1]+box[3]+0.5,lang+': "'+n.s+'" runs off the bottom of the frame');
+    continue;
+   }
+   const x=n.anchor==='middle'?n.x-w/2:n.anchor==='end'?n.x-w:n.x;
+   assert.ok(x>=box[0]-0.5,lang+': "'+n.s+'" runs off the left of the frame');
+   assert.ok(x+w<=box[0]+box[2]+0.5,lang+': "'+n.s+'" runs off the right of the frame');
+  }
+ }
+});
+
+test('the wind method is a caption now, and the sheet carries it',()=>{
+ for(const lang of METHOD_LANGS){
+  const lede=WIND_TEXT[lang].lede;
+  assert.ok(lede.length<=140,lang+': the method lede is still a paragraph ('+lede.length+')');
+  assert.ok(lede.length>=20,lang+': the caption says nothing');
+ }
+ // the drawing is on the page, not the paragraph
+ const js=readFileSync(new URL('../dist/wind.js',import.meta.url),'utf8');
+ assert.ok(js.includes('windMethodSVG('),'the sheet is never drawn');
+ assert.ok(/root\.append\([^)]*methodFig/.test(js),'the sheet is never put on the page');
+});
+
+test('the wind method drawing is translated, and carries no English on a Thai or Chinese sheet',()=>{
+ // Every WORD on the sheet comes out of WIND_TEXT[lang]. If the sheet is
+ // built from literal English, the Thai and Chinese readers get an English
+ // drawing, which is a different instrument for them.
+ for(const lang of ['th','zh']){
+  const svg=windMethodSVG(windMethodPayload(windRead(TOWER,{})),{lang});
+  const text=said(svg);
+  // the English strings of the method dict must not appear
+  for(const v of Object.values(WIND_TEXT.en.m))
+   if(typeof v==='string'&&/[A-Za-z]{4,}/.test(v)&&!/\{|\}/.test(v))
+    assert.ok(!text.includes(v),lang+': the sheet still says "'+v+'"');
+ }
+ // and every language draws a sheet of the same size and weight
+ const sizes=METHOD_LANGS.map(l=>windMethodSVG(windMethodPayload(windRead(TOWER,{})),{lang:l}).length);
+ assert.ok(Math.max(...sizes)-Math.min(...sizes)<Math.max(...sizes)*0.5,'one language drew a very different sheet');
 });

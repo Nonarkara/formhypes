@@ -30,8 +30,9 @@
    behaviour, not an industry traffic simulator — the lab says so.
 
    Everything above the DOM section is pure and DOM-free so it can be tested. */
-import {liftDesign,CORE_METHOD,liftSpeed} from './core.js?v=deb2864e7f';
-import {stack,evaluate} from './model.js?v=4d4eb35fb5';
+import {liftDesign,CORE_METHOD,liftSpeed} from './core.js?v=7612d67571';
+import {stack,evaluate} from './model.js?v=4739b9a107';
+import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow,layout} from './drafting.js?v=895b148bec';
 
 /* Stated assumptions. Each one is printed where it is used. */
 export const LIFT_ASSUME={
@@ -443,7 +444,13 @@ export const LIFTS_TEXT={
   simGap:'When the simulated wait is longer than the CIBSE figure: the formula assumes cars leave the lobby at even intervals, about 80% full. The simulated group has no dispatcher, so cars bunch and leave fuller, as an unmanaged collective group does. The gap between the two numbers is the case for good dispatching.',
   chart:{sat:'saturated',title:'Average wait against cars per zone',note:'The CIBSE average wait (solid) falls with each car added, by less each time; the shaft area at the lobby (dashed) climbs in a straight line. The current choice is marked.',x:'cars per zone',xd:'cars per group, against the CIBSE minimum',y:'average wait, s',a:'lobby shafts, m²'},
   apply:'Apply a {c} m core to the tower',applyNote:'The lift shafts here take more than half of the {s} m core at the lobby (half is an assumption, leaving room for stairs, risers and toilets).',
-  m1:'Round trip, CIBSE Guide D up-peak: RTT = 2·(E + H)·t_v + (S + 1)·t_s + 2·P·t_p. P is 80% of the car capacity. S = N·[1 − (1 − 1/N)^P] is the probable number of stops over N floors; H = N − Σ(i/N)^P for i = 1…N−1 is the highest reversal floor; E is the express floors below the zone; t_v = floor height ÷ rated speed; t_s = single-floor flight time − t_v + door time; t_p = 1.2 s per passenger.',
+  m:{aria:'Method drawing: one lift zone in section, with the express run below it, the probable stops, the floor where the car turns round, the passengers waiting at the lobby, and the round trip time split into travelling, stopping and doors, and passengers.',
+   title:'Round trip, {n} cars',
+   zone:'zone {n} floors',express:'express {n} floors',stops:'S = {n} stops',rev:'H = {n} reversal',
+   pass:'P = {n}',lobby:'lobby',travel:'travel',doors:'doors',people:'people',
+   seg:'{n} {s} {u} ({p}%)',interval:'interval {i} {u}',
+   terms:'t_v = {v} {u} · t_s = {s} {u} · t_p = {p} {u}'},
+  m1:'One zone in section: the shaft, the express run below it, the probable stops and the reversal floor. RTT = 2·(E + H)·t_v + (S + 1)·t_s + 2·P·t_p, split into travelling, doors and passengers; interval = RTT ÷ cars.',
   m2:'Interval = RTT ÷ cars; handling capacity = 300·P·cars ÷ RTT persons per 5 min. Average wait (Barney and Al-Sharif): AWT ≈ [0.4 + (1.8·P/CC − 0.77)²]·interval for car loads of 50–80%, 0.4·interval below, at the load the arrival rate really produces.',
   m3:'Shaft area per car is assumed at {a} m² for {c} persons (2.8 m² + 0.25 m² per person, walls and landing doors included; check against ISO 8100-30 and manufacturer planning data). A shaft takes floor area on every floor it passes. A sky lobby stops the upper zones’ shafts at the lobby level and replaces their express runs with shuttles; the difference, in m², is what the tower gets back to let.',
   cannot:'Cannot claim: this is not a traffic simulation to industry standard (such as Elevate); there is no lift manufacturer data; no accuracy is claimed for lunch-time or down-peak traffic. The simulation is a simple collective group with a 10 s lobby dwell, seeded arrivals and no inter-floor trips. It shows behaviour, not a certified figure.',
@@ -484,7 +491,13 @@ export const LIFTS_TEXT={
   simGap:'เมื่อเวลารอจากการจำลองนานกว่าตัวเลขของ CIBSE: สูตรสมมติว่ารถออกจากล็อบบี้เป็นช่วงห่างเท่ากัน บรรทุกราว 80% แต่กลุ่มลิฟต์ในการจำลองไม่มีระบบจัดสรร รถจึงจับกลุ่มกันและออกไปแน่นกว่า เหมือนกลุ่มลิฟต์แบบรวมเรียกที่ไม่มีการควบคุม ช่องว่างระหว่างสองตัวเลขนี้คือเหตุผลที่ต้องมีการจัดสรรรถที่ดี',
   chart:{sat:'อิ่มตัว',title:'เวลารอเฉลี่ยเทียบกับจำนวนรถต่อโซน',note:'เวลารอเฉลี่ยตาม CIBSE (เส้นทึบ) ลดลงทุกครั้งที่เพิ่มรถ แต่ลดน้อยลงทุกครั้ง ส่วนพื้นที่ช่องลิฟต์ที่ล็อบบี้ (เส้นประ) เพิ่มเป็นเส้นตรง จุดที่เลือกอยู่ทำเครื่องหมายไว้',x:'รถต่อโซน',xd:'รถต่อกลุ่ม เทียบกับจำนวนต่ำสุดตาม CIBSE',y:'เวลารอเฉลี่ย วินาที',a:'ช่องลิฟต์ที่ล็อบบี้ ตร.ม.'},
   apply:'ใช้แกนอาคารขนาด {c} ม. กับอาคาร',applyNote:'ช่องลิฟต์ที่นี่กินพื้นที่เกินครึ่งของแกน {s} ม. ที่ชั้นล็อบบี้ (ครึ่งหนึ่งเป็นค่าสมมติ เผื่อพื้นที่บันได ช่องท่อ และห้องน้ำ)',
-  m1:'เวลาเดินทางไปกลับ ช่วงขาขึ้นตาม CIBSE Guide D: RTT = 2·(E + H)·t_v + (S + 1)·t_s + 2·P·t_p โดย P คือ 80% ของความจุรถ S = N·[1 − (1 − 1/N)^P] คือจำนวนการจอดที่น่าจะเกิดใน N ชั้น H = N − Σ(i/N)^P สำหรับ i = 1…N−1 คือชั้นกลับตัวสูงสุด E คือจำนวนชั้นที่วิ่งด่วนใต้โซน t_v = ความสูงชั้น ÷ ความเร็วพิกัด t_s = เวลาเคลื่อนที่หนึ่งชั้น − t_v + เวลาประตู t_p = 1.2 วินาทีต่อผู้โดยสาร',
+  m:{aria:'ภาพวิธีคำนวณ: ภาคตัดโซนลิฟต์หนึ่งโซน พร้อมระยะวิ่งด่วนใต้โซน จุดหยุดที่น่าจะเกิดขึ้น ชั้นที่รถกลับตัว ผู้โดยสารที่รออยู่ที่ล็อบบี้ และเวลาเดินทางไปกลับที่แบ่งเป็นเวลาเดินทาง เวลาหยุดเปิดปิดประตู และเวลาผู้โดยสาร',
+   title:'เวลาเดินทางไปกลับ, {n} คัน',
+   zone:'โซน {n} ชั้น',express:'วิ่งด่วน {n} ชั้น',stops:'S = {n} จุดหยุด',rev:'H = {n} กลับตัว',
+   pass:'P = {n} คน',lobby:'ล็อบบี้',travel:'เดินทาง',doors:'ประตู',people:'ผู้โดยสาร',
+   seg:'{n} {s} {u} ({p}%)',interval:'ช่วงห่าง {i} {u}',
+   terms:'t_v = {v} {u} · t_s = {s} {u} · t_p = {p} {u}'},
+  m1:'หนึ่งโซนในภาคตัด: ช่องลิฟต์ ระยะวิ่งด่วนใต้โซน จุดหยุดที่น่าจะเกิดขึ้น และชั้นที่รถกลับตัว RTT = 2·(E + H)·t_v + (S + 1)·t_s + 2·P·t_p แบ่งเป็นเวลาเดินทาง เวลาประตู และเวลาผู้โดยสาร ช่วงห่าง = RTT ÷ จำนวนรถ',
   m2:'ช่วงห่าง = RTT ÷ จำนวนรถ ความสามารถขนส่ง = 300·P·จำนวนรถ ÷ RTT คนต่อ 5 นาที เวลารอเฉลี่ย (Barney และ Al-Sharif): AWT ≈ [0.4 + (1.8·P/CC − 0.77)²]·ช่วงห่าง เมื่อบรรทุก 50–80% และ 0.4·ช่วงห่างเมื่อต่ำกว่านั้น คิดที่น้ำหนักบรรทุกที่อัตราการมาถึงเกิดขึ้นจริง',
   m3:'สมมติพื้นที่ช่องลิฟต์ต่อรถ {a} ตร.ม. สำหรับ {c} คน (2.8 ตร.ม. + 0.25 ตร.ม. ต่อคน รวมผนังช่องและประตูชั้น ควรตรวจกับ ISO 8100-30 และข้อมูลการวางแผนของผู้ผลิต) ช่องลิฟต์กินพื้นที่ทุกชั้นที่วิ่งผ่าน สกายล็อบบี้ทำให้ช่องลิฟต์โซนบนหยุดที่ระดับล็อบบี้ และแทนการวิ่งด่วนด้วยลิฟต์รับส่ง ส่วนต่างเป็นตารางเมตรคือพื้นที่ที่อาคารได้คืนมาให้เช่า',
   cannot:'สิ่งที่อ้างไม่ได้: นี่ไม่ใช่การจำลองการจราจรตามมาตรฐานอุตสาหกรรม (เช่น Elevate) ไม่มีข้อมูลจากผู้ผลิตลิฟต์ ไม่อ้างความแม่นยำของการจราจรช่วงกลางวันหรือขาลง การจำลองเป็นกลุ่มลิฟต์แบบรวมเรียกอย่างง่าย รอที่ล็อบบี้ 10 วินาที การมาถึงแบบสุ่มที่กำหนดเมล็ดไว้ และไม่มีการเดินทางระหว่างชั้น แสดงพฤติกรรม ไม่ใช่ตัวเลขที่รับรองได้',
@@ -525,12 +538,169 @@ export const LIFTS_TEXT={
   simGap:'模拟候梯时间长于 CIBSE 数值时：公式假定轿厢以均匀间隔、约 80% 满载离开大堂；模拟中的电梯组没有调度器，轿厢会扎堆、载得更满才出发，就像缺乏管理的集选电梯组。两个数字之间的差距，正说明良好派梯的价值。',
   chart:{sat:'饱和',title:'平均候梯时间与每区轿厢数',note:'CIBSE 平均候梯时间（实线）随每增加一台轿厢而下降，但降幅越来越小；首层井道面积（虚线）则直线上升。当前选择已标出。',x:'每区轿厢数',xd:'每组轿厢数（相对 CIBSE 最少配置）',y:'平均候梯 秒',a:'首层井道 平方米'},
   apply:'将 {c} 米核心筒应用到塔楼',applyNote:'此处电梯井道在首层占用了 {s} 米核心筒一半以上的面积（一半为假定值，为楼梯、管井和卫生间留出空间）。',
-  m1:'往返时间，CIBSE Guide D 上行高峰：RTT = 2·(E + H)·t_v + (S + 1)·t_s + 2·P·t_p。P 为轿厢载客量的 80%。S = N·[1 − (1 − 1/N)^P] 为 N 层内的可能停站数；H = N − Σ(i/N)^P（i = 1…N−1）为最高返回层；E 为分区以下的直驶层数；t_v = 层高 ÷ 额定速度；t_s = 单层运行时间 − t_v + 开关门时间；t_p = 每位乘客 1.2 秒。',
+  m:{aria:'方法图示：一个电梯分区的剖面，含下方直驶段、可能的停站层、轿厢折返层、在大堂候梯的乘客，以及往返时间在行驶、停站开关门与乘客之间的分配。',
+   title:'往返时间，{n} 台',
+   zone:'分区 {n} 层',express:'直驶 {n} 层',stops:'S = {n} 停站',rev:'H = {n} 折返',
+   pass:'P = {n} 人',lobby:'大堂',travel:'行驶',doors:'开关门',people:'乘客',
+   seg:'{n} {s} {u}，占 {p}%',interval:'间隔 {i} {u}',
+   terms:'时间 t_v = {v} {u} · t_s = {s} {u} · t_p = {p} {u}'},
+  m1:'一个分区的剖面：井道、下方直驶段、可能的停站层与折返层。RTT = 2·(E + H)·t_v + (S + 1)·t_s + 2·P·t_p，分为行驶、开关门与乘客；间隔 = RTT ÷ 轿厢数。',
   m2:'间隔 = RTT ÷ 轿厢数；输送能力 = 300·P·轿厢数 ÷ RTT（人/5 分钟）。平均候梯时间（Barney 与 Al-Sharif）：轿厢载荷 50–80% 时 AWT ≈ [0.4 + (1.8·P/CC − 0.77)²]·间隔，低于 50% 时为 0.4·间隔，按到达率实际产生的载荷计算。',
   m3:'假定每台轿厢井道面积为 {a} 平方米（{c} 人；2.8 平方米 + 每人 0.25 平方米，含井道墙和层门；请与 ISO 8100-30 及厂商规划资料核对）。井道在其经过的每一层都占用楼面。空中大堂让高区井道止于该层，并以穿梭电梯取代直驶段；两者之差（平方米）就是塔楼收回的可出租面积。',
   cannot:'不能据此断言：这不是符合行业标准的交通模拟（如 Elevate）；没有电梯厂商数据；不声称午间或下行高峰的准确性。模拟是一个简单的集选电梯组，大堂停留 10 秒，到达按固定种子随机生成，不含层间交通。它展示的是行为，不是认证数值。',
   src:'来源：CIBSE Guide D: Transportation systems in buildings（2020），上行高峰往返时间 · G. Barney、L. Al-Sharif，Elevator Traffic Handbook 第 2 版（Routledge，2016）· G. Strakosch、R. Caporale，The Vertical Transportation Handbook 第 4 版（Wiley，2010）· ISO 8100-32:2020。'}
 };
+
+/* ── the method, drawn ──────────────────────────────────────────────────────
+   The paragraph this replaces said where the round trip time comes from in
+   eight hundred characters of prose, and a paragraph cannot show a PROPORTION.
+   The drawing can: the section says what the car does, and the bar says how
+   the seconds divide — which is the one thing the prose could never say,
+   because the reader has to hold three numbers and add them up in their head.
+
+   Every number on the sheet is a number the lab has already computed. The
+   payload comes from liftsMethodPayload(), which is built from the SAME
+   groupRTT() call that produces the RTT the lab reports, so the drawing and
+   the arithmetic cannot drift apart. Nothing here is drawn from a constant.
+
+   Every WORD on the sheet comes out of LIFTS_TEXT[lang]. There is no English
+   left lying about on the Thai sheet or the Chinese one. */
+const MW=340,MH=190;          // the sheet's field, in drawing units
+const GY=148,TOPY=22;         // the ground line, and the top of the shaft
+
+/* One zone's round trip, taken apart. The group that governs is the one
+   drawn: the worst local group in the plan, which is the group the lab's
+   worst interval is reported against. */
+export function liftsMethodPayload(plan){
+ const gs=((plan&&plan.groups)||[]).filter(g=>g.kind==='local');
+ if(!gs.length)return null;
+ const A=LIFT_ASSUME,g=gs.reduce((m,x)=>x.interval>m.interval?x:m,gs[0]);
+ const P=A.load*plan.cap;
+ const d=groupRTT({N:g.N,E:g.E,df:plan.df,v:plan.v,a:plan.a,td:plan.td,tp:plan.tp,
+  P,sectors:plan.dest?A.sectors:1,dd:plan.dd});
+ const travel=2*(d.E+d.H)*d.tv,doors=(d.S+1)*d.ts,people=2*P*plan.tp;
+ return {N:g.N,E:d.E,S:d.S,H:d.H,P,tv:d.tv,ts:d.ts,tp:plan.tp,
+  rtt:d.rtt,cars:g.cars,interval:d.rtt/g.cars,
+  travel,doors,people,lo:g.lo,hi:g.hi,base:g.base};
+}
+
+export function liftsMethodSVG(p,{lang='en'}={}){
+ const c=LIFTS_TEXT[lang]||LIFTS_TEXT.en,M=c.m,U=c.u.s;
+ if(!p)return sheet('',MW,MH,'');
+ const f1=v=>Number.isFinite(v)?v.toFixed(1):'—';
+ const f2=v=>Number.isFinite(v)?v.toFixed(2):'—';
+ const N=Math.max(1,Math.round(p.N)),E=Math.max(0,Math.round(p.E));
+ const floors=E+N,fh=(GY-TOPY)/floors;
+ const yOf=l=>GY-l*fh;
+ const zoneTop=yOf(floors),zoneBot=yOf(E),yH=yOf(E+Math.max(0,p.H));
+ const XL=52,XR=57,XL2=88,XR2=93;      // the shaft walls, cut
+ const BX0=120,BX1=306,BY0=40,BY1=62;  // the time bar
+ /* The house's own ruler. A note is centred under its segment, and the width
+    it is centred by has to be the width the layout engine reserved for it —
+    measured here with the same function, not guessed. */
+ const wOf=t=>layout([{k:'txt',x:0,y:0,tx:0,ty:0,text:t,o:{}}]).out[0].w;
+ /* The two bands, drawn as closed dashed outlines: the zone the car serves,
+    and the express run below it that it passes without stopping. Drawn as
+    paths rather than loose rules so the sheet can be MEASURED — a drawing
+    whose bands cannot be read back is a drawing nobody can check. */
+ const drect=(x0,y0,x1,y1)=>`<path d="M${x0} ${y0} H${x1} V${y1} H${x0} Z" fill="none"`
+  +` stroke="var(--faint)" stroke-width=".6" stroke-dasharray="3 2"/>`;
+ let g='';
+
+ /* the ground, the earth below it, and the lobby floor the passengers stand
+    on. The shaft cuts the slab, so the slab is poché; the earth beyond it is
+    hatched as earth. */
+ g+=ground(97,GY,21);
+ g+=cut(`M12 ${GY} H97 V${GY+5} H12 Z`,'conc');
+ /* the shaft, cut: two walls of concrete, and the void between them */
+ g+=cut(`M${XL} ${TOPY} H${XR} V${GY} H${XL} Z`,'conc');
+ g+=cut(`M${XL2} ${TOPY} H${XR2} V${GY} H${XL2} Z`,'conc');
+ /* the car, cut as well: it is the one thing in this drawing that moves */
+ g+=cut(`M58 ${GY-12} H87 V${GY} H58 Z`,'metal');
+ /* The zone the car serves, and the express run below it that it passes
+    without stopping. Both bands are always drawn: a zone that starts at the
+    lobby has an express run of zero floors, and saying so is better than
+    leaving the reader to wonder which of the two it is looking at. */
+ g+=drect(48,zoneTop,97,zoneBot)+drect(48,zoneBot,97,GY);
+ const estep=Math.max(1,Math.round(E/8));
+ for(let i=1;i<=E;i+=estep)g+=beyond(`M${XR} ${yOf(i).toFixed(2)} H${XL2}`,.4);
+ /* the probable stops, as ticks on the shaft. There are S of them, and S is
+    a probability, so where they fall is representative — the NUMBER
+    annotated is the real S, not the number of ticks drawn. */
+ const k=Math.max(1,Math.min(12,Math.round(p.S))),ticks=[];
+ for(let i=0;i<k;i++){
+  const yy=yOf(E+Math.max(.3,p.H)*(i+.5)/k);
+  ticks.push(yy);
+  g+=rule(XL2-5,yy.toFixed(2),XL2,yy.toFixed(2),{c:'var(--ink)',w:1.1});
+ }
+ /* the highest reversal floor, marked distinctly: the one level the car
+    reaches and comes back down from */
+ g+=rule(XR,yH.toFixed(2),XL2,yH.toFixed(2),{c:'var(--accent)',w:1.3});
+ g+=`<rect x="${XR-1.4}" y="${(yH-1.4).toFixed(2)}" width="2.8" height="2.8" fill="var(--accent)"/>`;
+ /* the round trip itself, as a flow: up to the reversal floor and back */
+ g+=flow(`M64 ${GY-14} V${(yH+6).toFixed(2)}`,true)+head(64,yH+4,'u',true);
+ g+=flow(`M80 ${(yH+6).toFixed(2)} V${GY-14}`)+head(80,GY-16,'d',false);
+ /* the passengers waiting at the lobby. P is a real number, so the dots are
+    a representative count and the annotated P is the real one. */
+ const np=Math.max(1,Math.round(p.P)),shown=Math.min(np,16);
+ const pitch=Math.min(4,28/shown),rad=Math.min(.9,pitch*.42);
+ for(let i=0;i<shown;i++)
+  g+=`<circle cx="${(15+i*pitch).toFixed(2)}" cy="${(GY-rad).toFixed(2)}" r="${rad.toFixed(2)}" fill="var(--ink)"/>`;
+
+ /* the annotation. Leaders, staggered, each landing on the thing it names.
+    The labels down the left margin are STACKED: each lands as near as it
+    can to the thing it names, and never on top of the label above it. The
+    geometry moves with the plan — a zone with a long express run and a zone
+    with none put these labels in different places — so the stack is worked
+    out here rather than assumed. */
+ const mid=ticks[Math.floor(ticks.length/2)]??zoneBot;
+ const slot=(y,last)=>Math.max(y,last+18);
+ let last=-1e9;
+ const sRev=slot(yH,last);last=sRev;
+ const sStops=slot(mid,last);last=sStops;
+ /* The people waiting at the lobby are DRAWN on the lobby floor, and the
+    annotation column is the ground they stand in. So the labels that name
+    the shaft stop short of that floor, and the two that name what is below
+    it stand below it. A zone that reached the ground had its label printed
+    straight through the queue — which no text-only guard can see, because
+    the queue is drawing, not text. */
+ const sZone=Math.min(slot(zoneBot,last),GY-16);last=sZone;
+ const sExp=Math.max(GY+8,slot((zoneBot+GY)/2,last));last=sExp;
+ const sPass=Math.max(GY+26,slot(GY-1,last));
+ g+=leader(XR+1.4,yH,44,sRev,fill(M.rev,{n:f1(p.H)}));
+ g+=leader(XL2-2.5,mid,44,sStops,fill(M.stops,{n:f1(p.S)}));
+ g+=leader(48,zoneBot,44,sZone,fill(M.zone,{n:N}));
+ g+=leader(48,(zoneBot+GY)/2,44,sExp,fill(M.express,{n:E}));
+ g+=leader(15+pitch,GY-1,15,sPass,fill(M.pass,{n:f1(p.P)}));
+ g+=leader(70,GY,100,130,fill(M.lobby));
+
+ /* ── the bar: the round trip, split in proportion ─────────────────────────
+    Three segments, in the order the formula adds them, each as long as the
+    seconds it stands for. This is the drawing's whole argument: whether the
+    trip is dominated by travel or by doors is a matter of looking. */
+ const bw=BX1-BX0,segs=[['conc',p.travel,M.travel],['wool',p.doors,M.doors],['seal',p.people,M.people]];
+ let x=BX0;const mids=[];
+ for(const [mat,sec,nm] of segs){
+  const w=Math.max(0,bw*sec/p.rtt);
+  mids.push(x+w/2);
+  g+=cut(`M${x.toFixed(2)} ${BY0} H${(x+w).toFixed(2)} V${BY1} H${x.toFixed(2)} Z`,mat);
+  x+=w;
+ }
+ g+=txt(BX0-3,24,fill(M.title,{n:p.cars}),{anchor:'start'});
+ for(let i=0;i<3;i++){
+  const sec=segs[i][1];
+  const text=fill(M.seg,{n:segs[i][2],s:f1(sec),u:U,p:(sec/p.rtt*100).toFixed(0)});
+  /* Centred under its own segment: the land is the label's right edge plus
+     three units, so the half-width of the label is added to the segment's
+     middle. The leader then lands beside the text, not on top of it. */
+  g+=leader(mids[i],BY1,mids[i]+wOf(text)/2,76+i*20,text,{anchor:'end'});
+ }
+ g+=dim(BX0,140,BX1,140,`RTT ${f1(p.rtt)} ${U}`);
+ g+=txt(BX0-3,155,fill(M.interval,{i:f1(p.interval),u:U}),{anchor:'start'});
+ g+=txt(BX0-3,170,fill(M.terms,{v:f2(p.tv),s:f2(p.ts),p:f1(p.tp),u:U}),{anchor:'start'});
+
+ return sheet(g,MW,MH,M.aria);
+}
 
 /* ── DOM ──────────────────────────────────────────────────────────────── */
 const fill=(t,v)=>String(t).replace(/\{(\w+)\}/g,(_,k)=>v[k]??'');
@@ -586,15 +756,20 @@ function build(host,lang){
  const coreNote=el('p','lt-prose',c.coreDesk),simGap=el('p','lt-prose',c.simGap);
  const chartT=el('h3','lt-sub',c.chart.title),chart=el('canvas','lt-canvas lt-chart');chart.setAttribute('role','img');chart.setAttribute('aria-label',c.chart.title);
  const chartN=el('p','lt-hint',c.chart.note);
- const m1=el('p','lt-prose lt-formula',c.m1),m2=el('p','lt-prose lt-formula',c.m2),m3=el('p','lt-prose');
+ const m2=el('p','lt-prose lt-formula',c.m2),m3=el('p','lt-prose');
+ /* The method is a drawing now, not a paragraph. The prose that stood in for
+    it was a list of symbols; the sheet is what those symbols mean. */
+ const methodFig=el('figure','lt-method');
+ const methodBox=el('div','lt-methodsvg');
+ methodFig.append(methodBox,el('figcaption',null,c.m1));
  const cannot=el('p','lt-prose lt-limits',c.cannot),src=el('p','lt-src',c.src);
- root.append(head,sheet,status,lede,ctls,verdict,dl,tw,applyB,applyN,coreNote,simGap,chartT,chart,chartN,m1,m2,m3,cannot,src);
+ root.append(head,sheet,status,lede,ctls,verdict,dl,tw,applyB,applyN,coreNote,simGap,chartT,chart,chartN,methodFig,m2,m3,cannot,src);
  host.append(root);
  const ro=typeof ResizeObserver==='function'?new ResizeObserver(()=>{size();if(!raf)drawAll()}):null;
  if(ro){ro.observe(sheet);ro.observe(chart)}
  // Canvas text: the mono face first, then the non-looped Thai and the Chinese
  // faces the page already loads, so th and zh labels never fall to a system face.
- ui={host,lang,c,root,sheet,chart,status,R,verdict,rows,tbody,applyB,applyN,m3,ro,font:"11px 'IBM Plex Mono','IBM Plex Sans Thai','Noto Sans SC',ui-monospace,monospace",lastDom:0};
+ ui={host,lang,c,root,sheet,chart,status,R,verdict,rows,tbody,applyB,applyN,m3,methodBox,ro,font:"11px 'IBM Plex Mono','IBM Plex Sans Thai','Noto Sans SC',ui-monospace,monospace",lastDom:0};
  size();
 }
 
@@ -669,6 +844,12 @@ function refresh(){
  ui.applyB.hidden=!canApply;ui.applyN.hidden=!canApply;
  if(canApply){ui.applyB.textContent=fill(c.apply,{c:fmt(p.suggestCore)});ui.applyN.textContent=fill(c.applyNote,{s:fmt(p.core)});ui.applyB.onclick=()=>{try{apply({core:p.suggestCore})}catch{}}}
  ui.m3.textContent=fill(c.m3,{a:fmt(p.shaftA,2),c:fmt(p.cap)});
+ /* The drawing is rebuilt from the plan, so the numbers on it are the numbers
+    this plan just produced — never a copy of last time's. */
+ try{
+  const pay=liftsMethodPayload(p);
+  ui.methodBox.innerHTML=pay?liftsMethodSVG(pay,{lang:ui.lang}):'';
+ }catch{ui.methodBox.innerHTML=''}
  const key=planKey(p);
  if(!sim||sim.key!==key){sim=createSim(p,{seed:7});sim.key=key;sim.k=timeScale(Math.max(...p.groups.map(g=>g.rtt)));}
  else sim.plan=p;
