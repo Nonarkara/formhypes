@@ -131,6 +131,12 @@ await write('research-tracks.js',tracks);ids['research-tracks.js']=sha(tracks);
 const guided=stamp(await read('research-reader.js'), ['./research-tracks.js','./reader.js','./model.js'], ids);
 await write('research-reader.js',guided);ids['research-reader.js']=sha(guided);
 
+// quantity.js reads the model after the model stamp has settled, then app.js
+// pins the quantity module it actually imports.
+const quantity = stamp(await read('quantity.js'), ['./model.js','./geometry.js','./areasplit.js','./materials.js'], ids);
+await write('quantity.js', quantity);
+ids['quantity.js'] = sha(quantity);
+
 // app.js is stamped against its imports, then hashed in its rewritten form so
 // index.html points at the bytes that actually ship.
 const app = stamp(await read('app.js'), IN_APP, ids);

@@ -34,6 +34,7 @@ import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
+import {quantityCsv, howMeasured} from './quantity.js?v=2d48ebc776';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=46436947b4';
 import {WORKSPACES} from './console.js?v=9e3f98c612';
@@ -118,6 +119,7 @@ function setLang(l){
  document.querySelectorAll('[data-i18n]').forEach(n=>{n.textContent=tt(n.dataset.i18n)});
  document.title='FormHypes — '+tt('tag.line');
  for(const id of ['reset','save','export'])$(id).setAttribute('aria-label',tt(id));
+ if($('exportQty'))$('exportQty').setAttribute('aria-label',tt('d.qtyTitle'));
  buildLangButtons();buildSelectors();buildRanges();sync();
  renderResearch();renderMethod();renderStudies();renderDecisionStudy();
  if(document.body.dataset.tab==='manual')renderAssemblyPage();

@@ -64,7 +64,7 @@ const SECTORS=[['E',0],['SE',-45],['S',-90],['SW',-135],['W',180],['NW',135],['N
 // punishing ones because the sun is near the horizon exactly when people are.
 // Exposure is integrated from the selected city/date; compass sectors label directions only.
 const GLASS={
- vision:{en:'clear vision low-e',th:'กระจกวิสิวชัน low-e ใส',zh:'透明 low-e 视窗玻璃',value:1.00},
+ vision:{en:'clear vision low-e',th:'กระจกใส low-e',zh:'透明 low-e 视窗玻璃',value:1.00},
  solar :{en:'low-e with a shade',th:'low-e พร้อมไซต์บังแดด',zh:'low-e 加遮阳',value:0.92},
  dark  :{en:'solar-control, dark',th:'ควบคุมแสงอาทิตย์ สีเข้ม',zh:'遮阳控制，深色',value:0.80}
 };
