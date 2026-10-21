@@ -1,6 +1,6 @@
 import {TRACKS,RESEARCH_UI,RESEARCH_SOURCES,THESIS_EXCERPTS,HISTORY_PHOTO,PROTOCOL_FILES} from './research-tracks.js?v=8ce74a85fc';
 import {renderReader as renderEarlierReader} from './reader.js?v=d9836cd301';
-import {defaults,evaluate,grossOf,profile,families,regimes} from './model.js?v=4739b9a107';
+import {defaults,evaluate,grossOf,profile,families,regimes} from './model.js?v=d6152aaa85';
 const N=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
 let selected=0,pages=[0,0,0],initialised=false;
 export function readingSelection(search=''){

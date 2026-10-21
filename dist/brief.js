@@ -7,7 +7,7 @@
 // hold a parameter Chen specifies, this panel says so on screen rather than
 // approximating it quietly.
 
-import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=4739b9a107';
+import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=d6152aaa85';
 
 export const BRIEF_I18N={
 en:{
@@ -328,13 +328,20 @@ export function renderBrief({lang,state,changed,onInputs}){
  const rule=document.createElementNS('http://www.w3.org/2000/svg','svg');
  /* Delivered area drawn as a length against the allowance, which is a tick
     with its name. The part beyond the allowance is the one amber length. A
-    ruler with one mark said nothing once the brief passed the allowance. */
- rule.setAttribute('viewBox','0 0 320 26');rule.setAttribute('class','br-rule');rule.setAttribute('aria-hidden','true');
- const span=Math.max(permitted,r.gfa,1),X=v=>(8+304*Math.max(0,v)/span).toFixed(1);
+    ruler with one mark said nothing once the brief passed the allowance.
+
+    The ruler spans the desk. It used to stop at 360px in a 614px panel and
+    leave 250px of nothing beside it, and its "allowance" tick pointed at
+    nothing — a scale that does not line up with the numbers it measures. It
+    is now drawn 560 units wide so that at the desk's full width the type
+    comes out at the size it was drawn, and the tick lands under the ledger
+    row that names the allowance. */
+ rule.setAttribute('viewBox','0 0 560 26');rule.setAttribute('class','br-rule');rule.setAttribute('aria-hidden','true');
+ const span=Math.max(permitted,r.gfa,1),X=v=>(8+544*Math.max(0,v)/span).toFixed(1);
  const xa=X(permitted),xd=X(r.gfa),fit=X(Math.min(r.gfa,permitted));
  if(over>0)rule.classList.add('over');
- const near=Number(xa)>250;
- rule.innerHTML=`<path d="M8 9H312" fill="none" stroke="currentColor" stroke-width="1" opacity=".25"/>`
+ const near=Number(xa)>440;
+ rule.innerHTML=`<path d="M8 9H552" fill="none" stroke="currentColor" stroke-width="1" opacity=".25"/>`
   +`<path d="M8 9H${fit}" fill="none" stroke="currentColor" stroke-width="3"/>`
   +(over>0?`<path d="M${xa} 9H${xd}" fill="none" stroke="#f59e0b" stroke-width="3"/>`:'')
   +`<path d="M8 3V15M${xa} 2V16" fill="none" stroke="currentColor" stroke-width="1"/>`

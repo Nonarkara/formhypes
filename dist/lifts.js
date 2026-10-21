@@ -31,7 +31,7 @@
 
    Everything above the DOM section is pure and DOM-free so it can be tested. */
 import {liftDesign,CORE_METHOD,liftSpeed} from './core.js?v=7612d67571';
-import {stack,evaluate} from './model.js?v=4739b9a107';
+import {stack,evaluate} from './model.js?v=d6152aaa85';
 import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow,layout} from './drafting.js?v=895b148bec';
 
 /* Stated assumptions. Each one is printed where it is used. */

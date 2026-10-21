@@ -32,7 +32,7 @@
    than the stacks carry, the difference stands on the roof, and the figure
    shows it standing there. */
 
-import {stack,profile,area,evaluate} from './model.js?v=4739b9a107';
+import {stack,profile,area,evaluate} from './model.js?v=d6152aaa85';
 import {liftDesign,servicesDesign,CORE_SRC} from './core.js?v=7612d67571';
 import {sheet,cut,leader,dim,rule,txt,ground} from './drafting.js?v=895b148bec';
 

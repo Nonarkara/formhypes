@@ -4,10 +4,10 @@
 .cb{container-type:inline-size;display:grid;gap:10px;min-width:0;font-size:12px;line-height:1.45;color:var(--ink)}
 .cb-title{margin:0;font-size:var(--m);font-weight:600;letter-spacing:0}
 .cb-sub{margin:6px 0 0;font-size:12px;font-weight:600;padding-top:8px;border-top:1px solid var(--line)}
-.cb-prose{margin:0;max-width:68ch;color:var(--muted)}
-.cb-hint{margin:2px 0 0;max-width:68ch;color:var(--muted)}
+.cb-prose{margin:0;max-width:32em;color:var(--muted)}
+.cb-hint{margin:2px 0 0;max-width:32em;color:var(--muted)}
 .cb-limits{color:var(--ink)}
-.cb-src{margin:0;font-size:11px;max-width:68ch;color:var(--muted);padding-top:8px;border-top:1px solid var(--line)}
+.cb-src{margin:0;font-size:11px;max-width:32em;color:var(--muted);padding-top:8px;border-top:1px solid var(--line)}
 
 .cb-views{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;background:var(--dark)}
 .cb-canvas{position:static;inset:auto;display:block;width:100%;background:var(--dark);touch-action:auto}
@@ -23,9 +23,9 @@
    scales to the panel and nothing else on the page has to move for it. */
 .cb-method{margin:0;display:block;min-width:0}
 .cb-method svg{display:block;width:100%;height:auto}
-.cb-caption{margin:6px 0 0;max-width:68ch;color:var(--muted)}
+.cb-caption{margin:6px 0 0;max-width:32em;color:var(--muted)}
 .cb-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
-.cb-verdict{margin:0;font-size:var(--m);max-width:68ch}
+.cb-verdict{margin:0;font-size:var(--m);max-width:32em}
 .cb-flag{border-left:3px solid var(--accent);padding-left:8px}
 
 .cb-controls{display:grid;grid-template-columns:minmax(0,1fr);gap:10px 18px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}

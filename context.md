@@ -280,3 +280,33 @@ Six mutations of the four fixes, six red.
 - Render the sheet and look at it. Every number was right and the Thai sheet was still wrong.
 
 **Open.** Water and Glare method sheets in flight. `app.js` and `i18n.js` still hubs. The identifier assertions still fragile. PR #3 (quantity, per-level schedule) has passed an independent review and is ready to land whenever Dr Non wants it; it is not merged. Chen's licensing stays deferred and untouched.
+
+## 2026-10-20 · The spatial hallucination massacre, and PR #3 landed
+
+**The ask.** Dr Non: take care of the still-open items; and do a "spatial hallucination massacre" — apply his test ("why is this here, why this size, and why this far from that? — if the answer is merely *the grid put it there*, the layout has failed") to six failure modes: unjustified gaps, orphan elements, scattered actions, false hierarchy, accidental wrapping, spatially expensive information.
+
+**The audit, measured.** `.scratch/spatial2.mjs` measures the live DOM: the first line's character count (the real measure), the void beside it, the number of competing value axes on a panel, and the rows a bar takes at each width. What it found:
+- **The book ran to 96–101 characters a line.** `.research-reading>p{max-width:78ch}` in a 1060px page. A `ch` is the width of a ZERO, and a zero is about a third wider than an average character in Plex Sans, so 78ch was 99 characters. Every desk ran to 82. The measure was wrong by a third, site-wide, and nobody could see it because a screenshot of a long line looks like a long line.
+- **A 358px hole beside every paragraph** in the book, and 126–179px beside every note in all sixteen workspaces — the prose stopped two-thirds across, while the figures and tables used the whole width. The layout could not explain its own geometry.
+- **Two value axes on the brief desk.** The three inputs ended at 1190, 1630 and 1940; the ledger's numbers ended at 1414. "The number" was in one of four places.
+- **Three different widths on one tab.** The research title block was 1400px, the book 1060px, the archive 1400px — the book's left edge and its own title block's left edge were 170px apart.
+- **The allowance ruler stopped at 360px** in a 614px desk: a scale that did not reach the panel it measured, with its tick pointing at nothing.
+- The console bar was clean: one row to 1440, two below, no overflow, all sixteen workspaces present at every width.
+
+**The fixes.**
+- **The book is a spread.** `.research-reading` is two columns of 58ch with a 1px rule between them; the plates cross both and run the full page; the prose fills ≥90% of its column. The legacy reader got the same treatment, and the whole research tab — title block, book, archive — now sits in ONE 1060px frame.
+- **One measure for the whole instrument: 32em.** Not 32ch. Thirty-two em is about seventy-two characters at any size, and `em` does not lie about the count the way `ch` does. Every desk, the book, the archive, the manual and the dedication now use it; the only measures left in `ch` are on headings, on a clipped one-line status, and on a mono credit (in a monospaced run a `ch` IS the character count).
+- **One value axis on the brief desk.** The fields are a grid whose value column is the desk's own right edge, and the ledger's value column is sized by its content (`table-layout:auto`, `td{width:1px}`) so the numbers right-align on the same edge. The ruler is drawn 560 units wide so it spans the desk at the type size it was drawn, and its allowance tick lands where the allowance actually falls.
+- **The excerpt sits on the page's own grid**: the scanned artifact in the first text column, what it says in the second.
+
+**The guards.** `tests/spatial.test.mjs`: five guards that read the emitted stylesheet and compute from it — the spread, the frame, the measure, the value axis, and the ruler (rendered for real, its tick checked against the numbers the desk printed). Sixteen mutations, sixteen red. The mutation harness caught a hole in the guard itself: the column rule was checked on the new book and not on the legacy reader, and the first mutation removed the rule from the reader nobody was checking. Both now.
+
+**PR #3 landed.** The per-level quantity schedule is merged (`cab62e7`). The merge with `-X ours` silently ate three genuine changes — the `d.qty` i18n keys, the `quantity.js` entry in the release graph, and the `howMeasured`/CSV handlers in `app.js` — and every arithmetic test stayed green. All three were found by diffing the branch against the merge result file by file, and re-applied by hand. **A merge is not a merge until the branch's own content has been compared against the result.**
+
+**The drawing-standards audit, closed.** `dist/areasplit.js` and `dist/materials.js` both pass, and the check was to render them, not read them: the area plate is a real 360° pie whose three wedges carry the three fills, whose legend swatches carry the same three fills, and whose angles match the percentages it prints; the material joints are drawn in the material's own ink on the lit faces from `surfacePattern`, which is a property of the material and not a style.
+
+**The identifier assertions, partly converted.** The desks were checked by their import lines and by their entries in a registration array — a desk that threw on its first line and was never opened still passed, because the text was there. They are now checked by RUNNING: each desk renders in all three languages, and the console is asked where it lives. The context-study guards now assert the values the export publishes (the tier says "not safety assessment", the Feng Shui study says "invented-site design prompt") rather than the source line that writes them. The assertions still inside `app.js` stay textual: the export handler is DOM-bound, and making them behavioural means extracting the export — which is the `app.js` hub, and is Dr Non's call.
+
+**Laws kept.** A `ch` is not a character. A guard must measure the emitted artifact, and a guard that has never been seen to fail is decoration. A merge is not a merge until the branch's content has been compared against the result. Render it and look at it.
+
+**Open.** `app.js` (2,739 lines) and `i18n.js` (1,658 lines) are still hubs, and the `app.js` identifier assertions are still textual. The main book's tenth page remains Dr Non's call. Chen's licensing stays deferred and untouched.

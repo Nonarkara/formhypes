@@ -63,9 +63,16 @@ body.is-console .form-atlas{grid-template-columns:repeat(6,minmax(0,1fr));gap:4p
 body.is-console .form-atlas button{padding:0;min-height:40px;font-size:11px;line-height:1;min-width:0}
 body.is-console .form-atlas svg{height:22px;width:22px;margin:0}
 .console-dock .br-cards{grid-template-columns:1fr!important}
-.console-dock .br-fields{gap:6px 10px!important}
-.console-dock .br-fields label{flex-basis:45%}
-.console-dock .br-fields input{max-width:45%}
+/* The note column and the plate column are two zones of one desk. The note
+   runs 58ch — about seventy characters, which is as long as a line should be
+   — and the ledgers and the method sheets run past it, because they are
+   drawings and not sentences. The inputs sat in the middle of the note column
+   with nothing to say why; they now sit on the SAME right edge as the
+   ledger's numbers, so there is one value axis on the desk and not two. */
+.console-dock .br-fields{display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:7px 16px;align-items:center}
+.console-dock .br-fields label{font-size:11px;color:var(--muted);min-width:0}
+.console-dock .br-fields input{width:100%;max-width:none;justify-self:end}
+.console-dock .br-fields input[type=range]{grid-column:1/-1;justify-self:stretch}
 .console-dock .br-sec{padding:8px 0!important}
 .console-dock .br-desk{border:0!important;padding-top:0!important}
 .console-dock .br-lede,.console-dock .br-disclaimer{font-size:11px!important}
@@ -142,7 +149,7 @@ body.is-console .form-atlas svg{height:22px;width:22px;margin:0}
 }
 @media(max-width:430px){.console-field select{width:112px}.console-field input{width:70px}.console-site{gap:4px 10px}.console-nav{gap:16px}}
 .console-rail-nav[hidden]{display:none}
-.facade-desk h2{font-size:16px;margin:0 0 8px}.facade-desk>p{font-size:12px;line-height:1.65;max-width:78ch}
+.facade-desk h2{font-size:16px;margin:0 0 8px}.facade-desk>p{font-size:12px;line-height:1.65;max-width:32em}
 .facade-fields{display:grid;grid-template-columns:minmax(0,1fr) 80px;gap:6px 10px;align-items:center;font-size:11px}
 .facade-fields input{width:80px;background:var(--panel);border:1px solid var(--line);padding:4px;font:12px var(--mono);color:var(--ink)}
 .facade-metrics{display:grid;grid-template-columns:1fr auto;gap:3px 12px;margin:14px 0;font-size:11px}.facade-metrics dd{margin:0}
@@ -214,8 +221,12 @@ body.is-console [hidden]{display:none!important}
    instrument on this desk, so it takes the column. */
 .console-dock #fengshuiDesk .feng-lp{width:100%;max-width:min(100%,520px);height:auto}
 
-/* Desk prose keeps a readable measure; the desk can be twice that wide. */
-.console-dock p,.console-dock li,.console-dock figcaption,.console-dock .note{max-width:68ch}
+/* Desk prose keeps a readable measure; the desk can be twice that wide.
+   Sixty-eight characters was eighty-two characters to a line — too long to
+   read, and the empty strip it left beside every note was the grid's doing.
+   Fifty-eight characters is about seventy, and the strip that remains is the
+   margin the drawings and the ledgers run into. */
+.console-dock p,.console-dock li,.console-dock figcaption,.console-dock .note{max-width:32em}
 /* Every candidate has the same gross and rentable area by construction (the
    summary line states the target), so in the desk those two columns go and
    the table fits its column instead of scrolling. */

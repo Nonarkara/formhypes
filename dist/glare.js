@@ -23,7 +23,7 @@
 
    DNI is the 0.8 kW/m² transparent reference used everywhere else here. */
 import {solarPosition,cities} from './solar.js?v=9279efc6dc';
-import {profile,stackHeight} from './model.js?v=4739b9a107';
+import {profile,stackHeight} from './model.js?v=d6152aaa85';
 import {cityData,ringsIntersect} from './cityscape.js?v=dcc15cb0df';
 import {sheet,cut,leader,head,dim,rule,txt,flow,layout,cl} from './drafting.js?v=895b148bec';
 

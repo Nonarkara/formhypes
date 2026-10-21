@@ -3,7 +3,7 @@
 // quoted as given. Every neighbouring block below is contextual massing composed
 // for this study: not surveyed, every height indicative. Both facts are printed
 // on screen, not merely held here.
-import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=4739b9a107';
+import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=d6152aaa85';
 import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposure} from './solar.js?v=9279efc6dc';
 import {lensOf,lensSVG,lensFormula,LENS_KEY,LIFE_YEARS} from './lens.js?v=2949cf8b98';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
@@ -12,7 +12,7 @@ import {parseGround,parseCity,plotCandidates,plotFacts,plateOnPlot,landscapeSVG,
 // The lens strings live in the shared translation file, not in this desk's own
 // dictionary: they are the same words the reader has already met in the rail,
 // and a second copy is a second thing to drift.
-import {t as I18N} from './i18n.js?v=27230efac0';
+import {t as I18N} from './i18n.js?v=6065afc737';
 
 // Empire Tower 58F / 227 m / 1999, floor plate ≈3,000 m² and a 2.60 m Grade A
 // clear-height benchmark for Bangkok; Dayabumi Complex 35F / 157 m / 1984;

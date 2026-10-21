@@ -111,7 +111,7 @@ a.am-panel:hover p,a.am-panel:focus-visible p{text-decoration:underline}
 .am-value{align-items:stretch}
 .am-value .am-note{text-align:left}
 .am-colophon{margin-top:8px;display:flex;flex-direction:column;align-items:flex-start;gap:14px;border-top:1.5px solid #111;padding-top:14px}
-.am-colophon p{margin:0;font:400 14px/1.5 var(--sans);max-width:62ch}
+.am-colophon p{margin:0;font:400 14px/1.5 var(--sans);max-width:32em}
 
 /* 404: the missing part, in the manual's own grammar. */
 .am-404{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;background:var(--paper)}

@@ -31,13 +31,13 @@
 .gl-field{display:grid;gap:4px;align-content:start;min-width:0}
 .gl-label{color:var(--muted)}
 .gl-val{font-family:var(--mono);color:var(--ink)}
-.gl-hint{margin:0;color:var(--muted);max-width:68ch;line-height:1.4}
+.gl-hint{margin:0;color:var(--muted);max-width:32em;line-height:1.4}
 .gl-select,.gl-date{font:inherit;font-size:var(--s);min-height:28px;border:1px solid var(--line);background:transparent;color:inherit;border-radius:0;padding:2px 6px;width:100%}
 .gl-quick{display:flex;flex-wrap:wrap;gap:6px}
 .gl-check{display:inline-flex;align-items:center;gap:8px;font-size:var(--s);cursor:pointer;min-height:28px}
 .gl-check input{accent-color:var(--accent);margin:0;width:16px;height:16px}
 .gl-range:disabled{opacity:.4}
-.gl-verdict{margin:0;font-weight:600;max-width:68ch;border-left:2px solid var(--accent);padding-left:10px}
+.gl-verdict{margin:0;font-weight:600;max-width:32em;border-left:2px solid var(--accent);padding-left:10px}
 .gl-read{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:4px 14px;margin:0;border-top:1px solid var(--line);padding-top:10px}
 .gl-read dt{color:var(--muted)}
 .gl-read dd{margin:0;font-family:var(--mono);font-size:var(--s);color:var(--ink);overflow-wrap:anywhere}
@@ -52,10 +52,10 @@
 .gl-bar-t{display:block;height:8px;box-shadow:inset 0 0 0 1px var(--line)}
 .gl-bar-v{display:block;height:8px;background:var(--accent)}
 .gl-year{display:grid;gap:6px;justify-items:start;border-top:1px solid var(--line);padding-top:10px}
-.gl-year-out{margin:0;font-family:var(--mono);font-size:var(--s);max-width:68ch}
+.gl-year-out{margin:0;font-family:var(--mono);font-size:var(--s);max-width:32em}
 .gl-year-out:empty{display:none}
 .gl-prose{display:grid;gap:12px;border-top:1px solid var(--line);padding-top:10px}
-.gl-note p{margin:0;max-width:68ch;line-height:1.5}
+.gl-note p{margin:0;max-width:32em;line-height:1.5}
 .gl-sources p{color:var(--muted)}
 /* The method, drawn. The sheet is a fixed number of drawing units and scales
    to the panel; the caption is the figcaption, and the prose it replaced is
@@ -63,7 +63,7 @@
 .gl-method{margin:0;padding-top:10px;border-top:1px solid var(--line)}
 .gl-methodsvg{min-width:0}
 .gl-methodsvg svg{display:block;width:100%;height:auto;background:var(--paper)}
-.gl-method figcaption{margin:6px 0 0;max-width:68ch}
+.gl-method figcaption{margin:6px 0 0;max-width:32em}
 .gl-method figcaption:empty{display:none}
 @media(pointer:coarse){
  .gl button,.gl-select,.gl-date,.gl-range,.gl-check{min-height:44px}

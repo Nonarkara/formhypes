@@ -4,23 +4,34 @@
 /* ── Brief desk (moved from brief.js) ── */
 #briefDesk .br-desk{font:inherit;font-size:13px;line-height:1.45;color:var(--ink);border-top:2px solid var(--ink);padding-top:10px}
 #briefDesk .br-h{margin:0 0 4px;font-size:15px;font-weight:600;letter-spacing:.01em}
-#briefDesk .br-lede{margin:0 0 4px;font-size:12px;color:var(--muted);max-width:74ch}
+#briefDesk .br-lede{margin:0 0 4px;font-size:12px;color:var(--muted);max-width:32em}
 #briefDesk .br-sec{margin:0;padding:13px 0 4px;border-top:1px solid var(--line)}
 #briefDesk .br-sec:first-of-type{border-top:0}
 #briefDesk .br-sec>h4{margin:0 0 9px;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
-#briefDesk .br-fields{display:flex;flex-wrap:wrap;align-items:center;gap:7px 16px;margin:0 0 9px}
-#briefDesk .br-fields label{font-size:11px;color:var(--muted)}
+/* The fields and the ledger are one table of quantities, and a table has one
+   value axis. The inputs used to sit wherever the flex line put them — three
+   of them in a row, each ending at a different place, none of them on the
+   edge where the ledger's numbers are. A reader looking for "the number"
+   found three different columns and then a fourth. */
+#briefDesk .br-fields{display:grid;grid-template-columns:minmax(0,1fr) 104px;align-items:center;gap:7px 16px;margin:0 0 9px}
+#briefDesk .br-fields label{font-size:11px;color:var(--muted);min-width:0}
+#briefDesk .br-fields input[type=number]{width:104px;justify-self:end}
 #briefDesk input[type=number]{width:104px;font:inherit;font-family:var(--mono);font-size:12px;padding:2px 4px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
 #briefDesk input[type=number]:focus,#briefDesk select:focus{outline:2px solid var(--accent);outline-offset:-1px}
 #briefDesk input[type=range]{width:118px;accent-color:var(--accent)}
 #briefDesk select{font:inherit;font-size:12px;padding:2px 4px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
-#briefDesk .br-ledger{width:100%;margin:0 0 9px;border-collapse:collapse;table-layout:fixed;font-size:12px}
+/* A ledger is a table of quantities, so the value column takes the width the
+   values need and the label column takes the rest. It used to be a fixed
+   fifty-fifty: the labels stopped halfway across a 614px desk and the values
+   sat in a 327px column that held "120,060 m²" — a third of the space given
+   to a number that needs a tenth of it. */
+#briefDesk .br-ledger{width:100%;margin:0 0 9px;border-collapse:collapse;table-layout:auto;font-size:12px}
 #briefDesk .br-ledger th{overflow-wrap:anywhere;text-align:left;font-weight:400;vertical-align:top;padding:2px 16px 2px 0;color:var(--muted)}
-#briefDesk .br-ledger td{text-align:right;vertical-align:top;padding:2px 0;font-family:var(--mono);white-space:normal;overflow-wrap:anywhere}
+#briefDesk .br-ledger td{text-align:right;vertical-align:top;padding:2px 0;font-family:var(--mono);white-space:nowrap;overflow-wrap:anywhere;width:1px}
 #briefDesk .br-ledger thead th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--line);padding-bottom:4px}
 #briefDesk .br-cur{color:var(--accent);font-weight:600}
 #briefDesk .br-flag{color:var(--accent);font-weight:600}
-#briefDesk .br-rule{display:block;width:min(100%,360px);height:auto;margin:2px 0 9px;color:var(--ink)}
+#briefDesk .br-rule{display:block;width:100%;height:auto;margin:2px 0 9px;color:var(--ink)}
 #briefDesk .br-rule.over{color:var(--ink)}
 #briefDesk .br-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--line);margin:0 0 9px}
 #briefDesk .br-card{background:var(--panel);padding:9px 10px 10px}
@@ -31,14 +42,14 @@
 #briefDesk .br-card dd{margin:0 0 0 6px;font-family:var(--mono)}
 #briefDesk .br-opt{margin:8px 0 0;font-size:11.5px;color:var(--muted)}
 #briefDesk .br-sac{margin:5px 0 0;padding-top:5px;border-top:1px dotted var(--line);font-size:11.5px}
-#briefDesk .br-note{margin:0 0 9px;font-size:11px;color:var(--muted);max-width:78ch}
+#briefDesk .br-note{margin:0 0 9px;font-size:11px;color:var(--muted);max-width:32em}
 #briefDesk .br-tag{display:inline-block;margin:5px 0 0;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--accent);border:1px solid var(--accent);padding:0 4px}
 #briefDesk .br-read{font-size:11px;color:var(--muted);margin:0 0 9px}
 #briefDesk details{margin:0 0 9px}
 #briefDesk summary{font-size:11px;color:var(--muted);cursor:pointer}
 #briefDesk .br-svg{margin:7px 0 0;max-width:340px;color:var(--ink)}
 #briefDesk .br-svg svg{display:block;width:100%;height:auto}
-#briefDesk .br-disclaimer{margin:13px 0 0;padding-top:9px;border-top:1px solid var(--line);font-size:11px;color:var(--faint);max-width:82ch}
+#briefDesk .br-disclaimer{margin:13px 0 0;padding-top:9px;border-top:1px solid var(--line);font-size:11px;color:var(--faint);max-width:32em}
 #briefDesk .br-jump{font:inherit;font-size:11px;color:var(--ink);background:none;border:1px solid var(--line);padding:1px 6px;cursor:pointer;white-space:nowrap}
 #briefDesk .br-jump:hover{border-color:var(--accent);color:var(--accent)}
 
@@ -46,7 +57,7 @@
 .wk *{box-sizing:border-box}
 .wk-sec{border-top:1px solid var(--line);padding-top:12px;margin-top:20px}
 .wk-h{font:600 12px/1.5 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin:0 0 2px}
-.wk-note{font:400 12px/1.55 var(--sans);color:var(--muted);margin:0 0 8px;max-width:80ch}
+.wk-note{font:400 12px/1.55 var(--sans);color:var(--muted);margin:0 0 8px;max-width:32em}
 .wk-fig{margin:0}
 .wk-figwrap{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .wk-figwrap svg{display:block;width:100%;height:auto;background:var(--dark)}
@@ -61,7 +72,7 @@
 .wk-btn{font:400 11px/1 var(--sans);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:0;padding:6px 10px;cursor:pointer;justify-self:start;width:fit-content}
 .wk-btn:hover{border-color:var(--accent);color:var(--accent)}
 .wk-ctl p{grid-column:1/4;font:400 11px/1.55 var(--sans);color:var(--faint);margin:2px 0 0}
-.wk-src{font:400 11px/1.55 var(--sans);color:var(--faint);margin:8px 0 0;max-width:80ch}
+.wk-src{font:400 11px/1.55 var(--sans);color:var(--faint);margin:8px 0 0;max-width:32em}
 .wk-src b{font-weight:400;color:var(--accent)}
 .wk-svg .wk-sky{fill:var(--dark,#111416)}
 .wk-svg .wk-glass{fill:#1e2629;stroke:var(--dim);stroke-width:1}
@@ -194,7 +205,7 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 /* Role 6 — provenance. Demoted to the bottom, on a hairline, with no underline
    until the pointer is on it: a field of underlined links reads as content. */
 .lx-meta{margin:14px 0 0;padding-top:10px;border-top:1px solid var(--line)}
-.lx-assume{margin:0;font-size:11px;line-height:1.55;color:var(--dim);max-width:96ch}
+.lx-assume{margin:0;font-size:11px;line-height:1.55;color:var(--dim);max-width:32em}
 .lx-band h4{margin:9px 0 3px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);font-weight:600}
 .lx-src{margin:0;padding:0;list-style:none;font-size:11px;line-height:1.6;color:var(--dim)}
 .lx-src li{margin:0}
@@ -277,10 +288,10 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 /* Environmental sheets: one city drawing, compact controls, measured outputs. */
 #environmentPanel{margin:0;padding:9px 0;border-top:2px solid var(--ink)}
 #environmentDesk{padding:12px 0}#environmentDesk h2{font-size:18px;margin:0 0 8px}
-#environmentDesk p{max-width:65ch;font-size:12px;line-height:1.6;margin:9px 0}
+#environmentDesk p{max-width:32em;font-size:12px;line-height:1.6;margin:9px 0}
 .env-nav{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}.env-nav button{padding:6px 9px;min-height:32px}.env-nav [aria-pressed=true]{border-bottom:2px solid var(--accent);font-weight:700}
 .env-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}.env-inputs label{display:flex;flex-direction:column;gap:4px;font-size:12px}.env-inputs input{width:100%;min-width:0;padding:6px}
-.env-scene{margin:10px 0}.env-scene svg{display:block;width:100%;height:auto}.env-scene figcaption,.env-curve figcaption{font-size:11px;line-height:1.5;margin:6px 0;max-width:65ch}
+.env-scene{margin:10px 0}.env-scene svg{display:block;width:100%;height:auto}.env-scene figcaption,.env-curve figcaption{font-size:11px;line-height:1.5;margin:6px 0;max-width:32em}
 .env-results{margin:10px 0;font-size:12px}.env-results>div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line)}.env-results dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
 .env-table{overflow:auto;max-width:100%;margin:12px 0}.env-table table{width:100%;font-size:12px}.env-table td,.env-table th{padding:7px;text-align:left}
 .env-curve{margin:8px 0;max-width:440px}.env-curve svg{width:100%;height:auto}.env-curve text{font:13px Arial,sans-serif;fill:currentColor}
@@ -294,11 +305,11 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
  #environmentDesk>.env-scene{order:1}
 }
 /* A studio memory and comparison sheet, with a fixed reference rather than a verdict. */
-.study-fields{display:grid;gap:5px;margin:12px 0;max-width:65ch}.study-fields label{font-size:12px}.study-fields input,.study-fields textarea{font:inherit;min-width:0;width:100%;padding:7px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:0}.study-fields textarea{resize:vertical}
+.study-fields{display:grid;gap:5px;margin:12px 0;max-width:32em}.study-fields label{font-size:12px}.study-fields input,.study-fields textarea{font:inherit;min-width:0;width:100%;padding:7px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:0}.study-fields textarea{resize:vertical}
 .study-tools{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.study-tools button{padding:6px 9px}
-.study-note{flex-basis:100%;max-width:65ch;white-space:pre-wrap;margin:5px 0;font-size:12px}
-#decisionDesk{margin:14px 0;padding-top:12px;border-top:2px solid var(--ink)}#decisionDesk h2{font-size:18px}#decisionDesk h3{font-size:14px;margin:14px 0 6px}#decisionDesk p,.studies>.note{max-width:65ch;font-size:12px;line-height:1.6}
-.decision-figure{margin:8px 0}.decision-figure svg{display:block;width:100%;height:auto;max-height:390px}.decision-figure figcaption{display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:12px;overflow-wrap:anywhere}.decision-table{overflow:auto;max-width:100%;margin:12px 0}.decision-table table{width:100%;font-size:12px}.decision-table th,.decision-table td{padding:7px 5px;font-variant-numeric:tabular-nums}.decision-table td{text-align:right;white-space:nowrap}.decision-changed{font-weight:700;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}#decisionDesk blockquote{border-left:3px solid var(--accent);padding-left:10px;margin:12px 0;white-space:pre-wrap;font-size:12px;max-width:65ch}
+.study-note{flex-basis:100%;max-width:32em;white-space:pre-wrap;margin:5px 0;font-size:12px}
+#decisionDesk{margin:14px 0;padding-top:12px;border-top:2px solid var(--ink)}#decisionDesk h2{font-size:18px}#decisionDesk h3{font-size:14px;margin:14px 0 6px}#decisionDesk p,.studies>.note{max-width:32em;font-size:12px;line-height:1.6}
+.decision-figure{margin:8px 0}.decision-figure svg{display:block;width:100%;height:auto;max-height:390px}.decision-figure figcaption{display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:12px;overflow-wrap:anywhere}.decision-table{overflow:auto;max-width:100%;margin:12px 0}.decision-table table{width:100%;font-size:12px}.decision-table th,.decision-table td{padding:7px 5px;font-variant-numeric:tabular-nums}.decision-table td{text-align:right;white-space:nowrap}.decision-changed{font-weight:700;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}#decisionDesk blockquote{border-left:3px solid var(--accent);padding-left:10px;margin:12px 0;white-space:pre-wrap;font-size:12px;max-width:32em}
 @media(max-width:600px){.study-tools button,.study-fields input{min-height:44px}.decision-table th,.decision-table td{padding:8px 4px}.decision-figure figcaption{gap:8px}}
 .console-dock .saved>button:first-child{white-space:normal;overflow-wrap:anywhere;max-width:100%;text-align:left}
 /* The old appendix shelf had a label column. Docked studies are one task sheet. */
@@ -319,7 +330,7 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 #fengshuiDesk{font:inherit;font-size:13px;line-height:1.5;color:var(--ink);border-top:2px solid var(--ink);padding-top:10px}
 #fengshuiDesk .feng-head{margin:0 0 14px}
 #fengshuiDesk .feng-head h2{margin:0 0 4px;font-size:15px;font-weight:600;letter-spacing:.01em}
-#fengshuiDesk .note{margin:0;font:400 12px/1.55 var(--sans);color:var(--muted);max-width:78ch}
+#fengshuiDesk .note{margin:0;font:400 12px/1.55 var(--sans);color:var(--muted);max-width:32em}
 #fengshuiDesk .note.strong{color:var(--ink)}
 #fengshuiDesk .feng-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 30px;align-items:start}
 /* Grid items default to min-width:auto, which lets one long unbreakable run of
@@ -357,7 +368,7 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 #fengshuiDesk .feng-table tr.is-home td{border-left-color:var(--accent)}
 #fengshuiDesk .feng-table tr.is-home td b{color:var(--accent)}
 /* the bottom strip became the right-column source block; see feng-srcbox */
-#fengshuiDesk .feng-src{margin:8px 0 0;padding-left:18px;font:400 11px/1.6 var(--sans);color:var(--faint);max-width:82ch}
+#fengshuiDesk .feng-src{margin:8px 0 0;padding-left:18px;font:400 11px/1.6 var(--sans);color:var(--faint);max-width:32em}
 #fengshuiDesk .feng-src li{margin-bottom:3px}
 @media (max-width:900px){#fengshuiDesk .feng-grid{grid-template-columns:minmax(0,1fr);gap:0}}
 
@@ -374,7 +385,7 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 .structure-desk .sd-facts>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;border-bottom:1px solid var(--line);padding:3px 0}
 .structure-desk .sd-facts dt{font-size:12px}
 .structure-desk .sd-facts dd{margin:0;font-family:var(--mono);font-size:12px;text-align:right}
-.structure-desk .sd-note{font-size:12px;line-height:1.45;margin:6px 0;max-width:65ch}
+.structure-desk .sd-note{font-size:12px;line-height:1.45;margin:6px 0;max-width:32em}
 .structure-desk .sd-limits{color:var(--muted)}
 
 /* The walk-in section is drawn on a 1000-unit sheet shown ~425 px wide, so its
@@ -394,5 +405,5 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 #fengshuiDesk .feng-srcbox{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
 #fengshuiDesk .feng-src{margin:0 0 8px;padding-left:18px;font:400 11px/1.55 var(--sans);color:var(--faint)}
 #fengshuiDesk .feng-src li{margin-bottom:2px}
-#fengshuiDesk .feng-srcbox .note.strong{font:400 12px/1.55 var(--sans);color:var(--ink);margin:0;max-width:80ch}
+#fengshuiDesk .feng-srcbox .note.strong{font:400 12px/1.55 var(--sans);color:var(--ink);margin:0;max-width:32em}
 #fengshuiDesk .feng-measure{margin:0 0 4px;font:400 11px/1.5 var(--mono);color:var(--faint)}

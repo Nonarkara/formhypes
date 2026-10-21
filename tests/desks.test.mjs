@@ -9,7 +9,7 @@ import {t} from '../dist/i18n.js';
 import {CONTEXT_I18N, renderContext, CONTEXT_SITES, contextShadow} from '../dist/context.js';
 import {WALK_I18N, renderWalk} from '../dist/walk.js';
 import {FENG_I18N, renderFeng} from '../dist/feng.js';
-import {WORKSPACES} from '../dist/console.js';
+import {WORKSPACES,workspaceForTarget} from '../dist/console.js';
 import {MATERIALS,MATERIAL_KEYS,materialOf,materialEnvelopeCost,surfacePattern} from '../dist/materials.js';
 
 const L = ['en', 'th', 'zh'];
@@ -24,16 +24,30 @@ const MODULES = [
 ];
 
 test('the three desks are wired into the page and the controller', () => {
+  // This used to be checked by its TEXT: an import line, and an entry in a
+  // registration array. A desk whose body threw on the first line and was
+  // never opened still passed, because the text was there. A rename of one
+  // export also failed it, although nothing had broken.
+  //
+  // Now the desk is RUN — in every language — and the console is asked where
+  // it lives. A desk that cannot render, or that has no workspace to open it,
+  // is the failure this test is for.
   const html = readDist('index.html');
   for (const id of ['briefDesk', 'walkDesk', 'contextDesk', 'fengshuiDesk'])
     assert.ok(html.includes(`id="${id}"`), `${id} container missing from index.html`);
-  const app = readDist('app.js');
-  for (const fn of ['renderBrief', 'renderWalk', 'renderContext', 'renderFeng'])
-    assert.match(app, new RegExp(`import \\{[^}]*${fn}[^}]*\\} from`), `${fn} is not imported`);
-  assert.match(app, /\['brief',BRIEF_I18N,renderBrief\]/);
-  assert.match(app, /\['walk',WALK_I18N,renderWalk\]/);
-  assert.match(app, /\['fengshui',FENG_I18N,renderFeng\]/);
-  assert.match(app, /\['context',CONTEXT_I18N,renderContext\]/);
+  for (const [render, id] of [[renderBrief,'briefDesk'],[renderWalk,'walkDesk'],[renderContext,'contextDesk'],[renderFeng,'fengshuiDesk']]) {
+    for (const lang of ['en','th','zh']) {
+      const text = deskText(render, id, lang);
+      // The script rule is enforced on the DICTIONARIES, in the translation
+      // test — the Feng Shui desk prints 八卦 and 二十四山 on purpose, because
+      // those characters are the instrument and not a stray translation.
+      assert.ok(text.length > 150, `${id} (${lang}) rendered ${text.length} characters — the desk is empty`);
+    }
+  }
+  for (const [id, ws] of [['briefPanel','brief'],['walkPanel','walk'],['contextPanel','place'],['fengshuiPanel','feng']]) {
+    assert.equal(workspaceForTarget(id), ws, `${id} opens in the wrong workspace`);
+    assert.ok(WORKSPACES.includes(ws), `${id} has a workspace that does not exist: ${ws}`);
+  }
 });
 
 test('each desk translates completely, with no silent Latin fallback in Chinese', () => {

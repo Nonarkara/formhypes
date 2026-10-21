@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {defaults,profile,area,families,evaluate,searchPlan,grossOf,meshOBJ,capex,facadeFamilies,stack} from '../dist/model.js';
 import {planLibrary,polyArea,polyPerimeter} from '../dist/geometry.js';
-import {cantileverPeriod,quarterWavePeriod,LC} from '../dist/location.js';
+import {cantileverPeriod,quarterWavePeriod,LC,resetGroundForCity,getLocationStudy} from '../dist/location.js';
 import {angularGap,PROMPTS,PLAY} from '../dist/play.js';
 import {READER,SOURCES,ARTIFACTS} from '../dist/reader-content.js';
 import {renderReader} from '../dist/reader.js';
@@ -13,6 +13,9 @@ import {solarDefaults,solarPosition,cities,facadeExposure} from '../dist/solar.j
 import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,CROWN_RATES,crownMetrics,gardenIndices} from '../dist/crowns.js';
 import {DETAILS,DETAIL_KEYS,DETAIL_DRAWS,DETAIL_RATES,DETAIL_BASIS,detailSVG,detailSpec,deflectionAllowance,airBarrier} from '../dist/details.js';
 import {MATERIALS} from '../dist/materials.js';
+import {getFengStudy as getFengPlayStudy} from '../dist/play.js';
+import {getBriefStudy} from '../dist/brief.js';
+import {getWalkStudy} from '../dist/walk.js';
 const dist=f=>readFileSync(new URL('../dist/'+f,import.meta.url),'utf8');
 const near=(a,b,eps=1e-8)=>assert.ok(Math.abs(a-b)<=eps,`${a} != ${b}`);
 // The yearly flow, written out in full. Every deduction the model applies has
@@ -120,16 +123,37 @@ test('Tokyo uses its real civil zone and midlatitude solar exposure',()=>{
 });
 
 test('changing cities discards soil assumptions rather than treating them as regional observations',()=>{
- const src=dist('location.js');assert.match(src,/lastCity!==city/);assert.match(src,/assumptions\.depth='';assumptions\.velocity=''/);
- assert.match(src,/values are invented/);assert.match(LC.en.intro,/percentages below are changes in period only/);
+ // The behaviour, not the source text. The study says which city it is about
+ // and carries no soil depth it was not given, and the teaching values are
+ // DECLARED to be invented — in the sentence the reader sees.
+ resetGroundForCity('bangkok');
+ const bangkok=getLocationStudy();
+ assert.equal(bangkok.city,'bangkok');
+ assert.equal(bangkok.assumptions.depth,'');
+ assert.equal(bangkok.assumptions.velocity,'');
+ resetGroundForCity('tokyo');
+ assert.equal(getLocationStudy().city,'tokyo');
+ assert.match(LC.en.example,/values are invented/);
+ assert.match(LC.en.intro,/percentages below are changes in period only/);
 });
 test('every new shape has unit-scale area and perimeter, with valid export topology',()=>{
  for(const f of ['triangle','hexagon','oval','petal','pinwheel']){const p=planLibrary[f]();assert.ok(polyArea(p)>.2);assert.ok(polyPerimeter(p)>2);assert.ok(p.every(q=>q.every(Number.isFinite)))}
 });
 
 test('JSON study exports retain contextual assumptions and their stated limits',()=>{
- assert.match(dist('app.js'),/contextStudies:\{environment:getEnvironmentStudy\(\),ground:getLocationStudy\(\),fengShui:getFengStudy\(state\),fengPlay:getFengPlayStudy\(\),brief:getBriefStudy\(state\),walk:getWalkStudy\(\)\}/);
- assert.match(dist('location.js'),/not safety assessment/);assert.match(dist('play.js'),/invented-site design prompt/);
+ // The export carries the context studies, and each one states its own limit
+ // in the tier it publishes. The VALUES are checked; the code that writes
+ // them into the JSON is not, because the export handler lives in the
+ // controller and is not importable.
+ const loc=getLocationStudy();
+ assert.ok(loc.assumptions&&loc.units&&loc.method,'the location study carries no assumptions');
+ assert.match(loc.tier,/not safety assessment/);
+ const feng=getFengPlayStudy();
+ assert.match(feng.tier,/invented-site design prompt/);
+ const brief=getBriefStudy(defaults);
+ assert.ok(brief.inputs&&brief.tier,'the brief study carries no inputs or no tier');
+ const walk=getWalkStudy();
+ assert.match(walk.tier,/not coordinated interior/);
 });
 
 test('2026-10-15 audit: inherited names, stale search, unknown hashes and failed saves are guarded',()=>{

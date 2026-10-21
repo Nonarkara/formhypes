@@ -14,7 +14,7 @@
 
    Import this module for the numbers. The page only downloads the file. */
 
-import {stack, profile, area, evaluate, glazingAt, facadeFamilies} from './model.js?v=59eff05d4b';
+import {stack, profile, area, evaluate, glazingAt, facadeFamilies} from './model.js?v=d6152aaa85';
 import {planLibrary, loftTable, lateralArea} from './geometry.js?v=eb7a621ab9';
 import {splitOf, CIRCULATION_SHARE} from './areasplit.js?v=7506bcd419';
 import {MATERIALS, materialOf} from './materials.js?v=be1c7d7582';

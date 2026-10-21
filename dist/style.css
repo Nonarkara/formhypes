@@ -97,7 +97,7 @@ main{max-width:1840px;margin:auto;padding:0 20px}
 .masthead h1{grid-column:2;margin-top:-1px}
 .masthead .mastnote{grid-column:3;justify-self:end}
 .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.12em;margin:0;color:var(--muted)}
-.mastnote{font-size:11.5px;color:var(--muted);margin:0;max-width:62ch;line-height:1.4}
+.mastnote{font-size:11.5px;color:var(--muted);margin:0;max-width:40em;line-height:1.4}
 
 /* ── studio · three columns of equal height, rules between ────────────── */
 .studio{display:grid;grid-template-columns:244px minmax(0,1fr) 336px;border-bottom:2px solid var(--ink)}
@@ -280,7 +280,7 @@ body.is-console .titleblock .tb-sheet{display:none}
 .searchcontrols{display:flex;gap:10px;align-items:center}
 .searchcontrols select{width:auto;margin:0;min-width:230px}
 .objectivenote{margin:0 0 12px;padding:7px 10px;border-left:2px solid var(--ink);
- background:var(--panel);font-size:11px;color:var(--muted);max-width:62ch}
+ background:var(--panel);font-size:11px;color:var(--muted);max-width:32em}
 .objectivenote[hidden]{display:none}
 select:disabled{opacity:.5;cursor:not-allowed}
 .empty{border:1px dashed var(--line);padding:20px;display:flex;gap:16px;align-items:center;color:var(--muted);font-size:11.5px;flex-wrap:wrap}
@@ -302,7 +302,7 @@ tbody tr:hover{background:var(--panel)}
    the amber mark, both of which mean "best". */
 .study-fig{margin:22px 0 0;padding-top:18px;border-top:2px solid var(--ink)}
 .study-fig figcaption{font-size:12.5px;font-weight:600;letter-spacing:-.005em}
-.study-fig .note{margin:4px 0 10px;color:var(--muted);font-size:11px;max-width:62ch}
+.study-fig .note{margin:4px 0 10px;color:var(--muted);font-size:11px;max-width:32em}
 .study-fig svg{display:block;width:100%;height:auto}
 .study-band{cursor:pointer}
 .study-band:hover path{stroke:var(--ink)}
@@ -326,8 +326,8 @@ tbody tr:hover{background:var(--panel)}
 /* ── research · long-form, single measure ─────────────────────────────── */
 .researchhead{padding:30px 0 26px;border-bottom:2px solid var(--ink)}
 .researchhead h1{max-width:24ch;font-size:34px;margin:8px 0 16px;letter-spacing:-.02em}
-.lede{font-size:18px;line-height:1.5;max-width:62ch}
-.credit{font-size:11.5px;color:var(--muted);max-width:78ch;border-left:2px solid var(--accent);padding-left:13px;margin-top:18px;line-height:1.5}
+.lede{font-size:18px;line-height:1.5;max-width:32em}
+.credit{font-size:11.5px;color:var(--muted);max-width:40em;border-left:2px solid var(--accent);padding-left:13px;margin-top:18px;line-height:1.5}
 /* The article is a centred reading column. Figures are not — a plate of
    numbers or a row of photographs wants the width of the page, so they opt out
    by centring themselves at a wider measure. Doing it with explicit widths and
@@ -342,11 +342,11 @@ tbody tr:hover{background:var(--panel)}
 .photos{max-width:1420px;margin-left:auto;margin-right:auto}
 #rBody section{padding:26px 0;border-bottom:1px solid var(--line)}
 #rBody h2{font-size:19px;margin-bottom:12px;letter-spacing:-.01em}
-#rBody p{max-width:76ch;line-height:1.62}
+#rBody p{max-width:32em;line-height:1.62}
 #rBody pre{background:var(--dark);color:#c9d3d0;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:11.5px;line-height:1.65;border-left:2px solid var(--accent);margin:0 0 14px}
-#rBody .note{border-left:2px solid var(--line);padding-left:13px;max-width:76ch}
+#rBody .note{border-left:2px solid var(--line);padding-left:13px;max-width:32em}
 #rBody .note.credit{border-left-color:var(--accent)}
-#rBody .pull{font-size:15px;line-height:1.5;max-width:60ch;color:var(--ink);border-top:2px solid var(--ink);border-bottom:1px solid var(--line);padding:14px 0;margin:0 0 16px}
+#rBody .pull{font-size:15px;line-height:1.5;max-width:32em;color:var(--ink);border-top:2px solid var(--ink);border-bottom:1px solid var(--line);padding:14px 0;margin:0 0 16px}
 .rtable{margin:0 0 16px;max-width:none}
 .rtable td{vertical-align:top}
 .rtable td:first-child{width:24%;font-weight:600}
@@ -354,7 +354,7 @@ tbody tr:hover{background:var(--panel)}
 .rtable td:last-child{width:18%}
 .rtable .ctl-tag{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink);background:var(--accent);padding:2px 6px;white-space:nowrap;display:inline-block}
 .verdict{font-size:12px;padding:11px 13px;background:var(--panel);border-left:2px solid var(--ink);margin:0 0 16px;line-height:1.5}
-.srcnote{font-size:11px;color:var(--muted);padding:20px 0;border-top:2px solid var(--ink);margin-top:8px;max-width:78ch;line-height:1.5}
+.srcnote{font-size:11px;color:var(--muted);padding:20px 0;border-top:2px solid var(--ink);margin-top:8px;max-width:32em;line-height:1.5}
 /* Figures, read as a plate schedule rather than a card wall. */
 .figs{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--line);border:1px solid var(--ink);margin:0 auto 18px}
 @media(max-width:1180px){.figs{grid-template-columns:repeat(4,1fr)}}
@@ -423,7 +423,7 @@ dialog p{font-size:12px;line-height:1.6}
    document rather than a note. The table is the reason it is wide: a control
    name in Thai runs past anything narrower without a break opportunity. */
 dialog.manual{max-width:min(880px,94vw)}
-dialog.manual .lede{font-size:12px;color:var(--muted);max-width:74ch;margin:0 0 4px}
+dialog.manual .lede{font-size:12px;color:var(--muted);max-width:32em;margin:0 0 4px}
 dialog.manual h3{margin:16px 0 5px}
 .mn-table{width:100%;border-collapse:collapse;table-layout:fixed;margin:6px 0 4px;font-size:12px}
 .mn-table th,.mn-table td{text-align:left;vertical-align:top;padding:4px 12px 4px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
@@ -545,13 +545,13 @@ dialog li{margin:6px 0;line-height:1.5}
   margin:0 0 10px;font-size:15px;letter-spacing:-.01em;color:var(--ink);
 }
 .dedication h2:first-child{color:var(--ink)}
-.ded-body{margin:0 0 12px;font-size:13.5px;line-height:1.6;max-width:66ch;color:var(--ink)}
+.ded-body{margin:0 0 12px;font-size:13.5px;line-height:1.6;max-width:32em;color:var(--ink)}
 .ded-cred{
   margin:0 0 10px;padding-top:10px;border-top:1px solid var(--line);
-  font-size:11.5px;line-height:1.62;max-width:72ch;color:var(--muted);
+  font-size:11.5px;line-height:1.62;max-width:32em;color:var(--muted);
   font-family:var(--mono);
 }
-.ded-src{margin:0;font-size:11px;line-height:1.55;max-width:72ch;color:var(--faint)}
+.ded-src{margin:0;font-size:11px;line-height:1.55;max-width:32em;color:var(--faint)}
 .ded-src a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)}
 .ded-src a:hover{border-bottom-color:var(--ink)}
 @media (max-width:760px){
@@ -632,25 +632,28 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .feng-reading{border-left:2px solid var(--accent);padding-left:8px;margin-top:8px}
 #feng a{font-size:11px;display:block}
 #reader{max-width:1060px;margin:auto;scroll-margin-top:60px}
+#researchArchive>div{max-width:1060px;margin-left:auto;margin-right:auto}
 .reader-nav{display:flex;flex-wrap:wrap;gap:4px;border-bottom:2px solid var(--ink);padding:12px 0}
 .reader-nav button{border:0;padding:5px 9px}.reader-nav [aria-current="page"]{background:var(--ink);color:var(--paper)}
-.reader-page{padding:18px 0}.reader-page h2{font-size:22px;line-height:1.3;max-width:40ch;margin:0 0 18px}
-.reader-page>p{max-width:76ch;line-height:1.65}.reader-page a{overflow-wrap:anywhere}.reader-page>p a{font-size:12px}
+.reader-page{padding:18px 0;columns:24em 2;column-gap:56px;column-rule:1px solid var(--line)}
+.reader-page h2{font-size:22px;line-height:1.3;max-width:40ch;margin:0 0 18px;column-span:all}
+.reader-page>p{max-width:32em;line-height:1.65;margin-left:auto;margin-right:auto}
+.reader-page>.reader-diagram,.reader-page>.thesis-artifact,.reader-page>.reader-pager,.reader-page>p:first-of-type{column-span:all}.reader-page a{overflow-wrap:anywhere}.reader-page>p a{font-size:12px}
 .reader-diagram{margin:18px 0 6px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .reader-diagram svg{width:100%;max-height:220px;display:block;color:var(--ink);font:15px var(--sans)}
 .reader-diagram ol{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 20px;padding-left:24px;font-size:12px;margin:6px 0}
 .thesis-artifact{margin:22px 0;display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:10px 24px;align-items:start;border-top:2px solid var(--ink);padding-top:16px}
 .thesis-artifact img{max-width:100%;height:auto;display:block;max-height:470px;object-fit:contain;object-position:left top;background:white}
-.thesis-artifact figcaption{font-size:15px;max-width:46ch;line-height:1.65}.thesis-artifact>a:last-child{grid-column:2;font-size:12px}
+.thesis-artifact figcaption{font-size:15px;max-width:32em;line-height:1.65}.thesis-artifact>a:last-child{grid-column:2;font-size:12px}
 .reader-pager{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:12px}
 #reader-sources,#researchAppendix{padding:14px 0;border-top:2px solid var(--ink)}
 #reader-sources li{margin:12px 0;scroll-margin-top:80px}#reader-sources .note{margin:4px 0}
-#researchAppendix{margin-top:20px}#appendixNote{max-width:76ch;margin:12px 0}
+#researchAppendix{margin-top:20px}#appendixNote{max-width:32em;margin:12px 0}
 .researchhead{padding:16px 0}.researchhead h1{font-size:22px;max-width:50ch;margin:4px 0 10px}
 .reader-timeline{padding:12px 0;border-top:2px solid var(--ink)}
-@media(max-width:600px){.reader-nav{gap:2px}.reader-nav button{padding:6px;font-size:12px}.reader-diagram ol{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-page h2{font-size:20px}.thesis-artifact{grid-template-columns:1fr}.thesis-artifact>a:last-child{grid-column:auto}.thesis-artifact img{max-height:390px}.reader-diagram svg{min-height:130px}}
+@media(max-width:600px){.reader-nav{gap:2px}.reader-nav button{padding:6px;font-size:12px}.reader-diagram ol{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-page{columns:1;column-rule:none}.reader-page h2{font-size:20px}.thesis-artifact{grid-template-columns:1fr}.thesis-artifact>a:last-child{grid-column:auto}.thesis-artifact img{max-height:390px}.reader-diagram svg{min-height:130px}}
 .location-desk{margin:18px 0;padding:14px 0;border-top:2px solid var(--ink);max-width:1160px}
-.location-desk h2{font-size:18px}.location-desk p{max-width:84ch;font-size:12px;margin:8px 0}
+.location-desk h2{font-size:18px}.location-desk p{max-width:32em;font-size:12px;margin:8px 0}
 .location-cities{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}.location-cities button{padding:4px 9px}
 .location-desk details{padding:0;margin:0;border-top:1px solid var(--line)}.location-desk details[open]{padding:0 0 10px}.location-desk details>button{margin:4px 5px 6px 0}
 .location-desk a{font-size:12px}.location-context{border-left:3px solid var(--accent);padding-left:10px}
@@ -661,7 +664,7 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .location-desk dl{font-size:12px}.location-desk dl>div{display:flex;gap:12px;padding:5px 0;border-bottom:1px solid var(--line)}.location-desk dd{margin:0}
 @media(max-width:600px){.mechanics-inputs{grid-template-columns:repeat(2,minmax(0,1fr))}.location-desk dl>div{display:block}}
 #dedicationDetails{padding:14px 0;border-top:1px solid var(--line);margin-top:10px}
-#dedicationDetails .dedication{margin-top:12px}.researchhead .lede{font-size:15px;max-width:84ch;line-height:1.55}.researchhead .credit{margin-top:8px;max-width:100ch}
+#dedicationDetails .dedication{margin-top:12px}.researchhead .lede{font-size:15px;max-width:32em;line-height:1.55}.researchhead .credit{margin-top:8px;max-width:40em}
 .period-plot{margin:12px 0;max-width:700px}.period-plot svg{display:block;width:100%;font:12px var(--sans);overflow:visible}.period-plot figcaption{font-size:12px}
 
 /* ── the museum run ──────────────────────────────────────────────────────
@@ -712,14 +715,32 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .research-paths button{border:0;background:transparent;padding:8px 0;min-height:36px;white-space:normal;text-align:left;position:relative;font-weight:600;color:var(--muted)}
 .research-paths [aria-selected="true"]{color:var(--ink)}
 .research-paths [aria-selected="true"]:after{content:"";position:absolute;bottom:-3px;left:0;right:0;height:3px;background:var(--accent)}
-.research-path-intro{margin:14px 0 2px;max-width:76ch}
-.research-path-intro+.note{margin:0 0 12px}
+.research-path-intro{margin:14px 0 2px;max-width:32em}
+.research-path-intro+.note{margin:0 0 12px;max-width:32em}
 .research-chapters{display:flex;gap:16px;border-bottom:1px solid var(--line)}
 .research-chapters button{border:0;background:transparent;padding:6px 0;position:relative;color:var(--muted);min-height:32px}
 .research-chapters [aria-selected="true"]{color:var(--ink)}
 .research-chapters [aria-selected="true"]:after{content:"";position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--ink)}
-.research-reading{padding:18px 0 0}
-.research-reading>p{max-width:78ch;line-height:1.75;margin:14px 0}
+/* ── the reading page · two measures, one page ──────────────────────────────
+   The page was 1060px and the prose stopped at 702px, which is NINETY-NINE
+   characters to a line — too long to read comfortably, and the 358px it left
+   beside every paragraph was the grid's decision, not the reader's. A page
+   with a hole down its right-hand side is a page the reader cannot explain.
+
+   So the page is now TWO text columns of 58ch — about SEVENTY characters a
+   line, which is as long as a line should be — with a 1px rule between them,
+   and the plates cross both columns and run the full width. The rule is the
+   house's own language: this is a sheet, the text zone is bounded, and the
+   drawings are allowed past the boundary. Nothing is stranded beside
+   anything, and every plate still has the whole page to draw in. */
+.research-reading{padding:18px 0 0;columns:24em 2;column-gap:56px;column-rule:1px solid var(--line)}
+.research-reading>h2,.research-reading>h3,
+.research-reading>.research-illustration,.research-reading>.research-table-wrap,
+.research-reading>.research-excerpt,.research-reading>.research-atlas,
+.research-reading>.research-tradeoff,.research-reading>.research-history-photo,
+.research-reading>details,.research-reading>.reader-pager,
+.research-reading>p:first-of-type{column-span:all}
+.research-reading>p{max-width:32em;line-height:1.75;margin:14px auto}
 .research-reading>p:first-child{margin-top:0;line-height:1.5}
 .research-reading h2{font-size:22px;max-width:52ch;line-height:1.4;letter-spacing:-.015em;margin:8px 0 14px;scroll-margin-top:70px}
 .research-reading h3{font-size:15px;margin:24px 0 8px}
@@ -727,7 +748,7 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .research-illustration{margin:20px 0;border-top:2px solid var(--ink);border-bottom:1px solid var(--line);padding:14px 0}
 .research-illustration svg{width:100%;max-height:260px;display:block;color:var(--ink);font:12px var(--mono)}
 .research-illustration figcaption>.note{margin:4px 0 10px}
-.research-illustration ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 32px;padding-left:22px;margin:8px 0;font-size:12px;line-height:1.6;max-width:920px}
+.research-illustration ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 32px;padding-left:22px;margin:8px 0;font-size:12px;line-height:1.6;max-width:none}
 .research-excerpt{display:grid;grid-template-columns:minmax(0,2fr) minmax(200px,1fr);gap:24px;align-items:start;margin:28px 0;padding-top:18px;border-top:2px solid var(--ink)}
 .research-excerpt>a{display:flex;background:#fff;justify-content:center;padding:12px}
 .research-excerpt img{display:block;max-width:100%;width:auto;height:auto;max-height:520px;object-fit:contain}
@@ -746,12 +767,15 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .research-download{display:inline-block;margin:6px 0 20px}
 #research-sources,.research-legacy{border-top:1px solid var(--line);padding:14px 0}
 #research-sources li{margin:12px 0;line-height:1.65;scroll-margin-top:80px;overflow-wrap:anywhere}
-#research-sources>.note{max-width:90ch;line-height:1.65}
+#research-sources>.note{max-width:32em;line-height:1.65}
 .research-reading .reader-pager{margin-top:8px;padding-bottom:16px}
 #legacyReader{padding:12px 0}
 #legacyReader h2{scroll-margin-top:80px}
 @media(pointer:coarse){.research-paths button,.research-chapters button{min-height:44px}}
 @media(max-width:600px){
+ /* One column of reading, one column of argument. Two columns of 58ch on a
+    phone is two columns of nine words. */
+ .research-reading{columns:1;column-rule:none}
  .research-paths{gap:14px;overflow-x:auto}.research-paths button{font-size:12px;flex:0 0 auto;max-width:190px;white-space:nowrap}
  .research-chapters{gap:18px;overflow-x:auto}.research-chapters button{font-size:12px;white-space:nowrap;flex-shrink:0}
  .research-reading{padding-top:14px}.research-reading h2{font-size:22px}
@@ -765,7 +789,7 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .research-atlas>div{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px 20px;margin:16px 0}
 .research-atlas figure{margin:0}.research-atlas svg{width:100%;display:block;max-height:110px}
 .research-atlas figure figcaption{font-size:12px;text-align:center;margin-top:6px}
-.research-atlas>.note{max-width:90ch;line-height:1.6}
+.research-atlas>.note{max-width:32em;line-height:1.6}
 .research-tradeoff{margin:22px 0;padding-top:14px;border-top:2px solid var(--ink)}
 .research-tradeoff svg{width:100%;max-height:300px;display:block;font:12px var(--mono);color:var(--ink)}
 .research-tradeoff ol{display:flex;flex-wrap:wrap;gap:16px 32px;padding-left:22px;font-size:12px}
@@ -776,14 +800,24 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .research-history-photo img{display:block;width:100%;height:auto}
 .research-history-photo figcaption{font-size:12px;margin-top:8px;line-height:1.6}
 .research-excerpt>a{justify-self:start;max-width:100%}
-.research-excerpt-portrait{grid-template-columns:minmax(0,320px) minmax(0,1fr)}
-.research-excerpt figcaption{max-width:52ch}
+/* The excerpt row is the page's own grid: the scanned artifact in the first
+   text column, what it says in the second. Its caption used to start
+   wherever the image happened to end, which was on neither column, so the
+   plate row had a different grid from the text rows above it. */
+.research-excerpt-portrait{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.research-excerpt-portrait>a{justify-self:center}
+.research-excerpt figcaption{max-width:32em}
 @media(max-width:600px){.research-excerpt-portrait{grid-template-columns:1fr}}
 #research{scroll-margin-top:80px}
 .research-trail{margin:12px 0 0;font-family:var(--mono);font-size:12px;color:var(--ink);line-height:1.4}
 #researchArchive{margin-top:28px;border-top:2px solid var(--ink);padding-top:4px}
 #researchArchive>summary{color:var(--ink);font-size:12px}
 #researchArchive:not([open])>:not(summary){display:none}
+/* ONE frame for the whole research tab. The title block, the nine-chapter
+   book and the archive under it were three different widths — 1400px, 1060px
+   and 1400px — so the book's left edge and its own title block's left edge
+   were 170px apart. A sheet has one frame. */
+.researchhead,#reader,#researchArchive{max-width:1060px;margin-left:auto;margin-right:auto}
 .phone-readout{display:none}
 /* Narrow widths set button min-height to 32px. Header commands stay 44px anyway,
    so a phone measured with a fine pointer still has a tap target. */
@@ -819,7 +853,7 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
 .areasplit .as-name{font:11px var(--sans);fill:var(--ink)}
 .areasplit .as-val{font:10px var(--mono);fill:var(--muted)}
 .areasplit .as-pct{font:600 11px var(--mono);fill:var(--ink)}
-#areaNote{font-size:11px;line-height:1.5;color:var(--faint);max-width:74ch}
+#areaNote{font-size:11px;line-height:1.5;color:var(--faint);max-width:32em}
 .dsecwrap{border:1px solid var(--line);margin:2px 0 8px;padding:4px;background:var(--paper)}
 .dsecwrap .dsec{display:block;width:100%;height:auto}
 .spec{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0 0 8px;font-size:11px}

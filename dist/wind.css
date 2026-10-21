@@ -3,10 +3,10 @@
 .wl{container-type:inline-size;display:grid;gap:10px;min-width:0;font-size:12px;line-height:1.45;color:var(--ink)}
 .wl-title{margin:0;font-size:var(--m);font-weight:600;letter-spacing:0}
 .wl-sub{margin:6px 0 0;font-size:12px;font-weight:600;padding-top:8px;border-top:1px solid var(--line)}
-.wl-prose{margin:0;max-width:68ch;color:var(--muted)}
-.wl-hint{margin:2px 0 0;max-width:68ch;color:var(--muted)}
+.wl-prose{margin:0;max-width:32em;color:var(--muted)}
+.wl-hint{margin:2px 0 0;max-width:32em;color:var(--muted)}
 .wl-limits{color:var(--ink)}
-.wl-src{margin:0;font-size:11px;max-width:68ch;color:var(--muted);padding-top:8px;border-top:1px solid var(--line)}
+.wl-src{margin:0;font-size:11px;max-width:32em;color:var(--muted);padding-top:8px;border-top:1px solid var(--line)}
 
 .wl-views{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;background:var(--dark)}
 .wl-canvas{position:static;inset:auto;display:block;width:100%;background:var(--dark);touch-action:auto}
@@ -18,7 +18,7 @@
 }
 
 .wl-status{margin:0;font-family:var(--mono);font-size:var(--m);font-weight:500}
-.wl-verdict{margin:0;font-size:var(--m);max-width:68ch}
+.wl-verdict{margin:0;font-size:var(--m);max-width:32em}
 .wl-flag{color:var(--ink);border-left:3px solid var(--accent);padding-left:8px}
 
 /* The method sheet: a drawing that scales to the panel, and the caption that
@@ -27,7 +27,7 @@
 .wl-method{margin:0}
 .wl-methodsvg{margin:0}
 .wl-methodsvg svg{width:100%;height:auto;display:block}
-.wl-methodcap{margin:6px 0 0;font-size:12px;line-height:1.45;color:var(--muted);max-width:68ch}
+.wl-methodcap{margin:6px 0 0;font-size:12px;line-height:1.45;color:var(--muted);max-width:32em}
 
 .wl-controls{display:grid;grid-template-columns:minmax(0,1fr);gap:10px 18px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 @container (min-width:640px){.wl-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}

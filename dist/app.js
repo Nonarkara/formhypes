@@ -1,14 +1,14 @@
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=b4aa051593';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=dd10822a6f';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=85e0177a9d';
-import {renderAssembly} from './assembly.js?v=b0d86f34a7';
-import {renderStructure} from './structure.js?v=5b4dff40fe';
-import {mountConsole} from './console.js?v=9e3f98c612';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=58581f011a';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=4a676f785c';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=4c3604c80d';
+import {renderAssembly} from './assembly.js?v=8dc3fb663c';
+import {renderStructure} from './structure.js?v=7eab05f042';
+import {mountConsole} from './console.js?v=a7bc931202';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=4739b9a107';
-import{familyResponse,lattice}from'./explore.js?v=74ce85cc3a';
-import{t,langs,langMeta,translator}from'./i18n.js?v=27230efac0';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=d6152aaa85';
+import{familyResponse,lattice}from'./explore.js?v=b88e4784db';
+import{t,langs,langMeta,translator}from'./i18n.js?v=6065afc737';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
@@ -22,22 +22,22 @@ import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=7612d67571';
 import {coreScene} from './core3d.js?v=702aed5396';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy as getFengPlayStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=57c3bbc32a';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=cdda7be3c1';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=f50bd7649b';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=01cf6c9f9f';
-import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=e7627211f7';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=515365175f';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=4b66fca604';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=f1f463a31f';
+import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=008e454055';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=e619e0a375';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
-import {quantityCsv, howMeasured} from './quantity.js?v=2d48ebc776';
+import {quantityCsv, howMeasured} from './quantity.js?v=7cd7df58fd';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=46436947b4';
-import {WORKSPACES} from './console.js?v=9e3f98c612';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=ec470cfcb7';
+import {WORKSPACES} from './console.js?v=a7bc931202';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -2635,7 +2635,8 @@ $('exportJson').onclick=()=>download('formhypes-study.json',JSON.stringify({
  author:'Dr Non',affiliation:'depa + Axiom',anniversary:'2006–2026',
  source:'Inspired by Dr Non’s MIT classmate Shouheng Chen. Embedded design knowledge after Shouheng Chen, MIT SMArchS 2006. Financial and political readings are extensions.',
  contextStudies:{environment:getEnvironmentStudy(),ground:getLocationStudy(),fengShui:getFengStudy(state),fengPlay:getFengPlayStudy(),brief:getBriefStudy(state),walk:getWalkStudy()},
- regime:regimes[state.regime].label,state,metrics,createdAt:new Date().toISOString()},null,2),'application/json');
+ regime:regimes[state.regime].label,state,metrics,howMeasured:howMeasured(metrics,lang),createdAt:new Date().toISOString()},null,2),'application/json');
+$('exportQty').onclick=()=>download('formhypes-quantities.csv',quantityCsv(state,lang),'text/csv');
 $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
  'family,regime,structure,floors,span_m,roof_scale,twist_deg,gross_m2,rentable_m2,corner_offices,height_m,total_height_m,distinctiveness,ranking_score,ranking_method,objective,annual_rent_usd,envelope_reserve_usd,structure_reserve_usd,annual_contribution_usd,capex_usd,capex_per_gross_m2,capital_over_contribution_years',
  ...alternatives.map(r=>[r.state.family,r.state.regime,r.state.system,r.state.floors,r.state.span.toFixed(4),r.state.taper,r.state.twist,
