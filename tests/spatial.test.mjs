@@ -191,6 +191,64 @@ test('the allowance ruler spans the desk it measures, and its tick is where the 
  assert.ok(Math.abs(allow.x-expected)<1.5,`the allowance tick is at ${allow.x} but the allowance falls at ${expected.toFixed(1)}`);
 });
 
+test('the console header keeps the studio parameters whole, and the nav keeps all sixteen workspaces',()=>{
+ /* The MSH audit of 2026-10-22. Two bands that were invented by a container:
+    the console header's own parameters, and the sixteen workspaces.
+
+    The header carries the wordmark, the two destinations, the studio's
+    parameters (site area, floor area ratio, city), the languages and four
+    actions. The site bar is the only flexible group in it, so when the line
+    was too short the bar gave way — and what gave way was the site's own
+    headline figure. Measured in Thai: at 1366 the bar had 544px of the 614
+    it needed, and at 1300 it had 493, so "58,981 / 72,000 m²" was clipped
+    away entirely on every laptop narrower than 1450. A header that costs 38
+    more pixels is cheaper than a header that eats the answer, so below 1440
+    the parameters take a row of their own.
+
+    The nav is sixteen workspaces. Thai needs 1292px of them and a 1366px
+    laptop has 1342, so the bar used to break after fifteen and leave one
+    alone on a second row with 1300px of void beside it. Above 1360 the
+    buttons give up four pixels a side and all sixteen land on one row.
+
+    The guard holds the values, not the names: it reads the emitted
+    stylesheet and checks the numbers that decide the geometry. */
+ const rules=parse(read('console.css'));
+ const inMedia=(media,sel)=>rules.filter(r=>r.media===media&&r.sel===sel);
+
+ // 1. Below 1440 the parameters take a row of their own, so they cannot be
+ //    squeezed. `flex:1 0 100%` is what puts them on that row: they grow to
+ //    the full width and refuse to shrink.
+ const band=rules.filter(r=>/^@media\(max-width:1439px\)$/.test(r.media)&&r.sel==='body.is-console .console-site');
+ assert.equal(band.length,1,'the site bar must take its own row below 1440');
+ assert.equal(decl(band[0].body,'flex'),'1 0 100%',
+  'the site bar must grow to the full row and refuse to shrink, or it clips the headline figure');
+ const head=rules.filter(r=>/^@media\(max-width:1439px\)$/.test(r.media)&&r.sel==='body.is-console header');
+ assert.equal(head.length,1,'the header must be allowed to wrap below 1440');
+ assert.equal(decl(head[0].body,'flex-wrap'),'wrap');
+
+ // 2. Above that threshold the bar sits in the one-line header, so the
+ //    header's own gaps have to leave it room: 8px between the parameters,
+ //    8px of left padding, 10px between the header's groups. Twelve and
+ //    twelve is what it was, and twelve was the twelve pixels that clipped
+ //    the unit off the figure.
+ const bar=ruleOf(rules,'.console-site');
+ assert.equal(decl(bar.body,'gap'),'8px 8px');
+ // The left padding is written as a shorthand; read the edge out of it.
+ const pad=(decl(bar.body,'padding')||'').split(/\s+/);
+ const left=pad.length===4?pad[3]:(pad[1]||pad[0]);
+ assert.equal(left,'8px','the bar keeps 8px of left padding, not 12');
+ const top=ruleOf(rules,'body.is-console header');
+ assert.equal(decl(top.body,'gap'),'10px');
+
+ // 3. Sixteen workspaces on one row: the buttons give up four pixels a side
+ //    above 1360, and the bar never scrolls sideways to hide one.
+ const nav=ruleOf(rules,'.console-nav');
+ assert.equal(decl(nav.body,'overflow-x'),'visible','the workspaces must not hide behind a sideways scroll');
+ const tight=rules.filter(r=>/^@media\(min-width:1360px\)$/.test(r.media)&&r.sel==='.console-nav button');
+ assert.equal(tight.length,1,'the nav must tighten above 1360 or it breaks after fifteen');
+ assert.equal(decl(tight[0].body,'padding'),'6px 7px');
+});
+
 /* ── the DOM stub the desk renders into ─────────────────────────────────── */
 function stubNode(tag){
  const n={tagName:String(tag||'').toUpperCase(),childNodes:[],attrs:{},style:{},_t:'',_h:'',

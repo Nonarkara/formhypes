@@ -368,3 +368,30 @@ Three holes in the new guard were found by mutation, and all three were holes in
 **Laws kept.** No line through a word, whatever the line is. A midpoint test is not a segment intersection. A path's own ends are not exempt. A guard must model reality in its own words. Render it and look at it — the seven known crossings were fixed, and eleven more were found only by looking.
 
 **Open.** `app.js` and `i18n.js` are still hubs, and the `app.js` identifier assertions are still textual. The main book's tenth page remains Dr Non's call. Chen's licensing stays deferred and untouched. Several detail labels still sit ON hatched material — legible, but a separate aesthetic item from the strike law. Dr Non's standing design law, MSH — Massacre Spatial Hallucination — arrived on 2026-10-22 and governs every interface, viewport and visual surface: when you find spatial hallucination, massacre it.
+
+## 2026-10-22 · MSH: the header that ate the number, and the sixteen workspaces
+
+**The ask.** Dr Non pasted the standing design law: **MSH — Massacre Spatial Hallucination**. "When you find SH, massacre." An interface invents a reason for things to occupy space instead of arranging them around how people read, choose and act. The law's section 6 requires evidence at 390, 1024 and 1440 px before a pass may be declared, and section 7 a short report: found, changed, verified, remaining. The law is now `docs/MSH-LAW.md` in this repository.
+
+**How the pass was run.** Five surfaces — the core desk, the lifts desk, the fire desk, the detail desk and the research book — at 390 × 844, 1024 × 768 and 1440 × 900, on the live site, through the CDP harness, with every element's box read back from the rendered page rather than from the source. Each viewport was recorded for chrome cost, task visibility, geometry failures, hierarchy and preservation. Fifteen captures, zero JavaScript errors.
+
+**What the measurement found.**
+- **The console header was eating the site's own headline figure.** The header carries the wordmark, the two destinations, the studio's parameters (site area, floor area ratio, city), the languages and four actions. The site bar is the only flexible group in it, so when the line was too short the bar gave way — and what gave way was `58,981 / 72,000 m²`. Measured: at 1440 the bar needed 614px and had 602, so the unit was cut and the figure read `58,981 / 72,000`. At 1400 it had 571, at 1366 it had 544, at 1300 it had 493, at 1250 it had 446, at 1181 it had 377. **On every laptop narrower than 1450 the number was not merely clipped — it was gone entirely.** In English the bar needs 551px, so the same band clipped from 1390 down.
+- **The sixteen workspaces broke after fifteen.** At 1440 the nav fitted fifteen on the first row and left `แบบที่เก็บ` alone on a second, with 1300px of void beside it and 38px of chrome that did not need to exist. Thai needs 1292px of the sixteen; a 1366px laptop has 1342.
+- **On a phone the seven view tools cut the last label in the middle of a word.** The strip was 377px wide in a 350px box, so `โครงข่าย` was shown as `โครษ`.
+
+**Why it took a measurement to find.** In English the nav fitted on one row and the bar clipped 0px at 1440. Both defects are artefacts of THAI — the longest labels the site ships — and both are invisible in a source read, in an English render, and in a test suite that never opens a page. The chapter that found them was the one that rendered the thing and read its boxes.
+
+**What changed.** Three rules in `dist/console.css`, and nothing else.
+1. **Below 1440 the parameters take a row of their own.** The band that did this was 1180; it is now 1439, and the bar grows to the full row and refuses to shrink (`flex:1 0 100%`). A header that costs 38 more pixels is cheaper than a header that eats the answer.
+2. **Above 1440 the bar fits on the one line.** Its columns go from 12px to 8px, its left padding from 12px to 8px, and the header's groups from 12px to 10px — 24px, which is exactly what the unit needed.
+3. **Above 1360 the nav's buttons give up four pixels a side** and all sixteen land on one row. Below 1360 the bar still wraps, and it wraps onto a second row of six.
+4. **On a phone the view tools take two rows** instead of a strip that cuts a word in half.
+
+**Measured after.** At 1440 the chrome is 77px, 8.6% of the viewport, down from 115px and 12.8%. At 1366 it is 132px, 17.2%, down from 22.4% — and the figure is there. At 1024, 170px, 22.1%. At 390, 110px, 13.0%, and no label is cut. The nav is one row at 1366 and 1440 and ten-and-six at 1024, with no orphan at any width.
+
+**The guard.** `tests/spatial.test.mjs` grew one test, and it holds values rather than names: the band that gives the parameters their own row, `flex:1 0 100%`, the 8px column gap, the 8px left padding, the 10px header gap, `overflow-x:visible` on the nav, and the 6px 7px padding above 1360. Nine new mutations in `.scratch/mutate_spatial.mjs` break each of those in turn; **twenty-five mutations, twenty-five red.**
+
+**Laws kept.** Chrome earns its pixels — and a number without its unit is not a number. A large footprint is a prompt to investigate, not a universal numeric failure: the 1024px header is 170px tall and stays that way, because what it holds is content, not filler. Measure in the language the site ships in. Render it and look at it — every number was right and the figure was missing.
+
+**Open.** The 1024px console header is two bands because the parameters need their own row there; it is honest, but it is 95px of chrome and Dr Non may want a different composition. At 1024 the sixteen workspaces still break ten-and-six, which is a wrap, not an orphan, and no label is lost. The detail desk's first screen is still the study form rather than a drawing, and the drawings sit below the fold — that is the desk's flow, not its geometry, and it is Dr Non's call. `app.js` and `i18n.js` are still hubs. Chen's licensing stays deferred and untouched.

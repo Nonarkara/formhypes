@@ -2,11 +2,11 @@
 body.is-console{height:100dvh;overflow:hidden}
 body.is-console main{height:calc(100dvh - var(--shell-header,40px));max-width:none;padding:0 12px;overflow:hidden}
 body.is-console #studio.on{height:100%;display:flex;flex-direction:column;min-height:0}
-body.is-console header{height:40px;flex-wrap:nowrap;gap:12px}
+body.is-console header{height:40px;flex-wrap:nowrap;gap:10px}
 body.is-console .masthead{position:absolute;width:1px;height:1px;margin:0;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0)}
 body.is-console .mastnote{display:none}
 body:not(.is-console) .console-site,body:not(.is-console) header .mastnote{display:none}
-.console-site{display:flex;align-items:center;flex:0 1 auto;min-width:0;max-width:100%;flex-wrap:nowrap;gap:8px 12px;margin:0;padding:0 0 0 12px;border:0;border-left:1px solid var(--line);overflow:hidden}
+.console-site{display:flex;align-items:center;flex:0 1 auto;min-width:0;max-width:100%;flex-wrap:nowrap;gap:8px 8px;margin:0;padding:0 0 0 8px;border:0;border-left:1px solid var(--line);overflow:hidden}
 .console-field{display:flex;align-items:center;gap:8px;font-size:12px;white-space:nowrap}
 .console-field input{width:72px;padding:3px 5px;background:var(--panel);color:var(--ink);border:1px solid var(--line);font:12px var(--mono)}
 .console-field select{margin:0;width:124px;min-height:28px}
@@ -31,6 +31,12 @@ body:not(.is-console) .console-site,body:not(.is-console) header .mastnote{displ
    thing that fits — and the title attribute still names them. */
 .console-nav button{padding:6px 11px;border:0;border-bottom:3px solid transparent;min-height:34px;
  white-space:nowrap;font-size:11px;background:none;display:inline-flex;align-items:center;gap:7px;color:var(--muted)}
+/* Sixteen workspaces, and Thai needs 1292px of them where a 1366px laptop has
+   1342 to give. Above 1360 the buttons give up four pixels a side and all
+   sixteen land on ONE row. Fifteen and an orphan is a row of noise with
+   1300px of void beside it, and 38px of chrome that does not need to exist.
+   Below 1360 the bar still wraps, and it wraps onto a second row of six. */
+@media(min-width:1360px){.console-nav button{padding:6px 7px}}
 .console-nav .wg{display:block;width:21px;height:21px;flex:0 0 auto}
 .console-nav .wt{letter-spacing:.04em}
 .console-nav button:hover{color:var(--ink)}
@@ -97,7 +103,16 @@ body.is-console .form-atlas svg{height:22px;width:22px;margin:0}
 .console-workspace[data-workspace="detail"] .dsecwrap{padding:8px;margin:4px 0 10px}
 .console-workspace[data-workspace="detail"] .spec{font-size:12.5px}
 .console-workspace[data-workspace="detail"] .spec dd{font-size:12.5px}
-@media(max-width:1180px){
+/* One rule under one line — except where the line cannot hold what it is
+   asked to hold. The console header carries the wordmark, the two
+   destinations, the studio's own parameters (site area, floor area ratio,
+   city), the languages and the four actions. In Thai that is 1428px; a
+   1366px laptop has 1338. So below 1440 the parameters take their own row.
+   Before this rule the bar was squeezed instead, and everything from 1181
+   to 1439 silently clipped the site's own headline figure — at 1300 the
+   number was simply gone. A header that costs 38 more pixels is cheaper
+   than a header that eats the answer. */
+@media(max-width:1439px){
  body.is-console header{height:auto;flex-wrap:wrap;overflow:visible}
  body.is-console .console-site{flex:1 0 100%;order:3;border-left:0;padding:4px 0 6px}
  body.is-console .mastnote{display:none}
@@ -188,9 +203,11 @@ body.is-console [hidden]{display:none!important}
  .console-capacity::before{content:attr(data-short) ' '}
  /* Each slider keeps its 44px touch track; the rows need no margin on top. */
  #geometryControls .control{margin:2px 0}
- .viewtools{max-width:calc(100% - 24px);overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
- .viewtools::-webkit-scrollbar{display:none}
- .viewtools button{flex:none}
+ /* Seven controls will not fit across a phone, and a strip that scrolls cut
+    the last label in the middle of a word — which reads as broken, not as
+    more. Two rows fit, and the drawing keeps its middle. */
+ .viewtools{max-width:calc(100% - 12px);overflow:visible;flex-wrap:wrap}
+ .viewtools button{flex:none;padding:3px 5px}
  #console-tab-form{order:1}#console-tab-compare{order:2}#console-tab-brief{order:3}#console-tab-place{order:4}#console-tab-walk{order:5}#console-tab-facade{order:6}#console-tab-studies{order:7}#console-tab-core{order:8}#console-tab-lifts{order:9}#console-tab-fire{order:10}#console-tab-wind{order:11}#console-tab-water{order:12}#console-tab-glare{order:13}#console-tab-carbon{order:13}#console-tab-detail{order:14}#console-tab-feng{order:15}
  body.is-console .studio[data-task="form"]{grid-template-rows:minmax(260px,1.45fr) minmax(168px,.62fr)}
  body.is-console .studio[data-task="form"]>.controls{display:flex;flex-direction:column}
