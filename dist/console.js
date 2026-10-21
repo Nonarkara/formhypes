@@ -1,13 +1,13 @@
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
-import {profile,stack,grossOf} from './model.js?v=d6152aaa85';
-import {renderCarbonLab} from './carbon.js?v=1023235cc1';
-import {renderLiftsLab} from './lifts.js?v=b307b03629';
-import {renderFireLab} from './fire.js?v=909a64fdda';
-import {renderWindLab} from './wind.js?v=9b0077f0f9';
-import {renderWaterLab} from './water.js?v=b48cc08628';
-import {renderGlareLab} from './glare.js?v=f548d73407';
-import {renderFacade} from './facade.js?v=4d331234b9';
+import {profile,stack,grossOf} from './model.js?v=312df9a324';
+import {renderCarbonLab} from './carbon.js?v=6cf68231be';
+import {renderLiftsLab} from './lifts.js?v=5d288d8484';
+import {renderFireLab} from './fire.js?v=89efd581a1';
+import {renderWindLab} from './wind.js?v=d73810a396';
+import {renderWaterLab} from './water.js?v=da59e03574';
+import {renderGlareLab} from './glare.js?v=d30e32d29f';
+import {renderFacade} from './facade.js?v=78417ea15d';
 export const CONSOLE_TEXT={
  en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Lifts','Evacuation','Wind','Water','Glare','Carbon','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
  th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',capacityShort:'พื้นที่ / ที่ให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','ลิฟต์','อพยพหนีไฟ','อุโมงค์ลม','ระบบน้ำ','แสงสะท้อน','คาร์บอน','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},

@@ -171,7 +171,7 @@ test('no two notes on the wind drawing overlap, and none is clipped',()=>{
      // The same box the layout engine reserves: a label turned on its side
      // runs its length DOWN from its baseline, and its depth is a cap height.
      const down=/rotate\(-90/.test(m[0]);
-     return {s,size,x,y,anchor,rot:true,x0:x-w,x1:x,top:y-CAP*size,bot:down?y+w:y+DESC*size};
+     return {s,size,x,y,anchor,rot:true,x0:x-CAP*size,x1:x+DESC*size,top:y,bot:down?y+w:y+DESC*size};
     }
     const x0=anchor==='end'?x-w:anchor==='middle'?x-w/2:x;
     return {s,size,x,y,anchor,rot:false,x0,x1:x0+w,top:y-CAP*size,bot:y+DESC*size};});

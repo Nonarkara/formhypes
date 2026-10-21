@@ -217,6 +217,12 @@ test('no two notes on the drawing overlap, and none is clipped',()=>{
    const box=vb[1].split(/\s+/).map(Number);
    const notes=[...svg.matchAll(/<text x="([-\d.]+)" y="([-\d.]+)"[^>]*font-size="([\d.]+)"[^>]*text-anchor="(\w+)"[^>]*>([^<]*)<\/text>/g)]
     .map(m=>{const size=+m[3],x=+m[1],y=+m[2],anchor=m[4],s=m[5],w=widthOf(s,size);
+     /* A label turned on its side is a narrow strip running DOWN from its
+        pivot: its ink is a cap height wide, not the length of the text.
+        Measured flat, it is a wide box that reaches across ground the ink
+        never occupies — and it says the label is cut off when it is not. */
+     if(/rotate\(-?\d/.test(m[0]))
+      return {s,size,x0:x-CAP*size,x1:x+DESC*size,top:y,bot:y+w};
      const x0=anchor==='end'?x-w:anchor==='middle'?x-w/2:x;
      return {s,size,x0,x1:x0+w,top:y-CAP*size,bot:y+DESC*size};});
    const bad=[];

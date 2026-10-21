@@ -42,7 +42,7 @@ function readSheet(key){
    // the same box the layout engine reserves for it.
    if(/rotate\(-?\d/.test(m[0])){
     const down=/rotate\(-90/.test(m[0]);
-    return {s,size,x0:x-w,x1:x,top:y-CAP*size,bot:down?y+w:y+DESC*size};
+    return {s,size,x0:x-CAP*size,x1:x+DESC*size,top:y,bot:down?y+w:y+DESC*size};
    }
    const x0=anchor==='end'?x-w:anchor==='middle'?x-w/2:x;
    return {s,size,x0,x1:x0+w,top:y-CAP*size,bot:y+DESC*size};

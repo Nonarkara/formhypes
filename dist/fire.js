@@ -57,9 +57,9 @@
    mean stair descent of mobility-impaired people without aids ≈ 0.33 m/s.
    They are modelled waiting for their floor's queue to clear, then descending
    at their own speed; with lifts in use they take the lifts first. */
-import {stack,profile,area,evaluate} from './model.js?v=d6152aaa85';
-import {liftDesign,CORE_METHOD} from './core.js?v=7612d67571';
-import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow,brkV} from './drafting.js?v=895b148bec';
+import {stack,profile,area,evaluate} from './model.js?v=312df9a324';
+import {liftDesign,CORE_METHOD} from './core.js?v=2d204c2084';
+import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow,brkV} from './drafting.js?v=5dc3f3c796';
 
 /* ── SFPE constants ─────────────────────────────────────────────────────── */
 export const A_SFPE=0.266;
@@ -810,10 +810,14 @@ export function fireMethodSVG(r,{lang='en'}={}){
   g+=`<g transform="rotate(${f2(pitch)} ${f2(bx)} ${f2(by)})">${head(bx,by,'d',true)}</g>`;
  }
  /* the pitch, dimensioned where it is drawn */
- g+=dim(12,Y.fire,12,Y.top,pitch.toFixed(1)+'°',0);
+ g+=dim(16,Y.fire,16,Y.top,pitch.toFixed(1)+'°',0);
 
- /* the levels that matter, numbered on their own line */
- const lvlNo=(y,i,on)=>txt(X.w1+6,y+3,String(i),{anchor:'start',size:7.5,fixed:true,on});
+ /* the levels that matter, numbered on their own line — at the LEFT end of
+    the floor line, which is where an architectural drawing puts a level
+    number. They used to stand just past the right end of the floor, which is
+    exactly the corridor the annotation leaders run through: the leader to
+    "fire · level 30" was drawn straight through the number 30. */
+ const lvlNo=(y,i,on)=>txt(4,y+3,String(i),{anchor:'end',size:7.5,fixed:true,on});
  if(fireLv!=null)g+=lvlNo(Y.fire,fireLv,true);
  if(refLv!=null)g+=lvlNo(Y.ref,refLv);
  g+=lvlNo(Y.exit,0);

@@ -310,3 +310,61 @@ Six mutations of the four fixes, six red.
 **Laws kept.** A `ch` is not a character. A guard must measure the emitted artifact, and a guard that has never been seen to fail is decoration. A merge is not a merge until the branch's content has been compared against the result. Render it and look at it.
 
 **Open.** `app.js` (2,739 lines) and `i18n.js` (1,658 lines) are still hubs, and the `app.js` identifier assertions are still textual. The main book's tenth page remains Dr Non's call. Chen's licensing stays deferred and untouched.
+
+## 2026-10-21 · The six method sheets, measured and re-drawn
+
+**The ask.** Dr Non: "Continue, please." The open items were the method sheets of the six labs — the last piece of the method-drawing work, and the piece whose two worker agents had been lost mid-flight. The law for that work was already written down: render the sheet and look at it.
+
+**What looking found.** All eighteen sheets (six labs × EN/TH/ZH) were rendered and measured, and four separate defects were found — none of them caught by the guards that already existed:
+- **The Chinese fire sheet was clipping its own numbers.** `最后: 行动不便 · 2:41 · 12%` lost half its percentage and `第二阶段: 出口层 · 2:14 · 10%` lost its percentage entirely. The browser cut them in silence.
+- **The lifts sheet printed three labels with a line through them.** "travel 53.9 s (38%)", "doors 63.7 s (45%)" and "people 25.0 s (23%)" each had their own leader struck through the closing characters.
+- **The glare sheet did the same to two beam labels**, and its leaders ran off the right edge of the frame.
+- **The fire sheet's leader to "fire · level 30" was drawn straight through the number 30.**
+
+**Why they happened, and what fixed them.**
+- *A CJK glyph is not .6 em.* `dist/drafting.js` measured every glyph as a Latin one, so every Chinese label was a third wider than the box reserved for it — and the frame grew to fit the wrong width. The vocabulary now counts a CJK glyph at a full em, and wraps by real width rather than by character count. One line in the vocabulary fixed the clipping on every sheet at once.
+- *A leader must arrive from outside the label it names.* The lifts and the glare sheets each centred a label on the very thing it named, which leaves the leader no side to arrive from: it came in through the middle of the text. The vocabulary now derives the landing edge from the SOURCE — a source to the left lands on the label's left edge, a source over the label lands on its top edge — and the two sheets put their bar labels in a column to the right of the bar, which is the carbon sheet's and the water sheet's pattern and the reason no leader can cross a label at all.
+- *A turned label is a narrow strip, not a wide box.* The layout reserved a box as wide as the text for a vertical dimension's label, whose ink is a cap height wide and runs down the sheet. The frame grew to fit ground that was not there: the fire sheet carried twenty units of empty white on its left edge for the sake of one turned dimension. Fixing the model took the white away.
+- *The frame holds the ink, with air around it.* A leader lands three units outside its label and the stroke there is half a unit wide; a frame grown to the note's edge alone put every leader's landing point exactly ON the frame, so the browser clipped the last stroke of every leader on every sheet. The frame now keeps two units of air.
+
+**The guard, and what it cost to find the holes.** `tests/sheets.test.mjs` is CROSS-CUTTING: six labs, three languages, one set of laws — every note inside the frame, every leader inside the frame, no leader crossing any label, no two notes printed on one another, and the measure stated in the guard's own words rather than imported from the drawing it judges. The per-lab guards had each asked the wrong question: the frame GROWS to fit the notes, so "no note is cut off" is true by construction and proves nothing. Four of the six labs had no frame check at all, and the two that did had the frame built from the drawing's own measure — the measure that was wrong.
+
+Three holes in the new guard were found by mutation, and all three were holes in the GUARD:
+1. The segment/box test used the segment's MIDPOINT. A leader running through the last character of a label has its midpoint in the white space below it, and the strike went unseen. It is now a real segment/rectangle intersection.
+2. A turned label was measured flat, which is the same wrong model the drawing had — so the guard agreed with the drawing and neither noticed the twenty units of white.
+3. The guard did not check two NOTES against each other at all, which is why the level numbers were allowed to land on the stair-pitch dimension when they moved.
+
+**Eleven mutations, eleven red.** A guard that has never been seen to fail is decoration. The harness is `.scratch/mutate_sheets.mjs`; it breaks one thing at a time — the CJK advance, the leader's landing rule, the frame's air on each side, the CJK punctuation, the lifts label order, a sheet that stops drawing, a leader that lands on the wrong side, the stair-pitch dimension, and three mutations inside the guard itself — and asserts that the suite goes RED each time.
+
+**Laws kept.** A CJK glyph is a full em. A leader arrives from outside the label it names. The frame holds the ink, with air. A guard must model reality in its own words; one that imports the drawing's measure is the drawing agreeing with itself. Render it and look at it — every number was right and four sheets were still wrong.
+
+**Open.** `app.js` and `i18n.js` are still hubs, and the `app.js` identifier assertions are still textual. The main book's tenth page remains Dr Non's call. Chen's licensing stays deferred and untouched. The twelve detail drawings and the core section now sit in a tighter frame — the layout change touches them — and have not been re-audited page by page.
+
+## 2026-10-22 · The twelve detail drawings, and the law that is not about leaders
+
+**The ask.** Dr Non: "Continue, please." The method sheets were done and measured; the twelve detail drawings in `dist/details.js` had been fixed for the seven leader/label crossings that the earlier probe had found, and were waiting to be re-audited. The law for that work was already written down: render the sheet and look at it.
+
+**What looking found.** The seven known crossings were gone, and eleven more were there.
+- **Seven leaders still struck their own labels.** The cavity's mineral-wool leader crossed its dimension; the slab's slip-slot leader ran through its own text; the fire detail's smoke seal and slab leaders crossed; the node's "fire stops here" ran into the glass bracket's leader; the screen's blade leader crossed; the threshold's "movement" ran into the waterproofing leader; the aviation "light envelope" sat on the envelope arc.
+- **A rule ran through "inside."** The threshold's membrane line crossed the word it was naming.
+- **A beyond line ran through "air."** The cavity's cut-plane edge crossed its own label.
+- **The top line ran through "polyamide isolator."**
+- **The rise arrow ran through "slab, poched concrete."**
+- **The roof line ran through "roped access."**
+- **The gutter flow ran through "drainage,"** and another through "to the gutter."
+- **The glass's own right edge ran through two labels** — "post, poched metal" and "waterproofing already continuous" — because the glass was drawn 10 units wider than the posts it sat between.
+- **The slab's plate-deflection arrow started inside the "horizontal load path" dimension label.**
+- **The two mast leaders crossed each other.**
+
+**The law this exposed.** Every one of those is the same defect: a drawn line passes through a word. The earlier law was about LEADERS, and it was the wrong law, because the leader was never the thing — the leader was only the case that happened to be lying on screen. The real law is: **no drawn line passes through a label.** A membrane rule, an obstruction arc, a dimension tick, a beyond line, a flow arrow and the glass's own edge are all the same thing. The line's body does not matter; the word does.
+
+**The guard, and the three things it had to get right.**
+- **The ink model.** A label's ink is its cap height above the baseline, plus a descender below — but only when the word actually has one. Measuring every word by its full box flags every flow arrow that starts just below the label it names, and a guard that fires on that teaches people to route around it, which is worse than no guard at all. The guard reads the descender out of the word itself (`/[gjpqy]/`).
+- **Arcs are sampled, not skipped.** The aviation detail's light envelope is a curve, and a guard that only reads `M`, `L`, `H` and `V` walks straight past it. The guard now samples the arc from its endpoint to its centre.
+- **No path-end exemption.** A line that ENDS inside a word is still a line through a word. The exemption was tried, and it hid one real strike — the slab's plate-deflection arrow — so the arrow moved instead, and the exemption was cut.
+
+**Sixteen tests, sixteen mutations, sixteen red.** The law was not reinvented for the second family: `tests/sheets.test.mjs` now guards six method sheets and twelve details with one set of laws, and the harness `.scratch/mutate_sheets.mjs` breaks one thing at a time — including a detail label back onto its line, the obstruction arc back through its label, and three mutations inside the guard itself (the descender, the H/V segments, the arc sampler) — and asserts the suite goes RED each time.
+
+**Laws kept.** No line through a word, whatever the line is. A midpoint test is not a segment intersection. A path's own ends are not exempt. A guard must model reality in its own words. Render it and look at it — the seven known crossings were fixed, and eleven more were found only by looking.
+
+**Open.** `app.js` and `i18n.js` are still hubs, and the `app.js` identifier assertions are still textual. The main book's tenth page remains Dr Non's call. Chen's licensing stays deferred and untouched. Several detail labels still sit ON hatched material — legible, but a separate aesthetic item from the strike law. Dr Non's standing design law, MSH — Massacre Spatial Hallucination — arrived on 2026-10-22 and governs every interface, viewport and visual surface: when you find spatial hallucination, massacre it.

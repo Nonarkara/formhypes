@@ -1,4 +1,4 @@
-import {sheet,cut,beyond,leader,flow,head,dim,brkV,cl,ground,txt,rule} from './drafting.js?v=895b148bec';
+import {sheet,cut,beyond,leader,flow,head,dim,brkV,cl,ground,txt,rule} from './drafting.js?v=5dc3f3c796';
 /* ── how the wall is put together, as distinct from what it is made of ───────
    The material library answers "what is this face?". It cannot answer "how is
    this face held on, drained, fire-stopped and got to when it fails?" — and
@@ -240,17 +240,17 @@ const DRAWINGS={
   +flow('M44,86 H50',true)+head(52,86,'r',true)
   // air: from the conditioned side, and it stops at the inner seal
   +flow('M196,58 H99')+head(97,58,'l',true)
-  +txt(200,54,'air')
+  +txt(200,64,'air')
   +txt(4,68,'rain')
   // leaders, staggered so none of them cross
   +leader(43,58,22,30,'outer pressure plate')
   +leader(49,73,20,45,'outer weather seal',{on:true})
-  +leader(74,84,74,126,'mineral wool')
+  +leader(78,100,120,126,'mineral wool')
   +leader(62,100,40,114,'drained cavity',{on:true})
   +leader(93,58,128,26,'continuous air seal')
   +leader(104,80,150,40,'inner frame')
   +leader(140,80,178,104,'glazing, set back')
-  +dim(40,120,112,120,'70'),
+  +dim(40,136,112,136,'70'),
  ),
  /* The isolator. Heat wants to run straight through aluminium from the outer
     pressure plate to the inner mullion frame; this is the 40 mm that refuses.
@@ -269,7 +269,7 @@ const DRAWINGS={
   +flow('M12,64 H94 V112 H216')+head(218,112,'r')
   +txt(6,58,'heat path')
   +leader(60,32,60,16,'outside plate')
-  +leader(118,44,118,18,'polyamide isolator',{on:true})
+  +leader(118,44,140,18,'polyamide isolator',{on:true})
   +leader(178,60,196,40,'inside frame')
   +leader(118,108,86,132,'no metallic path across',{on:true})
   +dim(96,128,140,128,'44')
@@ -291,11 +291,11 @@ const DRAWINGS={
   +cut('M86,84 H96 V106 H86 Z','steel')
   // movement, which is what the slot permits
   +flow('M112,74 V64')+head(112,62,'u',true)
-  +flow('M132,116 V126')+head(132,128,'d',true)
-  +txt(114,58,'frame drift')
+  +flow('M132,120 V126')+head(132,128,'d',true)
+  +txt(106,58,'frame drift',{anchor:'end'})
   +txt(134,136,'plate deflection')
   +leader(74,90,58,68,'bracket, cut steel')
-  +leader(122,84,172,32,'slip slot, kept open',{on:true})
+  +leader(122,84,172,22,'slip slot, kept open',{on:true})
   +leader(196,64,200,34,'slab edge, beyond')
   +dim(58,118,152,118,'horizontal load path')
   +cl(118,52,118,132)
@@ -318,9 +318,9 @@ const DRAWINGS={
   +flow('M28,32 V58')+head(28,60,'d',true)
   +flow('M28,58 V48 H60')+head(62,48,'r',true)
   +txt(20,28,'rise')
-  +leader(60,64,50,40,'slab, poched concrete')
+  +leader(60,64,50,18,'slab, poched concrete')
   +leader(120,66,104,116,'tested system')
-  +leader(142,68,160,116,'smoke seal',{on:true})
+  +leader(142,66,142,26,'smoke seal',{on:true})
   +leader(176,88,200,116,'slab still moves')
   +dim(96,126,188,126,'the gap'),
  ),
@@ -337,7 +337,7 @@ const DRAWINGS={
   +beyond('M108,98 H152 V112 H108 Z',.55)
   +cl(128,50,128,118)
   +flow('M124,98 V116',true)+head(124,118,'d',true)
-  +txt(126,132,'fire stops here')
+  +txt(124,132,'fire stops here',{anchor:'end'})
   +leader(74,84,62,40,'outrigger, cut steel')
   +leader(130,82,130,26,'node',{on:true})
   +leader(130,106,166,132,'glass bracket')
@@ -384,7 +384,7 @@ const DRAWINGS={
   +flow('M98,60 V112 H60')+head(58,112,'l',true)
   +flow('M140,102 H200')+head(202,102,'r',true)
   +txt(102,60,'water')
-  +txt(144,98,'to the gutter')
+  +txt(144,92,'to the gutter')
   +ground(20,130,216)
   +leader(88,44,44,24,'coping, poched metal',{on:true})
   +leader(82,52,50,74,'counterflashing')
@@ -406,7 +406,7 @@ const DRAWINGS={
   +flow('M100,36 H144',true)+head(146,36,'r',true)
   +flow('M100,96 H144',true)+head(146,96,'r',true)
   +txt(2,26,'louvred screen')
-  +leader(67,60,54,16,'blades, poched')
+  +leader(85,62,100,16,'blades, poched')
   +leader(122,56,120,140,'free area',{on:true})
   +leader(190,76,200,30,'plant, behind the screen')
  ),
@@ -427,8 +427,8 @@ const DRAWINGS={
   +flow('M232,74 H144')+head(142,74,'l',true)
   +txt(10,40,'wind')
   +leader(120,40,156,16,'post')
-  +leader(104,114,64,132,'base plate')
-  +leader(105,128,68,110,'holding-down bolts',{on:true})
+  +leader(104,114,64,110,'base plate')
+  +leader(105,128,68,132,'holding-down bolts',{on:true})
   +leader(125,66,176,132,'taper')
  ),
  /* A light on the highest point, on a bracket that survives a roped technician.
@@ -446,11 +446,11 @@ const DRAWINGS={
   +beyond('M126,46 A46 46 0 0 1 126,-2',.5)
   +beyond('M126,58 A58 58 0 0 1 126,-18',.5)
   +flow('M126,50 V34')+head(126,32,'u',true)
-  +txt(130,46,'light envelope')
+  +txt(44,46,'light envelope')
   +leader(126,66,182,44,'luminaire')
   +leader(127,100,182,96,'bracket')
   +leader(126,124,60,136,'roof, poched steel',{on:true})
-  +txt(60,112,'roped access')
+  +txt(60,104,'roped access')
  ),
  /* The detail that decides whether the floor below stays dry for fifty years.
     Continuity, upstand, drainage and a joint that lets slab and wall move apart.
@@ -468,16 +468,16 @@ const DRAWINGS={
   // the upstand, and the water that has to leave
   +flow('M150,100 H216')+head(218,100,'r',true)
   +flow('M160,70 V96 H216')+head(218,96,'r',true)
-  +txt(152,94,'drainage')
+  +txt(168,88,'drainage')
   // movement joint: the gap that lets slab and wall move apart
   +beyond('M116,62 H132 V132',.7)
   +flow('M124,72 V58')+head(124,56,'u',true)
-  +txt(126,54,'movement')
+  +txt(124,54,'movement',{anchor:'end'})
   +leader(60,90,52,40,'slab, poched')
   +leader(124,82,164,52,'upstand',{on:true})
   +leader(140,66,140,26,'waterproofing, continuous')
   +leader(196,120,214,142,'drain')
-  +txt(18,56,'inside')
+  +txt(18,26,'inside')
  ),
  /* The most expensive safety requirement on the building per metre: a guard
     that must not look like a guard, anchored through a finished waterproofing. */
@@ -487,8 +487,8 @@ const DRAWINGS={
   +rule(22,80,232,80,{c:'var(--accent)',w:.9})
   +rule(22,86,232,86,{c:'var(--faint)',w:.5,dash:'3 1.5'})
   // glass, beyond the cut plane, in its channel
-  +beyond('M42,30 H212 V80',.6)
-  +beyond('M42,34 H212',.5)+beyond('M42,76 H212',.5)
+  +beyond('M42,30 H198 V80',.6)
+  +beyond('M42,34 H198',.5)+beyond('M42,76 H198',.5)
   // the posts, poched, carrying the anchor through the membrane
   +cut('M58,46 H68 V118 H58 Z','metal')
   +cut('M188,46 H198 V118 H188 Z','metal')

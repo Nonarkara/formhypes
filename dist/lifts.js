@@ -30,9 +30,9 @@
    behaviour, not an industry traffic simulator — the lab says so.
 
    Everything above the DOM section is pure and DOM-free so it can be tested. */
-import {liftDesign,CORE_METHOD,liftSpeed} from './core.js?v=7612d67571';
-import {stack,evaluate} from './model.js?v=d6152aaa85';
-import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow,layout} from './drafting.js?v=895b148bec';
+import {liftDesign,CORE_METHOD,liftSpeed} from './core.js?v=2d204c2084';
+import {stack,evaluate} from './model.js?v=312df9a324';
+import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow} from './drafting.js?v=5dc3f3c796';
 
 /* Stated assumptions. Each one is printed where it is used. */
 export const LIFT_ASSUME={
@@ -595,10 +595,6 @@ export function liftsMethodSVG(p,{lang='en'}={}){
  const zoneTop=yOf(floors),zoneBot=yOf(E),yH=yOf(E+Math.max(0,p.H));
  const XL=52,XR=57,XL2=88,XR2=93;      // the shaft walls, cut
  const BX0=120,BX1=306,BY0=40,BY1=62;  // the time bar
- /* The house's own ruler. A note is centred under its segment, and the width
-    it is centred by has to be the width the layout engine reserved for it —
-    measured here with the same function, not guessed. */
- const wOf=t=>layout([{k:'txt',x:0,y:0,tx:0,ty:0,text:t,o:{}}]).out[0].w;
  /* The two bands, drawn as closed dashed outlines: the zone the car serves,
     and the express run below it that it passes without stopping. Drawn as
     paths rather than loose rules so the sheet can be MEASURED — a drawing
@@ -663,10 +659,17 @@ export function liftsMethodSVG(p,{lang='en'}={}){
     the shaft stop short of that floor, and the two that name what is below
     it stand below it. A zone that reached the ground had its label printed
     straight through the queue — which no text-only guard can see, because
-    the queue is drawing, not text. */
+    the queue is drawing, not text.
+
+    The order of the two matters. The queue is ON the floor, so the label
+    that counts it stands directly under the dots; the express run is a band
+    up beside the shaft, so its label stands below that. The other way round
+    the leader to the queue had to pass through the express label to reach
+    it, and a leader drawn through a label is a label with a line through
+    it. */
  const sZone=Math.min(slot(zoneBot,last),GY-16);last=sZone;
- const sExp=Math.max(GY+8,slot((zoneBot+GY)/2,last));last=sExp;
- const sPass=Math.max(GY+26,slot(GY-1,last));
+ const sPass=Math.max(GY+8,slot(GY-1,last));last=sPass;
+ const sExp=Math.max(sPass+18,slot((zoneBot+GY)/2,last));last=sExp;
  g+=leader(XR+1.4,yH,44,sRev,fill(M.rev,{n:f1(p.H)}));
  g+=leader(XL2-2.5,mid,44,sStops,fill(M.stops,{n:f1(p.S)}));
  g+=leader(48,zoneBot,44,sZone,fill(M.zone,{n:N}));
@@ -687,13 +690,21 @@ export function liftsMethodSVG(p,{lang='en'}={}){
   x+=w;
  }
  g+=txt(BX0-3,24,fill(M.title,{n:p.cars}),{anchor:'start'});
+ /* The three phases, named. The labels stand in a COLUMN to the right of the
+    bar, all left-aligned on one edge, and every leader arrives at that edge
+    from the left — the house pattern, and the carbon sheet's.
+
+    They used to be CENTRED on the very segment they named, which left the
+    leader no side to arrive from: it came in through the middle of the text,
+    and the sheet showed three labels with a line struck through them. A
+    column fixes it, because every label begins at the same edge and every
+    leader approaches that edge from outside, so no leader can cross a label
+    at all. */
+ const LC=BX1+4;
  for(let i=0;i<3;i++){
   const sec=segs[i][1];
   const text=fill(M.seg,{n:segs[i][2],s:f1(sec),u:U,p:(sec/p.rtt*100).toFixed(0)});
-  /* Centred under its own segment: the land is the label's right edge plus
-     three units, so the half-width of the label is added to the segment's
-     middle. The leader then lands beside the text, not on top of it. */
-  g+=leader(mids[i],BY1,mids[i]+wOf(text)/2,76+i*20,text,{anchor:'end'});
+  g+=leader(mids[i],BY1,LC,76+i*20,text,{anchor:'start'});
  }
  g+=dim(BX0,140,BX1,140,`RTT ${f1(p.rtt)} ${U}`);
  g+=txt(BX0-3,155,fill(M.interval,{i:f1(p.interval),u:U}),{anchor:'start'});

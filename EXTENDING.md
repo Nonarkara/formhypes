@@ -126,7 +126,7 @@ difference between a detail and a diagram.
 
 The exports, in full: `sheet`, `cut`, `beyond`, `matOf`, `leader`, `note`,
 `txt`, `dim`, `rule`, `flow`, `head`, `brkV`, `cl`, `ground`, `layout`,
-`pendingNotes`, `FIELD`, `DEFS`.
+`pendingNotes`, `adv`, `FIELD`, `DEFS`.
 
 - `DEFS` is the shared `<defs>` block — the poché pattern definitions. Every
   sheet carries it, and the ids are fixed on purpose: the browser resolving two
@@ -136,6 +136,10 @@ The exports, in full: `sheet`, `cut`, `beyond`, `matOf`, `leader`, `note`,
 - `note` registers a loose note; `layout` is the collision resolver that
   `sheet` runs; `pendingNotes` reports how many notes are registered but not
   yet drawn — a guard can use it to catch an orphan.
+- `adv` is the advance width of a string at a given size: `.6 em` a glyph in
+  IBM Plex Mono, a full `em` for a CJK glyph, which falls back to Noto Sans
+  SC. Measure a label with it rather than counting its characters — a `ch` is
+  the width of a zero, and a CJK glyph is not a zero.
 - `FIELD` is the standard drawing field size (`250 × 150`).
 
 Colours are CSS variables, never literals: `var(--ink)`, `var(--muted)`,

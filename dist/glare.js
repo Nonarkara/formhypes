@@ -23,9 +23,9 @@
 
    DNI is the 0.8 kW/m² transparent reference used everywhere else here. */
 import {solarPosition,cities} from './solar.js?v=9279efc6dc';
-import {profile,stackHeight} from './model.js?v=d6152aaa85';
+import {profile,stackHeight} from './model.js?v=312df9a324';
 import {cityData,ringsIntersect} from './cityscape.js?v=dcc15cb0df';
-import {sheet,cut,leader,head,dim,rule,txt,flow,layout,cl} from './drafting.js?v=895b148bec';
+import {sheet,cut,leader,head,dim,rule,txt,flow,cl} from './drafting.js?v=5dc3f3c796';
 
 export const GLARE_DNI=800;               // W/m², the project's reference beam
 export const GLARE_LEVELS=12;
@@ -452,9 +452,6 @@ export function glareMethodSVG(p,{lang='en'}={}){
  const f2=v=>Number.isFinite(v)?v.toFixed(2):'—';
  const dirWord=b=>(c.compass[Math.round(((b%360)+360)%360/45)%8]||'');
  const faceLabel=(i,b)=>String(i+1).padStart(2,'0')+' · '+dirWord(b)+' '+Math.round(b)+'°';
- /* The house's own ruler: a note is centred under its segment, and the width
-    it is centred by has to be the width the layout engine reserved for it. */
- const wOf=t=>layout([{k:'txt',x:0,y:0,tx:0,ty:0,text:t,o:{}}]).out[0].w;
  const m=p.main;
  /* The section: the horizontal axis is the face's own outward normal, so the
     normal, the two rays and the facet's lean are the lab's real angles. */
@@ -516,11 +513,20 @@ export function glareMethodSVG(p,{lang='en'}={}){
     leaders to the segments below it never cross it. */
  g+=dim(BX0,40,BX1,40,fill(M.total,{d:f0(p.dni),s:f2(p.rhoSum)}));
  /* The beams, each named: which face it came from, how much of the light it
-    carried back, and how much of the peak it is. */
+    carried back, and how much of the peak it is.
+
+    The labels stand in a COLUMN to the right of the bar, all left-aligned on
+    one edge, and every leader arrives at that edge from the left — the house
+    pattern, and the carbon sheet's. They used to be centred on the very
+    segment they named, which left the leader no side to arrive from: it came
+    in through the middle of the text and struck through the label. A column
+    fixes it, because every label begins at the same edge and every leader
+    approaches that edge from outside, so no leader can cross a label. */
+ const LC=BX1+4;
  for(let i=0;i<p.parts.length;i++){
   const part=p.parts[i];
   const text=fill(M.seg,{f:faceLabel(part.edge,part.bearing),r:f2(part.rho),w:f0(part.W)});
-  g+=leader(mids[i],BY1,mids[i]+wOf(text)/2,112+i*24,text,{anchor:'end'});
+  g+=leader(mids[i],BY1,LC,112+i*24,text,{anchor:'start'});
  }
  /* Where the peak is: how many beams, on one cell of the raster, how far out.
     It captions the bar it belongs to, so it sits under it and not in a margin. */

@@ -12,7 +12,7 @@
    Both are honest about the discipline that makes the comparison mean
    anything: every candidate was resized to the same gross floor area, so only
    the form is moving. */
-import {families} from './model.js?v=d6152aaa85';
+import {families} from './model.js?v=312df9a324';
 
 const INK='#191c1b',MUTED='#585e5b',FAINT='#8b918d',LINE='#c6cbc6',ACCENT='#f59e0b',PAPER='#f2f2ef';
 // Value ladder for the lattice, light to dark. Text flips at index 4, where the

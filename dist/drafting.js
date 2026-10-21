@@ -104,25 +104,49 @@ export const beyond=(d,sw=.55)=>`<path d="${d}" fill="none" stroke="var(--faint)
    therefore testable in node — which is the only place this kind of arithmetic
    gets caught before it ships. */
 const CW=250, CH=150, TOP=22, BOT=12, GUT=112, PAD=5;
+/* LAND is how far outside the label a leader lands; AIR is the room the frame
+   keeps around the ink, so no stroke is clipped by the frame's own edge. */
+const LAND=3, AIR=2;
 /* Notes may sit in the head and foot margins as well as over the field. Without
    that the whole stack is squeezed into the 150-unit drawing height and the
    resolver runs out of room exactly where a sheet has the most to say. */
 const LO=TOP+3, HI=CH+BOT-4;
 export const FIELD={w:CW,h:CH};
-const adv=(s,size)=>s.length*size*.6;              // monospace advance, .6 em
+/* The advance width a glyph REALLY has. The sheet is set in IBM Plex Mono,
+   where a Latin glyph is .6 em — so a label's width is its length, and that
+   is exact, needs no DOM, and is therefore testable in node.
+
+   But a CJK glyph has no mono glyph to fall back on: it comes from Noto Sans
+   SC at a FULL em. Counting it at .6 em made every Chinese label a third
+   wider than the box reserved for it, and the frame grew to fit the wrong
+   width — so the Chinese fire sheet's three phase labels ran off the right
+   edge of the sheet and the browser clipped them in silence. Nothing on a
+   sheet may be clipped: a label that is cut is a lie about what the drawing
+   contains. */
+const CJK=/[⺀-鿿豈-﫿＀-￯　-〿]/;
+export const adv=(s,size)=>[...s].reduce((a,ch)=>a+(CJK.test(ch)?size:size*.6),0);
 /* Break at a word rather than run off the sheet. A note that cannot fit the
    margin column is wrapped, never truncated — a truncated note is a lie about
-   what the detail contains. */
+   what the detail contains. The line is measured with the glyph's REAL
+   advance, so a Chinese line holds fewer characters than a Latin one: thirty
+   Chinese glyphs are thirty ems wide, not eighteen. */
 function wrap(s,maxw,size){
  if(adv(s,size)<=maxw) return [s];
- const per=Math.max(10,Math.floor(maxw/(size*.6)));
  const out=[]; let cur='';
  for(const word of s.split(' ')){
   let t=cur?cur+' '+word:word;
-  if(t.length<=per){ cur=t; continue; }
+  if(adv(t,size)<=maxw){ cur=t; continue; }
   if(cur) out.push(cur);
-  if(word.length<=per){ cur=word; continue; }   // one word longer than a whole line
-  for(let i=0;i<word.length;i+=per) out.push(word.slice(i,i+per));
+  if(adv(word,size)<=maxw){ cur=word; continue; }   // one word longer than a whole line
+  /* A word too long for a whole line is broken at the glyph that will not
+     fit — by CHARACTER, because a Chinese word has no spaces to break at. */
+  const parts=[]; let piece='';
+  for(const ch of word){
+   if(piece&&adv(piece+ch,size)>maxw){ parts.push(piece); piece=''; }
+   piece+=ch;
+  }
+  if(piece) parts.push(piece);
+  out.push(...parts);
   cur='';
  }
  if(cur) out.push(cur);
@@ -169,9 +193,17 @@ export function layout(items,W=CW,H=CH){
      label that was drawn. */
   const lines=it.o.rot?[it.text]:wrap(it.text, GUT-2*PAD, size);
   const w=Math.max(...lines.map(l=>adv(l,size)));
-  const x0=it.o.anchor==='middle'?it.tx-w/2:it.o.anchor==='end'?it.tx-w:side==='R'?it.tx+3:it.tx-3-w;
-  const box=p=>[p.x0,p.x0+p.w];
-  const [ax0,ax1]=box({x0,w});
+  /* A note TURNED ON ITS SIDE is a narrow strip running down from its pivot:
+     its ink is a cap height wide, not the length of the text. The model gave
+     it the length, so the resolver reserved a wide box of ground the ink
+     never used, and the frame grew to fit ground that was not there — the
+     fire sheet carried twenty units of empty white on its left edge for the
+     sake of one turned dimension label. */
+  const rot=!!it.o.rot;
+  const anch=it.o.anchor||(side==='R'?'start':'end');
+  const x0=rot?it.tx-.75*size
+   :anch==='middle'?it.tx-w/2:anch==='end'?it.tx-w:side==='R'?it.tx+3:it.tx-3-w;
+  const ax0=rot?x0:x0, ax1=rot?it.tx+.25*size:x0+w;
   /* The band a note may stand in is the FRAME, not the field: a note may sit
      in the head and foot margins as well as over the field, which is what the
      comment above says. The old bound stopped at the top of the field, so a
@@ -266,8 +298,15 @@ export function layout(items,W=CW,H=CH){
    ty=Math.max(lo,Math.min(hi,ty));
   }
   out.push({...it,size,side,lines,w,x0,ty});
-  if(x0+w+3>W) needR=Math.max(needR,x0+w+3-W);
-  if(x0-3<0) needL=Math.max(needL,3-x0);
+  /* The frame holds the INK, with air around it. The ink is not the note: a
+     leader lands three units outside the note's edge and the stroke there is
+     half a unit wide. A frame grown to the note's edge alone put every
+     leader's landing point exactly ON the frame, so the browser clipped the
+     last stroke of every leader on every sheet. */
+  const inkL=rot?x0:(anch==='start'?x0-LAND:x0);
+  const inkR=rot?ax1:(anch==='start'?x0+w:x0+w+LAND);
+  if(inkR+AIR>W) needR=Math.max(needR,inkR+AIR-W);
+  if(inkL-AIR<0) needL=Math.max(needL,AIR-inkL);
  }
  return {out,needL,needR};
 }
@@ -295,9 +334,27 @@ function drawNotes(items,W=CW,H=CH){
    +` fill="${c}" stroke="none">${l}</text>`).join('');
   if(p.o.obstacle) return '';        // placed as a barrier, drawn by its owner
   if(p.k==='txt') return body;
-  const land=anchor==='start'?p.x0-3:p.x0+p.w+3;
-  const mid=[p.x+(land-p.x)*.55,p.y+(p.ty-p.y)*.55];
-  return `<path d="M${p.x} ${p.y} L${mid[0]} ${mid[1]} L${land} ${p.ty}" fill="none" stroke="${c}" stroke-width=".6"/>`
+  /* The leader lands on the label's edge, and it must ARRIVE from outside the
+     label. Which edge it is is not the anchor's business — it is the
+     source's. A source to the LEFT of the label is reached by a leader that
+     comes in from the left and lands on the label's left edge; that is the
+     house pattern, and the carbon sheet's and the water sheet's.
+
+     The lifts and the glare sheets broke the pattern: each label was CENTRED
+     on the very thing it named, so the leader had to cross the whole label to
+     reach it, and the sheet showed labels with a line struck through the
+     middle of them. When the source lies over the label there is no side to
+     arrive from, so the leader comes down onto the label's top edge instead —
+     vertically, and clear of the text. */
+  const bx1=p.x0+p.w;
+  let land;
+  if(p.x<=p.x0) land=[p.x0-LAND,p.ty];
+  else if(p.x>=bx1) land=[bx1+LAND,p.ty];
+  else land=[p.x,p.ty+2.4-.75*p.size-2];
+  const mid=(p.x<=p.x0||p.x>=bx1)
+   ?[p.x+(land[0]-p.x)*.55,p.y+(land[1]-p.y)*.55]
+   :[land[0],(p.y+land[1])/2];
+  return `<path d="M${p.x} ${p.y} L${mid[0]} ${mid[1]} L${land[0]} ${land[1]}" fill="none" stroke="${c}" stroke-width=".6"/>`
    +`<circle cx="${p.x}" cy="${p.y}" r="1.2" fill="${c}"/>`+body;
  }).join('');
  return {body:notes,viewBox:`${-needL} ${-TOP} ${W+needL+needR} ${H+TOP+BOT}`};
