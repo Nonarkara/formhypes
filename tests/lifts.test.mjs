@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {defaults,evaluate} from '../dist/model.js';
 import {liftDesign,CORE_METHOD} from '../dist/core.js';
 import {flightTime,travelPos,probableStops,highestReversal,rttFormula,groupRTT,shuttleRTT,awtCibse,sizeGroup,
- liftPlan,waitCurve,waitCurveDelta,skyCandidates,simulate,createSim,stepSim,simStats,timeScale,shaftArea,LIFTS_TEXT,LIFT_ASSUME,renderLiftsLab,
+ liftPlan,waitCurve,waitCurveDelta,skyCandidates,simulate,createSim,stepSim,simStats,timeScale,shaftArea,LIFTS_TEXT,LIFT_ASSUME,renderLiftsLab,LIFT_POP_MAX,
  liftsMethodSVG,liftsMethodPayload} from '../dist/lifts.js';
 
 const near=(a,b,e=1e-6)=>assert.ok(Math.abs(a-b)<=e,`${a} != ${b}`);
@@ -418,5 +418,26 @@ test('the lab renders the drawing, not a paragraph',()=>{
    assert.equal(walk(host,n=>n.className==='lt-prose lt-formula'&&n.textContent===LIFTS_TEXT[lang].m1).length,0,
     `${lang}: the old method paragraph is still on the page`);
   }
+ }finally{globalThis.document=real}
+});
+
+
+test('population is bounded at the calculation and committed-input boundaries',()=>{
+ const max=liftPlan(defaults,{pop:LIFT_POP_MAX});
+ for(const pop of [200001,1e9,Number.MAX_VALUE]){
+  const p=liftPlan(defaults,{pop});
+  assert.equal(p.pop,LIFT_POP_MAX);
+  assert.equal(p.cars,max.cars);
+ }
+ const real=globalThis.document,host=stubNode('div');
+ globalThis.document={createElement:t=>stubNode(t),createElementNS:(ns,t)=>stubNode(t),getElementById:()=>null,activeElement:{id:''}};
+ try{
+  renderLiftsLab({host,state:defaults,lang:'en',active:true});
+  const inp=walk(host,n=>n.id==='lt-pop')[0];
+  const before=String(inp.value);let reported=0;
+  inp.checkValidity=()=>false;inp.reportValidity=()=>{reported++;return false};
+  inp.value='200001';inp.valueAsNumber=200001;inp.onchange();
+  assert.equal(reported,1);
+  assert.equal(String(inp.value),before,'invalid input must restore the last population');
  }finally{globalThis.document=real}
 });

@@ -35,6 +35,7 @@ import {stack,evaluate} from './model.js?v=312df9a324';
 import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow} from './drafting.js?v=5dc3f3c796';
 
 /* Stated assumptions. Each one is printed where it is used. */
+export const LIFT_POP_MAX=200000;
 export const LIFT_ASSUME={
  accel:CORE_METHOD.carAccel,          // m/s², as the Core desk
  tp:CORE_METHOD.transferTime,         // s per passenger, CIBSE Guide D
@@ -150,7 +151,7 @@ export function liftPlan(s,o={},metrics,noCounterpart=false){
  if(net==null){try{net=evaluate(s).rentable}catch{net=0}}
  let cd;try{cd=liftDesign({floors:fin(s.floors,1),height:h0},Math.max(0,fin(net)))}catch{cd={population:0,zones:1,carsPerZone:1,carRated:13,carSpeed:1.6,rt:0,interval:0}}
  const popDefault=cd.population;
- const pop=fin(o.pop,0)>0?o.pop:popDefault;
+ const pop=clamp(fin(o.pop,0)>0?Math.round(o.pop):popDefault,1,LIFT_POP_MAX);
  const rate=clamp(fin(o.rate,12),1,40);
  const cap=clamp(Math.round(fin(o.cap,cd.carRated)),4,40);
  // Default to the typical speed for this rise, not the Core desk's fixed
@@ -743,9 +744,9 @@ function build(host,lang){
  const onoff=[[true,c.ctl.on],[false,c.ctl.off]];
  const R={};
  R.pattern=seg('pattern',c.ctl.pattern,[['up',c.ctl.pat.up],['two',c.ctl.pat.two],['down',c.ctl.pat.down]],k=>{ctl.pattern=k},c.ctl.patNote);
- {const f=field('pop',c.ctl.pop),row=el('div','lt-inrow'),inp=el('input','lt-num');inp.type='number';inp.id='lt-pop';inp.min=1;inp.max=200000;inp.step=1;inp.inputMode='numeric';
+ {const f=field('pop',c.ctl.pop),row=el('div','lt-inrow'),inp=el('input','lt-num');inp.type='number';inp.id='lt-pop';inp.min=1;inp.max=LIFT_POP_MAX;inp.step=1;inp.inputMode='numeric';
   const unit=el('span','lt-unit',c.u.p),reset=el('button','lt-btn',c.ctl.popReset);reset.type='button';
-  inp.onchange=()=>{const v=+inp.value;ctl.pop=Number.isFinite(v)&&v>0?Math.round(v):null;refresh()};
+  inp.onchange=()=>{if(!inp.checkValidity()||!Number.isFinite(inp.valueAsNumber)){inp.reportValidity();inp.value=String(plan.pop);return}ctl.pop=inp.valueAsNumber;refresh()};
   reset.onclick=()=>{ctl.pop=null;refresh()};row.append(inp,unit,reset);const n=el('p','lt-hint');f.w.append(row,n);R.pop={...f,inp,note:n,reset}}
  R.rate=range('rate',c.ctl.rate,5,25,0.5,v=>{ctl.rate=v},c.ctl.rateNote);
  R.cap=range('cap',c.ctl.cap,6,26,1,v=>{ctl.cap=v},c.ctl.capNote);

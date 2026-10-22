@@ -237,3 +237,15 @@ test('the wind method drawing is translated, and carries no English on a Thai or
  const sizes=METHOD_LANGS.map(l=>windMethodSVG(windMethodPayload(windRead(TOWER,{})),{lang:l}).length);
  assert.ok(Math.max(...sizes)-Math.min(...sizes)<Math.max(...sizes)*0.5,'one language drew a very different sheet');
 });
+
+
+test('clear wind status names the lock-in band rather than declaring safety',()=>{
+ const expected={en:'Outside lock-in band',th:'นอกช่วงล็อก',zh:'锁定区间外'};
+ for(const lang of Object.keys(expected)){
+  const c=WIND_TEXT[lang];
+  assert.ok(c.status.clear.startsWith(expected[lang]));
+  assert.equal(c.cmp.clear.toLowerCase(),expected[lang].toLowerCase());
+  const svg=windMethodSVG(windMethodPayload(windRead(defaults,{vb:30,terrain:'IV'})),{lang});
+  assert.ok(svg.includes(c.cmp.clear),'the drawn label must carry the same scoped claim');
+ }
+});

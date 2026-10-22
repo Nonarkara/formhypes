@@ -395,3 +395,11 @@ Three holes in the new guard were found by mutation, and all three were holes in
 **Laws kept.** Chrome earns its pixels — and a number without its unit is not a number. A large footprint is a prompt to investigate, not a universal numeric failure: the 1024px header is 170px tall and stays that way, because what it holds is content, not filler. Measure in the language the site ships in. Render it and look at it — every number was right and the figure was missing.
 
 **Open.** The 1024px console header is two bands because the parameters need their own row there; it is honest, but it is 95px of chrome and Dr Non may want a different composition. At 1024 the sixteen workspaces still break ten-and-six, which is a wrap, not an orphan, and no label is lost. The detail desk's first screen is still the study form rather than a drawing, and the drawings sit below the fold — that is the desk's flow, not its geometry, and it is Dr Non's call. `app.js` and `i18n.js` are still hubs. Chen's licensing stays deferred and untouched.
+
+## 2026-10-22 · Codex · interaction audit after MSH header pass
+
+- Found: lift population ignored max=200000 and could size millions of simulated cars; material strip hid twelve focusable controls from assistive technology and rebuilt away keyboard focus; wind TH/ZH translated a narrow clear condition into “safe.”
+- Changed: validate committed population and cap pure calculation; expose a labelled material group and retain keyed buttons; scope wind labels to outside the lock-in band.
+- Verified: 557 tests; five isolated new mutants killed; 20 existing shipability mutants killed. Native browser population rollback and material keyboard identity verified; all sixteen Thai workspaces opened at390/1024/1440 with no page-wide overflow. Independent diff review found no new blocker.
+- Remaining: tablet two-band header retained; untranslated material/detail annotation content and phone label reading need dedicated work. No engineering certification claimed. Full evidence in docs/IMPECCABILITY-AUDIT-2026-10-22.md.
+- Shared lesson captured first: Scars/Debug-Logs/2026-10-22-audit-interactive-ancestors-and-retained-focus-not-just-button-labels.md.

@@ -129,3 +129,35 @@ test('the actual Save/Reload/Restore flow preserves a full Brief and rolls back 
  assert.equal(ctx.studies.length,1);assert.equal(messages.at(-1),'s.deleteFail');
  resetBrief();
 });
+
+
+test('material swatches remain discoverable and keep their identity through selection',()=>{
+ const html=readFileSync(new URL('../dist/index.html',import.meta.url),'utf8');
+ const stripTag=html.match(/<div[^>]*id="matStrip"[^>]*>/)[0];
+ assert.doesNotMatch(stripTag,/aria-hidden="true"/);
+ assert.match(stripTag,/role="group"/);
+ const labelId=/aria-labelledby="([^"]+)"/.exec(stripTag)[1];
+ assert.ok(html.includes('id="'+labelId+'" for="material"'),'the group names its visible material label');
+ // Execute the shipped synchronisation block, rather than checking for the
+ // spelling of replaceChildren. Removing focus is the observable failure.
+ const start=app.indexOf(" if($('matStrip')){");
+ const end=app.indexOf(' // The detail is the other half',start);
+ assert.ok(start>=0&&end>start);
+ const source=app.slice(start,end);
+ const make=()=>({dataset:{},style:{},attrs:{},setAttribute(k,v){this.attrs[k]=v}});
+ const strip={children:[],append(b){this.children.push(b)},replaceChildren(){this.children=[]}};
+ const select={value:''},state={material:'float'};
+ const ctx={MATERIALS,MATERIAL_KEYS:Object.keys(MATERIALS),state,document:{createElement:make},$:id=>id==='matStrip'?strip:select};
+ ctx.changed=()=>runInNewContext(source,ctx);
+ runInNewContext(source,ctx);
+ const buttons=[...strip.children],focused=buttons[1];
+ focused.onclick();
+ assert.equal(state.material,'reflective');assert.equal(select.value,'reflective');
+ assert.equal(strip.children[1],focused,'selection removed the focused button');
+ assert.equal(strip.children.length,12);
+ for(let i=0;i<buttons.length;i++){
+  assert.equal(strip.children[i],buttons[i]);
+  assert.equal(buttons[i].attrs['aria-pressed'],String(i===1));
+  assert.ok(buttons[i].attrs['aria-label']);
+ }
+});

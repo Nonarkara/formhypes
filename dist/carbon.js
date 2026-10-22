@@ -65,7 +65,7 @@
    ASSUMPTIONS are marked ASSUMPTION where they are set. */
 import {profile,stack,area} from './model.js?v=312df9a324';
 import {leastWidth} from './structure.js?v=d10ac3572a';
-import {windRead} from './wind.js?v=d73810a396';
+import {windRead} from './wind.js?v=7bf5094d26';
 // The drafting vocabulary this drawing is made of. The release stamper pins
 // this against drafting.js; a hand-written token would rot the moment the
 // vocabulary changed, which is the whole reason the stamper exists.

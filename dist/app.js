@@ -1,9 +1,9 @@
 import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=08b7c27183';
 import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=64b8fd2922';
 import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=94b41592fd';
-import {renderAssembly} from './assembly.js?v=042c064d0f';
+import {renderAssembly} from './assembly.js?v=40ed428eb2';
 import {renderStructure} from './structure.js?v=d10ac3572a';
-import {mountConsole} from './console.js?v=2dea41d659';
+import {mountConsole} from './console.js?v=270c807c48';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=312df9a324';
@@ -37,7 +37,7 @@ import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
 import {quantityCsv, howMeasured} from './quantity.js?v=a5d64d7645';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=cd67617106';
-import {WORKSPACES} from './console.js?v=2dea41d659';
+import {WORKSPACES} from './console.js?v=270c807c48';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI;
 const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
@@ -234,14 +234,16 @@ function sync(){
  const mt=materialOf(state);
  if($('materialNote'))$('materialNote').textContent=tt('mat.reads',{name:mt.label,t:mt.thesis,e:mt.envelope.toFixed(2),c:mt.carbon,u:mt.upkeep.toFixed(2)});
  if($('matStrip')){
-  const strip=$('matStrip');strip.replaceChildren();
+  const strip=$('matStrip');
+  const existing=new Map([...strip.children].map(b=>[b.dataset.material,b]));
   for(const k of MATERIAL_KEYS){
-   const m=MATERIALS[k],b=document.createElement('button');
+   const m=MATERIALS[k],b=existing.get(k)||document.createElement('button');
+   b.dataset.material=k;
    b.type='button';b.className='sw'+(k===state.material?' on':'');b.title=m.label;
    b.setAttribute('aria-label',m.label);b.setAttribute('aria-pressed',String(k===state.material));
    b.style.background=m.fill;b.style.borderColor=m.edge;
    b.onclick=()=>{state.material=k;$('material').value=k;changed()};
-   strip.append(b);
+   if(!existing.has(k))strip.append(b);
   }
  }
  // The detail is the other half of the wall and not a restatement of the
