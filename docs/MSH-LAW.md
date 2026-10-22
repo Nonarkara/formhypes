@@ -1,8 +1,28 @@
+<!--
+  THE CANONICAL SPATIAL LAW — MSH, Massacre Spatial Hallucination.
+
+  This file is the law. Everything below the header is Dr Non Arkaraprasertkul's
+  own text, copied verbatim from the document he wrote on 2026-10-22 and sent
+  to the agent working on this project. It is not a summary, a paraphrase, or
+  an agent's interpretation of it. The original file is kept untouched at
+  /Users/nonarkara/.minimax/v2/assets/2026/10/22/02-03-30-982-asset_20261022-020330-982_ecbc32be115d_1e794b73-pasted-text.txt
+
+  DO NOT REWRITE THE BODY. If the law needs to change, Dr Non changes it.
+  An agent that paraphrases the law is worse than an agent with no law at
+  all, because a paraphrase is a place for meaning to go missing, and a
+  missing meaning is exactly the failure this law exists to stop.
+
+  Two words are used differently here, on purpose:
+    SH — the failure itself: an interface inventing a reason to occupy space.
+    MSH — the standing order: when you find SH, massacre.
+-->
+SH is like bureaucracy - good one works like bento box design: neat, full of variety of nutrients, easy to transport, effective, economically resource-oriented. So, bureaucracy, if done well, can be a really good thing. That said, bureaucrats act like they know things: they do, but they know things through other people, usually those before them. Passiong through generation, rules get bended over time, and bit by bit bureaucracy becomes hallucinated: "we need this department." "we need this meeting." "we need new working groups." "we need new committees" - each makes things bloated, kicked out of MoMA rules, and eventually become fully hallucinated. For someone who have been in bureaucracy for years and have seen good designs globally, I can spot bad design right away by just looking at how frequent unintentional design, of which SH is one of the biggest dude in town, right away. SH design is like a bad bureaucracy: disorganized, bloated, unbalanced, hard to read, longer than it should be, ugly.
+
 # MSH — Massacre Spatial Hallucination
 
 > **When you find SH, massacre.**
 >
-> Owner's design law. Read before designing, building, or reviewing any interface.
+> Owner’s design law. Read before designing, building, or reviewing any interface.
 > Applies to every agent, every viewport, and every visual surface.
 
 ## 1. The definition
@@ -22,7 +42,7 @@ design when its geometry makes a small task expensive.
 
 > Why is this here? Why this size? Why this far from that?
 
-"The grid put it there," "the container had room," and "it looks balanced"
+“The grid put it there,” “the container had room,” and “it looks balanced”
 without a reading or task purpose are failed answers.
 
 ## 2. How the failure spreads
@@ -48,7 +68,7 @@ Fix the first unnecessary expansion. Do not decorate the consequences.
 | Accidental wrapping | Navigation breaks wherever width happens to run out | Choose deliberate groups and a responsive transition |
 | Expensive small decision | A short task requires a long scroll | Bring the evidence and action into one useful view |
 | Inflated controls | Short labels inherit container-sized boxes | Size to label, padding, and usable interaction target |
-| Stretched cards | Short content inherits the tallest sibling's height | Let content size itself unless comparison requires alignment |
+| Stretched cards | Short content inherits the tallest sibling’s height | Let content size itself unless comparison requires alignment |
 | Empty hero or spacer | A section exists to manufacture importance | Remove the section or give real content its place |
 | Overlapping chrome | Fixed or sticky regions obscure the work | Account for their occupied area and reduce their footprint |
 
@@ -125,12 +145,12 @@ Every such choice must still answer the three questions.
 
 1. **Read the current instructions.** Apply `anti-slop-design`, project design laws,
    and anti-regression rules. Inspect the existing product before editing.
-2. **State the user's task in one sentence.** Identify the information and action
+2. **State the user’s task in one sentence.** Identify the information and action
    needed to complete it, then choose the dominant element.
 3. **Inspect the rendered geometry.** Start with the top bar and the first point
    where useful content leaves the viewport. Trace the expansion that caused it.
 4. **Name each failure precisely.** Record the element, viewport, wasted space,
-   and the reading or interaction cost. Do not call a surface "slop" as a diagnosis.
+   and the reading or interaction cost. Do not call a surface “slop” as a diagnosis.
 5. **Repair the cause.** Remove redundant wrappers and spacers, reduce unjustified
    padding, regroup related controls, correct track sizing, and recompose priorities.
 6. **Preserve the product.** Keep live maps, charts, canvases, tickers, HUDs, earned
@@ -139,7 +159,7 @@ Every such choice must still answer the three questions.
 7. **Render again.** Exercise real content, open menus, expanded panels, error states,
    and keyboard focus. Check that the repair did not move the problem elsewhere.
 8. **Record evidence.** Provide before/after screenshots and measured changes.
-   Apply the project's release and independent-review requirements for visual work.
+   Apply the project’s release and independent-review requirements for visual work.
 
 Do not solve SH by adding another spacer, decorative panel, badge, slogan,
 stock image, or row of identical cards.
@@ -166,7 +186,7 @@ A large footprint is a prompt to investigate, not a universal numeric failure.
 Explain geometry in relation to the task. Source scans and successful builds
 cannot prove a visual pass. If rendering was unavailable, report **unverified**.
 
-## 7. The agent's completion report
+## 7. The agent’s completion report
 
 Keep the report short and concrete:
 
