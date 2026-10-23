@@ -30,9 +30,16 @@
    behaviour, not an industry traffic simulator — the lab says so.
 
    Everything above the DOM section is pure and DOM-free so it can be tested. */
-import {liftDesign,CORE_METHOD,liftSpeed} from './core.js?v=2d204c2084';
-import {stack,evaluate} from './model.js?v=312df9a324';
-import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow} from './drafting.js?v=5dc3f3c796';
+import {liftDesign,CORE_METHOD,liftSpeed} from './core.js?v=bb23192477';
+import {stack,evaluate} from './model.js?v=fe3aa014a2';
+import {sheet,cut,beyond,leader as draftLeader,head,dim as draftDim,rule,txt as draftTxt,ground,flow} from './drafting.js?v=5dc3f3c796';
+import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=e134c381e7';
+let displayLang='en',displayKey='';
+const shown=value=>displayText(value,displayLang);
+const txt=(x,y,text,...args)=>draftTxt(x,y,shown(text),...args);
+const leader=(x,y,tx,ty,text,...args)=>draftLeader(x,y,tx,ty,shown(text),...args);
+const dim=(x,y,tx,ty,text,...args)=>draftDim(x,y,tx,ty,shown(text),...args);
+
 
 /* Stated assumptions. Each one is printed where it is used. */
 export const LIFT_POP_MAX=200000;
@@ -586,6 +593,7 @@ export function liftsMethodPayload(plan){
 }
 
 export function liftsMethodSVG(p,{lang='en'}={}){
+ displayLang=lang;
  const c=LIFTS_TEXT[lang]||LIFTS_TEXT.en,M=c.m,U=c.u.s;
  if(!p)return sheet('',MW,MH,'');
  const f1=v=>Number.isFinite(v)?v.toFixed(1):'—';
@@ -720,7 +728,7 @@ const ACC='#f59e0b',INK='#e6edf3',DIM='#a2aca9',DARK='#111416';
 const ctl={pattern:'up',pop:null,rate:12,cap:13,speed:null,door:4,zones:null,cars:null,auto:true,sky:false,skyLevel:null,dispatch:'collective',dd:false};
 let ui=null,last=null,raf=0,sim=null,plan=null,curve=null,apply=null;
 
-function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
+function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=(/(?:^|-)src$/.test(cls||'')?text:shown(text));return n}
 const reduced=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 const loc=lang=>lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US';
 function fmt(v,d=0){if(v===Infinity)return '∞';return Number.isFinite(v)?v.toLocaleString(loc(ui?ui.lang:'en'),{minimumFractionDigits:d,maximumFractionDigits:d}):'—'}
@@ -737,7 +745,7 @@ function build(host,lang){
  const lede=el('p','lt-prose',c.lede);
  const ctls=el('div','lt-controls');
  const field=(id,label)=>{const w=el('div','lt-field'),top=el('div','lt-fieldhead'),lab=el('label','lt-label',label),out=el('output','lt-out');lab.htmlFor='lt-'+id;top.append(lab,out);w.append(top);ctls.append(w);return {w,out,lab}};
- const range=(id,label,min,max,step,on,note)=>{const f=field(id,label),inp=el('input');inp.type='range';inp.id='lt-'+id;inp.min=min;inp.max=max;inp.step=step;inp.oninput=()=>{on(+inp.value);refresh()};f.w.append(inp);const n=el('p','lt-hint',note??'');f.w.append(n);return {...f,inp,note:n}};
+ const range=(id,label,min,max,step,on,note)=>{const u=id==='speed'?'m/s':'',f=field(id,label),inp=el('input');inp.type='range';inp.id='lt-'+id;inp.min=toDisplay(min,u);inp.max=toDisplay(max,u);inp.step=toDisplay(step,u);inp.oninput=()=>{on(fromDisplay(+inp.value,u));refresh()};f.w.append(inp);const n=el('p','lt-hint',note??'');f.w.append(n);return {...f,inp,note:n}};
  const seg=(id,label,opts,on,note)=>{const f=field(id,label),g=el('div','lt-seg');g.setAttribute('role','group');g.setAttribute('aria-label',label);
   const bs=opts.map(([k,t])=>{const b=el('button',null,t);b.type='button';b.onclick=()=>{on(k);refresh()};g.append(b);return [k,b]});
   bs[0][1].id='lt-'+id;f.w.append(g);const n=el('p','lt-hint',note??'');f.w.append(n);return {...f,bs,note:n}};
@@ -808,54 +816,54 @@ function refresh(){
  }catch{curve=null}
  // controls
  for(const [k,b]of R.pattern.bs)b.setAttribute('aria-pressed',String(p.pattern===k));
- R.pattern.out.textContent='';
+ R.pattern.out.textContent=shown('');
  if(document.activeElement!==R.pop.inp)R.pop.inp.value=String(Math.round(p.pop));
- R.pop.out.textContent=fmt(p.pop)+' '+c.u.p;
- R.pop.note.textContent=fill(c.ctl.popNote,{p:fmt(p.popDefault),a:fmt(p.net)});
+ R.pop.out.textContent=shown(fmt(p.pop)+' '+c.u.p);
+ R.pop.note.textContent=shown(fill(c.ctl.popNote,{p:fmt(p.popDefault),a:fmt(p.net)}));
  R.pop.reset.disabled=ctl.pop==null;
- R.rate.inp.value=p.rate;R.rate.out.textContent=fmt(p.rate,1)+'%';
- R.cap.inp.value=p.cap;R.cap.out.textContent=fmt(p.cap)+' '+c.u.p;
- R.speed.inp.value=p.v;R.speed.out.textContent=fmt(p.v,1)+' '+c.u.ms;
- R.speed.note.textContent=fill(c.ctl.speedNote,{r:fmt(p.run),v:fmt(p.vTypical,1),a:fmt(p.a,1)});
- R.door.inp.value=p.td;R.door.out.textContent=fmt(p.td,1)+' '+c.u.s;
- const maxZ=Math.max(1,Math.min(8,Math.floor(p.N/2)));R.zones.inp.max=maxZ;R.zones.inp.value=p.Z;R.zones.out.textContent=fmt(p.Z);
+ R.rate.inp.value=p.rate;R.rate.out.textContent=shown(fmt(p.rate,1)+'%');
+ R.cap.inp.value=p.cap;R.cap.out.textContent=shown(fmt(p.cap)+' '+c.u.p);
+ R.speed.inp.value=toDisplay(p.v,'m/s');R.speed.out.textContent=shown(fmt(p.v,1)+' '+c.u.ms);
+ R.speed.note.textContent=shown(fill(c.ctl.speedNote,{r:fmt(p.run),v:fmt(p.vTypical,1),a:fmt(p.a,1)}));
+ R.door.inp.value=p.td;R.door.out.textContent=shown(fmt(p.td,1)+' '+c.u.s);
+ const maxZ=Math.max(1,Math.min(8,Math.floor(p.N/2)));R.zones.inp.max=maxZ;R.zones.inp.value=p.Z;R.zones.out.textContent=shown(fmt(p.Z));
  const loc=p.groups.filter(g=>g.kind==='local').map(g=>g.cars),lo=Math.min(...loc),hi=Math.max(...loc);
  R.cars.inp.value=p.auto?Math.round(loc.reduce((a,b)=>a+b,0)/loc.length):p.carsM;
- R.cars.out.textContent=lo===hi?fmt(lo):fmt(lo)+'–'+fmt(hi);
- R.cars.note.textContent='';
+ R.cars.out.textContent=shown(lo===hi?fmt(lo):fmt(lo)+'–'+fmt(hi));
+ R.cars.note.textContent=shown('');
  for(const [k,b]of R.auto.bs)b.setAttribute('aria-pressed',String(p.auto===k));
- R.auto.note.textContent=p.auto?c.ctl.autoOn:c.ctl.autoOff;
+ R.auto.note.textContent=shown(p.auto?c.ctl.autoOn:c.ctl.autoOff);
  for(const [k,b]of R.sky.bs){b.setAttribute('aria-pressed',String(p.sky===k));b.disabled=k===true&&!p.skyOK}
- R.sky.out.textContent='';
+ R.sky.out.textContent=shown('');
  R.skyLevel.inp.min=2;R.skyLevel.inp.max=Math.max(3,p.top-2);R.skyLevel.inp.disabled=!p.skyOK;
  R.skyLevel.inp.value=p.L??(p.cands[0]?.f??Math.round(p.N/2));
- R.skyLevel.out.textContent=p.sky?'L'+p.L:c.ctl.off;
+ R.skyLevel.out.textContent=shown(p.sky?'L'+p.L:c.ctl.off);
  const list=p.cands.map(x=>'L'+x.f+' '+c.ctl.use[x.use]).join(', ');
- R.skyLevel.note.textContent=!p.skyOK?c.ctl.skyNeed:(p.sky?(p.snap?fill(c.ctl.skySnap,{use:c.ctl.use[p.snap.use],f:p.L}):fill(c.ctl.skyFree,{f:p.L}))+' ':'')+(list?fill(c.ctl.skyList,{list}):c.ctl.skyNone);
+ R.skyLevel.note.textContent=shown(!p.skyOK?c.ctl.skyNeed:(p.sky?(p.snap?fill(c.ctl.skySnap,{use:c.ctl.use[p.snap.use],f:p.L}):fill(c.ctl.skyFree,{f:p.L}))+' ':'')+(list?fill(c.ctl.skyList,{list}):c.ctl.skyNone));
  for(const [k,b]of R.dispatch.bs)b.setAttribute('aria-pressed',String(ctl.dispatch===k));
  for(const [k,b]of R.dd.bs)b.setAttribute('aria-pressed',String(p.dd===k));
  // verdict
  const names=new Map(p.groups.map((g,i)=>[g,grpName(g,i,p.groups)]));
  const sat=p.groups.find(g=>g.saturated);
  const vg=p.verdict==='sat'?sat:p.verdict==='int'?p.worst:p.verdict==='hc'?p.lowHc:p.verdict==='group'?p.big:p.worst;
- ui.verdict.textContent=fill(c.verdict[p.verdict],{i:fmt(p.interval,1),h:fmt(p.hcPct,1),r:fmt(p.rate,1),g:names.get(vg)||'',n:vg?vg.cars:''});
+ ui.verdict.textContent=shown(fill(c.verdict[p.verdict],{i:fmt(p.interval,1),h:fmt(p.hcPct,1),r:fmt(p.rate,1),g:names.get(vg)||'',n:vg?vg.cars:''}));
  ui.verdict.classList.toggle('lt-flag',p.verdict!=='pass');
  const rw=ui.rows;
- rw.interval.textContent=fill(c.v.interval,{i:fmt(p.interval,1),g:names.get(p.worst)});
- rw.hc.textContent=fill(c.v.hc,{h:fmt(p.hcPct,1),r:fmt(p.rate,1)});
+ rw.interval.textContent=shown(fill(c.v.interval,{i:fmt(p.interval,1),g:names.get(p.worst)}));
+ rw.hc.textContent=shown(fill(c.v.hc,{h:fmt(p.hcPct,1),r:fmt(p.rate,1)}));
  const topN=p.shafts[p.top];
- rw.ground.textContent=fill(c.v.ground,{n:fmt(p.shafts[0]),a:fmt(p.groundArea),p:fmt(100*p.groundArea/p.coreArea),c:fmt(p.coreArea)});
- rw.top.textContent=fill(c.v.top,{n:fmt(topN),a:fmt(topN*p.shaftA)});
- rw.sky.textContent=p.sky&&p.recovered!=null?fill(c.v.sky,{m:fmt(p.recovered),u:fmt(p.recoveredUpper)}):c.v.skyOff;
- rw.coreDesk.textContent=fill(c.v.coreDesk,{z:fmt(p.coreDesk.zones),c:fmt(p.coreDesk.cars),r:fmt(p.coreDesk.rt),i:fmt(p.coreDesk.interval,1)});
+ rw.ground.textContent=shown(fill(c.v.ground,{n:fmt(p.shafts[0]),a:fmt(p.groundArea),p:fmt(100*p.groundArea/p.coreArea),c:fmt(p.coreArea)}));
+ rw.top.textContent=shown(fill(c.v.top,{n:fmt(topN),a:fmt(topN*p.shaftA)}));
+ rw.sky.textContent=shown(p.sky&&p.recovered!=null?fill(c.v.sky,{m:fmt(p.recovered),u:fmt(p.recoveredUpper)}):c.v.skyOff);
+ rw.coreDesk.textContent=shown(fill(c.v.coreDesk,{z:fmt(p.coreDesk.zones),c:fmt(p.coreDesk.cars),r:fmt(p.coreDesk.rt),i:fmt(p.coreDesk.interval,1)}));
  ui.tbody.replaceChildren(...p.groups.map(g=>{
   const tr=el('tr');if(g===vg&&p.verdict!=='pass')tr.className='lt-me';
   for(const t of [names.get(g),(g.kind==='shuttle'?'0→'+g.lo:g.lo+'–'+g.hi),fmt(g.cars),fmt(g.rtt),fmt(g.interval,1),g.saturated?c.v.sat:fmt(g.hcPct,1)])tr.append(el('td',null,t));
   return tr}));
  const canApply=apply&&p.suggestCore&&p.suggestCore>p.core;
  ui.applyB.hidden=!canApply;ui.applyN.hidden=!canApply;
- if(canApply){ui.applyB.textContent=fill(c.apply,{c:fmt(p.suggestCore)});ui.applyN.textContent=fill(c.applyNote,{s:fmt(p.core)});ui.applyB.onclick=()=>{try{apply({core:p.suggestCore})}catch{}}}
- ui.m3.textContent=fill(c.m3,{a:fmt(p.shaftA,2),c:fmt(p.cap)});
+ if(canApply){ui.applyB.textContent=shown(fill(c.apply,{c:fmt(p.suggestCore)}));ui.applyN.textContent=shown(fill(c.applyNote,{s:fmt(p.core)}));ui.applyB.onclick=()=>{try{apply({core:p.suggestCore})}catch{}}}
+ ui.m3.textContent=shown(fill(c.m3,{a:fmt(p.shaftA,2),c:fmt(p.cap)}));
  /* The drawing is rebuilt from the plan, so the numbers on it are the numbers
     this plan just produced — never a copy of last time's. */
  try{
@@ -873,14 +881,14 @@ function updateLive(force){
  if(!ui||!sim||!plan)return;
  const c=ui.c,st=simStats(sim),wait=st.t>5;
  const a=wait?fmt(st.avg,1):'—',p9=wait?fmt(st.p90,1):'—';
- ui.status.textContent=st.saturated||plan.saturated?c.statusSat:fill(c.status,{a,p:p9,q:fmt(st.queue)});
+ ui.status.textContent=shown(st.saturated||plan.saturated?c.statusSat:fill(c.status,{a,p:p9,q:fmt(st.queue)}));
  ui.status.classList.toggle('lt-flag',!!(st.saturated||plan.saturated));
- ui.rows.awt.textContent=fill(c.v.awt,{c:plan.saturated?c.v.sat:fmt(plan.awt,1),s:a});
- ui.rows.p90.textContent=fill(c.v.p90,{s:p9});
- ui.rows.queue.textContent=fill(c.v.queue,{n:fmt(st.queue),m:fmt(st.queueMax)});
+ ui.rows.awt.textContent=shown(fill(c.v.awt,{c:plan.saturated?c.v.sat:fmt(plan.awt,1),s:a}));
+ ui.rows.p90.textContent=shown(fill(c.v.p90,{s:p9}));
+ ui.rows.queue.textContent=shown(fill(c.v.queue,{n:fmt(st.queue),m:fmt(st.queueMax)}));
 }
 
-function ctx2d(cv){const x=cv.getContext&&cv.getContext('2d');if(!x)return null;x.setTransform(cv._dpr||1,0,0,cv._dpr||1,0,0);return x}
+function ctx2d(cv){const x=cv.getContext&&displayContext(cv.getContext('2d'),displayLang);if(!x)return null;x.setTransform(cv._dpr||1,0,0,cv._dpr||1,0,0);return x}
 
 function drawSection(){
  const cv=ui.sheet,x=ctx2d(cv);if(!x||!sim||!plan)return;
@@ -967,8 +975,8 @@ function drawChart(){
  curve.forEach((d,i)=>{if(i%step===0||i===curve.cur)x.fillText(d.label,X(i),B+10)});
  x.fillText(curve.xl,(L+W-Rr)/2,B+24);
  x.textAlign='right';x.fillText(String(ymax),L-4,T);x.fillText('0',L-4,B);
- x.textAlign='left';x.fillText(fmt(amax),W-Rr+4,T);x.fillText('0',W-Rr+4,B);
- x.textAlign='left';x.fillText(c.chart.y,4,10);x.textAlign='right';x.fillText(c.chart.a,W-4,10);
+ x.textAlign='left';x.fillText(fmt(toDisplay(amax,'m²')),W-Rr+4,T);x.fillText('0',W-Rr+4,B);
+ x.textAlign='left';x.fillText(c.chart.y,4,10);x.textAlign='right';x.fillText(c.chart.a.replace(c.u.m2,unitLabel(c.u.m2)),W-4,10);
  // shaft area, dashed
  x.strokeStyle=DIM;x.setLineDash([3,3]);x.beginPath();curve.forEach((d,i)=>{i?x.lineTo(X(i),YA(d.ground)):x.moveTo(X(i),YA(d.ground))});x.stroke();x.setLineDash([]);
  // wait, solid; broken where saturated
@@ -1001,6 +1009,8 @@ export function renderLiftsLab({host,state,metrics,lang='en',active=false,change
   last={state,metrics};
   if(!active){stop();return}
   if(typeof document==='undefined')return;
+  displayLang=lang;const preferenceKey=JSON.stringify([getPreferences(),getRateBook()]);
+  if(displayKey!==preferenceKey){if(ui)ui.lang=null;displayKey=preferenceKey}
   if(!ui||ui.host!==host||ui.lang!==lang||!host.contains(ui.root)){stop();sim=null;build(host,lang)}
   refresh();
   if(reduced()){

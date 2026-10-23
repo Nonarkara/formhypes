@@ -1,3 +1,4 @@
+import {toDisplay,unitLabel,quantity,getPreferences} from './preferences.js?v=e134c381e7';
 /* Per-level area and façade quantities.
 
    The rail prints gross floor area and integrated skin. The plate chart prints
@@ -14,7 +15,7 @@
 
    Import this module for the numbers. The page only downloads the file. */
 
-import {stack, profile, area, evaluate, glazingAt, facadeFamilies} from './model.js?v=312df9a324';
+import {stack, profile, area, evaluate, glazingAt, facadeFamilies} from './model.js?v=fe3aa014a2';
 import {planLibrary, loftTable, lateralArea} from './geometry.js?v=eb7a621ab9';
 import {splitOf, CIRCULATION_SHARE} from './areasplit.js?v=7506bcd419';
 import {MATERIALS, materialOf} from './materials.js?v=be1c7d7582';
@@ -23,7 +24,7 @@ import {MATERIALS, materialOf} from './materials.js?v=be1c7d7582';
 // meant the schedule and the studio could disagree about what a material is
 // called; the one name now lives in the string table, like the crowns and the
 // façade families.
-import {t as I18N} from './i18n.js?v=ac7f89c16b';
+import {t as I18N} from './i18n.js?v=26e6f6be3f';
 
 const SHARE_PCT=Math.round(CIRCULATION_SHARE*100);
 
@@ -243,8 +244,12 @@ function pinColumn(raw,target,digits){
 
 export function quantityTable(state,lang='en'){
  const L=langOf(lang);
- const {rows,keys,meta,screen}=levelRows(state);
- const copy=COPY[L];
+ const raw=levelRows(state),{keys,meta}=raw;
+ // Convert before rounding and balancing: printed level rows must add to the printed selected-unit totals.
+ const screen={...raw.screen},rows=raw.rows.map(r=>({...r,facade:{...r.facade}}));
+ for(const key of ['gross','core','circulation','net','facade'])screen[key]=toDisplay(screen[key],'m²');
+ for(const r of rows){r.elevation=toDisplay(r.elevation,'m');for(const key of ['gross','core','circulation','net'])r[key]=toDisplay(r[key],'m²');for(const key of keys)r.facade[key]=toDisplay(r.facade[key]||0,'m²')}
+ const copy=COPY[L],imperial=getPreferences().units==='imperial';
  const headers=[copy.level,copy.elevation,copy.gross,copy.core,copy.circulation,copy.net,
   ...keys.map(k=>facadeHeader(k,meta,L)),copy.how];
  const gross=pinColumn(rows.map(r=>r.gross),screen.gross,AREA_DP);
@@ -283,6 +288,7 @@ export function quantityTable(state,lang='en'){
   how
  ];
  body.push(totalRow(copy.measured,copy.measuredHow),totalRow(copy.order,copy.orderHow));
+ if(imperial){for(let i=1;i<headers.length-1;i++)headers[i]=headers[i].replace(/m²|ตร\.ม\.|平方米/g,unitLabel('m²')).replace(/\(m\)|\(ม\.\)|\(米\)/g,'('+unitLabel('m')+')');for(const row of body)row[row.length-1]=row[row.length-1].replaceAll('m²','ft²').replaceAll('ตร.ม.','ft²').replaceAll('ตารางเมตร','ft²').replaceAll('平方米','ft²')+' '+({en:'Display: ft and ft², converted from canonical SI geometry; totals balanced after rounding.',th:'แสดง ft และ ft² แปลงจากเรขาคณิต SI และปรับผลรวมหลังปัดเศษ',zh:'显示 ft 和 ft²，由标准 SI 几何换算，舍入后校准合计。'})[L]}
  return {headers,rows:body,keys,screen,labels:{measured:copy.measured,order:copy.order}};
 }
 

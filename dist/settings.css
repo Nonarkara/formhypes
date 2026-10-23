@@ -1,0 +1,16 @@
+.settings-button{white-space:nowrap}
+dialog.display-settings{box-sizing:border-box;width:max-content;max-width:calc(100vw - 24px);padding:18px;color:var(--ink);background:var(--paper)}
+.settings-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:16px}
+.settings-heading h2{margin:0;font-size:22px}
+.settings-heading button{flex:none}
+.settings-fields{display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px 20px}
+.settings-fields label{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;font-size:13px}
+.settings-fields select{max-width:100%;font:inherit;min-height:32px;padding:5px 8px}
+.display-settings p{max-width:32em;margin:12px 0 0;font-size:13px;line-height:1.55;overflow-wrap:anywhere}
+.display-settings .settings-rate{font-size:16px;color:var(--ink)}
+.display-settings .settings-provenance,.display-settings .settings-reset-note{color:var(--muted)}
+.settings-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.display-settings button{padding:6px 10px;min-height:32px;font:inherit}
+.display-settings :is(button,select):focus-visible,.settings-button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.settings-status{color:var(--ink)}
+@media(max-width:480px){dialog.display-settings{padding:15px}.settings-fields{flex-direction:column}.settings-fields select{max-width:calc(100vw - 56px)}}

@@ -1,3 +1,4 @@
+import {quantity,toDisplay,displayText} from '../dist/preferences.js';
 /* The material name contract.
 
    A material is a common noun: a wall made of float glass is float glass in
@@ -66,7 +67,7 @@ test('the material select is built from the string table, in the reader\'s langu
     return nodes.get(id);
   };
   const ctx = {
-    lang: 'th', tt: translator('th'), t, langs,
+    displayText,lang: 'th', tt: translator('th'), t, langs,
     MATERIALS, MATERIAL_KEYS, families, levelPrograms, facadeFamilies, systems, regimes,
     CROWNS, CROWNS_KEYS, GARDENS, GARDENS_KEYS, DETAILS, DETAIL_KEYS,
     cities: {}, state: {...defaults, material: 'float'}, changed() {},
@@ -96,7 +97,7 @@ test('the note under the material is headed by the material, in the reader\'s la
   const source = app.slice(start, end);
   const note = stubEl('p');
   const ctx = {
-    lang: 'th', tt: translator('th'),
+    displayText,lang: 'th', tt: translator('th'),
     state: {material: 'float'},
     mt: {thesis: 'Sears Tower 1929', envelope: 1, carbon: 25, upkeep: 1},
     $: id => (id === 'materialNote' ? note : null),

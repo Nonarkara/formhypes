@@ -1,14 +1,17 @@
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=a03ce5a650';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=b4e8b357f1';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=647ae2932a';
-import {renderAssembly} from './assembly.js?v=40ed428eb2';
-import {renderStructure} from './structure.js?v=d10ac3572a';
-import {mountConsole} from './console.js?v=270c807c48';
+import {alternativesCsv} from './display-exports.js?v=5f86bd78e8';
+import {formatMoney,formatAmount,quantity,unitLabel,toDisplay,fromDisplay,displayText,displaySVG,displayContext,getPreferences,getRateBook} from './preferences.js?v=e134c381e7';
+import {mountSettings} from './settings.js?v=05e259e09f';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=49ccd59492';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=e1bf2f1114';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=592fea7bea';
+import {renderAssembly} from './assembly.js?v=c3d029d5cc';
+import {renderStructure} from './structure.js?v=98107c6294';
+import {mountConsole} from './console.js?v=25666544e3';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=312df9a324';
-import{familyResponse,lattice}from'./explore.js?v=5ad6837495';
-import{t,langs,langMeta,translator}from'./i18n.js?v=ac7f89c16b';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=fe3aa014a2';
+import{familyResponse,lattice}from'./explore.js?v=ae3858a401';
+import{t,langs,langMeta,translator}from'./i18n.js?v=26e6f6be3f';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
@@ -17,30 +20,30 @@ import {cityData,skyline,visibleMassings,ringArea,splitByPlot} from './cityscape
 import {sweptHull,reachSteps,reachLabelled,contactOffset} from './reach.js?v=3742398937';
 import {parseGround} from './site.js?v=7cb1769785';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
-import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=3a8483b5cc';
-import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=2d204c2084';
+import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=d5562bd5d7';
+import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=bb23192477';
 import {coreScene} from './core3d.js?v=702aed5396';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy as getFengPlayStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=ae1fa9db5f';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=76001bf929';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=b454da02db';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=3703a31905';
-import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=03004899d2';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=176ade6fe0';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=b56b40ef74';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=f90bcb124d';
+import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=856b7d5303';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=c2f9a655a4';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
-import {quantityCsv, howMeasured} from './quantity.js?v=f1b8d9227d';
+import {quantityCsv, howMeasured} from './quantity.js?v=c6fa6d04fb';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=cd67617106';
-import {WORKSPACES} from './console.js?v=270c807c48';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=bb003e1555';
+import {WORKSPACES} from './console.js?v=25666544e3';
 const $=id=>document.getElementById(id);
-let lang='en',tt=translator('en'),consoleUI;
-const money=v=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
+let lang='en',tt=translator('en'),consoleUI,settingsUI;
+const money=v=>formatMoney(v,lang);
 const num=v=>Math.round(v).toLocaleString(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US');
 
 let state={...defaults},metrics,alternatives=[],yaw=-.65,zoom=1,wireframe=false,neighbourhood=false,view='orbit',panX=0,panY=0,studies=[],knowledgePack,unknownRegime=null;
@@ -120,7 +123,7 @@ function setLang(l){
  document.title='FormHypes — '+tt('tag.line');
  for(const id of ['reset','save','export'])$(id).setAttribute('aria-label',tt(id));
  if($('exportQty'))$('exportQty').setAttribute('aria-label',tt('d.qtyTitle'));
- buildLangButtons();buildSelectors();buildRanges();sync();
+ buildLangButtons();buildSelectors();buildRanges();sync();settingsUI?.render();
  renderResearch();renderMethod();renderStudies();renderDecisionStudy();
  if(document.body.dataset.tab==='manual')renderAssemblyPage();
  update();
@@ -133,7 +136,7 @@ function setLang(l){
 }
 
 /* ── selects ──────────────────────────────────────────────────────────── */
-function opt(sel,value,label){const o=document.createElement('option');o.value=value;o.textContent=typeof label==='object'?(label[lang]??label.en):label;sel.append(o)}
+function opt(sel,value,label){const o=document.createElement('option');o.value=value;o.textContent=displayText(typeof label==='object'?(label[lang]??label.en):label,lang);sel.append(o)}
 function fillSelect(id,obj,labels,current){
  const sel=$(id);sel.replaceChildren();
  for(const k of Object.keys(obj))opt(sel,k,labels?labels[k]:obj[k].label);
@@ -182,7 +185,7 @@ function buildSelectors(){
  const matL={};for(const k of MATERIAL_KEYS)matL[k]=tri('mat.'+k);
  fillSelect('material',MATERIALS,matL,state.material);
  buildDetailSelect();
- const sysL={};for(const k of Object.keys(systems))sysL[k]=tri('g.system.'+k);
+ const sysL={};for(const k of Object.keys(systems))sysL[k]=Object.fromEntries(langs.map(l=>[l,displayText(t[l]['g.system.'+k],l)]));
  fillSelect('system',systems,sysL,state.system);
  const regL={};for(const k of Object.keys(regimes))regL[k]=tt('regime.'+k+'.label');
  fillSelect('regime',regimes,regL,state.regime);
@@ -206,24 +209,26 @@ function buildSelectors(){
 }
 
 /* ── ranges ───────────────────────────────────────────────────────────── */
-function controlValue(k){return `${Math.round(state[k]*100)/100}${schema[k][4]?' '+schema[k][4]:''}`}
+const controlUnit=k=>['rent','reserve'].includes(k)?'USD/m²':schema[k][4];
+function controlValue(k){const u=controlUnit(k);return `${Math.round(toDisplay(state[k],u)*100)/100}${u?' '+unitLabel(u):''}`}
+
 function buildRanges(){
  for(const[g,keys]of Object.entries(groups)){
   const host=$(g);host.replaceChildren();
   for(const k of keys){
-   const[key,min,max,step]=schema[k];
+   const[key,baseMin,baseMax,baseStep]=schema[k],u=controlUnit(k),min=toDisplay(baseMin,u),max=toDisplay(baseMax,u),step=toDisplay(baseStep,u);
    const label=tt(key);
    const div=document.createElement('div');div.className='control';
-   div.innerHTML=`<div class="controlhead"><label for="${k}">${label}</label><output id="${k}Value" for="${k}">${controlValue(k)}</output></div><input type="range" id="${k}" min="${min}" max="${max}" step="${step}" value="${state[k]}">`;
+   div.innerHTML=`<div class="controlhead"><label for="${k}">${label}</label><output id="${k}Value" for="${k}">${controlValue(k)}</output></div><input type="range" id="${k}" min="${min}" max="${max}" step="${step}" value="${toDisplay(state[k],u)}">`;
    host.append(div);
-   $(k).addEventListener('input',()=>{state[k]=Number($(k).value);if(k==='height')state.program='custom';changed()});
+   $(k).addEventListener('input',()=>{state[k]=fromDisplay(Number($(k).value),u);if(k==='height')state.program='custom';changed()});
   }
  }
 }
 function sync(){
  for(const k of Object.keys(schema)){
-  if(k==='span'){$(k).min=Math.min(schema[k][1],state[k]);$(k).max=Math.max(schema[k][2],state[k])}
-  $(k).value=state[k];$(k+'Value').textContent=controlValue(k);
+  const u=controlUnit(k);$(k).min=toDisplay(k==='span'?Math.min(schema[k][1],state[k]):schema[k][1],u);$(k).max=toDisplay(k==='span'?Math.max(schema[k][2],state[k]):schema[k][2],u);$(k).step=toDisplay(schema[k][3],u);
+  $(k).value=toDisplay(state[k],u);$(k+'Value').textContent=controlValue(k);$(k).setAttribute('aria-valuetext',controlValue(k));
  }
  $('city').value=state.city;$('solarDate').value=state.solarDate;$('solarTime').value=state.solarTime;
  $('family').value=state.family;$('skin').value=state.skin;$('program').value=state.program;
@@ -235,7 +240,7 @@ function sync(){
  // and names the figures it is not allowed to move. Silence would let the
  // reader assume concrete makes the tower quieter or bigger. It does neither.
  const mt=materialOf(state);
- if($('materialNote'))$('materialNote').textContent=tt('mat.reads',{name:tt('mat.'+state.material),t:mt.thesis,e:mt.envelope.toFixed(2),c:mt.carbon,u:mt.upkeep.toFixed(2)});
+ if($('materialNote'))$('materialNote').textContent=displayText(tt('mat.reads',{name:tt('mat.'+state.material),t:mt.thesis,e:mt.envelope.toFixed(2),c:mt.carbon,u:mt.upkeep.toFixed(2)}),lang);
  if($('matStrip')){
   const strip=$('matStrip');
   const existing=new Map([...strip.children].map(b=>[b.dataset.material,b]));
@@ -256,7 +261,7 @@ function sync(){
  const d=detailOf(state),sp=detailSpec(state),basis=DETAIL_BASIS[d.system];
  if($('detail')){$('detail').value=state.detail}
  if($('detailNote'))$('detailNote').textContent=tt('dt.note.'+state.detail);
- if($('detailFigure'))$('detailFigure').innerHTML=detailSVG(d.draw);
+ if($('detailFigure'))$('detailFigure').innerHTML=detailSVG(d.draw,lang);
  if($('detailBasis'))$('detailBasis').textContent=tt('dt.basis',{a:tt('area.'+basis),r:d.standard});
  if($('detailSpec')&&$('detailSpec').replaceChildren){
   const rows=[
@@ -270,7 +275,7 @@ function sync(){
   dl.replaceChildren();
   for(const [k,v,mark]of rows){
    const dt2=document.createElement('dt');dt2.textContent=tt(k);
-   const dd=document.createElement('dd');dd.textContent=v;if(mark)dd.className=mark;
+   const dd=document.createElement('dd');dd.textContent=displayText(v,lang);if(mark)dd.className=mark;
    dl.append(dt2,dd);
   }
  }
@@ -321,43 +326,43 @@ function update(){
  $('contribution').textContent=money(metrics.contribution);
  $('contributionLabel').textContent=metrics.valid?tt('m.contribution'):tt('m.contributionBad');
  $('annualRent').textContent=money(metrics.rent);
- $('grossArea').textContent=num(metrics.gross)+' '+tt('m.perSqM');
- $('rentable').textContent=num(metrics.rentable)+' '+tt('m.perSqM');
+ $('grossArea').textContent=quantity(metrics.gross,'m²',lang,0);
+ $('rentable').textContent=quantity(metrics.rentable,'m²',lang,0);
  $('efficiency').textContent=metrics.efficiency.toFixed(1)+'%';
  $('corners').textContent=num(metrics.corners);
- $('cornerArea').textContent=num(metrics.cornerArea)+' '+tt('m.perSqM');
+ $('cornerArea').textContent=quantity(metrics.cornerArea,'m²',lang,0);
  $('distinct').textContent=(metrics.distinctiveness*100).toFixed(0)+'/100';
- $('clearHeight').textContent=metrics.clearHeight.toFixed(2)+' m';
- $('daylight').textContent=metrics.daylightDepth.toFixed(1)+' m';
+ $('clearHeight').textContent=quantity(metrics.clearHeight,'m',lang,2);
+ $('daylight').textContent=quantity(metrics.daylightDepth,'m',lang,1);
  // Derived quantities. These are computed from geometry, not chosen: the sky
  // reach follows from the CIE overcast angle, the envelope is a surface
  // integral rather than a triangle count, and the frame rate follows the plate's
  // own perimeter-to-area ratio. None of them is an opinion.
- $('skyReach').textContent=metrics.skyReach.toFixed(2)+' m';
+ $('skyReach').textContent=quantity(metrics.skyReach,'m',lang,2);
  $('daylit').textContent=(metrics.daylitFraction*100).toFixed(1)+' %';
- $('facadeArea').textContent=num(metrics.facade)+' '+tt('m.perSqM');
- $('volume').textContent=num(metrics.volume)+' '+tt('m.cubicMetres');
+ $('facadeArea').textContent=quantity(metrics.facade,'m²',lang,0);
+ $('volume').textContent=quantity(metrics.volume,'m³',lang,0);
  $('frameRate').textContent='×'+metrics.structureMultiplier.toFixed(3);
- $('voidLevels').textContent=metrics.voidLevels+' · '+num(metrics.voidArea)+' '+tt('m.perSqM');
- $('headroom').textContent=Math.max(0,metrics.heightHeadroom).toFixed(1)+' m';
- $('yield').textContent=money(metrics.yieldOnCost);
+ $('voidLevels').textContent=metrics.voidLevels+' · '+quantity(metrics.voidArea,'m²',lang,0);
+ $('headroom').textContent=quantity(Math.max(0,metrics.heightHeadroom),'m',lang,1);
+ $('yield').textContent=quantity(metrics.yieldOnCost,'USD/m²',lang,2);
  $('facadeCost').textContent=money(metrics.facadeCost);
  $('structureCost').textContent=money(metrics.structureCost);
  // The capital stock. Deliberately not styled as a second headline: it is paid
  // once and the contribution is a yearly flow, so putting them side by side as
  // equals would invite the reader to add them. The ratio carries a year in it.
  $('capex').textContent=money(metrics.capex);
- $('capexPerM2').textContent=num(metrics.capexPerM2)+' '+tt('m.perSqM');
+ $('capexPerM2').textContent=quantity(metrics.capexPerM2,'USD/m²',lang,0);
  $('capexRatio').textContent=Number.isFinite(metrics.payback)?metrics.payback.toFixed(1)+' '+tt('m.yr'):tt('m.capexRatioNone');
  // The crown and the terrace. Printed separately from the rent lines because
  // neither is rent: one is a structure that costs money and occupies height, the
  // other is area that stopped earning. Only the LED line is income, and it is
  // labelled as advertising where it is shown.
- $('crownHeight').textContent=metrics.crownHeight.toFixed(1)+' m';
- $('towerHeight').textContent=metrics.heightTotal.toFixed(1)+' m';
+ $('crownHeight').textContent=quantity(metrics.crownHeight,'m',lang,1);
+ $('towerHeight').textContent=quantity(metrics.heightTotal,'m',lang,1);
  $('crownReserve').textContent=money(metrics.crownReserve);
  $('crownCapital').textContent=money(metrics.crownCapital);
- $('gardenArea').textContent=num(metrics.gardenArea)+' '+tt('m.perSqM');
+ $('gardenArea').textContent=quantity(metrics.gardenArea,'m²',lang,0);
  $('gardenReserve').textContent=money(metrics.gardenReserve);
  $('ledIncome').textContent=metrics.ledArea>0?money(metrics.ledRent):tt('m.ledOff');
  if($('crownNote'))$('crownNote').textContent=tt('crown.reads.'+state.crown)+(metrics.crownHeight>0?' '+tt('crown.areaBasis',{a:num(metrics.crownPlan)}):'');
@@ -369,7 +374,7 @@ function update(){
  // The header states the building's height, and the building includes its crown.
  // Reading the occupied height here while the allowance is tested on the total
  // would put two different heights under one label.
- $('heightLabel').textContent=metrics.heightTotal.toFixed(1)+' m';
+ $('heightLabel').textContent=quantity(metrics.heightTotal,'m',lang,1);
  // The question the cityscape answers, stated in a number: where this tower
  // ranks against the buildings actually standing around this plot. Not a claim
  // about the world's skylines — only about what OpenStreetMap has mapped inside
@@ -381,7 +386,7 @@ function update(){
   if(sk){
    const vars={where:tt('sun.'+state.city),rank:sk.rank,total:sk.count,
     tall:sk.localMax.toFixed(0),measured:Math.round(sk.measuredFraction*100)};
-   const first=document.createElement('span');first.textContent=tt('v.skyline',vars);
+   const first=document.createElement('span');first.textContent=displayText(tt('v.skyline',vars),lang);
    const cred=document.createElement('span');cred.className='sky-credit';
    cred.textContent=tt('v.skycredit',vars);
    el.replaceChildren(first,cred);
@@ -410,6 +415,7 @@ function update(){
  // subject, so agreement between them is never mistaken for a single verdict.
  $('feasibility').textContent=tt('m.chk.form')+' · '+(metrics.valid?tt('m.feasible'):metrics.reasons.map(r=>tt('m.reason.'+r)).join(' · '));
 
+ document.querySelectorAll('[data-i18n]').forEach(n=>{const key=n.dataset.i18n;if(key==='c.USD')n.textContent=getPreferences().currency;else if(key==='v.units')n.textContent=unitLabel('m');else if(key==='c.rent')n.textContent=tt(key).replace(/m²|ตร\.ม\.|平方米/g,unitLabel('m²'));else if(n.tagName==='DT'||n.tagName==='LABEL')n.textContent=displayText(tt(key),lang)});
  renderPremiums();
  $('floor').max=state.floors;
  $('floor').value=Math.min(Number($('floor').value),state.floors);
@@ -468,14 +474,14 @@ function drawAreaSplit(){
  const sp=splitOf(metrics||{});
  const names={core:tt('as.core'),circulation:tt('as.circ'),net:tt('as.net')};
  host.innerHTML=splitSVG(sp.slices.map(s=>({...s,label:names[s.key]})),
-  {total:sp.gross,legend:sp.legend.map((g,i)=>({...g,label:names[KEYS[i]],value:num(sp.slices[i].value)+' '+tt('m.perSqM')}))});
+  {total:sp.gross,legend:sp.legend.map((g,i)=>({...g,label:names[KEYS[i]],value:quantity(sp.slices[i].value,'m²',lang,0)}))});
  host.setAttribute('aria-label',AREA_SPLIT.aria);
  // Both numbers on the note, not one. The pie's net and the schedule's net are
  // computed from different deductions — 30% circulation against a 12% common
  // allowance — so quoting only the pie's figure invites the reader to treat the
  // schedule's efficiency line as an error.
  if($('areaNote'))$('areaNote').textContent=tt('as.note')+' '+tt('as.total')+' '+
-  num(sp.gross)+' '+tt('m.perSqM')+' · '+num(sp.modelRentable)+' '+tt('m.perSqM')+' '+tt('m.rentable')+'.';
+  quantity(sp.gross,'m²',lang,0)+' · '+quantity(sp.modelRentable,'m²',lang,0)+' '+tt('m.rentable')+'.';
 }
 
 function drawCore(){
@@ -504,7 +510,7 @@ function drawCore(){
  for(const [k,v] of rows){
   const d=document.createElement('div');
   const dt=document.createElement('dt');dt.textContent=tt(k);
-  const dd=document.createElement('dd');dd.textContent=String(v);
+  const dd=document.createElement('dd');dd.textContent=displayText(String(v),lang);
   d.append(dt,dd);f.append(d);
  }
  $('coreSrc').textContent=tt('cx.src')+' '+CORE_SRC.lifts+' · '+CORE_SRC.water+' · '+CORE_SRC.drains+' · '+CORE_SRC.escalators;
@@ -539,7 +545,7 @@ function drawPlan(){
  svg+=`<path d="M${x0.toFixed(1)} ${(yBot+4).toFixed(1)} V${(yd+4).toFixed(1)} M${x1.toFixed(1)} ${(yBot+4).toFixed(1)} V${(yd+4).toFixed(1)}" stroke="#a8aeaa" stroke-width=".5"/>`
      +`<path d="M${x0.toFixed(1)} ${yd.toFixed(1)} H${x1.toFixed(1)}" stroke="#191c1b" stroke-width=".7"/>`
      +`<path d="M${x0.toFixed(1)} ${yd} l7 -2.5 v5 Z M${x1.toFixed(1)} ${yd} l-7 -2.5 v5 Z" fill="#191c1b"/>`
-     +`<text x="${((x0+x1)/2).toFixed(1)}" y="${(yd-5).toFixed(1)}" text-anchor="middle" fill="#191c1b" font-family="IBM Plex Mono,monospace" font-size="10">${(x1-x0).toFixed(1)} m</text>`;
+     +`<text x="${((x0+x1)/2).toFixed(1)}" y="${(yd-5).toFixed(1)}" text-anchor="middle" fill="#191c1b" font-family="IBM Plex Mono,monospace" font-size="10">${quantity((x1-x0)/sc,'m',lang,1)}</text>`;
 
  // graphic scale — graduated in metres, drawn in drawing units so it stays true
  const NICE=[1,2,5,10,20,50,100,200,500,1000];
@@ -549,13 +555,13 @@ function drawPlan(){
  for(let i=0;i<4;i++)bar+=`<rect x="${(bx+i*seg).toFixed(1)}" y="${by}" width="${seg.toFixed(1)}" height="4.5" fill="${i%2?'#191c1b':'none'}" stroke="#191c1b" stroke-width=".6"/>`;
  for(let i=0;i<=4;i++){
   const tx=bx+i*seg,anch=i===0?'start':i===4?'end':'middle';
-  bar+=`<text x="${tx.toFixed(1)}" y="${by+15}" text-anchor="${anch}" fill="#585e5b" font-family="IBM Plex Mono,monospace" font-size="10">${i===4?i*u+' m':i*u}</text>`;
+  bar+=`<text x="${tx.toFixed(1)}" y="${by+15}" text-anchor="${anch}" fill="#585e5b" font-family="IBM Plex Mono,monospace" font-size="10">${i===4?quantity(i*u,'m',lang,0):Math.round(toDisplay(i*u,'m'))}</text>`;
  }
  svg+=bar;
 
  $('plan').innerHTML=svg;
  $('floorValue').textContent=floor;
- $('floorStats').textContent=`${LANGS.plan[lang]} ${floor} · ${num(area(p))} ${tt('m.perSqM')} · ${zones.length} ${tt('m.cornerOffices')}`;
+ $('floorStats').textContent=`${LANGS.plan[lang]} ${floor} · ${quantity(area(p),'m²',lang,0)} · ${zones.length} ${tt('m.cornerOffices')}`;
  drawCore();
  drawAreaSplit();
  drawHuman();
@@ -564,7 +570,7 @@ function drawPlan(){
 $('floor').oninput=()=>{drawPlan();consoleUI?.render()};
 
 /* ── tower ────────────────────────────────────────────────────────────── */
-const canvas=$('tower'),ctx=canvas.getContext('2d');
+const canvas=$('tower'),ctx=displayContext(canvas.getContext('2d'),()=>lang);
 function drawTower(){
  if(!metrics)return;
  const st=stack(state),total=st[st.length-1].z+st[st.length-1].h;
@@ -1765,7 +1771,7 @@ function renderSearch(){
  // missing without anyone noticing.
  const COLS=[
   ['cand',tt('s.col.candidate'),false],
-  ['contribution',tt('s.col.contribution'),true],
+  ['contribution',tt('s.col.contribution')+' · '+getPreferences().currency,true],
   ['delta',tt('s.col.delta'),true],
   ['roof',tt('s.col.roof'),true],
   ['corners',tt('s.col.corners'),true],
@@ -1780,19 +1786,19 @@ function renderSearch(){
   const d=r.metrics.contribution-metrics.contribution;
   const cells=[
    ['cand',`${i+1} / ${tt('fs.'+r.state.family)}`],
-   ['contribution',money(r.metrics.contribution)],
-   ['delta',`${d>=0?'+':''}${money(d)}`],
+   ['contribution',formatAmount(r.metrics.contribution,lang)],
+   ['delta',`${d>=0?'+':''}${formatAmount(d,lang)}`],
    ['roof',`${r.state.taper.toFixed(2)} / ${r.state.twist}°`],
    ['corners',r.metrics.corners],
-   ['height',`${r.metrics.heightTotal.toFixed(0)} m`],
+   ['height',quantity(r.metrics.heightTotal,'m',lang,0)],
    ...(blended?[['score',r.score.toFixed(3)]]:[]),
-   ['gross',num(r.metrics.gross)],
-   ['rentable',num(r.metrics.rentable)],
+   ['gross',Math.round(toDisplay(r.metrics.gross,'m²')).toLocaleString(lang)],
+   ['rentable',Math.round(toDisplay(r.metrics.rentable,'m²')).toLocaleString(lang)],
    ['apply',`<button data-candidate="${i}" data-study-focus="ranked:${r.state.family}">${tt('s.col.apply')} ↗</button>`]];
   html+=`<tr class="${r===best?'win':''}">`
-   +cells.map(([c,v])=>`<td class="c-${c}${(c==='cand'||c==='apply')?'':' numeric'}">${v}</td>`).join('')+'</tr>';
+   +cells.map(([c,v])=>`<td class="c-${c}${(c==='cand'||c==='apply')?'':' numeric'}"${c==='contribution'||c==='delta'?` title="${money(c==='contribution'?r.metrics.contribution:d)}" aria-label="${money(c==='contribution'?r.metrics.contribution:d)}"`:''}>${v}</td>`).join('')+'</tr>';
  });
- html+=`</tbody></table></div><p class="searchsummary">${plan.examined} ${tt('s.tested')} / ${alternatives.length} ${tt('s.feasible')} / ${plan.examined-alternatives.length} ${tt('s.rejected')}. ${tt('s.target')} ${num(plan.target)} m². ${tt('s.best')} “${ranking}”${plan.heightVariants>1?' · 2 '+tt('s.heightVariant'):''} · ${elapsed.toFixed(0)} ms</p>`;
+ html+=`</tbody></table></div><p class="searchsummary">${plan.examined} ${tt('s.tested')} / ${alternatives.length} ${tt('s.feasible')} / ${plan.examined-alternatives.length} ${tt('s.rejected')}. ${tt('s.target')} ${quantity(plan.target,'m²',lang,0)}. ${tt('s.best')} “${ranking}”${plan.heightVariants>1?' · 2 '+tt('s.heightVariant'):''} · ${elapsed.toFixed(0)} ms</p>`;
  if(blended)html+=`<p class="note">${tt('s.normalizedRanking',{o:Math.round((1-regimes[state.regime].heightPull)*100),h:Math.round(regimes[state.regime].heightPull*100)})}</p>`;
  $('searchResults').innerHTML=html;
  document.querySelectorAll('[data-candidate]').forEach(b=>b.onclick=()=>applyCandidate(rows[Number(b.dataset.candidate)]));
@@ -2660,19 +2666,13 @@ function download(name,content,type){
 }
 $('exportObj').onclick=()=>download('formhypes-'+state.family+'.obj',meshOBJ(state),'text/plain');
 $('exportJson').onclick=()=>download('formhypes-study.json',JSON.stringify({
- version:4,study:{name:cleanStudyName($('studyName').value),note:cleanStudyNote($('studyNote').value)},units:{length:'m',area:'m²',currency:'USD',rent:'USD/m²/year',capex:'USD paid once'},tier:'conceptual scenario',
+ version:4,displayPreferences:getPreferences(),exchangeRate:{source:getRateBook().source,date:getRateBook().dates?.[getPreferences().currency]||getRateBook().date,currency:getPreferences().currency,perUSD:getRateBook().rates[getPreferences().currency]},study:{name:cleanStudyName($('studyName').value),note:cleanStudyNote($('studyNote').value)},units:{length:'m',area:'m²',currency:'USD',rent:'USD/m²/year',capex:'USD paid once'},tier:'conceptual scenario',
  author:'Dr Non',affiliation:'depa + Axiom',anniversary:'2006–2026',
  source:'Inspired by Dr Non’s MIT classmate Shouheng Chen. Embedded design knowledge after Shouheng Chen, MIT SMArchS 2006. Financial and political readings are extensions.',
  contextStudies:{environment:getEnvironmentStudy(),ground:getLocationStudy(),fengShui:getFengStudy(state),fengPlay:getFengPlayStudy(),brief:getBriefStudy(state),walk:getWalkStudy()},
  regime:regimes[state.regime].label,state,metrics,howMeasured:howMeasured(metrics,lang),createdAt:new Date().toISOString()},null,2),'application/json');
 $('exportQty').onclick=()=>download('formhypes-quantities.csv',quantityCsv(state,lang),'text/csv');
-$('exportCsv').onclick=()=>download('formhypes-alternatives.csv',[
- 'family,regime,structure,floors,span_m,roof_scale,twist_deg,gross_m2,rentable_m2,corner_offices,height_m,total_height_m,distinctiveness,ranking_score,ranking_method,objective,annual_rent_usd,envelope_reserve_usd,structure_reserve_usd,annual_contribution_usd,capex_usd,capex_per_gross_m2,capital_over_contribution_years',
- ...alternatives.map(r=>[r.state.family,r.state.regime,r.state.system,r.state.floors,r.state.span.toFixed(4),r.state.taper,r.state.twist,
-  r.metrics.gross.toFixed(2),r.metrics.rentable.toFixed(2),r.metrics.corners,r.metrics.height.toFixed(2),r.metrics.heightTotal.toFixed(2),r.metrics.distinctiveness.toFixed(4),r.score,r.ranking?.method??'raw',searchRun.objective,
-  r.metrics.rent.toFixed(2),r.metrics.facadeCost.toFixed(2),r.metrics.structureCost.toFixed(2),r.metrics.contribution.toFixed(2),
-  r.metrics.capex.toFixed(2),r.metrics.capexPerM2.toFixed(2),(Number.isFinite(r.metrics.payback)?r.metrics.payback.toFixed(2):'')].join(','))
-].join('\n'),'text/csv');
+$('exportCsv').onclick=()=>download('formhypes-alternatives.csv',alternativesCsv(alternatives,searchRun.objective),'text/csv');
 
 /* ── tabs ─────────────────────────────────────────────────────────────── */
 // The hash is the tab, so a link to #research is a link to the research and a
@@ -2759,6 +2759,9 @@ consoleUI=mountConsole({getData:()=>({lang,state,metrics,level:Number($('floor')
  // Explore opened on an empty desk: a heading, a select, a button and a blank
  // panel. The search takes about a second, so it runs on arrival instead.
  if($('consoleShell')?.dataset.task==='compare'&&!searchRun&&!searchActive)runSearch()}});
+settingsUI=mountSettings({getLang:()=>lang,onChange:()=>{buildSelectors();buildRanges();update();renderResearch();if(searchRun)renderSearch();renderStudies();settingsUI.render();measureChrome()}});
+const manualButton=$('manualBtn');manualButton.replaceWith(settingsUI.button);document.querySelector('.langs').before(settingsUI.button);$('display-settings').append(manualButton);
+const openManual=manualButton.onclick;manualButton.onclick=()=>{$('display-settings').close();openManual()};
 setLang(lang);
 placeActions();
 matchMedia('(max-width:600px)').addEventListener('change',placeActions);

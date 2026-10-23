@@ -27,9 +27,16 @@
    - Occupant comfort: ISO 10137:2007; ISO 6897; NatHaz (Kareem), 10-year
      return peak acceleration about 10–15 milli-g residential, 20–25 milli-g
      office. Quoted, never computed here. */
-import {profile,stackHeight,families,inside} from './model.js?v=312df9a324';
-import {structureRead,STRUCT_TEXT,STRUCTURE_BANDS} from './structure.js?v=d10ac3572a';
-import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow,cl} from './drafting.js?v=5dc3f3c796';
+import {profile,stackHeight,families,inside} from './model.js?v=fe3aa014a2';
+import {structureRead,STRUCT_TEXT,STRUCTURE_BANDS} from './structure.js?v=98107c6294';
+import {sheet,cut,beyond,leader as draftLeader,head,dim as draftDim,rule,txt as draftTxt,ground,flow,cl} from './drafting.js?v=5dc3f3c796';
+import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay} from './preferences.js?v=e134c381e7';
+let displayLang='en',displayKey='';
+const shown=value=>displayText(value,displayLang);
+const txt=(x,y,text,...args)=>draftTxt(x,y,shown(text),...args);
+const leader=(x,y,tx,ty,text,...args)=>draftLeader(x,y,tx,ty,shown(text),...args);
+const dim=(x,y,tx,ty,text,...args)=>draftDim(x,y,tx,ty,shown(text),...args);
+
 
 export const RHO=1.25;
 // EN 1991-1-4 Table 4.1. Category I is omitted to keep four choices.
@@ -276,6 +283,7 @@ export function windMethodPayload(r){
 }
 
 export function windMethodSVG(p,{lang='en'}={}){
+ displayLang=lang;
  const c=WIND_TEXT[lang]||WIND_TEXT.en;
  if(!p)return sheet('',MW,MH,'');
  const M=c.m,U=c.u;
@@ -418,7 +426,7 @@ const ACC='#f59e0b',INK='#e6edf3',DIM='#a2aca9',DARK='#111416';
 const ctl={vb:30,terrain:'IV',dir:0,zeta:null,tmd:false};
 let ui=null,last=null,raf=0,sim=null;
 
-function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
+function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=(/(?:^|-)src$/.test(cls||'')?text:shown(text));return n}
 const reduced=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function build(host,lang){
@@ -434,14 +442,14 @@ function build(host,lang){
  const status=el('p','wl-status');status.setAttribute('aria-live','polite');
  const ctls=el('div','wl-controls');
  const range=(key,label,min,max,step,unit,note)=>{
-  const w=el('div','wl-field'),id='wl-'+key,lab=el('label','wl-label',label),out=el('output','wl-out');
-  lab.htmlFor=id;const inp=el('input');inp.type='range';inp.id=id;inp.min=min;inp.max=max;inp.step=step;
+  const u=key==='vb'?'m/s':'',w=el('div','wl-field'),id='wl-'+key,lab=el('label','wl-label',label),out=el('output','wl-out');
+  lab.htmlFor=id;const inp=el('input');inp.type='range';inp.id=id;inp.min=toDisplay(min,u);inp.max=toDisplay(max,u);inp.step=toDisplay(step,u);
   const top=el('div','wl-fieldhead');top.append(lab,out);w.append(top,inp);
   let n=null;if(note!=null){n=el('p','wl-hint',note);w.append(n)}
   ctls.append(w);return {inp,out,note:n,unit};
  };
  const vb=range('vb',c.ctl.vb,15,55,1,c.u.ms,c.ctl.vbNote);
- vb.inp.oninput=()=>{ctl.vb=+vb.inp.value;refresh()};
+ vb.inp.oninput=()=>{ctl.vb=fromDisplay(+vb.inp.value,'m/s');refresh()};
  const tw=el('div','wl-field'),tl=el('span','wl-label',c.ctl.terrain),seg=el('div','wl-seg');seg.setAttribute('role','group');seg.setAttribute('aria-label',c.ctl.terrain);
  const terrB=TERRAIN_KEYS.map(k=>{const b=el('button',null,c.terr[k]);b.type='button';b.onclick=()=>{ctl.terrain=k;refresh()};seg.append(b);return [k,b]});
  const th=el('div','wl-fieldhead');th.append(tl);tw.append(th,seg);ctls.append(tw);
@@ -489,28 +497,28 @@ function refresh(geometryChanged){
  const zeta=ctl.zeta??defaultZeta(system);
  let r;try{r=windRead(state,{...ctl,zeta},metrics)}catch{return}
  ui.r=r;
- ui.vb.inp.value=ctl.vb;ui.vb.out.textContent=fmt(ctl.vb)+' '+c.u.ms;
- ui.dir.inp.value=ctl.dir;ui.dir.out.textContent=fmt(ctl.dir)+'°';
- ui.damp.inp.value=(zeta*100).toFixed(1);ui.damp.out.textContent=fmt(zeta*100,1)+'%';
- ui.damp.note.textContent=fill(c.ctl.dampDefault,{mat:c.mat[system],d:fmt(SYSTEM_DELTA[system],2),z:fmt(defaultZeta(system)*100,1)});
+ ui.vb.inp.value=toDisplay(ctl.vb,'m/s');ui.vb.out.textContent=shown(fmt(ctl.vb)+' '+c.u.ms);
+ ui.dir.inp.value=ctl.dir;ui.dir.out.textContent=shown(fmt(ctl.dir)+'°');
+ ui.damp.inp.value=(zeta*100).toFixed(1);ui.damp.out.textContent=shown(fmt(zeta*100,1)+'%');
+ ui.damp.note.textContent=shown(fill(c.ctl.dampDefault,{mat:c.mat[system],d:fmt(SYSTEM_DELTA[system],2),z:fmt(defaultZeta(system)*100,1)}));
  for(const [k,b]of ui.terrB)b.setAttribute('aria-pressed',String(ctl.terrain===k));
- ui.tmdB.setAttribute('aria-pressed',String(ctl.tmd));ui.tmdB.textContent=ctl.tmd?c.ctl.tmdOn:c.ctl.tmdOff;
+ ui.tmdB.setAttribute('aria-pressed',String(ctl.tmd));ui.tmdB.textContent=shown(ctl.tmd?c.ctl.tmdOn:c.ctl.tmdOff);
  const R=ui.rows;
- R.vTop.textContent=fmt(r.vTop,1)+' '+c.u.ms;
- R.qTop.textContent=fmt(r.qTop/1000,2)+' '+c.u.kpa;
- R.shear.textContent=fmt(r.shear,1)+' '+c.u.mn;
- R.moment.textContent=fmt(r.moment)+' '+c.u.mnm;
- R.ratio.textContent=fmt(r.ratio,2)+' · '+fmt(r.fs,3)+' / '+fmt(r.n1,3)+' '+c.u.hz;
- R.vcrit.textContent=fmt(r.vCrit,1)+' '+c.u.ms+' · v_m(z_e) '+fmt(r.vE,1)+' '+c.u.ms+(r.stTabulated?'':' · St '+c.basis.interpolated);
- R.sc.textContent=fmt(r.sc,1)+' · '+c.sc[r.scBand];R.sc.title=fill(c.scNote,{m:fmt(SYSTEM_MASS[system],1)});
- R.damping.textContent='ζ '+fmt(r.zeta*100,1)+'% · δ '+fmt(r.delta,3)+(r.tmd?' · TMD':'');
+ R.vTop.textContent=shown(fmt(r.vTop,1)+' '+c.u.ms);
+ R.qTop.textContent=shown(fmt(r.qTop/1000,2)+' '+c.u.kpa);
+ R.shear.textContent=shown(fmt(r.shear,1)+' '+c.u.mn);
+ R.moment.textContent=shown(fmt(r.moment)+' '+c.u.mnm);
+ R.ratio.textContent=shown(fmt(r.ratio,2)+' · '+fmt(r.fs,3)+' / '+fmt(r.n1,3)+' '+c.u.hz);
+ R.vcrit.textContent=shown(fmt(r.vCrit,1)+' '+c.u.ms+' · v_m(z_e) '+fmt(r.vE,1)+' '+c.u.ms+(r.stTabulated?'':' · St '+c.basis.interpolated));
+ R.sc.textContent=shown(fmt(r.sc,1)+' · '+c.sc[r.scBand]);R.sc.title=fill(c.scNote,{m:fmt(SYSTEM_MASS[system],1)});
+ R.damping.textContent=shown('ζ '+fmt(r.zeta*100,1)+'% · δ '+fmt(r.delta,3)+(r.tmd?' · TMD':''));
  const sv=(STRUCT_TEXT[ui.lang]||STRUCT_TEXT.en).verdict[r.band];
- R.lambda.textContent='1:'+fmt(r.lambda,1)+' · '+sv;
- R.cf.textContent=fmt(r.cfE,2)+' · '+c.basis[r.cfBasis];
- ui.verdict.textContent=fill(c.verdict[r.state],{v:fmt(r.vCrit,1)});
+ R.lambda.textContent=shown('1:'+fmt(r.lambda,1)+' · '+sv);
+ R.cf.textContent=shown(fmt(r.cfE,2)+' · '+c.basis[r.cfBasis]);
+ ui.verdict.textContent=shown(fill(c.verdict[r.state],{v:fmt(r.vCrit,1)}));
  ui.verdict.classList.toggle('wl-flag',r.state!=='clear');
  const st=fill(c.status[r.state],{v:fmt(r.vCrit,1)});
- ui.status.textContent=st;ui.status.classList.toggle('wl-flag',r.state!=='clear');
+ ui.status.textContent=shown(st);ui.status.classList.toggle('wl-flag',r.state!=='clear');
  ui.planC.setAttribute('aria-label',fill(c.plan,{z:fmt(r.ze)})+'. '+st);
  ui.elevC.setAttribute('aria-label',fill(c.elev,{l:fmt(r.lambda,1)}));
  // comparison
@@ -587,7 +595,7 @@ function spawn(g,anywhere){
  return {x,y,px:x,py:y};
 }
 
-function ctx2d(cv){const x=cv.getContext&&cv.getContext('2d');if(!x)return null;x.setTransform(cv._dpr||1,0,0,cv._dpr||1,0,0);return x}
+function ctx2d(cv){const x=cv.getContext&&displayContext(cv.getContext('2d'),displayLang);if(!x)return null;x.setTransform(cv._dpr||1,0,0,cv._dpr||1,0,0);return x}
 
 function drawPlan(g,sec,fade){
  const x=ctx2d(ui.planC);if(!x)return;const r=sim.r,c=ui.c,lock=r.state==='lockin';
@@ -674,6 +682,8 @@ export function renderWindLab({host,state,metrics,lang='en',active=false,changed
  if(!active){stop();return}
  if(typeof document==='undefined')return;
  try{
+  displayLang=lang;const preferenceKey=JSON.stringify([getPreferences(),getRateBook()]);
+  if(displayKey!==preferenceKey){if(ui)ui.lang=null;displayKey=preferenceKey}
   if(!ui||ui.host!==host||ui.lang!==lang||!host.contains(ui.planC)){stop();sim=null;build(host,lang)}
   refresh();
   if(reduced()){stop();drawStatic()}

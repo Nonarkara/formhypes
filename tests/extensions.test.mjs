@@ -1,3 +1,4 @@
+import {alternativesCsv} from '../dist/display-exports.js';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -438,7 +439,9 @@ test('the capital figure is published with its exclusions, in every language',()
  const app=dist('app.js');
  assert.match(app,/Number\.isFinite\(metrics\.payback\)\?metrics\.payback\.toFixed\(1\)/,'an unrepayable tower must not print Infinity');
  assert.match(app,/capex:'USD paid once'/,'the study export must declare the capital unit');
- assert.match(app,/capex_usd,capex_per_gross_m2/,'the comparison CSV omits the capital column');
+ const metrics=evaluate(defaults),csv=alternativesCsv([{state:defaults,metrics,score:0}], 'contribution').split('\n'),headers=csv[0].split(','),values=csv[1].split(',');
+ assert.equal(Number(values[headers.indexOf('capex_usd')]),Number(metrics.capex.toFixed(2)),'the comparison CSV omits or corrupts capital');
+ assert.equal(Number(values[headers.indexOf('capex_usd_per_gross_m2')]),Number(metrics.capexPerM2.toFixed(2)),'capital intensity must be declared per gross area');
 });
 
 /* ── the crown and the terraces ────────────────────────────────────────────

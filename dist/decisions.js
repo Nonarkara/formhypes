@@ -1,7 +1,9 @@
+let displayLang='en';
+import {displayText,displaySVG,toDisplay,unitLabel,getPreferences} from './preferences.js?v=e134c381e7';
 // A comparison preserves the person’s reference; it does not choose a winner.
-import {evaluate,massingRings,defaults} from './model.js?v=312df9a324';
-import {normalizeBriefInputs} from './brief.js?v=b454da02db';
-import {validateEnvironment} from './environment.js?v=647ae2932a';
+import {evaluate,massingRings,defaults} from './model.js?v=fe3aa014a2';
+import {normalizeBriefInputs} from './brief.js?v=b56b40ef74';
+import {validateEnvironment} from './environment.js?v=592fea7bea';
 export const cleanStudyName=value=>typeof value==='string'?value.replace(/\s+/g,' ').trim().slice(0,80):'';
 export const cleanStudyNote=value=>typeof value==='string'?value.trim().slice(0,1200):'';
 export function parseStudyPackage(text,validState){
@@ -28,16 +30,17 @@ export const DECISION_I18N={
 Object.assign(DECISION_I18N.en,{checks:'Conceptual form checks',scenarios:'Changed scenario assumptions',fieldRegime:'Regime',fieldCity:'City',fieldLed:'LED income',yes:'on',no:'off'});
 Object.assign(DECISION_I18N.th,{checks:'ตรวจรูปทรงเชิงแนวคิด',scenarios:'สมมติฐานสถานการณ์ที่เปลี่ยน',fieldRegime:'กรอบการตัดสิน',fieldCity:'เมือง',fieldLed:'รายได้ LED',yes:'เปิด',no:'ปิด'});
 Object.assign(DECISION_I18N.zh,{checks:'概念形态检查',scenarios:'已修改的情景假设',fieldRegime:'决策框架',fieldCity:'城市',fieldLed:'LED收入',yes:'开',no:'关'});
-const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n};
+const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=['blockquote','span'].includes(tag)?String(text):displayText(String(text),displayLang);return n};
 export function renderDecision({host,lang,reference,current,label,inputLabel,checkStatus}){
+ displayLang=lang;
  const c=DECISION_I18N[lang];host.replaceChildren();host.append(el('h2',c.title));if(!reference){host.append(el('p',c.intro),el('p',c.empty));return}
- const data=compareStudies(reference,current),fig=el('figure');fig.className='decision-figure';fig.innerHTML=comparisonSVG(reference.state,current.state);fig.firstElementChild.setAttribute('aria-label',c.before+' / '+c.after);const cap=el('figcaption');cap.append(el('span',c.before+' · '+(reference.name||label(reference.state))),el('span',c.after+' · '+(current.name||label(current.state))));fig.append(cap);host.append(fig);
+ const data=compareStudies(reference,current),fig=el('figure');fig.className='decision-figure';fig.innerHTML=displaySVG(comparisonSVG(reference.state,current.state),lang);fig.firstElementChild.setAttribute('aria-label',c.before+' / '+c.after);const cap=el('figcaption');cap.append(el('span',c.before+' · '+(reference.name||label(reference.state))),el('span',c.after+' · '+(current.name||label(current.state))));fig.append(cap);host.append(fig);
  const checks=el('p',c.checks+' · '+c.before+': '+checkStatus(data.before)+' / '+c.after+': '+checkStatus(data.after));checks.className='decision-checks';host.append(checks);
  if(data.scenarioChanges.length){const changes=el('p',c.scenarios+' · '+data.scenarioChanges.map(r=>inputLabel(r.key,r.before)+' → '+inputLabel(r.key,r.after)).join(' · '));host.append(changes)}
  host.append(el('p',data.sameArea?c.sameArea:c.differentArea));if(!data.sameCity)host.append(el('p',c.differentCity));
  const table=el('table'),head=el('thead'),row=el('tr');for(const name of ['',c.before,c.after,c.delta]){const th=el('th',name);th.scope='col';row.append(th)}head.append(row);table.append(head);const body=el('tbody');
- const fmt=(key,value)=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{maximumFractionDigits:['daylitFraction','efficiency','heightTotal'].includes(key)?1:0}).format(value*(key==='daylitFraction'?100:1));
- for(const r of data.rows){const tr=el('tr'),th=el('th',c[r.key]);th.scope='row';tr.append(th);for(const value of [r.before,r.after])tr.append(el('td',fmt(r.key,value)));const delta=el('td',(r.delta>1e-7?'+':'')+fmt(r.key,r.delta));if(Math.abs(r.delta)>1e-7)delta.className='decision-changed';tr.append(delta);body.append(tr)}table.append(body);const wrap=el('div');wrap.className='decision-table';wrap.tabIndex=0;wrap.setAttribute('role','region');wrap.setAttribute('aria-label',c.title);wrap.append(table);host.append(wrap,el('p',c.basis),el('h3',c.people),el('p',c.peopleText));
+ const fmt=(key,value)=>new Intl.NumberFormat(lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US',{maximumFractionDigits:['daylitFraction','efficiency','heightTotal'].includes(key)?1:0}).format(['contribution','capex'].includes(key)?toDisplay(value,'USD'):['gross','rentable','facade'].includes(key)?toDisplay(value,'m²'):key==='heightTotal'?toDisplay(value,'m'):value*(key==='daylitFraction'?100:1));
+ for(const r of data.rows){const units={gross:'m²',rentable:'m²',heightTotal:'m',facade:'m²',contribution:'USD',capex:'USD'},name=units[r.key]&&getPreferences().units==='imperial'||units[r.key]==='USD'&&getPreferences().currency!=='USD'?c[r.key].replace(/ · [^·]+$/,' · '+unitLabel(units[r.key])):c[r.key];const tr=el('tr'),th=el('th',name);th.scope='row';tr.append(th);for(const value of [r.before,r.after])tr.append(el('td',fmt(r.key,value)));const delta=el('td',(r.delta>1e-7?'+':'')+fmt(r.key,r.delta));if(Math.abs(r.delta)>1e-7)delta.className='decision-changed';tr.append(delta);body.append(tr)}table.append(body);const wrap=el('div');wrap.className='decision-table';wrap.tabIndex=0;wrap.setAttribute('role','region');wrap.setAttribute('aria-label',c.title);wrap.append(table);host.append(wrap,el('p',c.basis),el('h3',c.people),el('p',c.peopleText));
  if(reference.note){const q=el('blockquote',reference.note);host.append(q)}
 }
 export function comparisonSVG(a,b){

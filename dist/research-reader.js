@@ -1,6 +1,7 @@
+import {toDisplay,displayText} from './preferences.js?v=e134c381e7';
 import {TRACKS,RESEARCH_UI,RESEARCH_SOURCES,THESIS_EXCERPTS,HISTORY_PHOTO,PROTOCOL_FILES} from './research-tracks.js?v=8ce74a85fc';
 import {renderReader as renderEarlierReader} from './reader.js?v=d9836cd301';
-import {defaults,evaluate,grossOf,profile,families,regimes} from './model.js?v=312df9a324';
+import {defaults,evaluate,grossOf,profile,families,regimes} from './model.js?v=fe3aa014a2';
 const N=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
 let selected=0,pages=[0,0,0],initialised=false;
 export function readingSelection(search=''){
@@ -147,7 +148,7 @@ function atlas(lang){
  });fig.append(grid,N('p',c.atlasNote,'note'));return fig;
 }
 function comparisonPlot(rows,lang){
- const c=RESEARCH_UI[lang],fig=N('figure',undefined,'research-tradeoff'),x=rows.map(r=>r.metrics.facade),y=rows.map(r=>r.metrics.contribution);
+ const c=RESEARCH_UI[lang],fig=N('figure',undefined,'research-tradeoff'),x=rows.map(r=>toDisplay(r.metrics.facade,'m²')),y=rows.map(r=>toDisplay(r.metrics.contribution,'USD'));
  const loX=Math.min(...x),hiX=Math.max(...x),loY=Math.min(...y),hiY=Math.max(...y),dx=hiX-loX||Math.max(1,Math.abs(loX)*.1),dy=hiY-loY||Math.max(1,Math.abs(loY)*.1),sx=v=>80+560*(v-loX)/dx,sy=v=>210-170*(v-loY)/dy;
  let d=`<path d="M80 40V210H640" ${F} stroke-width="1.5"/>`;
  const compact=v=>new Intl.NumberFormat(lang,{notation:'compact',maximumFractionDigits:1}).format(v);
@@ -156,7 +157,7 @@ function comparisonPlot(rows,lang){
  }
  rows.forEach((r,i)=>{const px=sx(x[i]),py=sy(y[i]);d+=`<path d="M${px} 210V${py}H80" ${F} stroke-width=".7" stroke-dasharray="4 4" opacity=".5"/>`+circle(px,py,i+1)});
  const wrap=N('div');wrap.innerHTML=`<svg viewBox="0 0 720 260" aria-hidden="true">${d}</svg>`;
- fig.append(N('figcaption',c.plotTitle),N('p',`↑ ${c.plotY} · → ${c.plotX}`,'note'),wrap);
+ fig.append(N('figcaption',c.plotTitle),N('p',displayText(`↑ ${c.plotY} · → ${c.plotX}`,lang),'note'),wrap);
  const legend=N('ol');rows.forEach((r,i)=>legend.append(N('li',c.shapes[i])));fig.append(legend);return fig;
 }
 export function renderReader(lang,options={}){
@@ -191,8 +192,8 @@ export function renderReader(lang,options={}){
  if(track.id==='system'&&page.id==='architecture')article.append(atlas(lang));
  if(page.comparison){
   article.append(N('h3',c.comparison),N('p',c.comparisonNote));const fmt=n=>new Intl.NumberFormat(lang,{maximumFractionDigits:1}).format(n);
-  const results=researchComparison(options.state||defaults),rows=results.map((r,i)=>[c.shapes[i],fmt(r.metrics.gross),fmt(r.metrics.cornerArea/Math.max(1,r.metrics.rentable)*100),fmt(r.metrics.facade),fmt(r.metrics.contribution),r.metrics.valid?c.yes:c.no]);
-  article.append(comparisonPlot(results,lang),table({head:[c.family,c.gross,c.corner,c.skin,c.contribution,c.feasible],rows},c.comparison),N('p',c.comparisonFoot,'note'));
+  const results=researchComparison(options.state||defaults),rows=results.map((r,i)=>[c.shapes[i],fmt(toDisplay(r.metrics.gross,'m²')),fmt(r.metrics.cornerArea/Math.max(1,r.metrics.rentable)*100),fmt(toDisplay(r.metrics.facade,'m²')),fmt(toDisplay(r.metrics.contribution,'USD')),r.metrics.valid?c.yes:c.no]);
+  article.append(comparisonPlot(results,lang),table({head:[c.family,c.gross,c.corner,c.skin,c.contribution,c.feasible].map(label=>displayText(label,lang)),rows},c.comparison),N('p',c.comparisonFoot,'note'));
  }
  if(page.artifacts){sourceIds.add('chen');page.artifacts.forEach(a=>article.append(artifact(a,lang)))}
  if(page.action&&options.onNavigate){const b=N('button',`${page.action.label} →`, 'research-try');b.type='button';b.onclick=()=>options.onNavigate(page.action.desk);article.append(b)}

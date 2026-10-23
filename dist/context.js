@@ -1,9 +1,11 @@
+let displayLang='en';
+import {displayText,displaySVG,toDisplay} from './preferences.js?v=e134c381e7';
 // Context desk — put the model on a real plot and count what its shadow does.
 // The five replaced buildings and their published figures are real and are
 // quoted as given. Every neighbouring block below is contextual massing composed
 // for this study: not surveyed, every height indicative. Both facts are printed
 // on screen, not merely held here.
-import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=312df9a324';
+import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=fe3aa014a2';
 import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposure} from './solar.js?v=9279efc6dc';
 import {lensOf,lensSVG,lensFormula,LENS_KEY,LIFE_YEARS} from './lens.js?v=2949cf8b98';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
@@ -12,7 +14,7 @@ import {parseGround,parseCity,plotCandidates,plotFacts,plateOnPlot,landscapeSVG,
 // The lens strings live in the shared translation file, not in this desk's own
 // dictionary: they are the same words the reader has already met in the rail,
 // and a second copy is a second thing to drift.
-import {t as I18N} from './i18n.js?v=ac7f89c16b';
+import {t as I18N} from './i18n.js?v=26e6f6be3f';
 
 // Empire Tower 58F / 227 m / 1999, floor plate ≈3,000 m² and a 2.60 m Grade A
 // clear-height benchmark for Bangkok; Dayabumi Complex 35F / 157 m / 1984;
@@ -128,14 +130,15 @@ export function shade(s,sun,ns){
  const out={H,rows,daylight,longest};if(CACHE.size>16)CACHE.delete(CACHE.keys().next().value);CACHE.set(key,out);return out;
 }
 
-const el=(t,x)=>{const n=document.createElement(t);if(x!==undefined)n.textContent=x;return n};
+const el=(t,x)=>{const n=document.createElement(t);if(x!==undefined)n.textContent=displayText(String(x),displayLang);return n};
 const txt=(s,...v)=>{let o=s;v.forEach((x,i)=>{o=o.split('{'+i+'}').join(x)});return o};
 const num=(v,d=1)=>Number.isFinite(v)?v.toFixed(d):'—';
 const wrap=cls=>{const n=el('div');n.className=cls;return n};
-const svg=(label,body,vb)=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox',vb);s.setAttribute('role','img');s.setAttribute('aria-label',label);s.innerHTML=body;return s};
+const svg=(label,body,vb)=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox',vb);s.setAttribute('role','img');s.setAttribute('aria-label',displayText(label,displayLang));s.innerHTML=displaySVG(body,displayLang);return s};
 const nice=v=>{const p=Math.pow(10,Math.floor(Math.log10(Math.max(1,v))));return [1,2,5,10].map(k=>k*p).find(k=>k<=v)||p};
 
 export function renderContext({lang,state,changed}){
+ displayLang=lang;
  const c=CONTEXT_I18N[lang]||CONTEXT_I18N.en;
  const host=document.getElementById('contextDesk');
  if(!host)return;
@@ -219,13 +222,13 @@ function lensBand({key,lang,state,storey,H}){
  box.append(head);
  const body=wrap('lx-body');
  const fig=wrap('lx-fig');
- fig.innerHTML=lensSVG(L,{years:c['lx.years'],bench:c['lx.bench'],let:c['lx.let'],overflow:c['lx.overflow'],storey:c['lx.storey'],settle:c['lx.settle'],model:c['lx.model'],ground:c['lx.ground'],aria:c['lx.title']+' · '+c['sun.'+key]});
+ fig.innerHTML=displaySVG(lensSVG(L,{years:c['lx.years'],bench:c['lx.bench'],let:c['lx.let'],overflow:c['lx.overflow'],storey:c['lx.storey'],settle:c['lx.settle'],model:c['lx.model'],ground:c['lx.ground'],aria:c['lx.title']+' · '+c['sun.'+key]}),lang);
  body.append(fig);
  const side=wrap('lx-side');
  const fx=lensFormula(L);
  if(fx){
   const f=wrap('lx-fx');
-  f.append(el('code',fx.expr),el('span',c['lx.'+fx.gloss]));
+  const expression=el('code');expression.textContent=fx.expr;expression.setAttribute('aria-label',fx.expr+' (SI)');f.append(expression,el('span',c['lx.'+fx.gloss]));
   side.append(f);
  }
  const dl=el('dl');dl.className='lx-rows';
@@ -391,7 +394,7 @@ function skyCard({c,site,name,ns,H,M}){
   const w=Math.max(2,sx(value)-L);
   body+=`<rect class="${model?'cx-bar-model':'cx-bar-nb'}" x="${L}" y="${y-11}" width="${w.toFixed(1)}" height="13"/>`;
   body+=`<text class="cx-t-d" x="${L-6}" y="${y}" text-anchor="end">${label} ${Math.round(value)} ${M}</text>`;
-  body+=`<text class="${model?'cx-t-a':'cx-t'}" x="${(L+w+5).toFixed(1)}" y="${y}">${Math.round(value)}</text>`;
+  body+=`<text class="${model?'cx-t-a':'cx-t'}" x="${(L+w+5).toFixed(1)}" y="${y}">${Math.round(toDisplay(value,'m'))}</text>`;
   y+=21;
  }
  const fig=wrap('cx-fig');
@@ -444,6 +447,7 @@ let siteLot=0;                                    // chosen lot index, per city
 let siteCity=null;
 
 export function renderSite({lang,state,changed}){
+ displayLang=lang;
  const c=I18N[lang]||I18N.en;
  const host=document.getElementById('siteDesk');
  if(!host)return;
@@ -485,16 +489,16 @@ export function renderSite({lang,state,changed}){
  const figCol=wrap('st-figcol');
  const fig=wrap('st-fig');
  const scene=makeScene({radius:ground.meta.radius,towerH});
- fig.innerHTML=landscapeSVG({ground,city:survey,plot,tower:facts.seated.pts,towerH,scene,
-  labels:{aria:c['st.title']+' · '+ground.meta.label}});
+ fig.innerHTML=displaySVG(landscapeSVG({ground,city:survey,plot,tower:facts.seated.pts,towerH,scene,
+  labels:{aria:c['st.title']+' · '+ground.meta.label}}),lang);
  figCol.append(fig);
 
  // The sky section, drawn from the same 72 bearings the percentage above was
  // computed from — so the shape and the number cannot disagree.
  const sky=wrap('st-sky');
  const skyFig=wrap('st-fig');
- skyFig.innerHTML=skyViewSVG({skyline:facts.skyline,svf:facts.svf,
-  labels:{title:c['st.skyTitle'],value:`${num(facts.svf*100,0)}%`,aria:c['st.skyTitle']}});
+ skyFig.innerHTML=displaySVG(skyViewSVG({skyline:facts.skyline,svf:facts.svf,
+  labels:{title:c['st.skyTitle'],value:`${num(facts.svf*100,0)}%`,aria:c['st.skyTitle']}}),lang);
  sky.append(skyFig,el('p',c['st.skyNote']));
  figCol.append(sky);
  body.append(figCol);

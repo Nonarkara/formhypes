@@ -1,3 +1,4 @@
+import {quantity,toDisplay,displayText,formatAmount,getPreferences} from '../dist/preferences.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -70,7 +71,7 @@ test('the published summary names the captured rule, including City competition'
  const source=app.slice(app.indexOf('function renderSearch(){'),app.indexOf('// The table ranks'));
  const host={innerHTML:''},record={state:{family:'box',taper:1,twist:0},metrics:{contribution:10,gross:100,rentable:75,corners:4,height:200,heightTotal:200}};
  for(const inert of [false,true]){
-  const ctx={regimes,searchRun:{plan:{examined:1,target:100,heightVariants:1},objective:'facade',elapsed:5},state:{regime:inert?'competition':'yield'},
+  const ctx={formatAmount,getPreferences,quantity,toDisplay,lang:'en',regimes,searchRun:{plan:{examined:1,target:100,heightVariants:1},objective:'facade',elapsed:5},state:{regime:inert?'competition':'yield'},
    alternatives:[record],metrics:{contribution:8},$:id=>{assert.equal(id,'searchResults','summary must not read the current selector');return host},
    document:{querySelectorAll:()=>[]},studyFocus:()=>null,restoreStudyFocus(){},objectiveInert:()=>inert,tt:k=>k,num:String,money:String,drawStudy(){},toast(){}};
   runInNewContext(source+'\nrenderSearch();',ctx);

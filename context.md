@@ -431,3 +431,8 @@ Three holes in the new guard were found by mutation, and all three were holes in
 - Verified:573 tests; original3 false-green probes killed independently. Live Thai table at390/1024/1440: pinned Apply in view, no page-wide overflow; keyboard scroll reveals complete driver values; Apply transfers the row's US$23,013,485 to the form desk. Independent code and screenshot review found no blocker.
 - Remaining: phone drivers scroll and candidate names wrap; explicit stamper lists retained; no book/licensing changes. Evidence: docs/RELEASE-GUARD-AUDIT-2026-10-23.md.
 - Shared lesson captured first: Scars/Debug-Logs/2026-10-23-release-graph-checks-must-parse-imports-and-inspect-nested-shipped-modules.md.
+
+## 2026-10-23 · Global display preferences
+
+Approved: one saved Settings entry for metric/imperial and currency, independent of language/studies. Model geometry and finance remain SI/USD; display controls convert both directions. Canonical JSON/OBJ retain SI/USD/metres; JSON records preferences/rate metadata separately. CSVs follow selected units/currency. Frankfurter dated offline snapshot plus explicit validated refresh; failed refresh retains prior rates. No temperature selector without temperature readings.
+Evidence: 593 tests, 40 baseline-proven mutations; real Settings EN/TH/ZH and 390/1024/1440, all workspaces imperial/THB, reload persistence, successful rate refresh, downloaded canonical JSON. Independent review closed live Research conversion, Chinese adjacent-unit parsing and status-contrast gaps. Detailed review: docs/DISPLAY-PREFERENCES-REVIEW-2026-10-23.md. Shared lesson captured before this record.

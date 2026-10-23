@@ -145,10 +145,10 @@ body.is-console .form-atlas svg{height:22px;width:22px;margin:0}
     the FAR limit. A warning that moves the drawing under the reader's hand while
     they drag a slider is worse than no warning. Nothing in the header may now
     change its height on a phone. */
- body.is-console header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:44px 20px;height:64px;min-height:64px;padding:0 4px;gap:0 4px}
+ body.is-console header{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;grid-template-rows:44px 20px;height:64px;min-height:64px;padding:0 4px;gap:0 4px}
  body.is-console header>.brand{grid-column:1;grid-row:1}
  body.is-console header>.tabs{grid-column:2;grid-row:1;justify-content:center}
- body.is-console header>.langs{grid-column:3;grid-row:1}
+ body.is-console header>.langs{grid-column:4;grid-row:1}
  /* Names carry these two destinations on a phone; the full tool drawings stay below. */
  body.is-console header .tabs .ic{display:none}
  body.is-console .console-site{grid-column:1 / -1;grid-row:2;padding-top:0}
@@ -265,3 +265,5 @@ body.is-console [hidden]{display:none!important}
 body[data-tab="research"] header .actions{display:none}
 /* The façade sheet is 564 units shown ~425 px wide: 14 units reads at ~10.5 px. */
 #facadeDesk svg{font-size:14px}
+
+@media(max-width:600px){body.is-console header>.settings-button{grid-column:3;grid-row:1;min-height:32px;padding:3px 4px;font-size:11px}}

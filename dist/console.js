@@ -1,13 +1,14 @@
+import {toDisplay,fromDisplay,unitLabel,displayText} from './preferences.js?v=e134c381e7';
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
-import {profile,stack,grossOf} from './model.js?v=312df9a324';
-import {renderCarbonLab} from './carbon.js?v=e972d0ef99';
-import {renderLiftsLab} from './lifts.js?v=7f1507365c';
-import {renderFireLab} from './fire.js?v=89efd581a1';
-import {renderWindLab} from './wind.js?v=7bf5094d26';
-import {renderWaterLab} from './water.js?v=da59e03574';
-import {renderGlareLab} from './glare.js?v=d30e32d29f';
-import {renderFacade} from './facade.js?v=78417ea15d';
+import {profile,stack,grossOf} from './model.js?v=fe3aa014a2';
+import {renderCarbonLab} from './carbon.js?v=c88bba7ceb';
+import {renderLiftsLab} from './lifts.js?v=8f0f98a7bf';
+import {renderFireLab} from './fire.js?v=ba434b4d62';
+import {renderWindLab} from './wind.js?v=0a78730262';
+import {renderWaterLab} from './water.js?v=6c8e8caaa3';
+import {renderGlareLab} from './glare.js?v=f916929bbf';
+import {renderFacade} from './facade.js?v=925ce3e43a';
 export const CONSOLE_TEXT={
  en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Lifts','Evacuation','Wind','Water','Glare','Carbon','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
  th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',capacityShort:'พื้นที่ / ที่ให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','ลิฟต์','อพยพหนีไฟ','อุโมงค์ลม','ระบบน้ำ','แสงสะท้อน','คาร์บอน','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
@@ -113,8 +114,8 @@ export function mountConsole({getData,getBrief,setBrief,onStudyChange,onLevel,on
  $('formAtlas').open=true;$('formAtlas').classList.add('console-atlas');
  const controls=shell.querySelector('.controls');controls.insertBefore($('formAtlas'),controls.firstElementChild.nextSibling);
  const buttons=WORKSPACES.map((k,i)=>{const b=node('button');b.type='button';b.id='console-tab-'+k;b.setAttribute('role','tab');b.setAttribute('aria-controls','consoleShell');b.onclick=()=>show(k);b.onkeydown=e=>{let n;if(e.key==='ArrowRight')n=(i+1)%WORKSPACES.length;if(e.key==='ArrowLeft')n=(i+WORKSPACES.length-1)%WORKSPACES.length;if(e.key==='Home')n=0;if(e.key==='End')n=WORKSPACES.length-1;if(n!==undefined){e.preventDefault();show(WORKSPACES[n]);buttons[n].focus()}};nav.append(b);return b});
- function syncSite(){const {lang}=getData(),c=CONSOLE_TEXT[lang],inputs=getBrief().inputs;land.name.textContent=c.land;far.name.textContent=c.far;cityName.textContent=c.city;const ledger=siteLedger(getData().state,inputs),fmt=n=>Math.round(n).toLocaleString(lang);capacity.textContent=fmt(ledger.gross)+' / '+fmt(ledger.allowance)+' m²';capacity.setAttribute('aria-label',c.capacity+': '+capacity.textContent);capacity.title=c.capacity;capacity.dataset.short=c.capacityShort||'';capacity.classList.toggle('console-flag',ledger.remaining<0);note.textContent=ledger.fits?c.assumption:c.crosses;note.title=note.textContent;note.classList.toggle('console-flag',!ledger.fits);if(credit)credit.title=credit.textContent;for(const [f,v]of [[land.input,inputs.plot],[far.input,inputs.far]])if(document.activeElement!==f)f.value=String(v)}
- for(const [input,key]of [[land.input,'plot'],[far.input,'far']])input.onchange=()=>{if(!input.checkValidity()||!Number.isFinite(input.valueAsNumber)){input.reportValidity();input.value=String(getBrief().inputs[key]);return}if(setBrief({[key]:input.valueAsNumber}))onStudyChange();syncSite()};
+ function syncSite(){const {lang}=getData(),c=CONSOLE_TEXT[lang],inputs=getBrief().inputs;land.name.textContent=displayText(c.land,lang);land.input.min=toDisplay(1,'m²');land.input.max=toDisplay(1000000,'m²');far.name.textContent=c.far;cityName.textContent=c.city;const ledger=siteLedger(getData().state,inputs),fmt=n=>Math.round(n).toLocaleString(lang);capacity.textContent=fmt(toDisplay(ledger.gross,'m²'))+' / '+fmt(toDisplay(ledger.allowance,'m²'))+' '+unitLabel('m²');capacity.setAttribute('aria-label',c.capacity+': '+capacity.textContent);capacity.title=c.capacity;capacity.dataset.short=c.capacityShort||'';capacity.classList.toggle('console-flag',ledger.remaining<0);note.textContent=ledger.fits?c.assumption:c.crosses;note.title=note.textContent;note.classList.toggle('console-flag',!ledger.fits);if(credit)credit.title=credit.textContent;for(const [f,v]of [[land.input,inputs.plot],[far.input,inputs.far]])if(document.activeElement!==f)f.value=String(f===land.input?Math.round(toDisplay(v,'m²')*10)/10:v)}
+ for(const [input,key]of [[land.input,'plot'],[far.input,'far']])input.onchange=()=>{if(!input.checkValidity()||!Number.isFinite(input.valueAsNumber)){input.reportValidity();input.value=String(key==='plot'?toDisplay(getBrief().inputs[key],'m²'):getBrief().inputs[key]);return}if(setBrief({[key]:key==='plot'?fromDisplay(input.valueAsNumber,'m²'):input.valueAsNumber}))onStudyChange();syncSite()};
  function render(){
   if(typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches&&selected==='form')rail=0;
   const {lang,state,level}=getData(),c=CONSOLE_TEXT[lang];syncSite();nav.setAttribute('aria-label',c.tools);

@@ -1,3 +1,5 @@
+let displayLang='en';
+import {displayText,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=e134c381e7';
 // FormHypes — front-of-house brief desk
 // The conversation that happens before any geometry exists: what the client
 // asked for, what the plot will carry, and what has to be given up.
@@ -7,7 +9,7 @@
 // hold a parameter Chen specifies, this panel says so on screen rather than
 // approximating it quietly.
 
-import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=312df9a324';
+import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=fe3aa014a2';
 
 export const BRIEF_I18N={
 en:{
@@ -219,7 +221,7 @@ const TYPE_STATUS={branch:'ty.approx',setback:'ty.approx',faceted:'ty.none',skin
 
 
 
-const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
+const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=displayText(String(text),displayLang);if(cls)n.className=cls;return n};
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 
 /** Three schemes, three genuinely different pieces of arithmetic — not three
@@ -266,6 +268,7 @@ function massingSVG(state){
 
 let briefTab=0;
 export function renderBrief({lang,state,changed,onInputs}){
+ displayLang=lang;
  const c=BRIEF_I18N[lang]||BRIEF_I18N.en;
  const host=document.getElementById('briefDesk');if(!host)return;
  if(!desk.seeded){
@@ -294,9 +297,11 @@ export function renderBrief({lang,state,changed,onInputs}){
  const ledger=(label,value,cls)=>{const tr=el('tr');const th=el('th',label);th.scope='row';tr.append(th,el('td',value,cls));return tr};
  const fields=(parent)=>{const f=el('div',undefined,'br-fields');parent.append(f);return f};
  const number=(parent,id,label,min,step,value,on)=>{
-  const i=el('input');i.type='number';i.id=id;i.min=String(min);i.step=String(step);i.value=value;const maxima={'br-gfa':1e7,'br-plot':1e6,'br-far':100,'br-plate':20000,'br-cap':1000,'br-floors':70};if(maxima[id])i.max=String(maxima[id]);
-  i.onchange=()=>{if(!Number.isFinite(i.valueAsNumber)||!i.checkValidity()||i.valueAsNumber<min){i.reportValidity();return}on(i.valueAsNumber);if(id!=='br-floors')again()};
-  const l=el('label',label);l.htmlFor=id;parent.append(l,i);return i};
+  const unit=({'br-gfa':'m²','br-plot':'m²','br-plate':'m²','br-cap':'m'})[id];
+  const cv=v=>unit?toDisplay(v,unit):v;
+  const i=el('input');i.type='number';i.id=id;i.min=String(cv(min));i.step=step==='any'?'any':String(cv(step));i.value=cv(value);const maxima={'br-gfa':1e7,'br-plot':1e6,'br-far':100,'br-plate':20000,'br-cap':1000,'br-floors':70};if(maxima[id])i.max=String(cv(maxima[id]));
+  i.onchange=()=>{if(!Number.isFinite(i.valueAsNumber)||!i.checkValidity()||i.valueAsNumber<cv(min)){i.reportValidity();return}on(unit?fromDisplay(i.valueAsNumber,unit):i.valueAsNumber);if(id!=='br-floors')again()};
+  const l=el('label',label+(unit?' · '+unitLabel(unit):''));l.htmlFor=id;parent.append(l,i);return i};
  const slider=(parent,id,label,min,max,step,value,on)=>{
   const i=el('input');i.type='range';i.id=id;i.min=String(min);i.max=String(max);i.step=String(step);i.value=value;const maxima={'br-gfa':1e7,'br-plot':1e6,'br-far':100,'br-plate':20000,'br-cap':1000,'br-floors':70};if(maxima[id])i.max=String(maxima[id]);
   const l=el('label',label);l.htmlFor=id;

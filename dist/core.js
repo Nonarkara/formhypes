@@ -1,3 +1,8 @@
+import {displayText,quantity,getPreferences} from './preferences.js?v=e134c381e7';
+let drawingLang='en';
+const txt=(x,y,text,...rest)=>rawTxt(x,y,displayText(text,drawingLang),...rest);
+const leader=(x,y,tx,ty,text,...rest)=>rawLeader(x,y,tx,ty,displayText(text,drawingLang),...rest);
+const dim=(x1,y1,x2,y2,text,...rest)=>rawDim(x1,y1,x2,y2,displayText(text,drawingLang),...rest);
 /* ── the core, in section, with its services running ───────────────────────
    A plan shows where the core is. A section shows what it does, and the answer
    is that almost everything in it moves: cars up and down, clean water up,
@@ -46,7 +51,7 @@
    the size of the core. See escalatorDesign(). */
 
 import {podiumReach,escRun} from './core3d.js?v=702aed5396';
-import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow} from './drafting.js?v=5dc3f3c796';
+import {sheet,cut,beyond,leader as rawLeader,head,dim as rawDim,rule,txt as rawTxt,ground,flow} from './drafting.js?v=5dc3f3c796';
 
 export const CORE_METHOD={
  // CIBSE Guide D, restated in ISO 8100-32:2020 Table 2 — office up-peak
@@ -249,7 +254,7 @@ const f2=v=>(+v).toFixed(2);
    walls at a different thickness from the model would be a drawing of a
    different building. */
 const WALL=0.30;
-export function coreSVG(s,core,{floor=1,lang='en'}={}){
+export function coreSVG(s,core,{floor=1,lang='en'}={}){drawingLang=lang;
  const L=SEC[lang]||SEC.en;
  const rise=core.services.rise||s.floors*s.height;
  const k=(VB.base-VB.top)/rise;                 // drawing units per metre

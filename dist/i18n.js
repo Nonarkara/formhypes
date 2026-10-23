@@ -347,7 +347,7 @@ const en={
  'meth.contrib':'annual rent + crown income − façade area × envelope reserve × façade factor × regime discipline − gross area × structure base × column-density multiplier − crown plan × crown upkeep − garden area × garden upkeep − detail area × (re-qualification + maintenance access)',
  'meth.limits':'Contribution excludes operating costs, financing, tax and capital recovery beyond those two reserves. It is neither NOI nor a valuation. All inputs are illustrative and in USD.',
  'd.exportTitle':'Take the study with you.',
- 'd.exportSub':'Metres, explicit assumptions, editable geometry.',
+ 'd.exportSub':'Explicit assumptions, editable geometry.',
  'd.exportNote':'OBJ contains the conceptual outer shell, not an interior BIM model. JSON preserves the rules and metrics. CSV exports the current candidate search.',
  'd.exportCredit':'What leaves this page is computed here, from the design knowledge embedded in Shouheng Chen\u2019s 2006 MIT thesis. That thesis is his. This instrument and everything it calculates are Nonarkara\u2019s, twenty years later.',
  'd.obj':'Download massing (.obj)',
@@ -854,7 +854,7 @@ const th={
  'meth.contrib':'รายได้ค่าเช่ารวมต่อปี + รายได้เชิงญาย − พื้นที่เปลือกอาคาร × เงินสำรองเปลือกอาคาร × ตัวคูณเปลือกอาคาร × วินัยด้านเปลือกตามบริบท − พื้นที่รวม × ฐานโครงสร้าง × ตัวคูณความหนาแน่นเสา − พื้นที่เชิงญาย × ค่าบำรุงเชิงญาย − พื้นที่สวนลอยฟ้า × ค่าบำรุงสวนลอยฟ้า − พื้นที่รายละเอียด × (การทดสอบซ้ำ + ช่องทางเข้าถึงบำรุง)',
  'meth.limits':'ตัวเลขนี้ไม่รวมค่าดำเนินงาน ดอกเบี้ย ภาษี และการคืนทุนนอกเหนือจากเงินสำรองสองรายการข้างต้น ไม่ใช่ NOI และไม่ใช่การประเมินมูลค่า ข้อมูลนำเข้าทั้งหมดเป็นสมมติฐานเพื่ออธิบาย หน่วยเป็น USD',
  'd.exportTitle':'เอางานศึกษานี้ไปด้วย',
- 'd.exportSub':'หน่วยเมตร สมมติฐานเปิดเผย เรขาคติแก้ไขได้',
+ 'd.exportSub':'สมมติฐานเปิดเผย เรขาคณิตแก้ไขได้',
  'd.exportNote':'OBJ คือเปลือกนอกเชิงแนวคิด ไม่ใช่ BIM ภายใน. JSON เก็บกฎและตัวเลขไว้ CSV คือผลการค้นหาปัจจุบัน',
  'd.exportCredit':'สิ่งที่ออกจากหน้านี้ถูกคำนวณที่นี่ จากความรู้เชิงการออกแบบที่ฝังอยู่ในวิทยานิพนธ์ MIT ปี 2006 ของเฉินโช่เฮง วิทยานิพนธ์นั้นเป็นของเฉิน เครื่องมือนี้และทุกอย่างที่มันคำนวณเป็นของ Nonarkara ยี่สิบปีต่อมา',
  'd.obj':'ดาวน์โหลดมวลสักขณะ (.obj)',
@@ -1360,7 +1360,7 @@ const zh={
  'meth.contrib':'年度租金 + 塔冠收入 − 立面面积 × 围护储备 × 立面系数 × 情境约束 − 总建筑面积 × 结构基准 × 柱网密度系数 − 塔冠面积 × 塔冠维护 − 空中花园面积 × 花园维护 − 节点面积 ×（复检 + 维护通道）',
  'meth.limits':'该数值不含运营成本、融资、税费及上述两项储备之外的资本回收。它既不是 NOI，也不是估值。所有输入均为示意，单位为美元。',
  'd.exportTitle':'把这份研究带走。',
- 'd.exportSub':'米制，假设公开，几何可改。',
+ 'd.exportSub':'假设公开，几何可改。',
  'd.exportNote':'OBJ 只含概念外壳，不是内部 BIM。JSON 保留规则与指标。CSV 导出本次搜索结果。',
  'd.exportCredit':'离开本页的一切都在此计算，来源是陈守衡 2006 年 MIT 论文中内嵌的设计知识。那篇论文属于他本人。本工具及其全部计算结果属于 Nonarkara，二十年后。',
  'd.obj':'下载体量 (.obj)',
@@ -1699,15 +1699,15 @@ Object.assign(t.zh,{"v.neighbourhood":"周边街区","v.plan":"平面图","v.cor
 Object.assign(t.en,{
  'd.qty':'QTY',
  'd.qtyTitle':'Per-level area and façade schedule',
- 'd.exportNote':'OBJ contains the conceptual outer shell, not an interior BIM model. JSON preserves the rules and metrics, and states how each figure was measured. CSV exports the current candidate search. QTY is the per-level area and façade schedule.'
+ 'd.exportNote':'OBJ contains the conceptual outer shell, not an interior BIM model. JSON preserves the rules and metrics, and states how each figure was measured. CSV exports the current candidate search. QTY is the per-level area and façade schedule. OBJ uses metres; JSON retains SI units and USD. CSV and QTY follow your display settings.'
 });
 Object.assign(t.th,{
  'd.qty':'ปริมาณ',
  'd.qtyTitle':'ตารางพื้นที่และเปลือกรายชั้น',
- 'd.exportNote':'OBJ คือเปลือกนอกเชิงแนวคิด ไม่ใช่ BIM ภายใน. JSON เก็บกฎและตัวเลข และบอกวิธีวัดแต่ละค่า CSV คือผลการค้นหาปัจจุบัน QTY คือตารางพื้นที่และเปลือกรายชั้น'
+ 'd.exportNote':'OBJ คือเปลือกนอกเชิงแนวคิด ไม่ใช่ BIM ภายใน. JSON เก็บกฎและตัวเลข และบอกวิธีวัดแต่ละค่า CSV คือผลการค้นหาปัจจุบัน QTY คือตารางพื้นที่และเปลือกรายชั้น OBJ ใช้เมตร ส่วน JSON คงหน่วย SI และ USD ไว้ CSV และ QTY ใช้หน่วยและสกุลเงินตามการตั้งค่าของคุณ'
 });
 Object.assign(t.zh,{
  'd.qty':'工程量',
  'd.qtyTitle':'分层面积与立面工程量',
- 'd.exportNote':'OBJ 只含概念外壳，不是内部 BIM。JSON 保留规则与指标，并写明每项如何测量。CSV 导出本次搜索结果。QTY 是分层面积与立面工程量。'
+ 'd.exportNote':'OBJ 只含概念外壳，不是内部 BIM。JSON 保留规则与指标，并写明每项如何测量。CSV 导出本次搜索结果。QTY 是分层面积与立面工程量。OBJ 使用米；JSON 保留 SI 单位和美元。CSV 与 QTY 遵循您的显示设置。'
 });

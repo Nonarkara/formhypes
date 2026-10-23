@@ -42,7 +42,7 @@ const stamp = (src, refs, ids) => refs.reduce(
     `${ref}?v=${ids[ref.replace(/^\.\//, '')]}`),
   src);
 
-const SHARED = ['console.css','desks.css','wind.css','water.css','glare.css','lifts.css','fire.css','carbon.css','assembly.css','modulor.js','model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'vendor/SUNCALC-LICENSE.txt', 'i18n.js', 'reach.js', 'drafting.js', 'style.css', 'play.js', 'location.js',
+const SHARED = ['settings.css','exchange-rates.js','preferences.js','settings.js','display-exports.js','console.css','desks.css','wind.css','water.css','glare.css','lifts.css','fire.css','carbon.css','assembly.css','modulor.js','model.js', 'geometry.js', 'solar.js', 'vendor/suncalc.js', 'vendor/SUNCALC-LICENSE.txt', 'i18n.js', 'reach.js', 'drafting.js', 'style.css', 'play.js', 'location.js',
   'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt',
   // The crown, material and detail libraries, and the harvested cityscape. These
   // three arrived carrying literal pins (?v=crown1), which meant their bytes
@@ -69,14 +69,18 @@ const MEDIA = ['research/artifacts/ags-anchorage-2436.png','research/media/offic
   'research/artifacts/chen-fig40.png', 'research/artifacts/chen-fig49.png',
   'research/protocol-en.txt','research/protocol-th.txt','research/protocol-zh.txt'];
 const DESKS=['structure.js','facade.js','brief.js','walk.js','context.js','explore.js','feng.js','wind.js','water.js','glare.js','lifts.js','fire.js','carbon.js'];
-const IN_APP = ['./assembly.js','./structure.js','./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./core3d.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./feng.js','./context.js','./explore.js','./site.js','./ground.data.js','./reach.js','./drafting.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', './quantity.js', 'knowledge/designon-knowledge.json'];
-const IN_HTML = ['console.css','desks.css','wind.css','water.css','glare.css','lifts.css','fire.css','carbon.css','assembly.css','style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
+const IN_APP = ['./preferences.js','./settings.js','./display-exports.js','./assembly.js','./structure.js','./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./core3d.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./feng.js','./context.js','./explore.js','./site.js','./ground.data.js','./reach.js','./drafting.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', './quantity.js', 'knowledge/designon-knowledge.json'];
+const IN_HTML = ['settings.css','console.css','desks.css','wind.css','water.css','glare.css','lifts.css','fire.css','carbon.css','assembly.css','style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 
 for(const lang of ['en','th','zh'])await write(`research/protocol-${lang}.txt`,researchProtocol(lang));
 const ids = {};
 // Hash raw bytes: a UTF-8 decode of a PNG/JPG collapses invalid runs to U+FFFD,
 // so some image edits would keep the same stamp.
 for (const f of [...SHARED, ...MEDIA]) ids[f] = sha(await readFile(join(DIST, f)));
+
+const prefs=stamp(await read('preferences.js'),['./exchange-rates.js'],ids);await write('preferences.js',prefs);ids['preferences.js']=sha(prefs);
+const settings=stamp(await read('settings.js'),['./preferences.js'],ids);await write('settings.js',settings);ids['settings.js']=sha(settings);
+const displayExports=stamp(await read('display-exports.js'),['./preferences.js'],ids);await write('display-exports.js',displayExports);ids['display-exports.js']=sha(displayExports);
 
 const solar = stamp(await read('solar.js'), ['./vendor/suncalc.js'], ids);
 await write('solar.js', solar);ids['solar.js']=sha(solar);
@@ -99,20 +103,20 @@ await write('cityscape.js', cityscape);ids['cityscape.js']=sha(cityscape);
 // rot the moment either file is edited.
 const c3 = stamp(await read('core3d.js'), [], ids);
 await write('core3d.js', c3); ids['core3d.js'] = sha(c3);
-const coreSrc = stamp(await read('core.js'), ['./core3d.js','./drafting.js'], ids);
+const coreSrc = stamp(await read('core.js'), ['./preferences.js','./core3d.js','./drafting.js'], ids);
 await write('core.js', coreSrc); ids['core.js'] = sha(coreSrc);
-const det = stamp(await read('details.js'), ['./drafting.js'], ids);
+const det = stamp(await read('details.js'), ['./preferences.js','./drafting.js'], ids);
 await write('details.js', det);ids['details.js']=sha(det);
 const model = stamp(await read('model.js'), ['./geometry.js','./schema.js','./solar.js','./crowns.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js'], ids);
 await write('model.js', model);ids['model.js']=sha(model);
 const manual = stamp(await read('manual.js'), ['./schema.js','./manual-text.js','./model.js'], ids);
 await write('manual.js', manual);ids['manual.js']=sha(manual);
 
-for(const f of DESKS){const src=stamp(await read(f), ['./structure.js','./wind.js','./core.js','./drafting.js','./modulor.js','./model.js','./solar.js','./geometry.js','./lens.js','./site.js','./ground.data.js','./cityscape.data.js','./cityscape.js','./i18n.js',...MEDIA], ids);await write(f,src);ids[f]=sha(src)}
+for(const f of DESKS){const src=stamp(await read(f), ['./preferences.js','./structure.js','./wind.js','./core.js','./drafting.js','./modulor.js','./model.js','./solar.js','./geometry.js','./lens.js','./site.js','./ground.data.js','./cityscape.data.js','./cityscape.js','./i18n.js',...MEDIA], ids);await write(f,src);ids[f]=sha(src)}
 
-for(const f of ['environment.js','environment-desk.js','decisions.js']){const src=stamp(await read(f),['./model.js','./brief.js','./cityscape.js','./solar.js','./context.js','./environment.js'],ids);await write(f,src);ids[f]=sha(src)}
+for(const f of ['environment.js','environment-desk.js','decisions.js']){const src=stamp(await read(f),['./preferences.js','./model.js','./brief.js','./cityscape.js','./solar.js','./context.js','./environment.js'],ids);await write(f,src);ids[f]=sha(src)}
 
-const consoleSrc=stamp(await read('console.js'), ['./facade.js','./model.js','./wind.js','./water.js','./glare.js','./lifts.js','./fire.js','./carbon.js'],ids);
+const consoleSrc=stamp(await read('console.js'), ['./preferences.js','./facade.js','./model.js','./wind.js','./water.js','./glare.js','./lifts.js','./fire.js','./carbon.js'],ids);
 await write('console.js',consoleSrc);ids['console.js']=sha(consoleSrc);
 // The landing imports the model and the console's marks, so it is stamped after both.
 const asm=stamp(await read('assembly.js'),['./model.js','./console.js'],ids);await write('assembly.js',asm);ids['assembly.js']=sha(asm);
@@ -128,7 +132,7 @@ await write('reader.js', reader);ids['reader.js']=sha(reader);
 
 const tracks=stamp(await read('research-tracks.js'), ['./reader-content.js',...MEDIA], ids);
 await write('research-tracks.js',tracks);ids['research-tracks.js']=sha(tracks);
-const guided=stamp(await read('research-reader.js'), ['./research-tracks.js','./reader.js','./model.js'], ids);
+const guided=stamp(await read('research-reader.js'), ['./preferences.js','./research-tracks.js','./reader.js','./model.js'], ids);
 await write('research-reader.js',guided);ids['research-reader.js']=sha(guided);
 
 // quantity.js reads the model after the model stamp has settled, then app.js
@@ -136,7 +140,7 @@ await write('research-reader.js',guided);ids['research-reader.js']=sha(guided);
 // for the material names, so that edge is pinned too: a schedule whose header
 // names a cladding differently from the studio is a schedule that disagrees
 // with the page it was taken from.
-const quantity = stamp(await read('quantity.js'), ['./model.js','./geometry.js','./areasplit.js','./materials.js','./i18n.js'], ids);
+const quantity = stamp(await read('quantity.js'), ['./preferences.js','./model.js','./geometry.js','./areasplit.js','./materials.js','./i18n.js'], ids);
 await write('quantity.js', quantity);
 ids['quantity.js'] = sha(quantity);
 

@@ -57,9 +57,16 @@
    mean stair descent of mobility-impaired people without aids ≈ 0.33 m/s.
    They are modelled waiting for their floor's queue to clear, then descending
    at their own speed; with lifts in use they take the lifts first. */
-import {stack,profile,area,evaluate} from './model.js?v=312df9a324';
-import {liftDesign,CORE_METHOD} from './core.js?v=2d204c2084';
-import {sheet,cut,beyond,leader,head,dim,rule,txt,ground,flow,brkV} from './drafting.js?v=5dc3f3c796';
+import {stack,profile,area,evaluate} from './model.js?v=fe3aa014a2';
+import {liftDesign,CORE_METHOD} from './core.js?v=bb23192477';
+import {sheet,cut,beyond,leader as draftLeader,head,dim as draftDim,rule,txt as draftTxt,ground,flow,brkV} from './drafting.js?v=5dc3f3c796';
+import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=e134c381e7';
+let displayLang='en',displayKey='';
+const shown=value=>displayText(value,displayLang);
+const txt=(x,y,text,...args)=>draftTxt(x,y,shown(text),...args);
+const leader=(x,y,tx,ty,text,...args)=>draftLeader(x,y,tx,ty,shown(text),...args);
+const dim=(x,y,tx,ty,text,...args)=>draftDim(x,y,tx,ty,shown(text),...args);
+
 
 /* ── SFPE constants ─────────────────────────────────────────────────────── */
 export const A_SFPE=0.266;
@@ -420,7 +427,7 @@ const ctl={...FIRE_DEFAULTS};
 let ui=null,last=null,raf=0,anim=null,chartTimer=0,chartCache={key:'',rows:null};
 const NICE=[5,10,15,20,30,45,60,90,120,180,240,300,600];
 
-function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
+function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=(/(?:^|-)src$/.test(cls||'')?text:shown(text));return n}
 const reduced=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 const loc=lang=>lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US';
 function fmt(v,d=0){return Number.isFinite(v)?v.toLocaleString(loc(ui?ui.lang:'en'),{minimumFractionDigits:d,maximumFractionDigits:d}):'—'}
@@ -442,16 +449,17 @@ function build(host,lang){
  const lede=el('p','fe-prose',c.lede);
  const ctls=el('div','fe-controls');
  const field=(id,label)=>{const w=el('div','fe-field'),top=el('div','fe-fieldhead'),lab=el('label','fe-label',label),out=el('output','fe-out');lab.htmlFor=id;out.htmlFor=id;top.append(lab,out);w.append(top);ctls.append(w);return {w,out,lab}};
- const range=(key,label,min,max,step,note)=>{const id='fe-'+key,f=field(id,label),inp=el('input');inp.type='range';inp.id=id;inp.min=min;inp.max=max;inp.step=step;f.w.append(inp);let n=null;if(note!=null){n=el('p','fe-hint',note);f.w.append(n)}return {...f,inp,note:n}};
+ const range=(key,label,min,max,step,note)=>{const u=({apP:'m²/person',width:'m',prmSpeed:'m/s'})[key]||'',id='fe-'+key,f=field(id,label),inp=el('input');inp.type='range';inp.id=id;inp.min=toDisplay(min,u);inp.max=toDisplay(max,u);inp.step=toDisplay(step,u);f.w.append(inp);let n=null;if(note!=null){n=el('p','fe-hint',note);f.w.append(n)}return {...f,inp,note:n}};
  const seg=(key,label,opts,names,note)=>{const id='fe-'+key,f=field(id,label),g=el('div','fe-seg');g.id=id;g.setAttribute('role','group');g.setAttribute('aria-label',label);f.lab.htmlFor='';f.lab.id=id+'-l';
   const bs=opts.map((v,i)=>{const b=el('button',null,names[i]);b.type='button';b.onclick=()=>{ctl[key]=v;refresh(true)};g.append(b);return [v,b]});f.w.append(g);let n=null;if(note!=null){n=el('p','fe-hint',note);f.w.append(n)}return {...f,bs,note:n}};
  const load=range('apP',c.ctl.load,4,20,0.5,c.ctl.loadNote);
- load.inp.oninput=()=>{ctl.apP=+load.inp.value;refresh(true)};
+ load.note.textContent=c.ctl.loadNote;
+ load.inp.oninput=()=>{ctl.apP=fromDisplay(+load.inp.value,'m²/person');refresh(true)};
  const liftB=el('button','fe-toggle',c.ctl.loadLift);liftB.type='button';liftB.onclick=()=>{ctl.apP=CORE_METHOD.areaPerPerson;refresh(true)};load.w.append(liftB);
  const stairs=seg('stairs',c.ctl.stairs,[2,3,4],['2','3','4']);
  const width=range('width',c.ctl.width,0.9,2.4,0.05,'');
- width.inp.oninput=()=>{ctl.width=+width.inp.value;refresh(true)};
- const tread=seg('tread',c.ctl.tread,TREAD_KEYS,TREAD_KEYS.map(k=>STAIR_TYPES[k].riser+'/'+STAIR_TYPES[k].tread),'');
+ width.inp.oninput=()=>{ctl.width=fromDisplay(+width.inp.value,'m');refresh(true)};
+ const tread=seg('tread',c.ctl.tread,TREAD_KEYS,TREAD_KEYS.map(k=>getPreferences().units==='metric'?STAIR_TYPES[k].riser+'/'+STAIR_TYPES[k].tread:shown(STAIR_TYPES[k].riser+'/'+STAIR_TYPES[k].tread+' mm')),'');
  const strat=seg('strategy',c.ctl.strategy,STRATEGIES,STRATEGIES.map(k=>c.strat[k]),'');
  const lift=range('liftShare',c.ctl.liftShare,0,60,5,'');
  lift.inp.oninput=()=>{ctl.liftShare=+lift.inp.value/100;refresh(true)};
@@ -463,7 +471,7 @@ function build(host,lang){
  const prm=range('prmShare',c.ctl.prm,0,10,0.5,null);
  prm.inp.oninput=()=>{ctl.prmShare=+prm.inp.value/100;refresh(true)};
  const prmV=range('prmSpeed',c.ctl.prmSpeed,0.15,0.7,0.01,c.ctl.prmNote);
- prmV.inp.oninput=()=>{ctl.prmSpeed=+prmV.inp.value;refresh(true)};
+ prmV.inp.oninput=()=>{ctl.prmSpeed=fromDisplay(+prmV.inp.value,'m/s');refresh(true)};
  const verdict=el('p','fe-verdict');
  const dl=el('dl','fe-facts'),rows={};
  for(const k of ['pop','total','pauls','bound','phased','phasedAll','safety','queue','flow','refuge','lifts','prm']){const d=el('div'),dd=el('dd');d.append(el('dt',null,c.k[k]),dd);dl.append(d);rows[k]=dd}
@@ -484,7 +492,7 @@ function size(){
  if(!ui)return;const dpr=Math.min(3,globalThis.devicePixelRatio||1);
  for(const cv of [ui.hero,ui.chart]){const w=Math.max(1,Math.round(cv.clientWidth)),h=Math.max(1,Math.round(cv.clientHeight));if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}cv._w=w;cv._h=h;cv._dpr=dpr}
 }
-function ctx2d(cv){const x=cv.getContext&&cv.getContext('2d');if(!x)return null;x.setTransform(cv._dpr||1,0,0,cv._dpr||1,0,0);return x}
+function ctx2d(cv){const x=cv.getContext&&displayContext(cv.getContext('2d'),displayLang);if(!x)return null;x.setTransform(cv._dpr||1,0,0,cv._dpr||1,0,0);return x}
 
 const fingerprint=(state,metrics)=>{try{const st=stack(state);return st.length+':'+st[st.length-1].z.toFixed(2)+':'+Math.round(metrics?.rentable||0)+':'+Math.round(metrics?.gross||0)+':'+state.family+':'+state.span+':'+state.taper+':'+state.program}catch{return 'x'}};
 
@@ -498,45 +506,45 @@ function refresh(force){
  const T=(sec)=>fmtTime(sec,u);
  ui.occ=r.levels.filter(l=>l.i>0&&l.occ).map(l=>l.i);
  // controls
- ui.load.inp.value=r.c.apP;ui.load.out.textContent=fmt(r.c.apP,1)+' '+u.m2p;
- for(const [v,b]of ui.stairs.bs)b.setAttribute('aria-pressed',String(r.c.stairs===v));ui.stairs.out.textContent=String(r.c.stairs);
- ui.width.inp.value=r.c.width;ui.width.out.textContent=fmt(r.c.width,2)+' '+u.m;
- ui.width.note.textContent=fill(c.ctl.widthNote,{we:fmt(r.We,2)});
+ ui.load.inp.value=toDisplay(r.c.apP,'m²/person');ui.load.out.textContent=shown(fmt(r.c.apP,1)+' '+u.m2p);
+ for(const [v,b]of ui.stairs.bs)b.setAttribute('aria-pressed',String(r.c.stairs===v));ui.stairs.out.textContent=shown(String(r.c.stairs));
+ ui.width.inp.value=toDisplay(r.c.width,'m');ui.width.out.textContent=shown(fmt(r.c.width,2)+' '+u.m);
+ ui.width.note.textContent=shown(fill(c.ctl.widthNote,{we:fmt(r.We,2)}));
  for(const [v,b]of ui.tread.bs)b.setAttribute('aria-pressed',String(r.c.tread===v));
- ui.tread.out.textContent=r.riser+'/'+r.treadMM+' '+u.mm;
- ui.tread.note.textContent=fill(c.ctl.treadNote,{k:fmt(r.k,2),f:fmt(r.fsMax,2),c:fmt(r.conv,2)});
+ ui.tread.out.textContent=shown(r.riser+'/'+r.treadMM+' '+u.mm);
+ ui.tread.note.textContent=shown(fill(c.ctl.treadNote,{k:fmt(r.k,2),f:fmt(r.fsMax,2),c:fmt(r.conv,2)}));
  for(const [v,b]of ui.strat.bs)b.setAttribute('aria-pressed',String(r.c.strategy===v));
- ui.strat.out.textContent=c.strat[r.c.strategy];ui.strat.note.textContent=c.stratNote[r.c.strategy];
+ ui.strat.out.textContent=shown(c.strat[r.c.strategy]);ui.strat.note.textContent=shown(c.stratNote[r.c.strategy]);
  const ld=(()=>{try{return liftDesign(state,metrics?.rentable??0)}catch{return {zones:1,carsPerZone:1,carSpeed:CORE_METHOD.carSpeed}}})();
  ui.lift.inp.value=Math.round(r.c.liftShare*100);ui.lift.inp.disabled=r.c.strategy!=='lifts';
- ui.lift.out.textContent=r.c.strategy==='lifts'?fmt(r.c.liftShare*100)+u.pct:c.val.off;
- ui.lift.note.textContent=fill(c.ctl.liftNote,{z:fmt(ld.zones),c:fmt(ld.carsPerZone),v:fmt(ld.carSpeed,1)});
+ ui.lift.out.textContent=shown(r.c.strategy==='lifts'?fmt(r.c.liftShare*100)+u.pct:c.val.off);
+ ui.lift.note.textContent=shown(fill(c.ctl.liftNote,{z:fmt(ld.zones),c:fmt(ld.carsPerZone),v:fmt(ld.carSpeed,1)}));
  for(const [v,b]of ui.refuge.bs)b.setAttribute('aria-pressed',String(r.c.refuge===v));
- ui.refuge.out.textContent=c.ref[r.c.refuge];
+ ui.refuge.out.textContent=shown(c.ref[r.c.refuge]);
  ui.refuge.note.textContent=r.c.refuge==='off'?c.refNote.off:c.refNote[r.c.refuge]+' '+(r.refuge.required?c.refNote.snap:c.refNote.notReq);
  const fi=Math.max(0,ui.occ.indexOf(r.fire));
  ui.fire.inp.max=String(Math.max(1,ui.occ.length));ui.fire.inp.value=String(fi+1);
- ui.fire.out.textContent=fill(c.ctl.fireOut,{f:r.fire??'—'});
- ui.pre.inp.value=r.c.pre;ui.pre.out.textContent=T(r.c.pre);
- ui.prm.inp.value=r.c.prmShare*100;ui.prm.out.textContent=fmt(r.c.prmShare*100,1)+u.pct;
- ui.prmV.inp.value=r.c.prmSpeed;ui.prmV.out.textContent=fmt(r.c.prmSpeed,2)+' '+u.ms;
+ ui.fire.out.textContent=shown(fill(c.ctl.fireOut,{f:r.fire??'—'}));
+ ui.pre.inp.value=r.c.pre;ui.pre.out.textContent=shown(T(r.c.pre));
+ ui.prm.inp.value=r.c.prmShare*100;ui.prm.out.textContent=shown(fmt(r.c.prmShare*100,1)+u.pct);
+ ui.prmV.inp.value=toDisplay(r.c.prmSpeed,'m/s');ui.prmV.out.textContent=shown(fmt(r.c.prmSpeed,2)+' '+u.ms);
  // readouts
  const R=ui.rows,v=c.val;
- R.pop.textContent=fill(v.pop,{n:fmt(r.pop),a:fmt(r.c.apP,1),l:fmt(r.liftPop)});
- R.total.textContent=T(r.simTotal);
- R.pauls.textContent=fill(v.pauls,{t:T(r.pauls),p:fmt(r.paulsP)})+(r.paulsExtrapolated?' · '+v.extra:'');
- R.bound.textContent=fill(v.bound,{t:T(r.bound)});
+ R.pop.textContent=shown(fill(v.pop,{n:fmt(r.pop),a:fmt(r.c.apP,1),l:fmt(r.liftPop)}));
+ R.total.textContent=shown(T(r.simTotal));
+ R.pauls.textContent=shown(fill(v.pauls,{t:T(r.pauls),p:fmt(r.paulsP)})+(r.paulsExtrapolated?' · '+v.extra:''));
+ R.bound.textContent=shown(fill(v.bound,{t:T(r.bound)}));
  const a0=r.alarm[0],a1=r.alarm[r.alarm.length-1];
- R.phased.textContent=r.alarm.length?fill(v.alarm,{a:a0,b:a1,t:T(r.phasedAlarm)}):v.none;
- R.phasedAll.textContent=T(r.phasedTotal);
- R.safety.textContent=r.refuge.safety!=null?T(r.refuge.safety):v.none;
- R.queue.textContent=r.maxQueue.n>0.5?fill(v.queue,{n:fmt(r.maxQueue.n),f:r.maxQueue.level,w:T(r.maxQueue.wait)}):v.none;
- R.flow.textContent=fill(v.flow,{f:fmt(r.flowPerStair*60),we:fmt(r.We,2)});
+ R.phased.textContent=shown(r.alarm.length?fill(v.alarm,{a:a0,b:a1,t:T(r.phasedAlarm)}):v.none);
+ R.phasedAll.textContent=shown(T(r.phasedTotal));
+ R.safety.textContent=shown(r.refuge.safety!=null?T(r.refuge.safety):v.none);
+ R.queue.textContent=shown(r.maxQueue.n>0.5?fill(v.queue,{n:fmt(r.maxQueue.n),f:r.maxQueue.level,w:T(r.maxQueue.wait)}):v.none);
+ R.flow.textContent=shown(fill(v.flow,{f:fmt(r.flowPerStair*60),we:fmt(r.We,2)}));
  const worst=r.refuge.list.reduce((a,x)=>!a||x.ratio>a.ratio?x:a,null);
- R.refuge.textContent=worst?fill(v.refuge,{f:worst.i,d:fmt(worst.demand),c:fmt(worst.capacity)})+' · '+v.kind[worst.kind]+(worst.ratio>1?' · '+v.over:''):(r.c.refuge==='off'?v.off:c.refNote.notReq);
+ R.refuge.textContent=shown(worst?fill(v.refuge,{f:worst.i,d:fmt(worst.demand),c:fmt(worst.capacity)})+' · '+v.kind[worst.kind]+(worst.ratio>1?' · '+v.over:''):(r.c.refuge==='off'?v.off:c.refNote.notReq));
  R.refuge.classList.toggle('fe-flagtext',!!worst&&worst.ratio>1);
- R.lifts.textContent=r.lifts?fill(v.lifts,{p:fmt(r.lifts.share*100),t:T(r.lifts.time)}):v.liftsOff;
- R.prm.textContent=r.prm.share>0&&r.prm.time>0?T(r.prm.time):v.none;
+ R.lifts.textContent=shown(r.lifts?fill(v.lifts,{p:fmt(r.lifts.share*100),t:T(r.lifts.time)}):v.liftsOff);
+ R.prm.textContent=shown(r.prm.share>0&&r.prm.time>0?T(r.prm.time):v.none);
  // verdict
  const parts=[fill(c.verdict.base,{n:r.stairs,w:fmt(r.width,2),f:fmt(r.flowPerStair*60*r.stairs),t:T(r.simCrowd)}),
   fill(c.verdict.wider,{w2:fmt(r.wider.width,2),t2:T(r.wider.crowd),t3:T(r.more.crowd)})];
@@ -545,10 +553,10 @@ function refresh(force){
  if(r.lifts&&r.lifts.time>r.lifts.crowd+1){parts.push(fill(c.verdict.lifts,{t:T(r.lifts.time)}));flag=true}
  if(worst&&worst.ratio>1){parts.push(fill(c.verdict.over,{f:worst.i,d:fmt(worst.demand),c:fmt(worst.capacity)}));flag=true}
  if(r.c.refuge==='off'&&(r.refuge.needHK||r.refuge.needGB)){parts.push(fill(c.verdict.need,{code:r.refuge.needHK?c.code.hk:c.code.gb}));flag=true}
- ui.verdict.textContent=parts.join(' ');ui.verdict.classList.toggle('fe-flag',flag);
+ ui.verdict.textContent=shown(parts.join(' '));ui.verdict.classList.toggle('fe-flag',flag);
  const target=r.refuge.safety!=null?c.target.safety:c.target.exit;
  const st=fill(c.status[r.strategy],{target,t:T(r.chosen.total),a:T(r.phasedAlarm)});
- ui.status.textContent=st;
+ ui.status.textContent=shown(st);
  ui.hero.setAttribute('aria-label',c.canvas.section+'. '+st);
  // the method, drawn: the same read, drawn rather than described
  try{
@@ -569,7 +577,7 @@ function dots(n){const out=[];for(let i=0;i<n;i++){const g=seeded(1009+i*7919),a
 
 function scheduleChart(state,metrics){
  const key=fingerprint(state,metrics)+'|'+JSON.stringify({...ctl,width:0,strategy:0,liftShare:0,refuge:0,fire:0});
- ui.chartN.textContent=fill(ui.c.chart.note,{n:ctl.stairs});
+ ui.chartN.textContent=shown(fill(ui.c.chart.note,{n:ctl.stairs}));
  if(chartCache.key===key&&chartCache.rows){drawChart();return}
  if(chartTimer&&typeof clearTimeout==='function')clearTimeout(chartTimer);
  const go=()=>{chartTimer=0;try{chartCache={key,rows:widthCurve(state,ctl,metrics)}}catch{chartCache={key,rows:[]}}drawChart()};
@@ -589,8 +597,8 @@ function drawChart(){
  x.strokeStyle='rgba(162,172,169,0.35)';x.fillStyle=DIM;
  for(let m=0;m<=ymax+1e-9;m+=step){const y=Math.round(sy(m))+0.5;x.beginPath();x.moveTo(L,y);x.lineTo(W-Rm,y);x.stroke();x.textAlign='right';x.fillText(String(m),L-6,y)}
  const ticks=rows.filter((_,i)=>i%2===0);
- ticks.forEach((r,i)=>{x.textAlign=i===0?'left':i===ticks.length-1?'right':'center';x.fillText(r.width.toFixed(2),i===0?L:i===ticks.length-1?W-Rm:sx(r.width),B+11)});
- x.textAlign='left';x.fillText(c.chart.y,4,10);x.textAlign='right';x.fillText(c.chart.x,W-Rm,B+24);x.textAlign='left';
+ ticks.forEach((r,i)=>{x.textAlign=i===0?'left':i===ticks.length-1?'right':'center';x.fillText(toDisplay(r.width,'m').toFixed(2),i===0?L:i===ticks.length-1?W-Rm:sx(r.width),B+11)});
+ x.textAlign='left';x.fillText(c.chart.y,4,10);x.textAlign='right';x.fillText(c.chart.x.replace(/m/g,unitLabel('m')),W-Rm,B+24);x.textAlign='left';
  x.strokeStyle=DIM;x.setLineDash([4,4]);x.beginPath();rows.forEach((r,i)=>{const X=sx(r.width),Y=sy(r.pauls/60);i?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke();x.setLineDash([]);
  x.strokeStyle=INK;x.lineWidth=1.5;x.beginPath();rows.forEach((r,i)=>{const X=sx(r.width),Y=sy(r.total/60);i?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke();x.lineWidth=1;
  const cw=Math.min(w1,Math.max(w0,ui.r.width)),X=sx(cw),Y=sy(ui.r.simTotal/60);
@@ -706,6 +714,8 @@ export function renderFireLab({host,state,metrics,lang='en',active=false,changed
  if(!active){stop();return}
  if(typeof document==='undefined')return;
  try{
+  displayLang=lang;const preferenceKey=JSON.stringify([getPreferences(),getRateBook()]);
+  if(displayKey!==preferenceKey){if(ui)ui.lang=null;displayKey=preferenceKey}
   if(!ui||ui.host!==host||ui.lang!==lang||!host.contains(ui.hero)){stop();build(host,lang)}
   refresh(false);
   if(reduced()){stop();drawStatic()}
@@ -724,6 +734,7 @@ export function renderFireLab({host,state,metrics,lang='en',active=false,changed
    the simulation it claims to describe, and a drawing that has drifted is
    worse than the paragraph it replaced. */
 export function fireMethodSVG(r,{lang='en'}={}){
+ displayLang=lang;
  const L=FIRE_TEXT[lang]||FIRE_TEXT.en,M=L.m;
  const f2=v=>Math.round(v*100)/100;
  const W=300,H=222;
@@ -829,7 +840,7 @@ export function fireMethodSVG(r,{lang='en'}={}){
     move. */
  const NX=X.w1+22;
  const stair=(x,y,ty,text,o)=>leader(x,y,NX,ty,text,o);
- g+=stair(X.f1-3,Y.top+2,38,fill(M.stair,{r:r.riser,t:r.treadMM}));
+ g+=stair(X.f1-3,Y.top+2,38,fill(getPreferences().units==='imperial'?M.stair.replace(/มม\.|毫米|mm/g,'').trim():M.stair,{r:getPreferences().units==='imperial'?toDisplay(r.riser,'mm').toFixed(2):r.riser,t:getPreferences().units==='imperial'?toDisplay(r.treadMM,'mm').toFixed(2):r.treadMM})+(getPreferences().units==='imperial'?' in':''));
  if(fireLv!=null)g+=stair(X.w1,Y.fire+1,51.5,fill(M.fire,{f:fireLv}),{on:true});
  if(skipHigh!=null&&skipHigh>0)g+=stair(mid,Y.ref-rise+1+GAP/2,65,fill(M.skip,{n:skipHigh}));
  g+=stair(X.f0+runPx*0.62,Y.ref-rise*0.38,78.5,fill(M.flow,{}));

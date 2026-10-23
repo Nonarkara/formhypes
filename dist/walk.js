@@ -1,15 +1,17 @@
+let displayLang='en';
+import {displayText,displaySVG,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=e134c381e7';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // Human-eye views: two perspective constructions projected from live geometry.
 // Not renders — no perspective-correct texture, no refraction through glass, no
 // lighting or shadows, no occupants beyond the scale figure, and no interior
 // partition beyond the one that is cut.
-import {profile, stackHeight,stack,massingRings} from './model.js?v=312df9a324';
+import {profile, stackHeight,stack,massingRings} from './model.js?v=fe3aa014a2';
 
 const EYE=1.60,SV=.95,DTR=Math.PI/180;
 const num=(v,d=2)=>String(Math.round(v*Math.pow(10,d))/Math.pow(10,d));
 const ph=(k,v={})=>String(k).replace(/\{(\w+)\}/g,(_,n)=>(v[n]??'').toString());
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
-const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
+const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=displayText(String(text),displayLang);if(cls)n.className=cls;return n};
 const poly=pts=>pts.map(q=>q.join(',')).join(' ');
 const seg=(a,b,cls)=>`<path class="${cls}" d="M${a.join(' ')}L${b.join(' ')}"/>`;
 const tri=(x,y,s=6)=>`<path class="wk-a" stroke-width="2" d="M${num(x-s,1)} ${num(y+s,1)}L${num(x+s,1)} ${num(y-s,1)}"/>`;
@@ -297,6 +299,7 @@ zh:{title:'人视视角',tier:'两幅由实时模型几何投影得出的透视�
 
 const view={d:46,look:16,across:0,turn:0};
 export function renderWalk({lang,state,changed}){
+ displayLang=lang;
  const c=WALK_I18N[lang]||WALK_I18N.en,t=k=>ph(c[k]);
  const host=document.getElementById('walkDesk');
  if(!host)return;
@@ -310,7 +313,7 @@ export function renderWalk({lang,state,changed}){
   s.setAttribute('viewBox','0 0 1000 '+(svg.includes('wk-ground')?620:560));
   s.setAttribute('preserveAspectRatio','xMidYMid meet');
   s.setAttribute('role','img');s.setAttribute('aria-label',aria);s.setAttribute('class','wk-svg');
-  s.innerHTML=svg;w.append(s);
+  s.innerHTML=displaySVG(svg,lang);w.append(s);
   const f=el('figure',undefined,'wk-fig');f.append(w,el('figcaption',cap,'wk-cap'));
   return f;
  };
@@ -331,11 +334,11 @@ export function renderWalk({lang,state,changed}){
  const ctl=el('div');ctl.className='wk-ctl';
  const slider=(id,label,key,min,max,step,unit,set)=>{
   const l=el('label',label);l.htmlFor='wk-'+id;
-  const i=el('input');i.id='wk-'+id;i.type='range';i.min=min;i.max=max;i.step=step;i.value=view[key];
-  i.setAttribute('aria-label',label+' ('+unit+')');
+  const i=el('input');i.id='wk-'+id;i.type='range';const u=unit.trim()==='m'?'m':null,cv=v=>u?toDisplay(v,u):v;i.min=cv(min);i.max=cv(max);i.step=cv(step);i.value=cv(view[key]);
+  i.setAttribute('aria-label',label+' ('+(u?unitLabel(u):unit)+')');
   const o=el('output',num(view[key],step<1?1:0)+unit);o.htmlFor='wk-'+id;
-  const paint=()=>{currentStreet=street(state,t,view);fig.querySelector('svg').innerHTML=currentStreet.svg;fig.querySelector('figcaption').textContent=capB()};
-  i.oninput=()=>{set(+i.value);o.textContent=num(+i.value,step<1?1:0)+unit;paint()};
+  const paint=()=>{currentStreet=street(state,t,view);fig.querySelector('svg').innerHTML=displaySVG(currentStreet.svg,lang);fig.querySelector('figcaption').textContent=displayText(capB(),lang)};
+  i.oninput=()=>{set(u?fromDisplay(+i.value,u):+i.value);o.textContent=displayText(num(view[key],step<1?1:0)+unit,lang);paint()};
   ctl.append(l,i,o);
  };
  const fig=figure(sa.svg,t('street')+' · '+t('flank'),capB());

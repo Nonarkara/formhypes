@@ -1,3 +1,4 @@
+import {quantity,toDisplay,displayText,formatAmount,getPreferences} from '../dist/preferences.js';
 /* The candidate table on the explore desk.
 
    The desk's job is: compare five candidates and apply one. The table used to
@@ -32,7 +33,7 @@ function buildTable(lang = 'en') {
     {state: {family: 'star', taper: 0.8, twist: 45}, metrics: {contribution: 90, gross: 10, rentable: 8, corners: 6, heightTotal: 40}, score: 0.4},
   ];
   const ctx = {
-    rows, best: rows[0], blended: true, state: {family: 'box'},
+    formatAmount,getPreferences,quantity,toDisplay,lang,rows, best: rows[0], blended: true, state: {family: 'box'},
     metrics: {contribution: 80},
     tt: k => k, num: v => String(v), money: v => '$' + v,
   };

@@ -63,13 +63,20 @@
      ACI 318-19 Table 6.6.3.1.1(a): uncracked walls 0.70·Ig.
      EN 1991-1-1 Table 6.2: offices, category B1, q_k 2.5 kN/m²; RC 25 kN/m³.
    ASSUMPTIONS are marked ASSUMPTION where they are set. */
-import {profile,stack,area} from './model.js?v=312df9a324';
-import {leastWidth} from './structure.js?v=d10ac3572a';
-import {windRead} from './wind.js?v=7bf5094d26';
+import {profile,stack,area} from './model.js?v=fe3aa014a2';
+import {leastWidth} from './structure.js?v=98107c6294';
+import {windRead} from './wind.js?v=0a78730262';
 // The drafting vocabulary this drawing is made of. The release stamper pins
 // this against drafting.js; a hand-written token would rot the moment the
 // vocabulary changed, which is the whole reason the stamper exists.
-import {sheet,cut,beyond,leader,dim,rule,txt,ground,layout} from './drafting.js?v=5dc3f3c796';
+import {sheet,cut,beyond,leader as draftLeader,dim as draftDim,rule,txt as draftTxt,ground,layout} from './drafting.js?v=5dc3f3c796';
+import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=e134c381e7';
+let displayLang='en',displayKey='';
+const shown=value=>displayText(value,displayLang);
+const txt=(x,y,text,...args)=>draftTxt(x,y,shown(text),...args);
+const leader=(x,y,tx,ty,text,...args)=>draftLeader(x,y,tx,ty,shown(text),...args);
+const dim=(x,y,tx,ty,text,...args)=>draftDim(x,y,tx,ty,shown(text),...args);
+
 
 /* ── factors ─────────────────────────────────────────────────────────── */
 // IStructE Table 2.3, UK in-situ concrete (ICE V3), kgCO2e/kg, at 0%, 25% and
@@ -408,7 +415,7 @@ const ctl={...DEFAULT_CTL,rates:{...DEFAULT_CTL.rates}};
 let metric='carbon',held=false;
 let ui=null,last=null,raf=0,anim=null,curveCache={key:'',data:null},pick=null,seen={floors:null,system:null};
 
-function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
+function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=(/(?:^|-)src$/.test(cls||'')?text:shown(text));return n}
 const reduced=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 const loc=lang=>lang==='th'?'th-TH':lang==='zh'?'zh-CN':'en-US';
 function fmt(v,d=0){return Number.isFinite(v)?v.toLocaleString(loc(ui?ui.lang:'en'),{minimumFractionDigits:d,maximumFractionDigits:d}):'—'}
@@ -440,11 +447,11 @@ function build(host,lang){
  const ctls=el('div','cb-controls');
  const field=()=>{const w=el('div','cb-field');ctls.append(w);return w};
  const range=(key,label,min,max,step,note,on,later)=>{
-  const w=field(),id='cb-'+key,lab=el('label','cb-label',label),out=el('output','cb-out');lab.htmlFor=id;out.htmlFor=id;
-  const inp=el('input');inp.type='range';inp.id=id;inp.min=min;inp.max=max;inp.step=step;
+  const u=({km:'km',vb:'m/s'})[key]||'',w=field(),id='cb-'+key,lab=el('label','cb-label',label),out=el('output','cb-out');lab.htmlFor=id;out.htmlFor=id;
+  const inp=el('input');inp.type='range';inp.id=id;inp.min=toDisplay(min,u);inp.max=toDisplay(max,u);inp.step=toDisplay(step,u);
   const top=el('div','cb-fieldhead');top.append(lab,out);w.append(top,inp);
   let n=null;if(note!=null){n=el('p','cb-hint',note);w.append(n)}
-  inp.oninput=()=>on(+inp.value);if(later)inp.onchange=()=>later(+inp.value);
+  inp.oninput=()=>on(fromDisplay(+inp.value,u));if(later)inp.onchange=()=>later(fromDisplay(+inp.value,u));
   return {inp,out,note:n};
  };
  const seg=(label,keys,names,on)=>{
@@ -465,11 +472,11 @@ function build(host,lang){
  const km=range('km',c.ctl.km,0,2000,10,c.ctl.kmNote,v=>{ctl.km=v;refresh(false)});
  const vb=range('vb',c.ctl.vb,15,55,1,c.ctl.vbNote,v=>{ctl.vb=v;refresh(true,true)},()=>refresh(true));
  const rw=field();rw.classList.add('cb-rates');
- rw.append(el('span','cb-label',c.ctl.rates));
+ rw.append(el('span','cb-label',getPreferences().currency==='USD'?c.ctl.rates:c.ctl.rates.replace(/USD|ดอลลาร์สหรัฐ|美元/g,getPreferences().currency)));
  const rateIn={};
  for(const [k,lab] of [['conc',c.ctl.rConc],['rebar',c.ctl.rRebar],['steel',c.ctl.rSteel]]){
-  const row=el('div','cb-rate'),id='cb-rate-'+k,l=el('label',null,lab),inp=el('input');l.htmlFor=id;inp.id=id;inp.type='number';inp.min='0';inp.step=k==='conc'?'5':'0.1';inp.inputMode='decimal';
-  inp.oninput=()=>{const v=inp.valueAsNumber;if(Number.isFinite(v)&&v>=0){ctl.rates[k]=v;refresh(false)}};
+  const row=el('div','cb-rate'),id='cb-rate-'+k,u=k==='conc'?'USD/m³':'USD/kg',l=el('label',null,getPreferences().currency==='USD'&&getPreferences().units==='metric'?lab:c.mat[k]+' · '+unitLabel(u)),inp=el('input');l.htmlFor=id;inp.id=id;inp.type='number';inp.min='0';inp.step=toDisplay(k==='conc'?5:0.1,u);inp.inputMode='decimal';
+  inp.oninput=()=>{const v=inp.valueAsNumber;if(Number.isFinite(v)&&v>=0){ctl.rates[k]=fromDisplay(v,u);refresh(false)}};
   row.append(l,inp);rw.append(row);rateIn[k]=inp;
  }
  rw.append(el('p','cb-hint',c.ctl.ratesNote));
@@ -505,7 +512,7 @@ function size(){
 function sync(){
  if(!ui)return;const c=ui.c;
  for(const [k,b] of ui.metricB)b.setAttribute('aria-pressed',String(metric===k));
- ui.holdB.textContent=held?c.replay:c.hold;
+ ui.holdB.textContent=shown(held?c.replay:c.hold);
  ui.holdB.setAttribute('aria-pressed',String(held));
 }
 
@@ -527,45 +534,45 @@ function refresh(geometry,light){
  const ckey=[w.state.span,w.state.family,w.state.aspect,w.state.taper,w.state.twist,w.state.height,w.state.program,w.state.garden,w.state.core,ctl.vb].join('|');
  const fkey=ckey+'|'+[ctl.concrete,ctl.ggbs,ctl.rebarEAF,ctl.steelEAF,ctl.km].join('|');
  if(!light&&curveCache.key!==fkey){try{curveCache={key:fkey,data:curves(state,ctl)}}catch{curveCache={key:'',data:null}}}
- ui.floors.inp.value=w.base;ui.floors.out.textContent=fmt(w.base);
- ui.floors.note.textContent=fill(c.ctl.floorsNote,{n:fmt(state.floors)});
- ui.slender.inp.value=Math.round(ctl.spanFactor*100);ui.slender.out.textContent=fmt(ctl.spanFactor*100)+'%';
- ui.slender.note.textContent=fill(c.ctl.slenderNote,{p:fmt(ctl.spanFactor*100),n:fmt(w.floors)});
+ ui.floors.inp.value=w.base;ui.floors.out.textContent=shown(fmt(w.base));
+ ui.floors.note.textContent=shown(fill(c.ctl.floorsNote,{n:fmt(state.floors)}));
+ ui.slender.inp.value=Math.round(ctl.spanFactor*100);ui.slender.out.textContent=shown(fmt(ctl.spanFactor*100)+'%');
+ ui.slender.note.textContent=shown(fill(c.ctl.slenderNote,{p:fmt(ctl.spanFactor*100),n:fmt(w.floors)}));
  for(const [k,b] of ui.sys.bs)b.setAttribute('aria-pressed',String(r.system===k));
  const same=state.system===r.system&&state.floors===w.base;
- ui.applyB.disabled=!pick||same;ui.applyN.textContent=same?c.ctl.applied:c.ctl.applyNote;
+ ui.applyB.disabled=!pick||same;ui.applyN.textContent=shown(same?c.ctl.applied:c.ctl.applyNote);
  for(const [k,b] of ui.conc.bs)b.setAttribute('aria-pressed',String(ctl.concrete===k));
  const ec=r.here.account.ecf;
- ui.ggbs.inp.value=ctl.ggbs;ui.ggbs.out.textContent=fmt(ctl.ggbs)+'%';ui.ggbs.note.textContent=fill(c.ctl.ggbsNote,{f:fmt(ec.conc,3)});
- ui.rebar.inp.value=ctl.rebarEAF;ui.rebar.out.textContent=fmt(ctl.rebarEAF)+'%';ui.rebar.note.textContent=fill(c.ctl.steelNote,{f:fmt(ec.rebar,2),s:fmt(scrapShare(ctl.rebarEAF)*100)});
- ui.steel.inp.value=ctl.steelEAF;ui.steel.out.textContent=fmt(ctl.steelEAF)+'%';ui.steel.note.textContent=fill(c.ctl.steelNote,{f:fmt(ec.steel,2),s:fmt(scrapShare(ctl.steelEAF)*100)});
- ui.km.inp.value=ctl.km;ui.km.out.textContent=fmt(ctl.km)+' km';
- ui.vb.inp.value=ctl.vb;ui.vb.out.textContent=fmt(ctl.vb)+' m/s';
- for(const k of ['conc','rebar','steel'])if(document.activeElement!==ui.rateIn[k])ui.rateIn[k].value=String(ctl.rates[k]);
+ ui.ggbs.inp.value=ctl.ggbs;ui.ggbs.out.textContent=shown(fmt(ctl.ggbs)+'%');ui.ggbs.note.textContent=shown(fill(c.ctl.ggbsNote,{f:fmt(ec.conc,3)}));
+ ui.rebar.inp.value=ctl.rebarEAF;ui.rebar.out.textContent=shown(fmt(ctl.rebarEAF)+'%');ui.rebar.note.textContent=shown(fill(c.ctl.steelNote,{f:fmt(ec.rebar,2),s:fmt(scrapShare(ctl.rebarEAF)*100)}));
+ ui.steel.inp.value=ctl.steelEAF;ui.steel.out.textContent=shown(fmt(ctl.steelEAF)+'%');ui.steel.note.textContent=shown(fill(c.ctl.steelNote,{f:fmt(ec.steel,2),s:fmt(scrapShare(ctl.steelEAF)*100)}));
+ ui.km.inp.value=toDisplay(ctl.km,'km');ui.km.out.textContent=shown(fmt(ctl.km)+' km');
+ ui.vb.inp.value=toDisplay(ctl.vb,'m/s');ui.vb.out.textContent=shown(fmt(ctl.vb)+' m/s');
+ for(const k of ['conc','rebar','steel'])if(document.activeElement!==ui.rateIn[k])ui.rateIn[k].value=String(toDisplay(ctl.rates[k],k==='conc'?'USD/m³':'USD/kg'));
  const h=r.here,R=ui.rows,u=c.u;
  paintMethod(r.here,r.hereTw,r.system);
- R.kg.textContent=fmt(h.gravM2)+' / '+fmt(h.latM2)+' / '+fmt(h.totalM2)+' '+u.kgm2;
- R.steel.textContent=fmt(h.steelM2)+' '+u.kgm2;
- R.tonnes.textContent=fmt(h.tonnes)+' '+u.t+' · '+fmt(h.concreteM3)+' '+u.m3;
- R.carbon.textContent=fmt(h.carbonM2)+' '+u.co2m2;
- R.carbonT.textContent=fmt(h.carbonT)+' '+u.tco2;
+ R.kg.textContent=shown(fmt(h.gravM2)+' / '+fmt(h.latM2)+' / '+fmt(h.totalM2)+' '+u.kgm2);
+ R.steel.textContent=shown(fmt(h.steelM2)+' '+u.kgm2);
+ R.tonnes.textContent=shown(fmt(h.tonnes)+' '+u.t+' · '+fmt(h.concreteM3)+' '+u.m3);
+ R.carbon.textContent=shown(fmt(h.carbonM2)+' '+u.co2m2);
+ R.carbonT.textContent=shown(fmt(h.carbonT)+' '+u.tco2);
  const a=h.account,G=h.gross;
- R.stages.textContent=fmt(a.a13/G)+' / '+fmt(a.a4/G,1)+' / '+fmt(a.a5/G,1)+' '+u.co2m2;
- R.cost.textContent=fmt(h.costM2)+' '+u.usdm2;
+ R.stages.textContent=shown(fmt(a.a13/G)+' / '+fmt(a.a4/G,1)+' / '+fmt(a.a5/G,1)+' '+u.co2m2);
+ R.cost.textContent=shown(fmt(h.costM2)+' '+u.usdm2);
  const nla=metrics&&metrics.gross>0?metrics.rentable/metrics.gross:NaN;
- R.costN.textContent=Number.isFinite(nla)&&nla>0?fmt(h.costM2/nla)+' '+u.usdm2:'—';
- R.capex.textContent=metrics&&metrics.gross>0?fill(c.capexV,{v:fmt(metrics.capexStructure/metrics.gross)}):'—';
- R.scors.textContent=h.band+' · '+fmt(h.carbonM2)+' '+u.co2m2;
- R.premium.textContent=pct(r.premiumKg)+' '+u.kgm2+' · '+pct(r.premiumCarbon)+' CO₂e';
- R.slim.textContent=r.f===1?'—':pct(r.slimKg)+' '+u.kgm2+' · '+fmt(r.same.totalM2)+' → '+fmt(h.totalM2);
- R.governs.textContent=c.governs[h.governs];
- R.lambda.textContent='1:'+fmt(h.lambda,1)+' · '+fmt(h.H)+' '+u.m;
+ R.costN.textContent=shown(Number.isFinite(nla)&&nla>0?fmt(h.costM2/nla)+' '+u.usdm2:'—');
+ R.capex.textContent=shown(metrics&&metrics.gross>0?fill(c.capexV,{v:fmt(metrics.capexStructure/metrics.gross)}):'—');
+ R.scors.textContent=shown(h.band+' · '+fmt(h.carbonM2)+' '+u.co2m2);
+ R.premium.textContent=shown(pct(r.premiumKg)+' '+unitLabel(u.kgm2)+' · '+pct(r.premiumCarbon)+' CO₂e');
+ R.slim.textContent=shown(r.f===1?'—':pct(r.slimKg)+' '+unitLabel(u.kgm2)+' · '+fmt(toDisplay(r.same.totalM2,'kg/m²'))+' → '+fmt(toDisplay(h.totalM2,'kg/m²')));
+ R.governs.textContent=shown(c.governs[h.governs]);
+ R.lambda.textContent=shown('1:'+fmt(h.lambda,1)+' · '+fmt(h.H)+' '+u.m);
  const latShare=h.latM2/Math.max(1e-9,h.totalM2);
- ui.verdict.textContent=fill(latShare>0.5?c.verdict.lat:c.verdict.grav,{p:fmt(latShare*100),q:fmt(r.premiumKg*100)});
+ ui.verdict.textContent=shown(fill(latShare>0.5?c.verdict.lat:c.verdict.grav,{p:fmt(latShare*100),q:fmt(r.premiumKg*100)}));
  ui.verdict.classList.toggle('cb-flag',latShare>0.5);
  const tot=Math.max(1e-9,a.total);
- for(const k of ['conc','rebar','steel']){ui.bars[k].b.style.width=(100*a.byMat[k]/tot).toFixed(1)+'%';ui.bars[k].v.textContent=fmt(a.byMat[k]/G)+' '+u.co2m2+' · '+fmt(100*a.byMat[k]/tot)+'%'}
- for(const k of ['grav','lat']){ui.bars[k].b.style.width=(100*a.byPart[k]/tot).toFixed(1)+'%';ui.bars[k].v.textContent=fmt(a.byPart[k]/G)+' '+u.co2m2+' · '+fmt(100*a.byPart[k]/tot)+'%'}
+ for(const k of ['conc','rebar','steel']){ui.bars[k].b.style.width=(100*a.byMat[k]/tot).toFixed(1)+'%';ui.bars[k].v.textContent=shown(fmt(a.byMat[k]/G)+' '+u.co2m2+' · '+fmt(100*a.byMat[k]/tot)+'%')}
+ for(const k of ['grav','lat']){ui.bars[k].b.style.width=(100*a.byPart[k]/tot).toFixed(1)+'%';ui.bars[k].v.textContent=shown(fmt(a.byPart[k]/G)+' '+u.co2m2+' · '+fmt(100*a.byPart[k]/tot)+'%')}
  for(const [band,li] of ui.scItems)li.classList.toggle('cb-on',band===h.band);
  ui.elevC.setAttribute('aria-label',c.elev+'. '+fill(c.elevFoot,{h:fmt(h.H),l:fmt(h.lambda,1)}));
  ui.chartC.setAttribute('aria-label',(metric==='steel'?c.chart.ySteel:c.chart.yCarbon)+'. '+c.chart.x+' '+fmt(h.n)+': '+(metric==='steel'?fmt(h.steelM2)+' '+u.kgm2:fmt(h.carbonM2)+' '+u.co2m2));
@@ -595,7 +602,7 @@ function step(dt){
 }
 /* Split a ' · ' joined label into lines that fit maxW. */
 function wrap(x,text,maxW){const parts=text.split(' · '),out=[];let cur='';for(const p of parts){const t=cur?cur+' · '+p:p;if(cur&&x.measureText(t).width>maxW){out.push(cur);cur=p}else cur=t}if(cur)out.push(cur);return out}
-function ctx2d(cv){const x=cv.getContext&&cv.getContext('2d');if(!x)return null;x.setTransform(cv._dpr||1,0,0,cv._dpr||1,0,0);return x}
+function ctx2d(cv){const x=cv.getContext&&displayContext(cv.getContext('2d'),displayLang);if(!x)return null;x.setTransform(cv._dpr||1,0,0,cv._dpr||1,0,0);return x}
 
 function drawAll(){
  if(!ui||!ui.r||!anim||!ui.elevC.isConnected)return;
@@ -609,7 +616,7 @@ function drawAll(){
    const twn=now===ui.r.here?ui.r.hereTw:tower(whatIf(last.state,ctl).state,now.n,ui.r.vb);
    paintMethod(now,twn,ui.r.system);
   }
-  ui.run.textContent=fill(c.run,{n:fmt(now.n),N:fmt(anim.N),kg:fmt(now.totalM2),c:fmt(now.carbonM2)});
+  ui.run.textContent=shown(fill(c.run,{n:fmt(now.n),N:fmt(anim.N),kg:fmt(now.totalM2),c:fmt(now.carbonM2)}));
   drawElev(now);drawChart(now);
  }catch{}
 }
@@ -653,14 +660,14 @@ function drawChart(now){
  if(!data)return;
  const key=metric==='steel'?'steel':'carbon';
  const foot=wrap(x,metric==='steel'?c.chart.x+' · '+c.chart.khan+' · '+c.chart.extrap:c.chart.x+' · '+c.chart.extrap,W-16);
- const head=wrap(x,metric==='steel'?c.chart.ySteel:c.chart.yCarbon,W-16);
+ const head=wrap(x,(metric==='steel'?c.chart.ySteel.replace(c.u.kgm2,unitLabel(c.u.kgm2)):c.chart.yCarbon.replace(c.u.co2m2,unitLabel(c.u.co2m2))),W-16);
  const L=46,Rr=W-12,T=22+15*head.length,B=Hh-24-15*foot.length,X=n=>L+(Rr-L)*(n-10)/100;
  let ymax=0;for(const s of SYSTEM_KEYS)for(const p of data[s])if(p.n<=70)ymax=Math.max(ymax,p[key]);
  ymax=Math.max(ymax,metric==='steel'?220:420,now[metric==='steel'?'steelM2':'carbonM2']*1.1);
  const step=NICE.find(v=>ymax/v<=5)||NICE[NICE.length-1],top=Math.ceil(ymax/step)*step,Y=v=>B-(B-T)*Math.min(v,top)/top;
  // grid
  x.fillStyle=DIM;x.strokeStyle=GREY;
- for(let v=0;v<=top+1e-9;v+=step){const y=Math.round(Y(v))+0.5;x.globalAlpha=v?0.45:1;x.beginPath();x.moveTo(L,y);x.lineTo(Rr,y);x.stroke();x.globalAlpha=1;x.textAlign='right';x.fillText(fmt(v),L-6,y)}
+ for(let v=0;v<=top+1e-9;v+=step){const y=Math.round(Y(v))+0.5;x.globalAlpha=v?0.45:1;x.beginPath();x.moveTo(L,y);x.lineTo(Rr,y);x.stroke();x.globalAlpha=1;x.textAlign='right';x.fillText(fmt(toDisplay(v,metric==='steel'?'kg/m²':'kgCO₂e/m²')),L-6,y)}
  x.textAlign='center';for(const n of [20,40,60,80,100])x.fillText(String(n),X(n),B+12);
  x.textAlign='left';head.forEach((t,i)=>x.fillText(t,8,12+15*i));foot.forEach((t,i)=>x.fillText(t,8,Hh-8-15*(foot.length-1-i)));
  // studio limit
@@ -732,6 +739,8 @@ export function renderCarbonLab({host,state,metrics,lang='en',active=false,chang
   last={state,metrics};
   if(!active){stop();if(ui)ui.active=false;return}
   if(typeof document==='undefined')return;
+  displayLang=lang;const preferenceKey=JSON.stringify([getPreferences(),getRateBook()]);
+  if(displayKey!==preferenceKey){if(ui)ui.lang=null;displayKey=preferenceKey}
   if(!ui||ui.host!==host||ui.lang!==lang||!host.contains(ui.elevC)){stop();anim=null;build(host,lang)}
   ui.active=true;
   refresh(true);
@@ -767,6 +776,7 @@ const num=(v,d=0,l='en')=>Number.isFinite(v)
  :'—';
 
 export function carbonMethodSVG(payload,{lang='en'}={}){
+ displayLang=lang;
  const c=CARBON_TEXT[lang]||CARBON_TEXT.en;
  const p=payload||{},h=p.h||{},tw=p.tower||{},o=p.options||{};
  const G=Number.isFinite(h.gross)&&h.gross>0?h.gross:1;
@@ -831,7 +841,7 @@ export function carbonMethodSVG(payload,{lang='en'}={}){
     lines than English, and a sheet laid out for English would print one
     language over the other. */
  const noteH=(text,size=7.5)=>{
-  const {out}=layout([{k:'txt',x:0,y:0,tx:0,ty:0,text,o:{size}}],CM.w,CM.h);
+  const {out}=layout([{k:'txt',x:0,y:0,tx:0,ty:0,text:shown(text),o:{size}}],CM.w,CM.h);
   return (out[0]?out[0].lines.length:1)*size*1.2+3;
  };
  const NX=152;

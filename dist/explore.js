@@ -1,3 +1,4 @@
+import {toDisplay,formatMoney,quantity,getPreferences,displayText} from './preferences.js?v=e134c381e7';
 /* ── study graphics ───────────────────────────────────────────────────────
    The search already computes every candidate it ranks; the desk then showed
    five rows of them. These two figures are drawn from that same array — no
@@ -12,7 +13,7 @@
    Both are honest about the discipline that makes the comparison mean
    anything: every candidate was resized to the same gross floor area, so only
    the form is moving. */
-import {families} from './model.js?v=312df9a324';
+import {families} from './model.js?v=fe3aa014a2';
 
 const INK='#191c1b',MUTED='#585e5b',FAINT='#8b918d',LINE='#c6cbc6',ACCENT='#f59e0b',PAPER='#f2f2ef';
 // Value ladder for the lattice, light to dark. Text flips at index 4, where the
@@ -58,7 +59,7 @@ export function familyResponse(alternatives,current,tt,lang,{selected=null,onPic
  const bands=familyBands(alternatives),s=responseScale(alternatives,current,width);
  const H=TOP+bands.length*row+34;
  const fig=document.createElement('figure');fig.className='study-fig';
- fig.append(caption(tt('s.plotTitle'),tt('s.plotNote')));
+ fig.append(caption(tt('s.plotTitle'),tt('s.plotNote'),lang));
  const svg=svgEl('svg',{viewBox:`0 0 ${width} ${H}`,role:'group','aria-label':tt('s.plotTitle')},fig);
  // Current-tower rule first, so the family rules sit over it and win where they cross.
  if(current)svgEl('path',{d:`M${px(s.x(current.contribution))} ${TOP-8}V${H-26}`,stroke:ACCENT,'stroke-width':1,'stroke-dasharray':'4 3',fill:'none'},svg);
@@ -99,7 +100,7 @@ export function lattice(alternatives,family,tt,lang,onApply){
  const twists=[...new Set(alternatives.map(a=>a.state.twist))].sort((x,y)=>x-y);
  const fig=document.createElement('figure');fig.className='study-fig';
  const head=document.createElement('figcaption');head.textContent=tt('s.latticeTitle');fig.append(head);
- const note=document.createElement('p');note.className='note';note.textContent=tt('s.latticeNote');fig.append(note);
+ const note=document.createElement('p');note.className='note';note.textContent=currencyNote(tt('s.latticeNote'));fig.append(note);
  const wrap=document.createElement('div');wrap.className='lattice';
  const best=[...cells.values()].reduce((b,a)=>!b||a.metrics.contribution>b.metrics.contribution?a:b,null);
  for(const tp of tapers){
@@ -118,7 +119,7 @@ export function lattice(alternatives,family,tt,lang,onApply){
     cell.textContent=compact(lang,a.metrics.contribution);
     cell.title=tt('fs.'+family)+' · '+tt('s.roofScale')+' '+tp.toFixed(2)+' · '+tt('s.twist')+' '+tw+'°';
     cell.setAttribute('data-study-focus',family+':'+tp+':'+tw);
-    cell.setAttribute('aria-label',tt('s.col.apply')+' · '+cell.title+' · '+tt('c.floors')+' '+a.state.floors+' · '+tt('s.col.height')+' '+a.metrics.height.toFixed(0)+' m · '+tt('s.col.contribution')+' USD '+Math.round(a.metrics.contribution).toLocaleString(LOCALE[lang]));
+    cell.setAttribute('aria-label',tt('s.col.apply')+' · '+cell.title+' · '+tt('c.floors')+' '+a.state.floors+' · '+tt('s.col.height')+' '+quantity(a.metrics.height,'m',lang,0)+' · '+tt('s.col.contribution')+' '+formatMoney(a.metrics.contribution,lang));
     if(a===best)cell.classList.add('best');
     cell.onclick=()=>onApply(a);
    }else{
@@ -146,9 +147,10 @@ export function lattice(alternatives,family,tt,lang,onApply){
  fig.append(legend);
  return fig;
 }
-function caption(title,note){
+function currencyNote(text){const currency=getPreferences().currency;return currency==='USD'?text:text.replace(/USD/g,currency).replace(/ล้านดอลลาร์/g,'ล้าน '+currency).replace(/百万美元/g,'百万 '+currency)}
+function caption(title,note,lang='en'){
  const f=document.createElement('figcaption');f.textContent=title;
- const p=document.createElement('p');p.className='note';p.textContent=note;f.append(p);return f;
+ const p=document.createElement('p');p.className='note';p.textContent=currencyNote(note);f.append(p);return f;
 }
 const LOCALE={en:'en-US',th:'th-TH',zh:'zh-CN'};
 /* Millions with a pinned decimal. Intl's own compact notation is not usable
@@ -156,5 +158,5 @@ const LOCALE={en:'en-US',th:'th-TH',zh:'zh-CN'};
    currency. Dividing by a million gives the same four characters in all three
    locales, so a cell cannot overflow in one script and not another, and the
    unit is said once in words in the caption. */
-export const compact=(lang,v)=>new Intl.NumberFormat(LOCALE[lang]??'en-US',{minimumFractionDigits:1,maximumFractionDigits:1}).format(v/1e6);
+export const compact=(lang,v)=>new Intl.NumberFormat(LOCALE[lang]??'en-US',{minimumFractionDigits:1,maximumFractionDigits:1}).format(toDisplay(v,'USD')/1e6);
 export const familyName=(lang,f)=>families[f]??f;

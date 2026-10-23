@@ -1,4 +1,9 @@
-import {sheet,cut,beyond,leader,flow,head,dim,brkV,cl,ground,txt,rule} from './drafting.js?v=5dc3f3c796';
+import {displayText,quantity,getPreferences} from './preferences.js?v=e134c381e7';
+let drawingLang='en';
+const txt=(x,y,text,...rest)=>rawTxt(x,y,displayText(text,drawingLang),...rest);
+const leader=(x,y,tx,ty,text,...rest)=>rawLeader(x,y,tx,ty,displayText(text,drawingLang),...rest);
+const dim=(x1,y1,x2,y2,text,...rest)=>rawDim(x1,y1,x2,y2,getPreferences().units==='imperial'&&/^\d+(?:\.\d+)?$/.test(String(text))?quantity(Number(text),'mm',drawingLang,2):displayText(text,drawingLang),...rest);
+import {sheet,cut,beyond,leader as rawLeader,flow,head,dim as rawDim,brkV,cl,ground,txt as rawTxt,rule} from './drafting.js?v=5dc3f3c796';
 /* ── how the wall is put together, as distinct from what it is made of ───────
    The material library answers "what is this face?". It cannot answer "how is
    this face held on, drained, fire-stopped and got to when it fails?" — and
@@ -501,7 +506,7 @@ const DRAWINGS={
   +leader(150,83,198,58,'waterproofing already continuous')
   +dim(22,140,232,140,'1000')
  )};
-export function detailSVG(key){return (DRAWINGS[key]||DRAWINGS.cavity)()}
+export function detailSVG(key,lang='en'){drawingLang=lang;return (DRAWINGS[key]||DRAWINGS.cavity)()}
 export const DETAIL_DRAWS=Object.keys(DRAWINGS);
 
 /* The three figures a specifier asks for, with the standard each is measured

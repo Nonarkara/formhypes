@@ -23,9 +23,16 @@
 
    DNI is the 0.8 kW/m² transparent reference used everywhere else here. */
 import {solarPosition,cities} from './solar.js?v=9279efc6dc';
-import {profile,stackHeight} from './model.js?v=312df9a324';
+import {profile,stackHeight} from './model.js?v=fe3aa014a2';
 import {cityData,ringsIntersect} from './cityscape.js?v=dcc15cb0df';
-import {sheet,cut,leader,head,dim,rule,txt,flow,cl} from './drafting.js?v=5dc3f3c796';
+import {sheet,cut,leader as draftLeader,head,dim as draftDim,rule,txt as draftTxt,flow,cl} from './drafting.js?v=5dc3f3c796';
+import {displayText,displayContext,getPreferences,getRateBook} from './preferences.js?v=e134c381e7';
+let displayLang='en',displayKey='';
+const shown=value=>displayText(value,displayLang);
+const txt=(x,y,text,...args)=>draftTxt(x,y,shown(text),...args);
+const leader=(x,y,tx,ty,text,...args)=>draftLeader(x,y,tx,ty,shown(text),...args);
+const dim=(x,y,tx,ty,text,...args)=>draftDim(x,y,tx,ty,shown(text),...args);
+
 
 export const GLARE_DNI=800;               // W/m², the project's reference beam
 export const GLARE_LEVELS=12;
@@ -445,6 +452,7 @@ export function glareMethodPayload(day){
 }
 
 export function glareMethodSVG(p,{lang='en'}={}){
+ displayLang=lang;
  const c=GLARE_TEXT[lang]||GLARE_TEXT.en,M=c.mth;
  if(!p)return sheet('',MW,MH,'');
  const f0=v=>Number.isFinite(v)?v.toFixed(0):'—';
@@ -559,13 +567,13 @@ const compass=b=>T().compass[Math.round(((b%360)+360)%360/45)%8];
 const faceLabel=(i,b)=>String(i+1).padStart(2,'0')+' · '+compass(b)+' '+Math.round(b)+'°';
 const fmt=(n,d=0)=>{try{return Number(n).toLocaleString(L.lang==='zh'?'zh-CN':L.lang==='th'?'th-TH':'en-GB',{maximumFractionDigits:d,minimumFractionDigits:d})}catch{return Number(n).toFixed(d)}};
 function fmtDate(iso){try{return new Date(iso+'T12:00:00Z').toLocaleDateString(L.lang==='zh'?'zh-CN':L.lang==='th'?'th-TH':'en-GB',{day:'numeric',month:'short',timeZone:'UTC'})}catch{return iso}}
-function node(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+function node(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=(/(?:^|-)src$/.test(cls||'')?text:shown(text));return e}
 const effCity=()=>L.ctrl.city||(cities[L.state?.city]?L.state.city:'bangkok');
 const effDate=()=>L.ctrl.date||(/^\d{4}-\d{2}-\d{2}$/.test(L.state?.solarDate||'')?L.state.solarDate:'2026-06-21');
 const effRho=()=>L.ctrl.rho!=null?L.ctrl.rho:(MAT_RHO[L.state?.material]??.13);
 
 function build(host){
- const t=T();host.textContent='';
+ const t=T();host.textContent=shown('');
  const root=node('div','gl');root.setAttribute('lang',L.lang);
  const fig=node('div','gl-fig'),planBox=node('figure','gl-plan'),secBox=node('figure','gl-sec');
  const plan=node('canvas','gl-canvas');plan.setAttribute('role','img');plan.setAttribute('aria-label',t.planAria);
@@ -609,7 +617,7 @@ function build(host){
  const yearBox=node('div','gl-year'),yearBtn=node('button','',t.year);yearBtn.type='button';const yearOut=node('p','gl-year-out');yearOut.setAttribute('aria-live','polite');
  yearBox.append(yearBtn,yearOut,node('p','gl-hint',t.yearNote));
  const prose=node('div','gl-prose');
- for(const [h,p]of [['howHead','how'],['precHead','prec'],['cannotHead','cannot'],['sourcesHead','sources']]){const s=node('section','gl-note'+(p==='sources'?' gl-sources':''));s.append(node('h3','gl-h',t[h]),node('p','',t[p]));prose.append(s)}
+ for(const [h,p]of [['howHead','how'],['precHead','prec'],['cannotHead','cannot'],['sourcesHead','sources']]){const s=node('section','gl-note'+(p==='sources'?' gl-sources':''));s.append(node('h3','gl-h',t[h]),node('p',p==='sources'?'gl-src':'',t[p]));prose.append(s)}
  /* The method is a drawing now, not a paragraph. The prose that stood in for
     it explained the reflection and the summation; the sheet is what those
     words mean. */
@@ -637,20 +645,20 @@ function syncControls(){
  const e=L.els,t=T();if(!e)return;syncZoom();
  e.city.value=effCity();e.date.value=effDate();
  e.quickBtns.forEach(b=>b.setAttribute('aria-pressed',String(effDate().slice(5)===b.dataset.md)));
- e.rho.value=String(Math.round(Math.min(40,Math.max(8,effRho()*100))));e.rhoV.textContent=Math.round(effRho()*100)+' %';
- const m=L.state?.material;e.matP.textContent=MAT_RHO[m]!=null?fill(t.matNote,{m:t.mats[m]||m}):t.matOther;
- e.frit.value=String(Math.round(L.ctrl.frit*100));e.fritV.textContent=Math.round(L.ctrl.frit*100)+' %';
+ e.rho.value=String(Math.round(Math.min(40,Math.max(8,effRho()*100))));e.rhoV.textContent=shown(Math.round(effRho()*100)+' %');
+ const m=L.state?.material;e.matP.textContent=shown(MAT_RHO[m]!=null?fill(t.matNote,{m:t.mats[m]||m}):t.matOther);
+ e.frit.value=String(Math.round(L.ctrl.frit*100));e.fritV.textContent=shown(Math.round(L.ctrl.frit*100)+' %');
  e.leanOn.checked=L.ctrl.leanOn;e.lean.disabled=!L.ctrl.leanOn;e.lean.value=String(L.ctrl.lean);
- e.leanV.textContent=L.ctrl.leanOn?(L.ctrl.lean>0?'+':'')+L.ctrl.lean+'°':'—';
+ e.leanV.textContent=shown(L.ctrl.leanOn?(L.ctrl.lean>0?'+':'')+L.ctrl.lean+'°':'—');
  let ml=0;try{const g=facadeFacets(L.state,{levels:2,lean:null}),f=g.facets.filter(f=>f.level===0);ml=f.reduce((a,x)=>a+facetLean(x),0)/Math.max(1,f.length)}catch{}
- e.leanModel.textContent=fill(t.leanModel,{v:fmt(ml,1)});
+ e.leanModel.textContent=shown(fill(t.leanModel,{v:fmt(ml,1)}));
 }
 function syncZoom(){L.els?.zoomBtns.forEach((b,i)=>b.setAttribute('aria-pressed',String([150,300,600][i]===L.ctrl.view)))}
 function syncTransport(){
  const e=L.els,t=T();if(!e)return;
  const n=L.result?.frames.length||0;e.scrub.max=String(Math.max(0,n-1));e.scrub.value=String(L.frame);e.scrub.disabled=!n;
- const fr=L.result?.frames[L.frame];e.clock.textContent=fr?fr.time+' · '+fmtDate(effDate()):'—';
- e.play.hidden=reduced();e.play.disabled=!n;e.play.textContent=(L.playing?'❚❚ ':'▶ ')+(L.playing?t.pause:t.play);
+ const fr=L.result?.frames[L.frame];e.clock.textContent=shown(fr?fr.time+' · '+fmtDate(effDate()):'—');
+ e.play.hidden=reduced();e.play.disabled=!n;e.play.textContent=shown((L.playing?'❚❚ ':'▶ ')+(L.playing?t.pause:t.play));
  e.play.setAttribute('aria-pressed',String(L.playing));
 }
 function keyOf(){const s=L.state||{};return JSON.stringify([s.family,s.span,s.aspect,s.taper,s.twist,s.orientation,towerHeight(s),effCity(),effDate(),effRho(),L.ctrl.frit,L.ctrl.leanOn?L.ctrl.lean:null])}
@@ -671,26 +679,26 @@ function recompute(){
    L.els.methodBox.innerHTML=pay?glareMethodSVG(pay,{lang:L.lang}):'';
   }catch{L.els.methodBox.innerHTML=''}
   readouts();bars();syncTransport();setFrame(L.frame);
-  L.els.yearOut.textContent='';L.els.yearBtn.disabled=false;
- }catch(err){if(L.els)L.els.verdict.textContent='—'}
+  L.els.yearOut.textContent=shown('');L.els.yearBtn.disabled=false;
+ }catch(err){if(L.els)L.els.verdict.textContent=shown('—')}
 }
 function readouts(){
  const r=L.result,t=T(),e=L.els,d=e.dd,w=r.worst,fc=r.focus,date=fmtDate(r.date);
- d.peak.textContent=w?fmt(w.W)+' '+t.w:t.none;
- d.conc.textContent=fc?'×'+fc.count+' · '+fmt(fc.W)+' '+t.w+' · '+fc.time:w?t.single:t.none;
- d.worst.textContent=w?w.time+' · '+date:t.none;
+ d.peak.textContent=shown(w?fmt(w.W)+' '+t.w:t.none);
+ d.conc.textContent=shown(fc?'×'+fc.count+' · '+fmt(fc.W)+' '+t.w+' · '+fc.time:w?t.single:t.none);
+ d.worst.textContent=shown(w?w.time+' · '+date:t.none);
  const src=fc||w;
- d.faces.textContent=src?src.edges.map(i=>faceLabel(i,r.geom.edgeBearing[i])).join(', '):t.none;
- d.reach.textContent=r.anyGround?(r.reachBeyond?fill(t.beyondR,{r:r.grid.R}):fmt(r.reach)+' '+t.m):t.none;
- d.beyond.textContent=fmt(r.beyond,1)+' '+t.h;
- d.sky.textContent=fmt(r.sky,1)+' '+t.h;
+ d.faces.textContent=shown(src?src.edges.map(i=>faceLabel(i,r.geom.edgeBearing[i])).join(', '):t.none);
+ d.reach.textContent=shown(r.anyGround?(r.reachBeyond?fill(t.beyondR,{r:r.grid.R}):fmt(r.reach)+' '+t.m):t.none);
+ d.beyond.textContent=shown(fmt(r.beyond,1)+' '+t.h);
+ d.sky.textContent=shown(fmt(r.sky,1)+' '+t.h);
  const nb=r.hitNeighbours[0];
- d.nb.textContent=nb?fill(t.nbFmt,{n:r.hitNeighbours.length,h:fmt(nb.hours,1),ht:fmt(nb.h),d:fmt(Math.hypot(nb.cx,nb.cy)),dir:compass(Math.atan2(nb.cx,nb.cy)/RAD)}):t.none;
+ d.nb.textContent=shown(nb?fill(t.nbFmt,{n:r.hitNeighbours.length,h:fmt(nb.hours,1),ht:fmt(nb.h),d:fmt(Math.hypot(nb.cx,nb.cy)),dir:compass(Math.atan2(nb.cx,nb.cy)/RAD)}):t.none);
  const facesG=r.faces.filter(f=>f.ground>0).length;
- e.verdict.textContent=!w?fill(t.vNone,{date}):!fc?fill(t.vDiverge,{n:facesG,w:fmt(w.W)}):fill(t.vConverge,{c:fc.count,time:fc.time,date,d:fmt(Math.hypot(fc.x,fc.y)),dir:compass(Math.atan2(fc.x,fc.y)/RAD),w:fmt(fc.W)});
+ e.verdict.textContent=shown(!w?fill(t.vNone,{date}):!fc?fill(t.vDiverge,{n:facesG,w:fmt(w.W)}):fill(t.vConverge,{c:fc.count,time:fc.time,date,d:fmt(Math.hypot(fc.x,fc.y)),dir:compass(Math.atan2(fc.x,fc.y)/RAD),w:fmt(fc.W)}));
 }
 function bars(){
- const r=L.result,t=T(),list=L.els.barsList;list.textContent='';
+ const r=L.result,t=T(),list=L.els.barsList;list.textContent=shown('');
  const rows=r.faces.filter(f=>f.ground>0).sort((a,b)=>b.ground-a.ground).slice(0,10);
  if(!rows.length){list.append(node('p','gl-hint',t.barsNone));return}
  const max=rows[0].ground;
@@ -710,7 +718,7 @@ function accumulate(to){
  const r=L.result,g=r.grid,N=g.n*g.n;
  if(!L.acc||to<L.accTo){L.acc=new Float32Array(N);L.accTo=-1;L.img=null}
  if(!L.off&&typeof document!=='undefined'){L.off=document.createElement('canvas');L.off.width=g.n;L.off.height=g.n}
- const ctx=L.off?.getContext('2d');if(!ctx)return;
+ const ctx=displayContext(L.off?.getContext('2d'),displayLang);if(!ctx)return;
  if(!L.img)L.img=ctx.createImageData(g.n,g.n);
  const px=L.img.data,rgb=[245,158,11];
  for(let k=L.accTo+1;k<=to;k++){const fr=r.frames[k];if(!fr)continue;for(const idx of fr.cells){const h=(L.acc[idx]+=r.dt);let b=0;while(b<HEAT_EDGES.length&&h>HEAT_EDGES[b])b++;const i=idx%g.n,j=(idx/g.n)|0,p=((g.n-1-j)*g.n+i)*4;px[p]=rgb[0];px[p+1]=rgb[1];px[p+2]=rgb[2];px[p+3]=Math.round(HEAT[b]*255)}}
@@ -725,7 +733,7 @@ function sizeCanvases(){
 const canvasFont=()=>"12px 'IBM Plex Mono','IBM Plex Sans Thai','Noto Sans SC',ui-monospace,monospace";
 function draw(){try{drawPlan();drawSection()}catch{}}
 function drawPlan(){
- const c=L.els?.plan,r=L.result;if(!c||!r)return;const ctx=c.getContext('2d');if(!ctx)return;
+ const c=L.els?.plan,r=L.result;if(!c||!r)return;const ctx=displayContext(c.getContext('2d'),displayLang);if(!ctx)return;
  const dpr=Math.min(3,globalThis.devicePixelRatio||1),w=c.width/dpr,h=c.height/dpr;if(!w||!h)return;
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=SHEET;ctx.fillRect(0,0,w,h);
  const geom=r.geom,fr=r.frames[L.frame];
@@ -773,11 +781,11 @@ function drawPlan(){
  ctx.restore();
 }
 function drawSection(){
- const c=L.els?.sec,r=L.result;if(!c||!r)return;const ctx=c.getContext('2d');if(!ctx)return;
+ const c=L.els?.sec,r=L.result;if(!c||!r)return;const ctx=displayContext(c.getContext('2d'),displayLang);if(!ctx)return;
  const dpr=Math.min(3,globalThis.devicePixelRatio||1),w=c.width/dpr,h=c.height/dpr;if(!w||!h)return;
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=SHEET;ctx.fillRect(0,0,w,h);
  const t=T(),geom=r.geom,e=L.ctrl.face??0,fr=r.frames[L.frame],bearing=geom.edgeBearing[e]??0;
- L.els.secCap.textContent=fill(t.section,{f:faceLabel(e,bearing)});
+ L.els.secCap.textContent=shown(fill(t.section,{f:faceLabel(e,bearing)}));
  const n=geom.n,mid=k=>{const a=geom.rings[k][e],b=geom.rings[k][(e+1)%n];return [(a[0]+b[0])/2,(a[1]+b[1])/2,a[2]]};
  const f0=geom.facets.find(f=>f.edge===e&&f.level===0);if(!f0)return;const nh=f0.nh,o=mid(0);
  const pts=[];for(let k=0;k<=geom.K;k++){const p=mid(k);pts.push([(p[0]-o[0])*nh[0]+(p[1]-o[1])*nh[1],p[2]])}
@@ -820,9 +828,9 @@ function runYear(){
  e.yearBtn.disabled=true;let geom;try{geom=facadeFacets(s,{lean:L.ctrl.leanOn?L.ctrl.lean:null})}catch{e.yearBtn.disabled=false;return}
  let i=0;const next=()=>{
   if(job!==L.yearJob)return;
-  if(i>=YEAR_DAYS.length){const sum=yearSummary(tally);L.year=sum;e.yearOut.textContent=fill(T().yearOut,{g:fmt(sum.ground),a:fmt(sum.area),nh:fmt(sum.neighbour)});e.yearBtn.disabled=false;return}
+  if(i>=YEAR_DAYS.length){const sum=yearSummary(tally);L.year=sum;e.yearOut.textContent=shown(fill(T().yearOut,{g:fmt(sum.ground),a:fmt(sum.area),nh:fmt(sum.neighbour)}));e.yearBtn.disabled=false;return}
   try{const [mm,dd]=YEAR_DAYS[i];yearAdd(tally,glareDay(s,{city,date:y+'-'+mm+'-'+dd,rhoN:effRho(),frit:L.ctrl.frit,lean:L.ctrl.leanOn?L.ctrl.lean:null,stepMin:15,frames:false,geom}))}catch{}
-  i++;e.yearOut.textContent=fill(t.yearRun,{p:Math.round(100*i/YEAR_DAYS.length)});setTimeout(next,0);
+  i++;e.yearOut.textContent=shown(fill(t.yearRun,{p:Math.round(100*i/YEAR_DAYS.length)}));setTimeout(next,0);
  };next();
 }
 
@@ -832,6 +840,8 @@ export function renderGlareLab({host,state,metrics,lang,active}={}){
   if(!host||typeof document==='undefined')return;
   L.state=state&&typeof state==='object'?state:L.state;if(!L.state)return;
   const lg=GLARE_TEXT[lang]?lang:'en',wasActive=L.active;L.active=!!active;
+  displayLang=lg;const preferenceKey=JSON.stringify([getPreferences(),getRateBook()]);
+  if(displayKey!==preferenceKey){L.built=false;displayKey=preferenceKey}
   if(!L.built||L.host!==host||L.lang!==lg||!host.contains(L.els?.root)){L.lang=lg;L.host=host;build(host);L.key='';if(L.result){/* rebuild DOM around the existing result */}}
   if(!L.active){cancelAnimationFrame?.(L.raf);L.raf=0;return}
   recompute();

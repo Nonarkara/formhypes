@@ -32,9 +32,16 @@
    than the stacks carry, the difference stands on the roof, and the figure
    shows it standing there. */
 
-import {stack,profile,area,evaluate} from './model.js?v=312df9a324';
-import {liftDesign,servicesDesign,CORE_SRC} from './core.js?v=2d204c2084';
-import {sheet,cut,leader,dim,rule,txt,ground} from './drafting.js?v=5dc3f3c796';
+import {stack,profile,area,evaluate} from './model.js?v=fe3aa014a2';
+import {liftDesign,servicesDesign,CORE_SRC} from './core.js?v=bb23192477';
+import {sheet,cut,leader as draftLeader,dim as draftDim,rule,txt as draftTxt,ground} from './drafting.js?v=5dc3f3c796';
+import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=e134c381e7';
+let displayLang='en',displayKey='';
+const shown=value=>displayText(value,displayLang);
+const txt=(x,y,text,...args)=>draftTxt(x,y,shown(text),...args);
+const leader=(x,y,tx,ty,text,...args)=>draftLeader(x,y,tx,ty,shown(text),...args);
+const dim=(x,y,tx,ty,text,...args)=>draftDim(x,y,tx,ty,shown(text),...args);
+
 
 export const WATER_METHOD={
  rho:1000,g:9.81,
@@ -454,6 +461,7 @@ export function waterMethodPayload(d){
 }
 
 export function waterMethodSVG(p,{lang='en'}={}){
+ displayLang=lang;
  const c=WATER_TEXT[lang]||WATER_TEXT.en;
  if(!p)return sheet('',MW,MH,'');
  const nf=nfmt(lang);
@@ -540,7 +548,7 @@ const L0={view:'supply',strat:'C',playing:true,t:8,tm:0,gauge:null,
 const S={host:null,lang:null,ui:null,key:'',d:null,sim:null,r:null,raf:0,last:0,active:false,ro:null,
  ctl:JSON.parse(JSON.stringify(L0)),state:null,metrics:null,mono:'monospace'};
 
-const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e};
+const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=(/(?:^|-)src$/.test(cls||'')?text:shown(text));return e};
 const reduced=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function segment(name,opts,get,set){
@@ -551,17 +559,17 @@ function segment(name,opts,get,set){
 }
 function slider(T,key,o,get,set){
  const lab=el('label','wat-field'),row=el('span','wat-lab'),name=el('span',null,T[key]),out=el('output','wat-out');
- const inp=el('input');inp.type='range';inp.min=o.min;inp.max=o.max;inp.step=o.step;inp.value=get();
- inp.oninput=()=>{set(+inp.value);update()};
+ const inp=el('input');inp.type='range';inp.min=toDisplay(o.min,o.unit||'');inp.max=toDisplay(o.max,o.unit||'');inp.step=toDisplay(o.step,o.unit||'');inp.value=toDisplay(get(),o.unit||'');
+ inp.oninput=()=>{set(fromDisplay(+inp.value,o.unit||''));update()};
  row.append(name,out);lab.append(row,inp);
  const fmtv=()=>o.fmt?o.fmt(get()):(+get()).toFixed(o.dec||0)+(o.unit?' '+o.unit:'');
- out.textContent=fmtv();
- return{node:lab,input:inp,sync(){if(document.activeElement!==inp)inp.value=get();out.textContent=fmtv()}};
+ out.textContent=shown(fmtv());
+ return{node:lab,input:inp,sync(){if(document.activeElement!==inp)inp.value=toDisplay(get(),o.unit||'');out.textContent=shown(fmtv())}};
 }
 
 function build(host,lang){
  const T=WATER_TEXT[lang]||WATER_TEXT.en,c=S.ctl;
- host.textContent='';
+ host.textContent=shown('');
  const root=el('div','wat');root.lang=lang;
  const canvas=el('canvas','wat-canvas');canvas.setAttribute('role','img');canvas.setAttribute('aria-label',T.aria);
  const bar=el('div','wat-bar');
@@ -623,10 +631,10 @@ function row(key,label){
 }
 function triple(key,label,vals){
  const r=row(key,label);
- if(!r.spans){r.dd.textContent='';r.spans=['A','B','C'].map(k=>{const s=el('span','wat-v');r.dd.append(s);return s})}
- r.spans.forEach((s,i)=>{s.textContent='ABC'[i]+' '+vals[i];s.classList.toggle('is-on',S.ctl.strat==='ABC'[i])});
+ if(!r.spans){r.dd.textContent=shown('');r.spans=['A','B','C'].map(k=>{const s=el('span','wat-v');r.dd.append(s);return s})}
+ r.spans.forEach((s,i)=>{s.textContent=shown('ABC'[i]+' '+vals[i]);s.classList.toggle('is-on',S.ctl.strat==='ABC'[i])});
 }
-function single(key,label,val){const r=row(key,label);r.spans=null;r.dd.textContent=val}
+function single(key,label,val){const r=row(key,label);r.spans=null;r.dd.textContent=shown(val)}
 
 /* Recompute only when the tower or a lab control changed. */
 function compute(){
@@ -640,30 +648,30 @@ function update(){
   const u=S.ui;if(!u)return;compute();
   const T=u.T,c=S.ctl,d=S.d,r=S.r,nf=nfmt(S.lang),sup=c.view==='supply';
   u.view.sync();u.strat.sync();u.useSeg.sync();u.modeSeg.sync();u.dnSeg.sync();
-  u.strat.node.hidden=!sup;u.stratName.hidden=!sup;u.stratName.textContent=T['s'+c.strat];
+  u.strat.node.hidden=!sup;u.stratName.hidden=!sup;u.stratName.textContent=shown(T['s'+c.strat]);
   u.time.node.hidden=!sup;u.storm.node.hidden=sup;u.sup.hidden=!sup;u.dr.hidden=sup;
-  u.play.textContent=c.playing&&!reduced()?T.pause:T.play;u.play.setAttribute('aria-pressed',String(c.playing));
+  u.play.textContent=shown(c.playing&&!reduced()?T.pause:T.play);u.play.setAttribute('aria-pressed',String(c.playing));
   const nFloors=d.floors.length;if(c.gauge==null||c.gauge>nFloors)c.gauge=Math.max(1,Math.round(nFloors*0.5));
   u.sc[6].input.max=nFloors;u.storm.input.max=r.inp.dur;
   for(const x of [...u.sc,...u.dc,u.time,u.storm])x.sync();
   u.popIn.placeholder=String(d.popAuto);if(document.activeElement!==u.popIn)u.popIn.value=c.sup.pop==null?'':String(c.sup.pop);
-  u.read.textContent='';u.rows={};
+  u.read.textContent=shown('');u.rows={};
   if(sup){
    const k3=f=>['A','B','C'].map(k=>f(d[k],S.sim.series[k]));
    single('zones',T.rZones,fill(T.zonesV,{n:d.zones.length,b:nf(d.band,1)}));
    single('demand',T.rDemand,fill(T.demandV,{p:nf(d.pop),l:nf(d.inp.lpd),v:nf(d.V,1)}));
    triple('energy',T.rEnergy+', kWh/d',k3(x=>nf(x.energy)));
-   triple('head',T.rHead+', m',k3(x=>nf(x.head)));
+   triple('head',T.rHead+', '+unitLabel('m'),k3(x=>nf(toDisplay(x.head,'m'))));
    triple('waste',T.rWaste,k3(x=>nf(x.waste*100)+'%'));
-   triple('pipe',T.rPipe+', bar',k3(x=>nf(x.pipeBar,1)));
+   triple('pipe',T.rPipe+', '+unitLabel('bar'),k3(x=>nf(toDisplay(x.pipeBar,'bar'),1)));
    triple('tanks',T.rTanks,k3(x=>String(x.tanks.length)));
-   triple('mass',T.rMass+', t',k3(x=>nf(x.mass)));
-   triple('massZ',T.rMassZ+', m',k3(x=>x.massZ==null?'—':nf(x.massZ)));
+   triple('mass',T.rMass+', '+unitLabel('t'),k3(x=>nf(toDisplay(x.mass,'t'))));
+   triple('massZ',T.rMassZ+', '+unitLabel('m'),k3(x=>x.massZ==null?'—':nf(toDisplay(x.massZ,'m'))));
    triple('pumps',T.rPumps,k3(x=>String(x.pumps)));
    if(S.sim.outage>0)triple('outage',T.rOutage,k3((x,ss)=>fill(T.keptV,{k:nf(ss.kept,1),o:nf(S.sim.outage,1)})));
    else triple('store',T.rStore+', h',k3(x=>nf(x.storageH)));
-   u.rec.textContent=supplySentence(d,S.sim,S.lang)+(d.C.assumed?' (C: '+T.cAssumed+')':'');
-   u.note.textContent=T.note;
+   u.rec.textContent=shown(supplySentence(d,S.sim,S.lang)+(d.C.assumed?' (C: '+T.cAssumed+')':''));
+   u.note.textContent=shown(T.note);
    u.src.textContent=T.sources+': '+[WATER_SRC.pressure,WATER_SRC.demand,WATER_SRC.energy].join(' · ');
   }else{
    single('roof',T.dRoof,nf(r.roof)+' m²');
@@ -677,11 +685,11 @@ function update(){
    single('ww',T.dWaste,r.waste.stacks+' × DN'+r.waste.stackMM);
    single('brk',T.dBreak,String(r.waste.velocityBreakers));
    single('vent',T.dVent,String(r.waste.ventStacks));
-   u.rec.textContent=drainSentence(r,S.lang);
-   u.note.textContent=T.noteDrain;
+   u.rec.textContent=shown(drainSentence(r,S.lang));
+   u.note.textContent=shown(T.noteDrain);
    u.src.textContent=T.sources+': '+[WATER_SRC.rain,WATER_SRC.drains].join(' · ');
   }
-  u.cannot.textContent=T.cannot;u.assumes.textContent=T.assumes;
+  u.cannot.textContent=shown(T.cannot);u.assumes.textContent=shown(T.assumes);
   /* the method sheet, drawn from the SAME design the numbers above came from */
   try{const pay=waterMethodPayload(S.d);u.methodBox.innerHTML=pay?waterMethodSVG(pay,{lang:S.lang}):''}catch{u.methodBox.innerHTML=''}
   u.canvas.setAttribute('aria-label',T.aria+'. '+u.rec.textContent);
@@ -716,7 +724,7 @@ function frame(ts){
 function draw(){
  try{
   const cv=S.ui?.canvas;if(!cv||!S.d)return;
-  if(!S.dim)size();const {w,h,dpr}=S.dim,ctx=cv.getContext('2d');if(!ctx)return;
+  if(!S.dim)size();const {w,h,dpr}=S.dim,ctx=displayContext(cv.getContext('2d'),displayLang);if(!ctx)return;
   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=C.bg;ctx.fillRect(0,0,w,h);
   ctx.font='11px '+S.mono;ctx.textBaseline='alphabetic';ctx.lineCap='butt';
   if(S.ctl.view==='supply')drawSupply(ctx,w,h);else drawDrain(ctx,w,h);
@@ -905,6 +913,8 @@ export function renderWaterLab({host,state,metrics,lang='en',active=false}={}){
   if(!host||!state)return;
   const L=WATER_TEXT[lang]?lang:'en';
   S.state=state;S.metrics=metrics;S.active=!!active;
+  displayLang=L;const preferenceKey=JSON.stringify([getPreferences(),getRateBook()]);
+  if(displayKey!==preferenceKey){S.lang=null;displayKey=preferenceKey}
   if(S.host!==host||S.lang!==L||!S.ui||!host.contains(S.ui.root)){S.host=host;S.lang=L;S.key='';build(host,L)}
   if(!S.active){loop();return}
   size();update();

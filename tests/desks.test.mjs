@@ -1,3 +1,5 @@
+import {quantity} from '../dist/preferences.js';
+import {runInNewContext} from 'node:vm';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -477,8 +479,11 @@ test('the isometric view measures the crown, not just the roof',()=>{
  assert.ok(/ext=total\+chH/.test(app),'the drawing needs a crown-inclusive extent');
  assert.ok(app.includes('ext*.96*scale'),'the dimension must be graduated to the crown');
  assert.ok(app.includes('m<=ext'),'graduations must run to the crown');
- assert.ok(/heightLabel'\)\.textContent=metrics\.heightTotal/.test(app),
-  'the header height must include the crown');
+ const assignment=app.match(/^.*\$\('heightLabel'\)\.textContent=.*$/m)?.[0];
+ assert.ok(assignment,'the height header is never updated');
+ const header={textContent:''};
+ runInNewContext(assignment,{$:id=>{assert.equal(id,'heightLabel');return header},metrics:{height:50,heightTotal:88},quantity,lang:'en'});
+ assert.equal(header.textContent,quantity(88,'m','en',1),'the header height must include the crown');
  // And the crown must be drawn from the same table the numbers come from.
  assert.ok(app.includes('crownPlates(crown)'),'the crown must be drawn from crownPlates');
 });
