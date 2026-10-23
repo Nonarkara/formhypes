@@ -200,6 +200,10 @@ A test is worth writing only if it would fail when the thing is wrong.
 
 ## 7. The commands, and the order they must run in
 
+Run `npm ci --ignore-scripts` after cloning or updating the lockfile. Acorn is
+a locked development dependency for the release-graph guard; it adds no bytes
+to the public application. CI installs it before running the checks.
+
 ```bash
 node scripts/release-id.mjs      # 1. stamp every ?v= token
 npm test                         # 2. every test file in tests/

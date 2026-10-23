@@ -7,6 +7,9 @@
     "release": "node scripts/release-id.mjs",
     "deploy": "npm run release && npm test && node scripts/deploy.mjs",
     "dev": "python3 -m http.server 8765 --directory dist",
-    "test:mutations": "node scripts/probe-shipability.mjs"
+    "test:mutations": "node scripts/probe-shipability.mjs && node scripts/probe-release-graph.mjs"
+  },
+  "devDependencies": {
+    "acorn": "8.19.0"
   }
 }

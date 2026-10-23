@@ -18,15 +18,16 @@
 
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync, readdirSync, existsSync} from 'node:fs';
+import {readFileSync, existsSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
+import {moduleFiles,moduleImports,withoutComments,edgeTarget} from '../scripts/release-graph.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const DIST = join(ROOT, 'dist');
-const stamper = readFileSync(join(ROOT, 'scripts/release-id.mjs'), 'utf8');
-const modules = readdirSync(DIST).filter(f => f.endsWith('.js'));
+const stamper = withoutComments(readFileSync(join(ROOT, 'scripts/release-id.mjs'), 'utf8'));
+const modules = moduleFiles(DIST);
 
 const literal = name => {
   const at = stamper.search(new RegExp(`const\\s+${name}\\s*=\\s*\\[`));
@@ -52,11 +53,7 @@ test('every import edge carries a version token, and points at a file that exist
   const edges = [];
   for (const f of modules) {
     const src = readFileSync(join(DIST, f), 'utf8');
-    for (const m of src.matchAll(/from\s*'([^']+)'|import\s*'([^']+)'/g)) {
-      const ref = m[1] || m[2];
-      if (!ref.startsWith('./') && !ref.startsWith('knowledge/')) continue;
-      edges.push({from: f, ref});
-    }
+    for (const ref of moduleImports(src)) edges.push({from: f, ref});
   }
   const html = readFileSync(join(DIST, 'index.html'), 'utf8');
   for (const m of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
@@ -69,7 +66,7 @@ test('every import edge carries a version token, and points at a file that exist
     .map(e => `${e.from} -> ${e.ref}`);
   assert.deepEqual(bare, [],
     `these edges carry no version token, so a changed dependency can hide behind an unchanged importer:\n${bare.join('\n')}`);
-  const dangling = [...new Set(edges.map(e => e.ref.split('?')[0].replace(/^\.\//, '')))]
+  const dangling = [...new Set(edges.map(e => edgeTarget(e.from,e.ref)))]
     .filter(t => !existsSync(join(DIST, t)));
   assert.deepEqual(dangling, [], `these edges point at files that are not there:\n${dangling.join('\n')}`);
 });
@@ -100,12 +97,7 @@ test('the stamper covers every edge of every module it stamps', () => {
   const uncovered = [], orphanImports = [];
   for (const f of modules) {
     const src = readFileSync(join(DIST, f), 'utf8');
-    const imports = [];
-    for (const m of src.matchAll(/from\s*'([^']+)'|import\s*'([^']+)'/g)) {
-      const ref = (m[1] || m[2]);
-      if (!ref.startsWith('./') && !ref.startsWith('knowledge/')) continue;
-      imports.push(ref.split('?')[0].replace(/^\.\//, ''));
-    }
+    const imports = moduleImports(src).map(ref=>ref.split('?')[0].replace(/^\.\//, ''));
     const list = perModule.get(f);
     if (!list) {
       if (imports.length) orphanImports.push(`${f} imports ${imports.join(', ')} but the stamper never stamps it`);
@@ -129,11 +121,7 @@ test('the stamp is content-derived: every token is the hash of the bytes it poin
   const edges = [];
   for (const f of modules) {
     const src = readFileSync(join(DIST, f), 'utf8');
-    for (const m of src.matchAll(/from\s*'([^']+)'|import\s*'([^']+)'/g)) {
-      const ref = m[1] || m[2];
-      if (!ref.startsWith('./') && !ref.startsWith('knowledge/')) continue;
-      edges.push({from: f, ref});
-    }
+    for (const ref of moduleImports(src)) edges.push({from: f, ref});
   }
   const html = readFileSync(join(DIST, 'index.html'), 'utf8');
   for (const m of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
@@ -145,7 +133,7 @@ test('the stamp is content-derived: every token is the hash of the bytes it poin
   for (const e of edges) {
     const [file, raw] = e.ref.split('?');
     const token = (raw || '').replace(/^v=/, '');
-    const target = join(DIST, file.replace(/^\.\//, ''));
+    const target = join(DIST, edgeTarget(e.from,e.ref));
     if (!existsSync(target)) continue;
     const actual = sha(readFileSync(target));
     if (token !== actual) wrong.push(`${e.from} -> ${e.ref} (the bytes hash to ${actual})`);

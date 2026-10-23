@@ -423,3 +423,11 @@ Three holes in the new guard were found by mutation, and all three were holes in
 **Laws kept.** A name that has to survive translation belongs in the string table, not in the data it names. A column hidden by its position is a column that will hide the wrong one. An action that falls off the edge is an action the reader cannot take. The release graph is not a convention — it is a thing that can be checked, and a thing that can be checked should be.
 
 **Open.** The drivers still scroll sideways at 390 and the roof value is clipped by 4px at the edge; the candidate name wraps. `app.js` and `i18n.js` remain hubs. The main book's tenth page remains Dr Non's call. Chen's licensing stays deferred and untouched. Three instrument traps are recorded in the review: a closed `<details>` reports a stale rect (filter with `checkVisibility()`), `python3 -m http.server` is single-threaded and deadlocks Chrome's parallel module fetches, and `captureBeyondViewport` returns the whole page.
+
+## 2026-10-23 · Codex · the release guard's discovery boundary
+
+- Found: three independently reproduced false-green releases after stamping: double-quoted missing import, an unstamped vendor dependency, and a filename registered only in a comment. Current live pins themselves were correct.
+- Changed: development-only syntax parser, recursive shipped-module discovery, importer-relative paths and parsed comment exclusion. Four parser tests and three isolated full-stamp mutation checks; CI installs the locked dependency. Public assets unchanged.
+- Verified:573 tests; original3 false-green probes killed independently. Live Thai table at390/1024/1440: pinned Apply in view, no page-wide overflow; keyboard scroll reveals complete driver values; Apply transfers the row's US$23,013,485 to the form desk. Independent code and screenshot review found no blocker.
+- Remaining: phone drivers scroll and candidate names wrap; explicit stamper lists retained; no book/licensing changes. Evidence: docs/RELEASE-GUARD-AUDIT-2026-10-23.md.
+- Shared lesson captured first: Scars/Debug-Logs/2026-10-23-release-graph-checks-must-parse-imports-and-inspect-nested-shipped-modules.md.

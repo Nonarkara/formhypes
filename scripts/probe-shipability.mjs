@@ -48,7 +48,9 @@ const TESTS=['shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
  'material-name.test.mjs','explore-table.test.mjs','release-graph.test.mjs'];
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));
- await mkdir(join(dir,'scripts'));await copyFile('scripts/building-height.mjs',join(dir,'scripts/building-height.mjs'));
+ await symlink(resolve('node_modules'),join(dir,'node_modules'));
+
+ await mkdir(join(dir,'scripts'));await copyFile('scripts/release-graph.mjs',join(dir,'scripts/release-graph.mjs'));await copyFile('scripts/building-height.mjs',join(dir,'scripts/building-height.mjs'));
  await copyFile('scripts/release-id.mjs',join(dir,'scripts/release-id.mjs'));
  await copyFile('package.json',join(dir,'package.json'));
  for(const t of TESTS)await copyFile('tests/'+t,join(dir,'tests',t));
