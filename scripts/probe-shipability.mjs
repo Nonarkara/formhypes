@@ -25,23 +25,46 @@ const cases=[
  ['infeasible candidate changes scale','model.js','results.filter(x=>x.metrics.valid),ranges','results,ranges','mixed regimes apply'],
  ['Brief lost on save','app.js','brief:getBriefStudy(state).inputs','brief:undefined','actual Save/Reload'],
  ['failed deletion loses a study','app.js','studies.splice(i,0,...removed);','/* rollback removed */','actual Save/Reload'],
- ['crown missing from shadow cache key','context.js','s.program,s.height,s.crown,ns','s.program,s.height,ns','crown changes reach']
+ ['crown missing from shadow cache key','context.js','s.program,s.height,s.crown,ns','s.program,s.height,ns','crown changes reach'],
+ // The 23 October shipability audit: the material names, the candidate
+ // table's reading order, and the release graph itself.
+ ['material select falls back to the English table','app.js',"matL[k]=tri('mat.'+k)","matL[k]=MATERIALS[k].label",'the material select is built from the string table'],
+ ['the note names the material in English','app.js',"name:tt('mat.'+state.material)",'name:mt.label','the note under the material is headed by the material'],
+ ['the swatch is named in English','app.js',"b.setAttribute('aria-label',tt('mat.'+k))","b.setAttribute('aria-label',m.label)",'material swatches remain discoverable'],
+ ['the schedule names the material in English','quantity.js',"table['mat.'+(info.mat||'float')]","MATERIALS[info.mat].label",'the quantity schedule names the material'],
+ ['a Thai material name is the English name','i18n.js',"'mat.float':'กระจกโฟลตใส'","'mat.float':'Float glass, clear'",'every material is named in all three languages'],
+ ['the action column is not last','app.js',"['cand',tt('s.col.candidate'),false],","['apply',tt('s.col.candidate'),false],",'the candidate table reads in decision order'],
+ ['the columns lose their names','app.js','class="c-${c}"','class=""','every column carries its own name'],
+ ['the identical columns are hidden by position again','console.css','.console-dock .tablewrap .c-gross,.console-dock .tablewrap .c-rentable{display:none}','.console-dock .tablewrap th:nth-child(3),.console-dock .tablewrap td:nth-child(3),.console-dock .tablewrap th:nth-child(4),.console-dock .tablewrap td:nth-child(4){display:none}','the two identical columns are hidden by name'],
+ ['the action is not pinned','console.css','position:sticky;right:0;','position:static;','the action is pinned to the right edge'],
+ ['a module ships without being hashed','stamper',"'crowns.js','materials.js','details.js',","'crowns.js','details.js',",'every module that ships is hashed'],
+ ['an import edge is left out of the stamp','stamper',"'./materials.js','./i18n.js'","'./materials.js'",'the stamper covers every edge']
 ];
+// The files the mutants are written into. Everything else is symlinked, so a
+// mutation cannot leak into the working tree.
+const MUTABLE=['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js',
+ 'console.css','i18n.js','quantity.js'];
+const TESTS=['shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
+ 'material-name.test.mjs','explore-table.test.mjs','release-graph.test.mjs'];
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));
  await mkdir(join(dir,'scripts'));await copyFile('scripts/building-height.mjs',join(dir,'scripts/building-height.mjs'));
- await copyFile('tests/decisions.test.mjs',join(dir,'tests/decisions.test.mjs'));
- await copyFile('tests/environment.test.mjs',join(dir,'tests/environment.test.mjs'));
- await copyFile('package.json',join(dir,'package.json'));await copyFile('tests/shipability.test.mjs',join(dir,'tests/shipability.test.mjs'));
- for(const name of await readdir('dist'))if(!['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js'].includes(name))await symlink(resolve('dist',name),join(dir,'dist',name));
- const original={};for(const f of ['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js'])original[f]=await readFile('dist/'+f,'utf8');
- const stage=async(file,before,after)=>{for(const [f,s]of Object.entries(original))await writeFile(join(dir,'dist',f),f===file?s.replaceAll(before,after):s)};
+ await copyFile('scripts/release-id.mjs',join(dir,'scripts/release-id.mjs'));
+ await copyFile('package.json',join(dir,'package.json'));
+ for(const t of TESTS)await copyFile('tests/'+t,join(dir,'tests',t));
+ for(const name of await readdir('dist'))if(!MUTABLE.includes(name))await symlink(resolve('dist',name),join(dir,'dist',name));
+ const original={};for(const f of MUTABLE)original[f]=await readFile('dist/'+f,'utf8');
+ const stamperOriginal=await readFile('scripts/release-id.mjs','utf8');
+ const stage=async(file,before,after)=>{
+  for(const [f,s]of Object.entries(original))await writeFile(join(dir,'dist',f),f===file?s.replaceAll(before,after):s);
+  await writeFile(join(dir,'scripts/release-id.mjs'),file==='stamper'?stamperOriginal.replace(before,after):stamperOriginal);};
  const heightOriginal=await readFile('scripts/building-height.mjs','utf8');
- const run=pattern=>spawnSync(process.execPath,['--test',...(pattern?['--test-name-pattern',pattern]:[]),join(dir,'tests/shipability.test.mjs'),join(dir,'tests/environment.test.mjs'),join(dir,'tests/decisions.test.mjs')],{encoding:'utf8'});
+ const run=pattern=>spawnSync(process.execPath,['--test',...(pattern?['--test-name-pattern',pattern]:[]),...TESTS.map(t=>join(dir,'tests',t))],{encoding:'utf8'});
  await stage();const baseline=run();if(baseline.status!==0)throw Error('Isolated baseline failed: '+baseline.stdout+baseline.stderr);
  console.log('PASS: isolated baseline');
  for(const [name,file,before,after,pattern]of cases){
-  if(!(file==='height'?heightOriginal:original[file]).includes(before))throw Error('Missing mutation target: '+name);
+  const source=file==='height'?heightOriginal:(file==='stamper'?stamperOriginal:original[file]);
+  if(!source.includes(before))throw Error('Missing mutation target: '+name);
   await writeFile(join(dir,'scripts/building-height.mjs'),file==='height'?heightOriginal.replace(before,after):heightOriginal);
   await stage(file,before,after);const result=run(pattern);
   if(result.status===0){console.error('SURVIVED: '+name);process.exitCode=1}else console.log('KILLED: '+name);

@@ -132,8 +132,11 @@ const guided=stamp(await read('research-reader.js'), ['./research-tracks.js','./
 await write('research-reader.js',guided);ids['research-reader.js']=sha(guided);
 
 // quantity.js reads the model after the model stamp has settled, then app.js
-// pins the quantity module it actually imports.
-const quantity = stamp(await read('quantity.js'), ['./model.js','./geometry.js','./areasplit.js','./materials.js'], ids);
+// pins the quantity module it actually imports. It also reads the string table
+// for the material names, so that edge is pinned too: a schedule whose header
+// names a cladding differently from the studio is a schedule that disagrees
+// with the page it was taken from.
+const quantity = stamp(await read('quantity.js'), ['./model.js','./geometry.js','./areasplit.js','./materials.js','./i18n.js'], ids);
 await write('quantity.js', quantity);
 ids['quantity.js'] = sha(quantity);
 

@@ -18,6 +18,12 @@ import {stack, profile, area, evaluate, glazingAt, facadeFamilies} from './model
 import {planLibrary, loftTable, lateralArea} from './geometry.js?v=eb7a621ab9';
 import {splitOf, CIRCULATION_SHARE} from './areasplit.js?v=7506bcd419';
 import {MATERIALS, materialOf} from './materials.js?v=be1c7d7582';
+// The material's name is a common noun, so it is written in the language the
+// reader is reading in. It used to live in a private map in this file, which
+// meant the schedule and the studio could disagree about what a material is
+// called; the one name now lives in the string table, like the crowns and the
+// façade families.
+import {t as I18N} from './i18n.js?v=ac7f89c16b';
 
 const SHARE_PCT=Math.round(CIRCULATION_SHARE*100);
 
@@ -85,20 +91,6 @@ const SKIN={
  'vertical-corner':{en:'Verticality at corner',th:'เน้นแนวตั้งที่มุม',zh:'转角处垂直线条'},
  'vertical-mech':{en:'Verticality at mechanical',th:'เน้นแนวตั้งที่ชั้นเครื่อง',zh:'机电层处垂直线条'},
  diagrid:{en:'Structural diagrid',th:'โครงข่ายเฉียง',zh:'结构斜交网架'}
-};
-const MATERIAL_NAME={
- float:{en:'Float glass, clear',th:'กระจกโฟลตใส',zh:'透明浮法玻璃'},
- reflective:{en:'Reflective coated glass',th:'กระจกเคลือบสะท้อน',zh:'反射镀膜玻璃'},
- 'low-e':{en:'Low-e insulated glazing',th:'กระจก low-e สองชั้น',zh:'低辐射中空玻璃'},
- pv:{en:'Photovoltaic glass',th:'กระจกโซลาร์เซลล์',zh:'光伏玻璃'},
- 'alu-spandrel':{en:'Anodised aluminium spandrel',th:'สแปนเดรลอะลูมิเนียมชุบ',zh:'阳极氧化铝衬板'},
- precast:{en:'Precast concrete panel',th:'แผ่นคอนกรีตสำเร็จรูป',zh:'预制混凝土板'},
- boardformed:{en:'Board-formed concrete',th:'คอนกรีตลายไม้แบบ',zh:'木纹清水混凝土'},
- terracotta:{en:'Terracotta louvre screen',th:'ตะแกรงดินเผา',zh:'陶土百叶'},
- timber:{en:'Timber soffit and reveal',th:'ไม้เชิงชายและขอบ',zh:'木饰面檐底与收边'},
- zinc:{en:'Zinc standing seam',th:'สังกะสีตะเข็บตั้ง',zh:'锌立边咬合'},
- corten:{en:'Weathering steel',th:'เหล็กทนสภาพอากาศ',zh:'耐候钢'},
- granite:{en:'Granite cladding',th:'หินแกรนิตกรุ',zh:'花岗岩饰面'}
 };
 
 function materialKey(s){return MATERIALS[s.material]?s.material:'float'}
@@ -203,7 +195,8 @@ function langOf(lang){return COPY[lang]?lang:'en'}
 function fill(s){return s.replaceAll('{pct}',String(SHARE_PCT))}
 
 function facadeHeader(id,meta,lang){
- const copy=COPY[lang],info=meta[id],name=(MATERIAL_NAME[info.mat]||MATERIAL_NAME.float)[lang];
+ const copy=COPY[lang],info=meta[id],table=I18N[lang]||I18N.en;
+ const name=table['mat.'+(info.mat||'float')]||I18N.en['mat.float'];
  const type=(info.typeName&&info.typeName[lang])||info.typeName?.en||'';
  return copy.facade+' · '+name+' · '+type+' ('+copy.unit+')';
 }

@@ -1,6 +1,6 @@
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=08b7c27183';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=64b8fd2922';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=94b41592fd';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=a03ce5a650';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=b4e8b357f1';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=647ae2932a';
 import {renderAssembly} from './assembly.js?v=40ed428eb2';
 import {renderStructure} from './structure.js?v=d10ac3572a';
 import {mountConsole} from './console.js?v=270c807c48';
@@ -8,7 +8,7 @@ import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=312df9a324';
 import{familyResponse,lattice}from'./explore.js?v=5ad6837495';
-import{t,langs,langMeta,translator}from'./i18n.js?v=6065afc737';
+import{t,langs,langMeta,translator}from'./i18n.js?v=ac7f89c16b';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
@@ -29,12 +29,12 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=a
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=b454da02db';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=3703a31905';
 import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=03004899d2';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=baee0e3c97';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=176ade6fe0';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
-import {quantityCsv, howMeasured} from './quantity.js?v=a5d64d7645';
+import {quantityCsv, howMeasured} from './quantity.js?v=f1b8d9227d';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=cd67617106';
 import {WORKSPACES} from './console.js?v=270c807c48';
@@ -176,7 +176,10 @@ function buildSelectors(){
  // The thesis tag is a building name — Latin in every language, by convention.
  const facL={};for(const k of Object.keys(facadeFamilies))facL[k]=triAs('g.facade.'+k,' — '+facadeFamilies[k].thesis);
  fillSelect('skin',facadeFamilies,facL,state.skin);
- const matL={};for(const k of MATERIAL_KEYS)matL[k]=MATERIALS[k].label;
+ // The material is named in the reader's own language. The name used to come
+ // straight from the English table, so a Thai reader choosing a cladding was
+ // handed "Float glass, clear" inside a Thai interface.
+ const matL={};for(const k of MATERIAL_KEYS)matL[k]=tri('mat.'+k);
  fillSelect('material',MATERIALS,matL,state.material);
  buildDetailSelect();
  const sysL={};for(const k of Object.keys(systems))sysL[k]=tri('g.system.'+k);
@@ -232,15 +235,15 @@ function sync(){
  // and names the figures it is not allowed to move. Silence would let the
  // reader assume concrete makes the tower quieter or bigger. It does neither.
  const mt=materialOf(state);
- if($('materialNote'))$('materialNote').textContent=tt('mat.reads',{name:mt.label,t:mt.thesis,e:mt.envelope.toFixed(2),c:mt.carbon,u:mt.upkeep.toFixed(2)});
+ if($('materialNote'))$('materialNote').textContent=tt('mat.reads',{name:tt('mat.'+state.material),t:mt.thesis,e:mt.envelope.toFixed(2),c:mt.carbon,u:mt.upkeep.toFixed(2)});
  if($('matStrip')){
   const strip=$('matStrip');
   const existing=new Map([...strip.children].map(b=>[b.dataset.material,b]));
   for(const k of MATERIAL_KEYS){
    const m=MATERIALS[k],b=existing.get(k)||document.createElement('button');
    b.dataset.material=k;
-   b.type='button';b.className='sw'+(k===state.material?' on':'');b.title=m.label;
-   b.setAttribute('aria-label',m.label);b.setAttribute('aria-pressed',String(k===state.material));
+   b.type='button';b.className='sw'+(k===state.material?' on':'');b.title=tt('mat.'+k);
+   b.setAttribute('aria-label',tt('mat.'+k));b.setAttribute('aria-pressed',String(k===state.material));
    b.style.background=m.fill;b.style.borderColor=m.edge;
    b.onclick=()=>{state.material=k;$('material').value=k;changed()};
    if(!existing.has(k))strip.append(b);
@@ -1749,21 +1752,45 @@ function renderSearch(){
  const rows=alternatives.filter(r=>{if(seen.has(r.state.family))return false;seen.add(r.state.family);return true}).slice(0,5);
  if(!rows.length){$('searchResults').innerHTML=`<div class="empty"><p>${tt('s.none')}</p></div>`;toast(tt('s.none'));return}
  const best=rows[0];
+ // The columns are ordered by what the reader decides on. The name and the
+ // two money columns sit together at the left, because those are what a
+ // candidate is compared by; the drivers that produced them follow. The
+ // action stays last and is pinned to the right edge of the scroller, so on a
+ // phone the reader is never asked to find it.
+ //
+ // Every column carries its own name. The two that are the same in every row
+ // by construction used to be hidden by their position in the list, which
+ // meant that moving a column moved the hiding with it — and the day the
+ // order changed, a column that still carried a value would have gone
+ // missing without anyone noticing.
+ const COLS=[
+  ['cand',tt('s.col.candidate'),false],
+  ['contribution',tt('s.col.contribution'),true],
+  ['delta',tt('s.col.delta'),true],
+  ['roof',tt('s.col.roof'),true],
+  ['corners',tt('s.col.corners'),true],
+  ['height',tt('s.col.height'),true],
+  ...(blended?[['score',tt('s.col.score'),true]]:[]),
+  ['gross',tt('s.col.gross'),true],
+  ['rentable',tt('s.col.rentable'),true],
+  ['apply','',false]];
  let html='<div class="tablewrap"><table><thead><tr>'
-  +[tt('s.col.candidate'),tt('s.col.roof'),tt('s.col.gross'),tt('s.col.rentable'),tt('s.col.corners'),tt('s.col.height'),tt('s.col.contribution'),tt('s.col.delta'),...(blended?[tt('s.col.score')]:[]),'']
-  .map(h=>`<th scope="col">${h}</th>`).join('')+'</tr></thead><tbody>';
+  +COLS.map(([c,h])=>`<th scope="col" class="c-${c}">${h}</th>`).join('')+'</tr></thead><tbody>';
  rows.forEach((r,i)=>{
   const d=r.metrics.contribution-metrics.contribution;
-  html+=`<tr class="${r===best?'win':''}"><td>${i+1} / ${tt('fs.'+r.state.family)}</td>`
-   +`<td class="numeric">${r.state.taper.toFixed(2)} / ${r.state.twist}°</td>`
-   +`<td class="numeric">${num(r.metrics.gross)}</td>`
-   +`<td class="numeric">${num(r.metrics.rentable)}</td>`
-   +`<td class="numeric">${r.metrics.corners}</td>`
-   +`<td class="numeric">${r.metrics.heightTotal.toFixed(0)} m</td>`
-   +`<td class="numeric">${money(r.metrics.contribution)}</td>`
-   +`<td class="numeric">${d>=0?'+':''}${money(d)}</td>`
-   +(blended?`<td class="numeric">${r.score.toFixed(3)}</td>`:'')
-   +`<td><button data-candidate="${i}" data-study-focus="ranked:${r.state.family}">${tt('s.col.apply')} ↗</button></td></tr>`;
+  const cells=[
+   ['cand',`${i+1} / ${tt('fs.'+r.state.family)}`],
+   ['contribution',money(r.metrics.contribution)],
+   ['delta',`${d>=0?'+':''}${money(d)}`],
+   ['roof',`${r.state.taper.toFixed(2)} / ${r.state.twist}°`],
+   ['corners',r.metrics.corners],
+   ['height',`${r.metrics.heightTotal.toFixed(0)} m`],
+   ...(blended?[['score',r.score.toFixed(3)]]:[]),
+   ['gross',num(r.metrics.gross)],
+   ['rentable',num(r.metrics.rentable)],
+   ['apply',`<button data-candidate="${i}" data-study-focus="ranked:${r.state.family}">${tt('s.col.apply')} ↗</button>`]];
+  html+=`<tr class="${r===best?'win':''}">`
+   +cells.map(([c,v])=>`<td class="c-${c}${(c==='cand'||c==='apply')?'':' numeric'}">${v}</td>`).join('')+'</tr>';
  });
  html+=`</tbody></table></div><p class="searchsummary">${plan.examined} ${tt('s.tested')} / ${alternatives.length} ${tt('s.feasible')} / ${plan.examined-alternatives.length} ${tt('s.rejected')}. ${tt('s.target')} ${num(plan.target)} m². ${tt('s.best')} “${ranking}”${plan.heightVariants>1?' · 2 '+tt('s.heightVariant'):''} · ${elapsed.toFixed(0)} ms</p>`;
  if(blended)html+=`<p class="note">${tt('s.normalizedRanking',{o:Math.round((1-regimes[state.regime].heightPull)*100),h:Math.round(regimes[state.regime].heightPull*100)})}</p>`;

@@ -246,9 +246,19 @@ body.is-console [hidden]{display:none!important}
 .console-dock p,.console-dock li,.console-dock figcaption,.console-dock .note{max-width:32em}
 /* Every candidate has the same gross and rentable area by construction (the
    summary line states the target), so in the desk those two columns go and
-   the table fits its column instead of scrolling. */
-.console-dock .tablewrap th:nth-child(3),.console-dock .tablewrap td:nth-child(3),
-.console-dock .tablewrap th:nth-child(4),.console-dock .tablewrap td:nth-child(4){display:none}
+   the table fits its column instead of scrolling. They are hidden by NAME:
+   the columns carry their own class, so moving a column cannot move the
+   hiding onto a column that still holds a value. */
+.console-dock .tablewrap .c-gross,.console-dock .tablewrap .c-rentable{display:none}
+/* The action is pinned to the right edge of the scroller. The table is wider
+   than a phone, and the reader's job here is to compare and then press — the
+   button must not be the thing that falls off the edge. It is a column with a
+   hairline on its left, not a floating panel: no shadow, no blur, no fill. */
+.console-dock .tablewrap th:last-child,.console-dock .tablewrap td:last-child{
+ position:sticky;right:0;background:var(--paper);border-left:1px solid var(--line);
+ padding-left:10px;padding-right:8px}
+.console-dock .tablewrap tbody tr.win td:last-child{background:#fdf3e0}
+.console-dock .tablewrap tbody tr:hover td:last-child{background:var(--panel)}
 /* Feng Shui table headers wrap rather than clip. */
 .console-dock #fengshuiDesk th{white-space:normal}
 /* Reset, Save and Export act on the studio; on the reading pages they are noise. */

@@ -403,3 +403,23 @@ Three holes in the new guard were found by mutation, and all three were holes in
 - Verified: 557 tests; five isolated new mutants killed; 20 existing shipability mutants killed. Native browser population rollback and material keyboard identity verified; all sixteen Thai workspaces opened at390/1024/1440 with no page-wide overflow. Independent diff review found no new blocker.
 - Remaining: tablet two-band header retained; untranslated material/detail annotation content and phone label reading need dedicated work. No engineering certification claimed. Full evidence in docs/IMPECCABILITY-AUDIT-2026-10-22.md.
 - Shared lesson captured first: Scars/Debug-Logs/2026-10-22-audit-interactive-ancestors-and-retained-focus-not-just-button-labels.md.
+
+## 2026-10-23 · Shipability audit: the material names, the action that fell off the screen, and the graph with no guard
+
+**The ask.** A shipability audit. Not a redesign: does the thing ship to a reader who can finish the task, in the language they are reading in, on the device they are holding?
+
+**How it was run.** The deployed site, driven through the CDP harness: the full journey (boot → brief → form → compare → apply → save → reload → export) in EN, and the material names in EN, TH and ZH. The candidate table at 390, 1024 and 1440 in all three languages. The release graph read from the stamper itself. The suite and the mutation harness. Full evidence: `docs/SHIPABILITY-REVIEW-2026-10-23.md`.
+
+**What was found.**
+- **The material names were English on the Thai and Chinese sites.** Twelve common nouns read out of the English table: the select's options, the note's opening name, the swatches' accessible names. English was right, so the defect was invisible in an English render.
+- **The explore desk's action was off-screen.** The Apply button sat 125px past the right edge of a phone and 62px off at 1024; the Δ column was cut mid-token, showing `+U`. The desk's job is to compare five candidates and apply one, and on a phone the reader could read the money and press nothing.
+- **The rule that hid two columns was positional** (`nth-child`), so moving a column would have moved the hiding onto a column that still carried a value.
+- **The release graph had no guard.** 48 modules and 127 edges, correct by hand, with nothing to notice a new module or a new import edge arriving unstamped.
+
+**What changed.** The twelve names now live in the string table beside the crowns and the façade families; `app.js` reads them in the select, the note and the swatch; the private duplicate in `quantity.js` is deleted and its new edge pinned by the stamper. The candidate table reads in decision order — candidate, money, delta, drivers — with the action pinned to the right edge of the scroller behind a 1px rule and an opaque ground, and the identical columns hidden by name. Twelve new tests in three files; the mutation harness grown from 20 probes to 32.
+
+**Verified.** 569 tests green. 32 of 32 mutants killed. The journey on the live site: apply took the row's $22,013,770 and made it the page's; the study survived a reload; four exports downloaded with real content; 0 console errors in three languages. The table, in three languages at 390 and 1024: the candidate, the money, the delta and the action are all in view.
+
+**Laws kept.** A name that has to survive translation belongs in the string table, not in the data it names. A column hidden by its position is a column that will hide the wrong one. An action that falls off the edge is an action the reader cannot take. The release graph is not a convention — it is a thing that can be checked, and a thing that can be checked should be.
+
+**Open.** The drivers still scroll sideways at 390 and the roof value is clipped by 4px at the edge; the candidate name wraps. `app.js` and `i18n.js` remain hubs. The main book's tenth page remains Dr Non's call. Chen's licensing stays deferred and untouched. Three instrument traps are recorded in the review: a closed `<details>` reports a stale rect (filter with `checkVisibility()`), `python3 -m http.server` is single-threaded and deadlocks Chrome's parallel module fetches, and `captureBeyondViewport` returns the whole page.

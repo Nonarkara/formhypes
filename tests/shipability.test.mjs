@@ -13,6 +13,7 @@ import {DETAILS} from '../dist/details.js';
 import {getBriefStudy,restoreBriefInputs,resetBrief} from '../dist/brief.js';
 import {projectedShadow,shade} from '../dist/context.js';
 import {street} from '../dist/walk.js';
+import {t,translator} from '../dist/i18n.js';
 const app=readFileSync(new URL('../dist/app.js',import.meta.url),'utf8');
 const near=(a,b,tol=1e-4)=>assert.ok(Math.abs(a-b)<tol,`${a} vs ${b}`);
 const parse=state=>{const lines=M.meshOBJ(state).split('\n');return {v:lines.filter(l=>l.startsWith('v ')).map(l=>l.split(' ').slice(1).map(Number)),f:lines.filter(l=>l.startsWith('f ')).map(l=>l.split(' ').slice(1).map(n=>+n-1))}};
@@ -147,7 +148,10 @@ test('material swatches remain discoverable and keep their identity through sele
  const make=()=>({dataset:{},style:{},attrs:{},setAttribute(k,v){this.attrs[k]=v}});
  const strip={children:[],append(b){this.children.push(b)},replaceChildren(){this.children=[]}};
  const select={value:''},state={material:'float'};
- const ctx={MATERIALS,MATERIAL_KEYS:Object.keys(MATERIALS),state,document:{createElement:make},$:id=>id==='matStrip'?strip:select};
+ // The swatch names its material in the reader's language, so the run is in
+ // Thai: a reader who cannot read the name cannot tell the swatches apart.
+ const ctx={MATERIALS,MATERIAL_KEYS:Object.keys(MATERIALS),state,lang:'th',tt:translator('th'),
+  document:{createElement:make},$:id=>id==='matStrip'?strip:select};
  ctx.changed=()=>runInNewContext(source,ctx);
  runInNewContext(source,ctx);
  const buttons=[...strip.children],focused=buttons[1];
@@ -159,5 +163,11 @@ test('material swatches remain discoverable and keep their identity through sele
   assert.equal(strip.children[i],buttons[i]);
   assert.equal(buttons[i].attrs['aria-pressed'],String(i===1));
   assert.ok(buttons[i].attrs['aria-label']);
+  // …and the name it carries is the Thai name, not the English one.
+  const key=buttons[i].dataset.material;
+  assert.equal(buttons[i].attrs['aria-label'],t.th['mat.'+key],
+   `the swatch for ${key} is named "${buttons[i].attrs['aria-label']}" — not the Thai name`);
+  assert.notEqual(buttons[i].attrs['aria-label'],t.en['mat.'+key]);
+  assert.equal(buttons[i].title,t.th['mat.'+key]);
  }
 });
