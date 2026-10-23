@@ -1,4 +1,4 @@
-import {toDisplay,formatMoney,quantity,getPreferences,displayText} from './preferences.js?v=e134c381e7';
+import {toDisplay,formatMoney,quantity,getPreferences,displayText} from './preferences.js?v=bc763656eb';
 /* ── study graphics ───────────────────────────────────────────────────────
    The search already computes every candidate it ranks; the desk then showed
    five rows of them. These two figures are drawn from that same array — no
@@ -13,7 +13,7 @@ import {toDisplay,formatMoney,quantity,getPreferences,displayText} from './prefe
    Both are honest about the discipline that makes the comparison mean
    anything: every candidate was resized to the same gross floor area, so only
    the form is moving. */
-import {families} from './model.js?v=fe3aa014a2';
+import {families} from './model.js?v=acdd677fe2';
 
 const INK='#191c1b',MUTED='#585e5b',FAINT='#8b918d',LINE='#c6cbc6',ACCENT='#f59e0b',PAPER='#f2f2ef';
 // Value ladder for the lattice, light to dark. Text flips at index 4, where the

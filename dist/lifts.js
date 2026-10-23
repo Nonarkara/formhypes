@@ -30,10 +30,10 @@
    behaviour, not an industry traffic simulator — the lab says so.
 
    Everything above the DOM section is pure and DOM-free so it can be tested. */
-import {liftDesign,CORE_METHOD,liftSpeed} from './core.js?v=bb23192477';
-import {stack,evaluate} from './model.js?v=fe3aa014a2';
+import {liftDesign,CORE_METHOD,liftSpeed} from './core.js?v=7197725017';
+import {stack,evaluate} from './model.js?v=acdd677fe2';
 import {sheet,cut,beyond,leader as draftLeader,head,dim as draftDim,rule,txt as draftTxt,ground,flow} from './drafting.js?v=5dc3f3c796';
-import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=e134c381e7';
+import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=bc763656eb';
 let displayLang='en',displayKey='';
 const shown=value=>displayText(value,displayLang);
 const txt=(x,y,text,...args)=>draftTxt(x,y,shown(text),...args);

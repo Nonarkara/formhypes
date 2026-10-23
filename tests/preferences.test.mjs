@@ -24,6 +24,8 @@ test('translated unit tokens convert without corrupting formula identifiers or e
   assert.equal(displayText('t_v = 0.91 s · t_s = 7.36 s'),'t_v = 0.91 s · t_s = 7.36 s');
   assert.equal(displayText('Stiffness · GN·m² (SI)'),'Stiffness · GN·m² (SI)');
   assert.match(displayText('40–50 m'),/131\.2–164\.0 ft/);
+  for(const unit of ['kgCO₂e/ตร.ม.','kgCO₂e/平方米'])assert.match(displayText('25 '+unit),/^5\.1 lbCO₂e\/ft²$/);
+  assert.equal(displayText('1.60 m eye'),'5.25 ft eye');
   assert.match(displayText('100 米处：迎光表面约 800 W/m²。','zh'),/^328\.1 ft处/);
   assert.match(displayText('1,400米追踪范围','zh'),/4,593\.2 ft追踪范围/);
  }finally{resetPreferences()}

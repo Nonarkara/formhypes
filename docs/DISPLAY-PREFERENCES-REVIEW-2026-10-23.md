@@ -19,6 +19,7 @@ No temperature selector is shown: there are no actual temperature readings. Abso
 - Rent and structural-grid choice labels had retained metric units; they now track the actual controls.
 - Large baht values crowded the phone comparison table. Currency is named in the header, compact amounts fit the rows, and exact values remain in accessible names/titles.
 - Settings status text was faint amber on paper. Independent visual review measured 1.78:1; the corrected status uses ink.
+- Final live Thai inspection found mixed Latin/Thai carbon units and the human-scale section labels outside the presentation helper. Both now convert; regression assertions cover the mixed unit strings and eye-height label.
 - The plan's overall dimension had been using screen-scaled pixels as metres. It now divides by the drawing scale before formatting.
 
 ## Evidence

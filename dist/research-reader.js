@@ -1,7 +1,7 @@
-import {toDisplay,displayText} from './preferences.js?v=e134c381e7';
+import {toDisplay,displayText} from './preferences.js?v=bc763656eb';
 import {TRACKS,RESEARCH_UI,RESEARCH_SOURCES,THESIS_EXCERPTS,HISTORY_PHOTO,PROTOCOL_FILES} from './research-tracks.js?v=8ce74a85fc';
 import {renderReader as renderEarlierReader} from './reader.js?v=d9836cd301';
-import {defaults,evaluate,grossOf,profile,families,regimes} from './model.js?v=fe3aa014a2';
+import {defaults,evaluate,grossOf,profile,families,regimes} from './model.js?v=acdd677fe2';
 const N=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
 let selected=0,pages=[0,0,0],initialised=false;
 export function readingSelection(search=''){

@@ -1,16 +1,16 @@
-import {alternativesCsv} from './display-exports.js?v=5f86bd78e8';
-import {formatMoney,formatAmount,quantity,unitLabel,toDisplay,fromDisplay,displayText,displaySVG,displayContext,getPreferences,getRateBook} from './preferences.js?v=e134c381e7';
-import {mountSettings} from './settings.js?v=05e259e09f';
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=49ccd59492';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=e1bf2f1114';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=592fea7bea';
-import {renderAssembly} from './assembly.js?v=c3d029d5cc';
-import {renderStructure} from './structure.js?v=98107c6294';
-import {mountConsole} from './console.js?v=25666544e3';
+import {alternativesCsv} from './display-exports.js?v=fb34aa9378';
+import {formatMoney,formatAmount,quantity,unitLabel,toDisplay,fromDisplay,displayText,displaySVG,displayContext,getPreferences,getRateBook} from './preferences.js?v=bc763656eb';
+import {mountSettings} from './settings.js?v=bad3f8c8d0';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=2376d44a53';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=a1a6ff4e2f';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=4c7e2bbaa1';
+import {renderAssembly} from './assembly.js?v=415bb5250c';
+import {renderStructure} from './structure.js?v=18727738da';
+import {mountConsole} from './console.js?v=4adeb9f661';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=fe3aa014a2';
-import{familyResponse,lattice}from'./explore.js?v=ae3858a401';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=acdd677fe2';
+import{familyResponse,lattice}from'./explore.js?v=81ffca9288';
 import{t,langs,langMeta,translator}from'./i18n.js?v=26e6f6be3f';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
@@ -20,27 +20,27 @@ import {cityData,skyline,visibleMassings,ringArea,splitByPlot} from './cityscape
 import {sweptHull,reachSteps,reachLabelled,contactOffset} from './reach.js?v=3742398937';
 import {parseGround} from './site.js?v=7cb1769785';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
-import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=d5562bd5d7';
-import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=bb23192477';
+import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=7ac58f6ded';
+import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=7197725017';
 import {coreScene} from './core3d.js?v=702aed5396';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy as getFengPlayStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=76001bf929';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=27106d3503';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=b56b40ef74';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=f90bcb124d';
-import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=856b7d5303';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=c2f9a655a4';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=c5c9b8fd60';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=290f09f21e';
+import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=e2d0c56d94';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=74b1def02c';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
-import {quantityCsv, howMeasured} from './quantity.js?v=c6fa6d04fb';
+import {quantityCsv, howMeasured} from './quantity.js?v=4a16e57a72';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=bb003e1555';
-import {WORKSPACES} from './console.js?v=25666544e3';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=1fab2886fb';
+import {WORKSPACES} from './console.js?v=4adeb9f661';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI,settingsUI;
 const money=v=>formatMoney(v,lang);
@@ -2400,7 +2400,7 @@ function humanPlate(){
  const yc=YF-clear*V;                            // ceiling, i.e. clear height
  const VW=X1+132, VH=206;
  const ns=svgEl('svg',{viewBox:`0 0 ${VW} ${VH}`});
- const add=(t,a,x)=>{const n=svgEl(t,a);if(x!=null)n.textContent=x;ns.appendChild(n);return n};
+ const add=(t,a,x)=>{const n=svgEl(t,a);if(x!=null)n.textContent=displayText(x,lang);ns.appendChild(n);return n};
  const DIM='#585e5b';
 
  // the slab you stand on, and the soffit of the slab above

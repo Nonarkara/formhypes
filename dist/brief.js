@@ -1,5 +1,5 @@
 let displayLang='en';
-import {displayText,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=e134c381e7';
+import {displayText,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=bc763656eb';
 // FormHypes — front-of-house brief desk
 // The conversation that happens before any geometry exists: what the client
 // asked for, what the plot will carry, and what has to be given up.
@@ -9,7 +9,7 @@ import {displayText,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=e1
 // hold a parameter Chen specifies, this panel says so on screen rather than
 // approximating it quietly.
 
-import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=fe3aa014a2';
+import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=acdd677fe2';
 
 export const BRIEF_I18N={
 en:{

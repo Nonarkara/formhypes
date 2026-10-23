@@ -1,11 +1,11 @@
 let displayLang='en';
-import {displayText,displaySVG,toDisplay} from './preferences.js?v=e134c381e7';
+import {displayText,displaySVG,toDisplay} from './preferences.js?v=bc763656eb';
 // Context desk — put the model on a real plot and count what its shadow does.
 // The five replaced buildings and their published figures are real and are
 // quoted as given. Every neighbouring block below is contextual massing composed
 // for this study: not surveyed, every height indicative. Both facts are printed
 // on screen, not merely held here.
-import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=fe3aa014a2';
+import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=acdd677fe2';
 import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposure} from './solar.js?v=9279efc6dc';
 import {lensOf,lensSVG,lensFormula,LENS_KEY,LIFE_YEARS} from './lens.js?v=2949cf8b98';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';

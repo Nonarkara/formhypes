@@ -1,5 +1,5 @@
 let displayLang='en';
-import {displayText} from './preferences.js?v=e134c381e7';
+import {displayText} from './preferences.js?v=bc763656eb';
 /* Structure, read from the geometry.
 
    Every figure here is computed from the model's own form — height, plan,
@@ -26,7 +26,7 @@ import {displayText} from './preferences.js?v=e134c381e7';
    - Core share: 135 supertall office towers, mean core 24% of GFA (Tampere
      University, Space Efficiency in Contemporary Supertall Office Buildings).
    - Lifts: CIBSE Guide D practice of about 16 floors per lift group. */
-import {profile,stackHeight,evaluate} from './model.js?v=fe3aa014a2';
+import {profile,stackHeight,evaluate} from './model.js?v=acdd677fe2';
 import {convexHull} from './geometry.js?v=eb7a621ab9';
 
 export const STRUCTURE_BANDS=[[7,'conventional'],[10,'slender'],[15,'damped'],[Infinity,'super']];

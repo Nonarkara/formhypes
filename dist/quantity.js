@@ -1,4 +1,4 @@
-import {toDisplay,unitLabel,quantity,getPreferences} from './preferences.js?v=e134c381e7';
+import {toDisplay,unitLabel,quantity,getPreferences} from './preferences.js?v=bc763656eb';
 /* Per-level area and façade quantities.
 
    The rail prints gross floor area and integrated skin. The plate chart prints
@@ -15,7 +15,7 @@ import {toDisplay,unitLabel,quantity,getPreferences} from './preferences.js?v=e1
 
    Import this module for the numbers. The page only downloads the file. */
 
-import {stack, profile, area, evaluate, glazingAt, facadeFamilies} from './model.js?v=fe3aa014a2';
+import {stack, profile, area, evaluate, glazingAt, facadeFamilies} from './model.js?v=acdd677fe2';
 import {planLibrary, loftTable, lateralArea} from './geometry.js?v=eb7a621ab9';
 import {splitOf, CIRCULATION_SHARE} from './areasplit.js?v=7506bcd419';
 import {MATERIALS, materialOf} from './materials.js?v=be1c7d7582';

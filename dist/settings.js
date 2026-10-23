@@ -1,4 +1,4 @@
-import{getPreferences,setPreferences,resetPreferences,getRateBook,refreshRates}from'./preferences.js?v=e134c381e7';
+import{getPreferences,setPreferences,resetPreferences,getRateBook,refreshRates}from'./preferences.js?v=bc763656eb';
 
 export const SETTINGS_TEXT={
   en:{title:'Settings',close:'Close',units:'Units',metric:'Metric · m, m²',imperial:'Imperial · ft, ft²',currency:'Currency',basis:'Currency conversion changes the display only. Construction costs and rents keep the same USD price basis; these are not local market prices.',approx:'Approximate conversion',source:'Source',date:'Rate date',refresh:'Refresh rates',refreshing:'Refreshing rates…',updated:'Rates refreshed.',failed:'Could not refresh. The dated rates shown below are still in use.',reset:'Restore metric / USD',resetNote:'Restores display preferences only. Your building and studies stay as they are.',resetDone:'Display defaults restored.'},

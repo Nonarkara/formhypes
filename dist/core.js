@@ -1,4 +1,4 @@
-import {displayText,quantity,getPreferences} from './preferences.js?v=e134c381e7';
+import {displayText,quantity,getPreferences} from './preferences.js?v=bc763656eb';
 let drawingLang='en';
 const txt=(x,y,text,...rest)=>rawTxt(x,y,displayText(text,drawingLang),...rest);
 const leader=(x,y,tx,ty,text,...rest)=>rawLeader(x,y,tx,ty,displayText(text,drawingLang),...rest);

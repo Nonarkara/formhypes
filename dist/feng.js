@@ -21,7 +21,7 @@
    site's own disclaimer says so in three languages; this one says it in the
    module that implements it. */
 
-import {profile} from './model.js?v=fe3aa014a2';
+import {profile} from './model.js?v=acdd677fe2';
 import {cityData} from './cityscape.js?v=dcc15cb0df';
 
 const D2R = Math.PI / 180;
