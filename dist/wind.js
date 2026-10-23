@@ -27,10 +27,10 @@
    - Occupant comfort: ISO 10137:2007; ISO 6897; NatHaz (Kareem), 10-year
      return peak acceleration about 10–15 milli-g residential, 20–25 milli-g
      office. Quoted, never computed here. */
-import {profile,stackHeight,families,inside} from './model.js?v=acdd677fe2';
-import {structureRead,STRUCT_TEXT,STRUCTURE_BANDS} from './structure.js?v=18727738da';
+import {profile,stackHeight,families,inside} from './model.js?v=49d3a6b6e7';
+import {structureRead,STRUCT_TEXT,STRUCTURE_BANDS} from './structure.js?v=8534ae167d';
 import {sheet,cut,beyond,leader as draftLeader,head,dim as draftDim,rule,txt as draftTxt,ground,flow,cl} from './drafting.js?v=5dc3f3c796';
-import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay} from './preferences.js?v=bc763656eb';
+import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay} from './preferences.js?v=48652b12d9';
 let displayLang='en',displayKey='';
 const shown=value=>displayText(value,displayLang);
 const txt=(x,y,text,...args)=>draftTxt(x,y,shown(text),...args);

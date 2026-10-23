@@ -20,7 +20,7 @@ import{polyArea,polyPerimeter,minkowski,planLibrary,loftTable,lateralArea,loftVo
 
 import {solarDefaults,facadeExposure} from './solar.js?v=9279efc6dc';
 import {gardenOf,gardenIndices,crownOf,crownMetrics,crownPlates,CROWN_RATES} from './crowns.js?v=6daba4a8ca';
-import {detailOf,detailCost,airBarrier} from './details.js?v=7ac58f6ded';
+import {detailOf,detailCost,airBarrier} from './details.js?v=e0caa40f91';
 import {materialOf} from './materials.js?v=be1c7d7582';
 import {SCHEMA} from './schema.js?v=fd56569c48';
 export const families={box:'Rectilinear',chamfer:'Chamfered',cross:'Cruciform',octagon:'Octagonal',star:'Eight-point',rub:'Rub el Hizb',triangle:'Triangular',hexagon:'Hexagonal',oval:'Faceted oval',petal:'Four-petal',pinwheel:'Pinwheel'};

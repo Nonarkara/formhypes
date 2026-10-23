@@ -112,7 +112,7 @@ await write('model.js', model);ids['model.js']=sha(model);
 const manual = stamp(await read('manual.js'), ['./schema.js','./manual-text.js','./model.js'], ids);
 await write('manual.js', manual);ids['manual.js']=sha(manual);
 
-for(const f of DESKS){const src=stamp(await read(f), ['./preferences.js','./structure.js','./wind.js','./core.js','./drafting.js','./modulor.js','./model.js','./solar.js','./geometry.js','./lens.js','./site.js','./ground.data.js','./cityscape.data.js','./cityscape.js','./i18n.js',...MEDIA], ids);await write(f,src);ids[f]=sha(src)}
+for(const f of DESKS){const src=stamp(await read(f), ['./preferences.js','./structure.js','./wind.js','./core.js','./drafting.js','./modulor.js','./model.js','./solar.js','./geometry.js','./lens.js','./site.js','./ground.data.js','./cityscape.data.js','./cityscape.js','./i18n.js','./schema.js',...MEDIA], ids);await write(f,src);ids[f]=sha(src)}
 
 for(const f of ['environment.js','environment-desk.js','decisions.js']){const src=stamp(await read(f),['./preferences.js','./model.js','./brief.js','./cityscape.js','./solar.js','./context.js','./environment.js'],ids);await write(f,src);ids[f]=sha(src)}
 

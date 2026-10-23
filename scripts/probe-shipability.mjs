@@ -38,14 +38,24 @@ const cases=[
  ['the identical columns are hidden by position again','console.css','.console-dock .tablewrap .c-gross,.console-dock .tablewrap .c-rentable{display:none}','.console-dock .tablewrap th:nth-child(3),.console-dock .tablewrap td:nth-child(3),.console-dock .tablewrap th:nth-child(4),.console-dock .tablewrap td:nth-child(4){display:none}','the two identical columns are hidden by name'],
  ['the action is not pinned','console.css','position:sticky;right:0;','position:static;','the action is pinned to the right edge'],
  ['a module ships without being hashed','stamper',"'crowns.js','materials.js','details.js',","'crowns.js','details.js',",'every module that ships is hashed'],
- ['an import edge is left out of the stamp','stamper',"'./materials.js','./i18n.js'","'./materials.js'",'the stamper covers every edge']
+ ['an import edge is left out of the stamp','stamper',"'./materials.js','./i18n.js'","'./materials.js'",'the stamper covers every edge'],
+ // The reader's own plot: the land decides the size. These six are the
+ // defects that made a 52,000 m² outline report a 32 m tower, and each one
+ // has to fail a test that reads the panel, not the code.
+ ['the range is read off the wrong end of the schema','context.js','const [,lo,hi]=SCHEMA.span;','const [lo,hi]=SCHEMA.span;','the desk prints the widest plate'],
+ ['the land is asked for its own size, not the current one','context.js','const land=state.span*fits.k;','const land=state.span;','the desk prints the widest plate'],
+ ['the plate shown is the land limit, not the size that can be drawn','context.js','const shown=drawable?set:land;','const shown=land;','the desk prints the widest plate'],
+ ['the size adopted is not held inside the instrument range','context.js','const set=Math.max(lo,Math.min(hi,land));','const set=land;','the adopt action applies a size inside the range'],
+ ['a plot too small for the instrument is still offered a plate','context.js','const drawable=land>=lo;','const drawable=true;','a plot too small for the instrument offers nothing'],
+ ['the plate is sized at half the land','site.js','hi=Math.min(maxScale,extent(ring,0)/extent(plate,0),extent(ring,1)/extent(plate,1))','hi=Math.min(maxScale,extent(ring,0)/extent(plate,0),extent(ring,1)/extent(plate,1))/2','the land decides the size'],
+ ['the floor area is priced from the current plate, not the one on the sheet','context.js','area(profile({...state,span:shown,orientation:bearing},0))','area(profile(state,0))','the floor area printed is the area of the plate']
 ];
 // The files the mutants are written into. Everything else is symlinked, so a
 // mutation cannot leak into the working tree.
 const MUTABLE=['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js',
- 'console.css','i18n.js','quantity.js'];
+ 'console.css','i18n.js','quantity.js','site.js'];
 const TESTS=['shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
- 'material-name.test.mjs','explore-table.test.mjs','release-graph.test.mjs'];
+ 'material-name.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs'];
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));
  await symlink(resolve('node_modules'),join(dir,'node_modules'));
@@ -54,6 +64,9 @@ try{
  await copyFile('scripts/release-id.mjs',join(dir,'scripts/release-id.mjs'));
  await copyFile('package.json',join(dir,'package.json'));
  for(const t of TESTS)await copyFile('tests/'+t,join(dir,'tests',t));
+ // The plot desk's test reads the panel through the shared DOM stub, so the
+ // stub has to travel with it.
+ await copyFile('tests/desk-dom.mjs',join(dir,'tests','desk-dom.mjs'));
  for(const name of await readdir('dist'))if(!MUTABLE.includes(name))await symlink(resolve('dist',name),join(dir,'dist',name));
  const original={};for(const f of MUTABLE)original[f]=await readFile('dist/'+f,'utf8');
  const stamperOriginal=await readFile('scripts/release-id.mjs','utf8');

@@ -4,9 +4,18 @@ const PREF_KEY='formHypesPreferences',RATE_KEY='formHypesExchangeRates';
 const read=key=>{try{return JSON.parse(localStorage.getItem(key))}catch{return null}};
 const write=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));return true}catch{return false}};
 export const DEFAULT_PREFERENCES=Object.freeze({units:'metric',currency:'USD'});
+const record=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+const validDate=value=>{
+ if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
+ const parsed=new Date(value+'T00:00:00Z');
+ return Number.isFinite(parsed.getTime())&&parsed.toISOString().slice(0,10)===value;
+};
 export function validateRateBook(book){
- if(!book||typeof book.source!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(book.date)||!book.rates||book.rates.USD!==1)return false;
- return Object.entries(book.rates).length>1&&Object.entries(book.rates).every(([key,value])=>/^[A-Z]{3}$/.test(key)&&typeof value==='number'&&Number.isFinite(value)&&value>0&&value<1e12);
+ if(!record(book)||typeof book.source!=='string'||!book.source.trim()||!validDate(book.date)||!record(book.rates)||!Object.hasOwn(book.rates,'USD')||book.rates.USD!==1)return false;
+ const rates=Object.entries(book.rates);
+ if(rates.length<2||!rates.every(([key,value])=>/^[A-Z]{3}$/.test(key)&&typeof value==='number'&&Number.isFinite(value)&&value>0&&value<1e12))return false;
+ if(book.dates!==undefined&&(!record(book.dates)||!Object.entries(book.dates).every(([key,date])=>Object.hasOwn(book.rates,key)&&validDate(date)&&date<=book.date)))return false;
+ return true;
 }
 let book=read(RATE_KEY);if(!validateRateBook(book))book=structuredClone(RATE_SNAPSHOT);
 const clean=p=>({units:p?.units==='imperial'?'imperial':'metric',currency:typeof p?.currency==='string'&&Object.hasOwn(book.rates,p.currency)?p.currency:'USD'});
@@ -27,7 +36,7 @@ export async function refreshRates({fetcher=globalThis.fetch}={}){
   const rows=await response.json();
   if(!Array.isArray(rows)||rows.length<2)throw Error('Invalid reference rates');
   const rates={USD:1},dates={};
-  for(const row of rows){if(row.base!=='USD'||!/^[A-Z]{3}$/.test(row.quote)||!/^\d{4}-\d{2}-\d{2}$/.test(row.date)||!Number.isFinite(row.rate)||row.rate<=0)throw Error('Invalid reference rate');rates[row.quote]=row.rate;dates[row.quote]=row.date}
+  for(const row of rows){if(!record(row)||row.base!=='USD'||!/^[A-Z]{3}$/.test(row.quote)||!validDate(row.date)||!Number.isFinite(row.rate)||row.rate<=0)throw Error('Invalid reference rate');if(Object.hasOwn(dates,row.quote))throw Error('Duplicate reference rate');rates[row.quote]=row.rate;dates[row.quote]=row.date}
   const next={source:'Frankfurter daily reference rates',date:Object.values(dates).sort().at(-1),rates,dates};
   if(!validateRateBook(next)||!Object.hasOwn(rates,preferences.currency))throw Error('Selected currency unavailable');
   book=next;write(RATE_KEY,book);return getRateBook();

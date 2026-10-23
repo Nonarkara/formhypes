@@ -1,14 +1,14 @@
-import {toDisplay,fromDisplay,unitLabel,displayText} from './preferences.js?v=bc763656eb';
+import {toDisplay,fromDisplay,unitLabel,displayText} from './preferences.js?v=48652b12d9';
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
-import {profile,stack,grossOf} from './model.js?v=acdd677fe2';
-import {renderCarbonLab} from './carbon.js?v=46981d3fb4';
-import {renderLiftsLab} from './lifts.js?v=8eb9caf5c2';
-import {renderFireLab} from './fire.js?v=926aa562e5';
-import {renderWindLab} from './wind.js?v=338e0e8c82';
-import {renderWaterLab} from './water.js?v=76af80d303';
-import {renderGlareLab} from './glare.js?v=454851b52d';
-import {renderFacade} from './facade.js?v=98b1a4b0d2';
+import {profile,stack,grossOf} from './model.js?v=49d3a6b6e7';
+import {renderCarbonLab} from './carbon.js?v=50522d359e';
+import {renderLiftsLab} from './lifts.js?v=a5ddf7883c';
+import {renderFireLab} from './fire.js?v=52549e6ca0';
+import {renderWindLab} from './wind.js?v=0bda855237';
+import {renderWaterLab} from './water.js?v=88c8b41e98';
+import {renderGlareLab} from './glare.js?v=121afa4833';
+import {renderFacade} from './facade.js?v=8f5b42d425';
 export const CONSOLE_TEXT={
  en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Lifts','Evacuation','Wind','Water','Glare','Carbon','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
  th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',capacityShort:'พื้นที่ / ที่ให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','ลิฟต์','อพยพหนีไฟ','อุโมงค์ลม','ระบบน้ำ','แสงสะท้อน','คาร์บอน','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},

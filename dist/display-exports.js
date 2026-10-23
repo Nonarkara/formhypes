@@ -1,4 +1,4 @@
-import {toDisplay,unitLabel,getPreferences,getRateBook} from './preferences.js?v=bc763656eb';
+import {toDisplay,unitLabel,getPreferences,getRateBook} from './preferences.js?v=48652b12d9';
 const cell=value=>{const s=String(value);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
 export function alternativesCsv(rows,objective){
  const p=getPreferences(),book=getRateBook(),length=unitLabel('m'),area=unitLabel('m²').replace('²','2'),currency=p.currency.toLowerCase();

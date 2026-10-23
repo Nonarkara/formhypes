@@ -1,11 +1,11 @@
 let displayLang='en';
-import {displayText,displaySVG,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=bc763656eb';
+import {displayText,displaySVG,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=48652b12d9';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // Human-eye views: two perspective constructions projected from live geometry.
 // Not renders — no perspective-correct texture, no refraction through glass, no
 // lighting or shadows, no occupants beyond the scale figure, and no interior
 // partition beyond the one that is cut.
-import {profile, stackHeight,stack,massingRings} from './model.js?v=acdd677fe2';
+import {profile, stackHeight,stack,massingRings} from './model.js?v=49d3a6b6e7';
 
 const EYE=1.60,SV=.95,DTR=Math.PI/180;
 const num=(v,d=2)=>String(Math.round(v*Math.pow(10,d))/Math.pow(10,d));

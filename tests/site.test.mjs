@@ -711,11 +711,29 @@ test('the drawing is fluid, so it cannot overflow the panel it sits in',()=>{
  const col=rule('.st-figcol');
  assert.match(col,/flex-direction:\s*column/,'the figure column does not stack its two drawings');
  const ctxSite=read('context.js');
- assert.match(ctxSite,/figCol\.append\(sky\)/,
-  'the sky section is appended to the sheet rather than to the figure column, so it sits under both instruments instead of beside one');
+ /* THE SKY CHART IS THE LAST THING ON THE SHEET.
+    It used to be appended to the figure column, on the reasoning that a
+    supporting chart should sit beside the numbers rather than under them. But
+    the desk panel in the console is 354..614px wide — measured, not assumed —
+    so the sheet always stacks, and "beside" never happens: the chart stood
+    between the reader's own drawing and the numbers that answer it. The
+    sheet asked "what does this land take?" and made the reader scroll past a
+    chart of the sky to find out. */
+ assert.match(ctxSite,/if\(skyBlock\)body\.append\(skyBlock\)/,
+  'the sky section is not the last thing on the sheet');
+ assert.doesNotMatch(ctxSite,/figCol\.append\(sky\)/,
+  'the sky section is in the figure column, so it stands between the drawing and the numbers');
  assert.match(ctxSite,/body\.append\(figCol\)/,'the figure column is never appended to the body');
  assert.doesNotMatch(ctxSite,/host\.append\(sky\)/,
   'the sky section is appended to the desk host, which puts it back below the number rail');
+ // And the answer comes before the context: the reader drew a plot and asked
+ // what it takes. Eleven rows of context first makes the answer a hunt.
+ const takesAt=ctxSite.indexOf('side.append(block)');
+ // The desk above also appends a dl, so the fact rows are looked for after
+ // the answer, not from the top of the file.
+ const factsAt=takesAt>0?ctxSite.indexOf('side.append(dl)',takesAt):-1;
+ assert.ok(takesAt>0&&factsAt>0,'the sheet appends neither the answer nor the facts');
+ assert.ok(takesAt<factsAt,'the fact rows come before the answer they contextualise');
 });
 
 test('the site module and its data are inside the release graph',()=>{

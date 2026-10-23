@@ -57,10 +57,10 @@
    mean stair descent of mobility-impaired people without aids ≈ 0.33 m/s.
    They are modelled waiting for their floor's queue to clear, then descending
    at their own speed; with lifts in use they take the lifts first. */
-import {stack,profile,area,evaluate} from './model.js?v=acdd677fe2';
-import {liftDesign,CORE_METHOD} from './core.js?v=7197725017';
+import {stack,profile,area,evaluate} from './model.js?v=49d3a6b6e7';
+import {liftDesign,CORE_METHOD} from './core.js?v=4280077da8';
 import {sheet,cut,beyond,leader as draftLeader,head,dim as draftDim,rule,txt as draftTxt,ground,flow,brkV} from './drafting.js?v=5dc3f3c796';
-import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=bc763656eb';
+import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=48652b12d9';
 let displayLang='en',displayKey='';
 const shown=value=>displayText(value,displayLang);
 const txt=(x,y,text,...args)=>draftTxt(x,y,shown(text),...args);

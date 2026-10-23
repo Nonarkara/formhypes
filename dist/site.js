@@ -98,6 +98,15 @@ export function makeScene({width=760,maxHeight=470,radius=700,towerH=220,angle=0
     const rx=x*c-y*s, ry=x*s+y*c;
     return [cx+rx*scale, cy-(z*0.96-ry*0.36)*scale, ry];
    },
+   // The projection undone, so a click on the drawing can become a point on
+   // the ground. The projection is a rotation and two scales, so it inverts
+   // exactly: undo the scale on each axis, then undo the rotation. A click
+   // that lands 200 m from where the reader clicked is worse than no click
+   // at all, so this is arithmetic rather than an approximation.
+   unproject:(sx,sy)=>{
+    const rx=(sx-cx)/scale, ry=(sy-cy)/(0.36*scale);
+    return [rx*c+ry*s, -rx*s+ry*c];
+   },
    // "Further away" is the gradient of ry, which is (s, c). Guessing the
    // convention instead of deriving it rotates the cull by ninety degrees.
    viewDir:[s,c],
@@ -556,8 +565,8 @@ export function plotFacts(plot,{ground,buildings,towerH,plate,plateArea,sun,reac
     the exact defect this function exists to remove. It now returns the best
     attempt with `holds:false`, so the building stands on the lot and the `fit`
     fraction says by how much it is overhanging. */
-function seatFor(plate,ring){
-  const holds=p=>plate.every(([x,y])=>pointInRing(x+p[0],y+p[1],ring));
+function seatFor(plate,ring,strict=false){
+  const holds=p=>strict?ringContainsRing(ring,plate.map(([x,y])=>[x+p[0],y+p[1]])):plate.every(([x,y])=>pointInRing(x+p[0],y+p[1],ring));
   const c=ringCentroid(ring);
   if(holds(c))return {at:c,holds:true,centred:true};
   const eye=observerPoint(ring);
@@ -625,6 +634,126 @@ export function plateOnPlot(plate,plot){
   const pts=plate.map(([x,y])=>[x+seat.at[0],y+seat.at[1]]);
   return {pts,origin:seat.at,centred:seat.centred,holds:seat.holds,
    fit:fitOf(pts,plot.ring)};
+}
+
+/* ── the reader's own plot ───────────────────────────────────────────────
+
+   People buy the land before they design the building, so the land has to be
+   the first input, not the last. A harvested lot arrives as a ring, and
+   everything downstream — the fit, the frontage, the neighbours, the sky, the
+   shadow — is one code path. A plot the reader owns has to arrive as a ring
+   too, or there would be two of everything, and the two would disagree.
+
+   So: a rectangle the reader types and an outline the reader draws both
+   become rings, and from there they are the same lot. */
+
+export function rectangleRing(cx,cy,w,d){
+  const hw=Math.abs(w)/2,hd=Math.abs(d)/2;
+  return [[cx-hw,cy-hd],[cx+hw,cy-hd],[cx+hw,cy+hd],[cx-hw,cy+hd]];
+}
+
+// Edge intersection parameters let containment check the intervals between
+// crossings, including notches whose endpoints alone appear to be inside.
+function edgeCuts(a,b,c,d){
+ const r=[b[0]-a[0],b[1]-a[1]],s=[d[0]-c[0],d[1]-c[1]],q=[c[0]-a[0],c[1]-a[1]];
+ const cross=(u,v)=>u[0]*v[1]-u[1]*v[0],den=cross(r,s),eps=1e-9;
+ if(Math.abs(den)>eps){const t=cross(q,s)/den,u=cross(q,r)/den;return t>=-eps&&t<=1+eps&&u>=-eps&&u<=1+eps?[Math.max(0,Math.min(1,t))]:[]}
+ if(Math.abs(cross(q,r))>eps)return [];
+ const l=r[0]*r[0]+r[1]*r[1];if(l<eps*eps)return [];
+ const ts=[c,d].map(p=>((p[0]-a[0])*r[0]+(p[1]-a[1])*r[1])/l).sort((x,y)=>x-y);
+ return ts[1]<-eps||ts[0]>1+eps?[]:[Math.max(0,ts[0]),Math.min(1,ts[1])];
+}
+export function validPlotRing(ring){
+ if(!Array.isArray(ring)||ring.length<3||ring.length>256||!ring.every(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite))||Math.abs(ringArea(ring))<1e-6)return false;
+ for(let i=0;i<ring.length;i++){
+  const a=ring[i],b=ring[(i+1)%ring.length];if(Math.hypot(b[0]-a[0],b[1]-a[1])<1e-7)return false;
+  for(let j=i+1;j<ring.length;j++)if(j!==i+1&&!(i===0&&j===ring.length-1)&&edgeCuts(a,b,ring[j],ring[(j+1)%ring.length]).length)return false;
+ }
+ return true;
+}
+export function ringContainsRing(outer,inner){
+ const inside=p=>pointInRing(p[0],p[1],outer)||distToRing(p[0],p[1],outer)<1e-7;
+ if(!inner.every(inside))return false;
+ for(let i=0;i<inner.length;i++){
+  const a=inner[i],b=inner[(i+1)%inner.length],cuts=[0,1];
+  for(let j=0;j<outer.length;j++)cuts.push(...edgeCuts(a,b,outer[j],outer[(j+1)%outer.length]));
+  cuts.sort((x,y)=>x-y);
+  for(let j=1;j<cuts.length;j++){const t=(cuts[j-1]+cuts[j])/2;if(!inside([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]))return false}
+ }
+ return true;
+}
+
+/** The minimum-area rectangle that contains the ring.
+
+   A plot has a principal direction: the way its long side lies. For a
+   rectangle that is the obvious answer, and for a hand-drawn outline it is
+   the answer that lets the tower turn to face the land instead of standing
+   at an angle to it. The rectangle is found by trying each edge of the ring as
+   a side — for a convex ring the smallest enclosing rectangle always has one
+   side on an edge, which is why this is a handful of arithmetic steps rather
+   than a search. */
+export function frameOf(ring){
+  if(!ring||ring.length<3)return null;
+  let best=null;
+  for(let i=0;i<ring.length;i++){
+   const a=ring[i],b=ring[(i+1)%ring.length];
+   const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy);
+   if(L<1e-6)continue;
+   const ux=dx/L,uy=dy/L;                     // along the edge
+   const nx=-uy,ny=ux;                         // across it
+   let u0=Infinity,u1=-Infinity,v0=Infinity,v1=-Infinity;
+   for(const p of ring){
+    const u=p[0]*ux+p[1]*uy,v=p[0]*nx+p[1]*ny;
+    if(u<u0)u0=u;if(u>u1)u1=u;if(v<v0)v0=v;if(v>v1)v1=v;
+   }
+   const w=u1-u0,h=v1-v0,area=w*h;
+   if(!best||area<best.area){
+    const uc=(u0+u1)/2,vc=(v0+v1)/2;
+    best={area,w,h,angle:Math.atan2(uy,ux),
+     cx:uc*ux+vc*nx,cy:uc*uy+vc*ny,
+     at:(u,v)=>[uc*ux+v*nx,uc*uy+v*ny]};
+   }
+  }
+  return best;
+}
+
+/** The largest plate of this shape that still stands wholly on the plot.
+
+   The plate is scaled, not reshaped: the family the reader chose is the
+   family that goes on the land, and what the land decides is how big it is.
+   The seat is recomputed at every scale, because the best seat for a small
+   plate is not the best seat for a large one, and a fit measured against a
+   stale seat is not a fit.
+
+   "Wholly" means the whole plate. The desk exists to say when a building
+   hangs over its own site, so a plate that overhangs is a different answer
+   and not a smaller version of the same one.
+
+   THE SEARCH IS THE LAND'S OWN LIMIT, NOT THE INSTRUMENT'S RANGE. It used to
+   be capped at the instrument's widest plate, which made two opposite plots
+   give the same answer: a plot that could take the whole range and a plot
+   that could barely take the smallest plate in it. A 52,000 m² outline was
+   told it carried a 32 m tower, because the cap was read off the wrong end of
+   the range. The land decides the size; what the instrument can draw is a
+   separate fact and is printed beside the number, not folded into it. */
+export function plateThatFits(plate,plot,maxScale=64){
+  const ring=plot&&plot.ring;
+  if(!validPlotRing(ring)||!validPlotRing(plate)||!Number.isFinite(maxScale)||maxScale<=0)return null;
+  const at=k=>{
+   const scaled=plate.map(([x,y])=>[x*k,y*k]);
+   const seat=seatFor(scaled,ring,true),pts=scaled.map(([x,y])=>[x+seat.at[0],y+seat.at[1]]);
+   const placed={pts,origin:seat.at,centred:seat.centred,holds:seat.holds,fit:seat.holds?1:0};
+   return {k,plate:scaled,placed,fit:placed.fit,whole:seat.holds};
+  };
+  const extent=(p,axis)=>Math.max(...p.map(v=>v[axis]))-Math.min(...p.map(v=>v[axis]));
+  let lo=0,hi=Math.min(maxScale,extent(ring,0)/extent(plate,0),extent(ring,1)/extent(plate,1)),best=null;
+  const largest=at(hi);if(largest.whole)return largest;
+  for(let i=0;i<28;i++){
+   const mid=(lo+hi)/2;
+   const candidate=at(mid);
+   if(candidate.whole){lo=mid;best=candidate}else hi=mid;
+  }
+  return best;
 }
 
 /* ── drawing ───────────────────────────────────────────────────────────────

@@ -1,20 +1,21 @@
 let displayLang='en';
-import {displayText,displaySVG,toDisplay} from './preferences.js?v=bc763656eb';
+import {displayText,displaySVG,toDisplay} from './preferences.js?v=48652b12d9';
 // Context desk — put the model on a real plot and count what its shadow does.
 // The five replaced buildings and their published figures are real and are
 // quoted as given. Every neighbouring block below is contextual massing composed
 // for this study: not surveyed, every height indicative. Both facts are printed
 // on screen, not merely held here.
-import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=acdd677fe2';
+import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=49d3a6b6e7';
 import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposure} from './solar.js?v=9279efc6dc';
 import {lensOf,lensSVG,lensFormula,LENS_KEY,LIFE_YEARS} from './lens.js?v=2949cf8b98';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
 import {CITYSCAPE} from './cityscape.data.js?v=e5a1d6659e';
-import {parseGround,parseCity,plotCandidates,plotFacts,plateOnPlot,landscapeSVG,skyViewSVG,makeScene} from './site.js?v=7cb1769785';
+import {parseGround,parseCity,plotCandidates,plotFacts,plateOnPlot,landscapeSVG,skyViewSVG,makeScene,rectangleRing,frameOf,plateThatFits,validPlotRing,ringArea,ringPerimeter} from './site.js?v=c2c70b3fb3';
+import {SCHEMA} from './schema.js?v=fd56569c48';
 // The lens strings live in the shared translation file, not in this desk's own
 // dictionary: they are the same words the reader has already met in the rail,
 // and a second copy is a second thing to drift.
-import {t as I18N} from './i18n.js?v=26e6f6be3f';
+import {t as I18N} from './i18n.js?v=ba01fe4aeb';
 
 // Empire Tower 58F / 227 m / 1999, floor plate ≈3,000 m² and a 2.60 m Grade A
 // clear-height benchmark for Bangkok; Dayabumi Complex 35F / 157 m / 1984;
@@ -445,6 +446,17 @@ Object.assign(CONTEXT_I18N.zh,{cityTky:'东京',nameTky:'东京'});
 
 let siteLot=0;                                    // chosen lot index, per city
 let siteCity=null;
+/* HOW THE READER STATES THEIR PLOT.
+
+   People buy the land before they design the building, so the land is the
+   first input, not the last. Three ways to say it — a lot the survey found, a
+   rectangle the reader types, an outline the reader draws on the map — and all
+   three end up as a ring, because everything downstream of here (the fit, the
+   frontage, the neighbours, the sky, the shadow) is one code path and must
+   stay one code path. */
+let siteSource='survey';                          // survey | rect | draw
+let siteRect={w:40,d:24};                         // the reader's rectangle, in metres
+let siteCorners=[];                               // the reader's outline, in survey metres
 
 export function renderSite({lang,state,changed}){
  displayLang=lang;
@@ -452,7 +464,9 @@ export function renderSite({lang,state,changed}){
  const host=document.getElementById('siteDesk');
  if(!host)return;
  const cityKey=state.city;
- if(siteCity!==cityKey){siteCity=cityKey;siteLot=0}
+ // A hand-drawn outline is a set of points in one city's survey. Change city
+ // and those points mean somewhere else entirely, so they go with it.
+ if(siteCity!==cityKey){siteCity=cityKey;siteLot=0;siteCorners=[]}
  host.replaceChildren();
 
  const ground=parseGround(cityKey,GROUND,GROUND_ROAD_M),survey=parseCity(cityKey,CITYSCAPE);
@@ -464,18 +478,24 @@ export function renderSite({lang,state,changed}){
  head.append(el('h3',c['st.title']),el('p',txt(c['st.lead'],ground.meta.label)));
  host.append(head);
 
- if(!plots.length){
+ if(!plots.length&&siteSource==='survey'){
   // Said plainly rather than drawing an empty city and leaving the reader to
   // work out why nothing happened.
   const warn=wrap('st-warn');warn.append(el('p',c['st.none']));host.append(warn);
   return;
  }
 
- siteLot=Math.max(0,Math.min(siteLot,plots.length-1));
- const plot=plots[siteLot];
+ siteLot=Math.max(0,Math.min(siteLot,Math.max(0,plots.length-1)));
+ // THE PLOT THE READER IS STANDING ON. The reader's own plot arrives as a
+ // ring, exactly as a harvested lot does, so the appraisal below is the same
+ // appraisal — not a second one that agrees only sometimes.
+ const own=siteSource==='rect'?{id:'own',ring:rectangleRing(0,0,siteRect.w,siteRect.d)}
+  :siteSource==='draw'&&validPlotRing(siteCorners)?{id:'own',ring:siteCorners}:null;
+ if(own)own.area=Math.abs(ringArea(own.ring));
+ const plot=siteSource==='survey'?plots[siteLot]:own;
  const sun=solarPosition({...solarDefaults,...state});
- const facts=plotFacts(plot,{ground,buildings:survey.buildings,towerH,plate,plateArea,
-  sun:{altitude:sun.altitude,azimuth:sun.azimuth}});
+ const facts=plot?plotFacts(plot,{ground,buildings:survey.buildings,towerH,plate,plateArea,
+  sun:{altitude:sun.altitude,azimuth:sun.azimuth}}):null;
 
  const body=wrap('st-body');
  /* THE TWO DRAWINGS SHARE ONE COLUMN, AND THE NUMBERS GET THE RAIL.
@@ -487,34 +507,164 @@ export function renderSite({lang,state,changed}){
     are about half the height of the rail they sit beside, and the composition
     closes. */
  const figCol=wrap('st-figcol');
+
+ /* HOW THE PLOT IS STATED. One row of three ways, and the input that belongs
+    to the chosen one directly beneath it — the reader says which land they
+    are standing on, and the drawing answers back. The lot list used to sit in
+    the rail with the numbers, and it chose what the drawing showed, so it
+    belongs with the drawing. */
+ const control=wrap('st-plot');
+ const modes=wrap('st-modes');
+ modes.setAttribute('role','group');modes.setAttribute('aria-label',c['st.choose']);
+ for(const [key,label]of[['survey',c['st.srcSurvey']],['rect',c['st.srcRect']],['draw',c['st.srcDraw']]]){
+  const b=document.createElement('button');
+  b.type='button';b.textContent=label;
+  b.setAttribute('aria-pressed',String(siteSource===key));
+  b.onclick=()=>{siteSource=key;renderSite({lang,state,changed})};
+  modes.append(b);
+ }
+ control.append(modes);
+ if(siteSource==='survey'){
+  const pick=document.createElement('select');pick.className='st-pick';pick.id='siteLot';
+  for(let i=0;i<plots.length;i++){
+   const o=document.createElement('option');
+   o.value=String(i);
+   o.textContent=txt(c['st.rank'],i+1,plots.length,Math.round(plots[i].area));
+   pick.append(o);
+  }
+  pick.value=String(siteLot);
+  pick.onchange=()=>{siteLot=+pick.value;renderSite({lang,state,changed})};
+  control.append(pick);
+ }else if(siteSource==='rect'){
+  const fields=wrap('st-fields');
+  const field=(id,label,key)=>{
+   const lab=el('label',label);lab.htmlFor=id;
+   const inp=document.createElement('input');
+   inp.type='number';inp.id=id;inp.min='5';inp.max='600';inp.step='1';inp.value=String(siteRect[key]);
+   // On change, not on input: the desk rebuilds itself, and a rebuild takes
+   // the caret with it. A reader typing a dimension would lose the field
+   // after one keystroke.
+   inp.onchange=()=>{const v=Number(inp.value);
+    if(Number.isFinite(v)&&v>=5&&v<=600){siteRect[key]=v;renderSite({lang,state,changed})}};
+   const f=wrap('st-field');f.append(lab,inp);return f;
+  };
+  fields.append(field('siteRectW',c['st.rectW'],'w'),field('siteRectD',c['st.rectD'],'d'));
+  control.append(fields);
+  const note=el('p',c['st.rectNote']);note.className='st-hint';control.append(note);
+ }else{
+  const hint=el('p',c['st.drawHint']);hint.className='st-hint';control.append(hint);
+  const tools=wrap('st-tools');
+  const tool=(label,fn,off)=>{const b=document.createElement('button');b.type='button';b.textContent=label;
+   b.disabled=!!off;b.onclick=fn;return b};
+  tools.append(tool(c['st.undo'],()=>{siteCorners.pop();renderSite({lang,state,changed})},!siteCorners.length),
+   tool(c['st.clear'],()=>{siteCorners=[];renderSite({lang,state,changed})},!siteCorners.length));
+  control.append(tools);
+  // The corner count is always on the sheet, even when it is zero. It is
+  // what the reader checks after each click, and a line that appears on the
+  // first click pushes the map down under the pointer that is about to click
+  // it again — a drawing that moves while you are drawing on it is a drawing
+  // you cannot draw on.
+  const say=el('p',txt(c['st.corners'],siteCorners.length,siteCorners.length?Math.round(ringPerimeter(siteCorners)):0));
+  say.className='st-hint';control.append(say);
+ }
+ figCol.append(control);
+
  const fig=wrap('st-fig');
  const scene=makeScene({radius:ground.meta.radius,towerH});
- fig.innerHTML=displaySVG(landscapeSVG({ground,city:survey,plot,tower:facts.seated.pts,towerH,scene,
+ fig.innerHTML=displaySVG(landscapeSVG({ground,city:survey,plot,tower:facts?facts.seated.pts:null,towerH,scene,
   labels:{aria:c['st.title']+' · '+ground.meta.label}}),lang);
+
+ /* THE MAP IS THE DRAWING SURFACE. A click on it is a corner of the reader's
+    plot, and it is turned back into a point on the ground with the scene's
+    own inverse projection — so a corner lands where it was clicked and not
+    two hundred metres away. The keyboard does the same thing without a
+    pointer: the arrows move the last corner along the screen's own axes, by
+    the same number of pixels, so what moves is what the reader sees move. */
+ const svg=fig.querySelector('svg');
+ if(svg&&siteSource==='draw'){
+  svg.classList.add('st-drawable');
+  svg.setAttribute('tabindex','0');
+  const toWorld=ev=>{
+   const r=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal;
+   const sx=vb.x+(ev.clientX-r.left)*vb.width/r.width;
+   const sy=vb.y+(ev.clientY-r.top)*vb.height/r.height;
+   return scene.unproject(sx,sy);
+  };
+  const onFirst=p=>{
+   if(siteCorners.length<3)return false;
+   const a=scene.project(siteCorners[0][0],siteCorners[0][1],0),b=scene.project(p[0],p[1],0);
+   return Math.hypot(a[0]-b[0],a[1]-b[1])<12;
+  };
+  svg.addEventListener('click',ev=>{
+   const p=toWorld(ev);
+   if(onFirst(p))siteCorners.pop();          // clicking the first corner closes the outline
+   else siteCorners.push(p);
+   renderSite({lang,state,changed});
+  });
+  svg.addEventListener('keydown',ev=>{
+   if(!siteCorners.length)return;
+   const k=ev.key,px=ev.shiftKey?24:6;
+   let dir=null,step=0;
+   if(k==='ArrowLeft'){dir=[-scene.c,scene.s];step=px/scene.scale}
+   else if(k==='ArrowRight'){dir=[scene.c,-scene.s];step=px/scene.scale}
+   else if(k==='ArrowUp'){dir=[-scene.s,-scene.c];step=px/(0.36*scene.scale)}
+   else if(k==='ArrowDown'){dir=[scene.s,scene.c];step=px/(0.36*scene.scale)}
+   else if(k==='Backspace'){siteCorners.pop();renderSite({lang,state,changed});ev.preventDefault();return}
+   else return;
+   ev.preventDefault();
+   const last=siteCorners[siteCorners.length-1];
+   siteCorners[siteCorners.length-1]=[last[0]+dir[0]*step,last[1]+dir[1]*step];
+   renderSite({lang,state,changed});
+   // The desk rebuilt itself, so the keyboard has to be put back on the
+   // drawing, or the second arrow key press goes to the page.
+   const again=document.querySelector('#siteDesk .st-fig svg');
+   if(again)again.focus();
+  });
+ }
+ if(svg&&siteSource==='draw'&&siteCorners.length){
+  const NS='http://www.w3.org/2000/svg';
+  const g=document.createElementNS(NS,'g');g.setAttribute('class','st-corners');
+  siteCorners.forEach((p,i)=>{
+   const s=scene.project(p[0],p[1],0);
+   const r=document.createElementNS(NS,'rect');
+   r.setAttribute('x',(s[0]-4).toFixed(1));r.setAttribute('y',(s[1]-4).toFixed(1));
+   r.setAttribute('width','8');r.setAttribute('height','8');
+   r.setAttribute('class','st-corner'+(i===0?' st-first':''));
+   g.append(r);
+  });
+  svg.append(g);
+ }
  figCol.append(fig);
 
  // The sky section, drawn from the same 72 bearings the percentage above was
- // computed from — so the shape and the number cannot disagree.
- const sky=wrap('st-sky');
- const skyFig=wrap('st-fig');
- skyFig.innerHTML=displaySVG(skyViewSVG({skyline:facts.skyline,svf:facts.svf,
-  labels:{title:c['st.skyTitle'],value:`${num(facts.svf*100,0)}%`,aria:c['st.skyTitle']}}),lang);
- sky.append(skyFig,el('p',c['st.skyNote']));
- figCol.append(sky);
+ // computed from — so the shape and the number cannot disagree. There is no
+ // sky section until there is a plot: an outline of two corners has no view
+ // to draw, and a drawing of one would be a picture of nothing.
+ //
+ // THE SKY CHART IS THE LAST THING ON THE SHEET. It was under the map, which
+ // put a supporting drawing between the reader's own plot and the numbers that
+ // answer it — the sheet asked "what does this land take?" and made the reader
+ // scroll past a chart to find out. The chart is still on the sheet; it is
+ // simply where a supporting drawing belongs.
+ let skyBlock=null;
+ if(facts){
+  const sky=wrap('st-sky');
+  const skyFig=wrap('st-fig');
+  skyFig.innerHTML=displaySVG(skyViewSVG({skyline:facts.skyline,svf:facts.svf,
+   labels:{title:c['st.skyTitle'],value:`${num(facts.svf*100,0)}%`,aria:c['st.skyTitle']}}),lang);
+  sky.append(skyFig,el('p',c['st.skyNote']));
+  skyBlock=sky;
+ }
  body.append(figCol);
 
  const side=wrap('st-side');
- const pick=document.createElement('select');pick.className='st-pick';pick.id='siteLot';
- for(let i=0;i<plots.length;i++){
-  const o=document.createElement('option');
-  o.value=String(i);
-  o.textContent=txt(c['st.rank'],i+1,plots.length,Math.round(plots[i].area));
-  pick.append(o);
+ if(!facts){
+  // The reader's outline is not a plot yet — three corners make one. The
+  // drawing stays exactly where it is, because the map is where the corners
+  // go. A table of em dashes would read as missing data on a sheet that is
+  // three clicks away from an answer.
+  const warn=wrap('st-warn');warn.append(el('p',c['st.drawShort']));side.append(warn);
  }
- pick.value=String(siteLot);
- pick.onchange=()=>{siteLot=+pick.value;renderSite({lang,state,changed})};
- side.append(pick);
-
  const dl=el('dl');dl.className='st-rows';
  // Each pair is wrapped in its own box. Without that, the grid below has no way
  // to know which dd belongs to which dt, and can put a label in one cell with
@@ -522,6 +672,7 @@ export function renderSite({lang,state,changed}){
  const kv=(k,v)=>{if(v===null||v===undefined||v==='')return;
   const row=el('div');row.className='st-row';row.append(el('dt',k),el('dd',v));dl.append(row)};
  const n=(v,d=1)=>num(v,d);
+ if(facts){
  kv(c['st.area'],`${n(facts.area)} ${c['st.lot']}`);
  kv(c['st.coverage'],`${num(facts.coverage*100,0)}%`);
  kv(c['st.width'],`${num(facts.width,1)} m`);
@@ -545,8 +696,73 @@ export function renderSite({lang,state,changed}){
  // read "Shadow at {0}° sun". A shadow length printed without the sun it belongs
  // to is not a measurement, it is a number.
  kv(txt(c['st.shadow'],num(sun.altitude,0)),`${num(facts.shadowReach,0)} m · ${txt(c['st.caught'],facts.shadowCaught)}`);
+ }
+
+ /* WHAT THE LAND WILL CARRY.
+
+    The plate is scaled until it stands wholly on the plot, and turned to the
+    plot's own direction first: a tower that faces the street is a different
+    tower, and the land is what decides which one this is. The reader's form
+    is not changed — the family they chose is the family that goes on the land
+    — only its size and its bearing.
+
+    TWO FACTS, NOT ONE. What the LAND takes is the answer. What this
+    INSTRUMENT can draw is a separate fact, printed under it. They were joined
+    into one number once, and the join was made at the wrong end of the range:
+    SCHEMA.span is [key, min, max, step, unit], so index 1 is the SMALLEST
+    plate this instrument draws and index 2 the widest. Reading index 1 as the
+    cap stopped the search at the instrument's minimum, so a 52,000 m² outline
+    was told it carried a 32 m tower — and the note under it printed "—–32 m",
+    because index 0 is the key, not a number. The land's limit is found
+    unbounded now, and the range is stated beside it. */
+ if(plot){
+  const frame=frameOf(plot.ring);
+  const bearing=frame?(((-frame.angle*180/Math.PI)%360)+360)%360:state.orientation||0;
+  const turned=profile({...state,orientation:bearing},0);
+  const fits=plateThatFits(turned,{ring:plot.ring});
+  if(fits){
+   const [,lo,hi]=SCHEMA.span;                      // [key, min, max, step, unit]
+   const land=state.span*fits.k;                    // what the land takes
+   const drawable=land>=lo;                         // the instrument can draw one that fits
+   const set=Math.max(lo,Math.min(hi,land));        // the size this instrument can take
+   const shown=drawable?set:land;                   // the plate this plot takes
+   const w=shown*Math.sqrt(state.aspect),d=shown/Math.sqrt(state.aspect);
+   const block=wrap('st-takes');
+   block.append(el('h4',c['st.takes']));
+   const rows=el('dl');rows.className='st-rows';
+   const kv2=(k,v)=>{const row=el('div');row.className='st-row';row.append(el('dt',k),el('dd',v));rows.append(row)};
+   kv2(c['st.takesPlate'],`${num(w,1)} × ${num(d,1)} m`);
+   kv2(c['st.takesArea'],`${num(area(profile({...state,span:shown,orientation:bearing},0)),0)} ${c['st.lot']}`);
+   block.append(rows);
+   if(drawable){
+    const btn=document.createElement('button');
+    btn.type='button';btn.className='st-use';btn.textContent=c['st.use'];
+    btn.onclick=()=>changed({span:set,orientation:bearing});
+    block.append(btn);
+    const note=el('p',txt(c['st.takesNote'],num(lo,0),num(hi,0)));
+    note.className='st-hint';block.append(note);
+    if(land>hi+0.01){
+     const warn=el('p',txt(c['st.takesClamp'],num(land,1),num(lo,0),num(hi,0)));
+     warn.className='st-hint';block.append(warn);
+    }
+   }else{
+    // The land carries less than the smallest plate this instrument draws.
+    // Nothing is offered here: adopting it would put a tower over the plot,
+    // and a button that offers a building which cannot stand is a lie in the
+    // only form a reader can act on.
+    const warn=el('p',txt(c['st.takesShort'],num(lo,0)));
+    warn.className='st-hint';block.append(warn);
+   }
+   side.append(block);
+  }
+ }
+ // The facts come AFTER the answer. The reader drew a plot and asked what it
+ // takes; the plot's context is the second question, not the first, and a
+ // column that opens with eleven rows of context makes the reader hunt for the
+ // number the sheet is about.
  side.append(dl);
  body.append(side);
+ if(skyBlock)body.append(skyBlock);
  host.append(body);
 
  const src=el('p',c['st.source']);src.className='st-source';host.append(src);

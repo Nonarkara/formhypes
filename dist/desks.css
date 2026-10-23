@@ -258,12 +258,52 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 /* Inside the figure column the sky section is a stack, not a pair: the column is
    narrow, and a chart with a note beside it would wrap the note under anyway.
    The section keeps its rule so the two drawings read as two sheets. */
-.st-sky{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:12px;min-width:0}
+.st-sky{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:12px;min-width:0;flex:1 1 100%}
 .st-sky p{margin:0;max-width:54ch;font-size:12px;line-height:1.55;color:var(--muted)}
 .sx-s{font:9.5px var(--mono);fill:var(--muted)}
 .st-source{margin:12px 0 0;font-size:11px;line-height:1.6;color:var(--faint)}
 .st-warn{border:1px solid var(--accent);border-left-width:3px;padding:10px 14px;margin:0 0 12px}
 .st-warn p{margin:0;font-size:13px;line-height:1.5;color:var(--ink)}
+/* THE READER'S OWN PLOT.
+
+   One row of three ways to state which land the building stands on, and the
+   input that belongs to the chosen one directly beneath it. The three are
+   peers, not a hierarchy, so they are a row of equal buttons with the
+   house's pressed style rather than a select that hides the other two.
+
+   The lot list moved here from the rail. It chooses what the drawing shows,
+   so it belongs with the drawing; leaving it in the rail put the control
+   that picks the picture on the other side of the picture. */
+.st-plot{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}
+.st-modes{display:flex;flex-wrap:wrap;gap:2px 0;border-bottom:1px solid var(--line)}
+.st-modes button{border:0;border-bottom:2px solid transparent;background:none;color:var(--muted);
+ padding:5px 10px;min-height:26px;font-size:12px}
+.st-modes button:hover{background:none;color:var(--ink)}
+.st-modes button[aria-pressed="true"]{background:none;border-bottom-color:var(--accent);color:var(--ink)}
+.st-fields{display:flex;flex-wrap:wrap;gap:8px 18px}
+.st-field{display:flex;align-items:center;gap:7px}
+.st-field label{font-size:11px;color:var(--muted)}
+.st-field input{width:82px;padding:4px 6px;border:1px solid var(--line);border-radius:0;
+ background:var(--paper);color:var(--ink);font:13px var(--mono)}
+.st-tools{display:flex;gap:8px}
+.st-tools button{font-size:12px}
+.st-hint{margin:0;font-size:11px;line-height:1.55;color:var(--faint);max-width:32em}
+/* THE DRAWING IS THE DRAWING SURFACE.
+
+   A crosshair says the map takes a click, and the focus ring is the house's
+   own 2px accent so a keyboard reader can see the map is live. The corners
+   are squares, not discs: this is a drafting sheet. */
+.st-fig svg.st-drawable{cursor:crosshair}
+.st-fig svg.st-drawable:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.st-corner{fill:var(--accent);stroke:var(--paper);stroke-width:1}
+.st-corner.st-first{fill:var(--paper);stroke:var(--accent)}
+/* WHAT THE LAND WILL CARRY. */
+.st-takes{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.st-takes h4{margin:0 0 9px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;
+ color:var(--faint);font-weight:600}
+.st-use{margin:11px 0 6px;padding:6px 12px;border:1px solid var(--ink);background:none;
+ color:var(--ink);font-size:12px}
+.st-use:hover{border-color:var(--accent);color:var(--accent);background:none}
 /* WHICH LAYOUT APPLIES IS A QUESTION ABOUT THE PANEL, NOT THE WINDOW.
 
    Inside the console this desk panel measures 414 to 614px on a desktop
