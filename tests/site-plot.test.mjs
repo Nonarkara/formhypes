@@ -14,7 +14,7 @@
 // meets this.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {defaults, profile, area} from '../dist/model.js';
+import {defaults, profile, area, evaluate} from '../dist/model.js';
 import {renderSite} from '../dist/context.js';
 import {t} from '../dist/i18n.js';
 import {SCHEMA} from '../dist/schema.js';
@@ -117,7 +117,7 @@ test('the floor area printed is the area of the plate the panel names', () => {
   assert.ok(printed, 'the block prints no floor area');
   const shown = rows(block).find(r => r.startsWith('Plate'));
   assert.ok(shown, 'the block prints no plate');
-  const metres = parseFloat((shown.match(/([\d.]+) ×/) || [])[1]);
+  const metres = parseFloat((shown.match(/([\d.]+)\s*m?\s*×/) || [])[1]);
   assert.ok(metres > 0, `the plate size is not a number: "${shown}"`);
   const expected = Math.round(area(profile({...defaults, span: metres}, 0)));
   assert.equal(printed.replace(/\D+/g, ''), String(expected),
@@ -131,9 +131,9 @@ test('the desk prints the widest plate the land takes, not the narrowest', () =>
   const {host, warns} = desk({mode: 'A rectangle', w: 200, d: 200});
   assert.deepEqual(warns, [], 'the desk threw: ' + warns.join(' | '));
   const text = rows(host);
-  assert.ok(text.some(r => r.includes('62.0 × 62.0 m')),
+  assert.ok(text.some(r => r.includes('62.0 m × 62.0 m')),
     `the panel did not print the 62 m plate: ${JSON.stringify(text)}`);
-  assert.ok(!text.some(r => r.includes('32.0 × 32.0 m')),
+  assert.ok(!text.some(r => r.includes('32.0 m × 32.0 m')),
     `the panel printed the instrument's smallest plate for a plot that takes more: ${JSON.stringify(text)}`);
 });
 
@@ -164,6 +164,41 @@ test('the adopt action applies a size inside the range the instrument draws', ()
   assert.ok(patch.span >= SCHEMA.span[1] && patch.span <= SCHEMA.span[2],
     `the adopted span ${patch.span} is outside ${SCHEMA.span[1]}–${SCHEMA.span[2]}`);
   assert.ok(Number.isFinite(patch.orientation), 'the adopted bearing is not a number');
+});
+
+test('the sheet states what the plate costs and what it earns', () => {
+  /* THE FEASIBILITY QUESTION. The land decides the size; the money says what
+     that size is worth. These are the figures for the plate the sheet names,
+     and they come from the model's own economics — so the sheet cannot show
+     one tower and price another. */
+  const {host} = desk({mode: 'A rectangle', w: 200, d: 200});
+  const block = byClass(host, 'st-money');
+  assert.ok(block, 'the sheet states no money');
+  const printed = rows(block);
+  for (const label of ['Capital cost, paid once', 'Annual gross rent', 'Annual running cost',
+    'Annual contribution', 'Capital ÷ annual contribution']) {
+    assert.ok(printed.some(r => r.startsWith(label)),
+      `the sheet does not state "${label}": ${JSON.stringify(printed)}`);
+  }
+  // And the capital it prints is the model's capital for the plate it names.
+  const plateRow = rows(byClass(host, 'st-takes')).find(r => r.startsWith('Plate'));
+  const metres = parseFloat((plateRow.match(/([\d.]+)\s*m?\s*×/) || [])[1]);
+  const expected = evaluate({...defaults, span: metres, orientation: 0});
+  const capital = printed.find(r => r.startsWith('Capital cost, paid once'));
+  assert.equal(capital.replace(/[^\d.]/g, ''), String(Math.round(expected.capex)),
+    `the sheet prices the tower at ${capital}, and the model says ${expected.capex}`);
+  // The ratio is the only honest operation between money paid once and money
+  // earned yearly, and it is not a payback period.
+  const ratio = printed.find(r => r.startsWith('Capital ÷ annual contribution'));
+  assert.ok(/\d/.test(ratio), `the sheet states no ratio: ${ratio}`);
+  assert.ok(host.textContent.includes(t.en['st.moneyNote']),
+    'the sheet states the ratio with no note about what is not in it');
+});
+
+test('a plot too small to build on states no money, because there is no building', () => {
+  const {host} = desk({mode: 'A rectangle', w: 30, d: 20});
+  assert.equal(byClass(host, 'st-money'), null,
+    'the sheet priced a building on a plot that cannot carry the smallest plate');
 });
 
 test('the strings for this desk exist in three languages and take the same placeholders', () => {

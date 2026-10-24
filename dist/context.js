@@ -1,11 +1,11 @@
 let displayLang='en';
-import {displayText,displaySVG,toDisplay} from './preferences.js?v=48652b12d9';
+import {displayText,displaySVG,toDisplay,quantity,formatMoney} from './preferences.js?v=48652b12d9';
 // Context desk — put the model on a real plot and count what its shadow does.
 // The five replaced buildings and their published figures are real and are
 // quoted as given. Every neighbouring block below is contextual massing composed
 // for this study: not surveyed, every height indicative. Both facts are printed
 // on screen, not merely held here.
-import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=49d3a6b6e7';
+import {profile, area, stackHeight, massingRings, evaluate} from './model.js?v=9531c58c62';
 import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposure} from './solar.js?v=9279efc6dc';
 import {lensOf,lensSVG,lensFormula,LENS_KEY,LIFE_YEARS} from './lens.js?v=2949cf8b98';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
@@ -15,7 +15,7 @@ import {SCHEMA} from './schema.js?v=fd56569c48';
 // The lens strings live in the shared translation file, not in this desk's own
 // dictionary: they are the same words the reader has already met in the rail,
 // and a second copy is a second thing to drift.
-import {t as I18N} from './i18n.js?v=ba01fe4aeb';
+import {t as I18N} from './i18n.js?v=f87b6ae560';
 
 // Empire Tower 58F / 227 m / 1999, floor plate ≈3,000 m² and a 2.60 m Grade A
 // clear-height benchmark for Bangkok; Dayabumi Complex 35F / 157 m / 1984;
@@ -673,18 +673,23 @@ export function renderSite({lang,state,changed}){
   const row=el('div');row.className='st-row';row.append(el('dt',k),el('dd',v));dl.append(row)};
  const n=(v,d=1)=>num(v,d);
  if(facts){
- kv(c['st.area'],`${n(facts.area)} ${c['st.lot']}`);
+ /* THE READER'S OWN UNITS. The rail, the drawings and the exports all follow
+    the saved unit and currency preference, and this desk did not: a reader who
+    had set imperial was told the plot was 10,800 m² on a sheet where every
+    other number was in feet. A number the reader has to convert by hand is a
+    number they cannot use. */
+ kv(c['st.area'],quantity(facts.area,'m²',lang,0));
  kv(c['st.coverage'],`${num(facts.coverage*100,0)}%`);
- kv(c['st.width'],`${num(facts.width,1)} m`);
+ kv(c['st.width'],quantity(facts.width,'m',lang,1));
  // An em dash means the ground data has no street anywhere near this lot. A
  // measured zero means the lot genuinely fronts nothing — a compound set back
  // from the road — and collapsing that into a dash reads as missing data on a
  // row where the answer is real.
  const frontStr=facts.nearestRoad===null?'—'
-   :facts.frontage>0?`${num(facts.frontage,0)} m`:'0 m';
+:facts.frontage>0?quantity(facts.frontage,'m',lang,0):quantity(0,'m',lang,0);
  kv(c['st.frontage'],frontStr);
- kv(c['st.street'],facts.nearestRoad===null?'—':`${GROUND_ROAD_M[facts.nearestRoad]} m · ${num(facts.nearestRoadDist,0)} m`);
- kv(c['st.neighbour'],facts.neighbourMax>0?`${num(facts.neighbourMax,0)} m · ${facts.neighbourCount}`:'');
+ kv(c['st.street'],facts.nearestRoad===null?'—':`${quantity(GROUND_ROAD_M[facts.nearestRoad],'m',lang,0)} · ${quantity(facts.nearestRoadDist,'m',lang,0)}`);
+ kv(c['st.neighbour'],facts.neighbourMax>0?`${quantity(facts.neighbourMax,'m',lang,0)} · ${facts.neighbourCount}`:'');
  kv(c['st.ratio'],facts.heightRatio===null?'—':`${num(facts.heightRatio,2)}×`);
  // What fraction of the plate is actually standing on the lot. Not one of the
  // 745 harvested lots can take a 48 m cruciform, so this row is usually a
@@ -695,7 +700,7 @@ export function renderSite({lang,state,changed}){
  // The label carries {0} for the sun's altitude and arrived unfilled, so the row
  // read "Shadow at {0}° sun". A shadow length printed without the sun it belongs
  // to is not a measurement, it is a number.
- kv(txt(c['st.shadow'],num(sun.altitude,0)),`${num(facts.shadowReach,0)} m · ${txt(c['st.caught'],facts.shadowCaught)}`);
+ kv(txt(c['st.shadow'],num(sun.altitude,0)),`${quantity(facts.shadowReach,'m',lang,0)} · ${txt(c['st.caught'],facts.shadowCaught)}`);
  }
 
  /* WHAT THE LAND WILL CARRY.
@@ -731,15 +736,45 @@ export function renderSite({lang,state,changed}){
    block.append(el('h4',c['st.takes']));
    const rows=el('dl');rows.className='st-rows';
    const kv2=(k,v)=>{const row=el('div');row.className='st-row';row.append(el('dt',k),el('dd',v));rows.append(row)};
-   kv2(c['st.takesPlate'],`${num(w,1)} × ${num(d,1)} m`);
-   kv2(c['st.takesArea'],`${num(area(profile({...state,span:shown,orientation:bearing},0)),0)} ${c['st.lot']}`);
+   kv2(c['st.takesPlate'],`${quantity(w,'m',lang,1)} × ${quantity(d,'m',lang,1)}`);
+   kv2(c['st.takesArea'],quantity(area(profile({...state,span:shown,orientation:bearing},0)),'m²',lang,0));
    block.append(rows);
    if(drawable){
     const btn=document.createElement('button');
     btn.type='button';btn.className='st-use';btn.textContent=c['st.use'];
     btn.onclick=()=>changed({span:set,orientation:bearing});
     block.append(btn);
-    const note=el('p',txt(c['st.takesNote'],num(lo,0),num(hi,0)));
+    const note=el('p',txt(c['st.takesNote'],quantity(lo,'m',lang,0),quantity(hi,'m',lang,0)));
+    note.className='st-hint';block.append(note);
+    if(land>hi+0.01){
+     const warn=el('p',txt(c['st.takesClamp'],quantity(land,'m',lang,1),quantity(lo,'m',lang,0),quantity(hi,'m',lang,0)));
+     warn.className='st-hint';block.append(warn);
+    }
+    /* WHAT IT COSTS, AND WHAT IT EARNS.
+
+       The land decides the size; the money says what that size is worth. These
+       are the figures for the plate this plot takes — the plate the rows above
+       name — and they come from the model's own economics, so the sheet cannot
+       show one tower and price another. The capital is paid once and the
+       contribution is earned every year; the ratio between the two is the only
+       honest operation between them, and it is not a payback period, because
+       land, podium, fit-out, plant, fees, financing and tax are not in it.
+
+       The block appears only when the instrument can actually build the plate:
+       a plot too small for the smallest plate has no building to price. */
+    const econ=evaluate({...state,span:set,orientation:bearing});
+    const money=wrap('st-money');
+    money.append(el('h4',c['st.money']));
+    const mrows=el('dl');mrows.className='st-rows';
+    const kv3=(k,v)=>{const row=el('div');row.className='st-row';row.append(el('dt',k),el('dd',v));mrows.append(row)};
+    kv3(c['m.capex'],formatMoney(econ.capex,lang));
+    kv3(c['m.rent'],formatMoney(econ.rent,lang));
+    kv3(c['m.running'],formatMoney(econ.rent+econ.crownNetRent-econ.contribution,lang));
+    kv3(c['m.contribution'],formatMoney(econ.contribution,lang));
+    kv3(c['m.capexRatio'],Number.isFinite(econ.payback)?`${num(econ.payback,1)} ${c['m.yr']}`:c['m.capexRatioNone']);
+    money.append(mrows);
+    const mnote=el('p',c['st.moneyNote']);mnote.className='st-hint';money.append(mnote);
+    block.append(money);
     note.className='st-hint';block.append(note);
     if(land>hi+0.01){
      const warn=el('p',txt(c['st.takesClamp'],num(land,1),num(lo,0),num(hi,0)));
@@ -750,7 +785,7 @@ export function renderSite({lang,state,changed}){
     // Nothing is offered here: adopting it would put a tower over the plot,
     // and a button that offers a building which cannot stand is a lie in the
     // only form a reader can act on.
-    const warn=el('p',txt(c['st.takesShort'],num(lo,0)));
+    const warn=el('p',txt(c['st.takesShort'],quantity(lo,'m',lang,0)));
     warn.className='st-hint';block.append(warn);
    }
    side.append(block);

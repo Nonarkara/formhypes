@@ -19,7 +19,7 @@ import{polyArea,polyPerimeter,minkowski,planLibrary,loftTable,lateralArea,loftVo
  pointInPolygon,distToBoundary,daylitFraction,daylightReachFor,cotSky,skyAngleDeg,isConvex}from'./geometry.js?v=eb7a621ab9';
 
 import {solarDefaults,facadeExposure} from './solar.js?v=9279efc6dc';
-import {gardenOf,gardenIndices,crownOf,crownMetrics,crownPlates,CROWN_RATES} from './crowns.js?v=6daba4a8ca';
+import {gardenOf,gardenIndices,crownOf,crownMetrics,crownPlates,CROWN_RATES} from './crowns.js?v=caf18dfca2';
 import {detailOf,detailCost,airBarrier} from './details.js?v=e0caa40f91';
 import {materialOf} from './materials.js?v=be1c7d7582';
 import {SCHEMA} from './schema.js?v=fd56569c48';

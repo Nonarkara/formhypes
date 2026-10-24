@@ -136,6 +136,7 @@ const en={
  'm.capex':'Capital cost, paid once',
  'm.capexPerM2':'Capital cost / m² of gross area',
  'm.capexRatio':'Capital ÷ annual contribution',
+ 'm.running':'Annual running cost',
  'm.crownHeight':'Crown height',
  'm.towerHeight':'Tower height, crown included',
  'm.crownReserve':'Crown reserve / year',
@@ -157,6 +158,8 @@ const en={
  'crown.reads.helipad':'A landing deck cantilevered past the parapet. The plate below has to carry it, so watch the frame rate.',
  'crown.reads.post':'A slender post above an occupied deck. The deck earns a separate rate, far below office rent — visitors are not tenants.',
  'crown.reads.mast':'A mast with obstruction lighting. On its own it earns nothing. Its only commercial use is as an advertising surface, which is a separate switch.',
+ 'crown.reads.figure':'A figure on a pedestal above the roof: the kind of landmark Christ the Redeemer in Rio (1931) and the Motherland Calls at Volgograd (1967) are. It earns nothing, it is maintained like a building for its whole life, and it is counted in full against the height allowance.',
+ 'crown.figure':'Figure on a pedestal',
 
  'garden.none':'No sky terrace',
  'garden.quarter':'Quarter floor open',
@@ -643,6 +646,7 @@ const th={
  'm.capex':'ต้นทุนก่อสร้าง จ่ายครั้งเดียว',
  'm.capexPerM2':'ต้นทุนก่อสร้างต่อ ตร.ม. พื้นที่รวม',
  'm.capexRatio':'ต้นทุนก่อสร้าง ÷ รายได้หลังหักสำรองต่อปี',
+ 'm.running':'ค่าใช้จ่ายรายปี',
  'm.crownHeight':'ความสูงยอดตึก',
  'm.towerHeight':'ความสูงตึกรวมยอด',
  'm.crownReserve':'ค่าสำรองยอดตึกต่อปี',
@@ -664,6 +668,8 @@ const th={
  'crown.reads.helipad':'ลานเฮลิแพดยื่นพ้นขอบตึกออกไป แผ่นพื้นชั้นล่างต้องรับน้ำหนักมันไว้ จึงต้องดูอัตราค่าโครงสร้าง',
  'crown.reads.post':'เสาทรงเรียวเหนือชั้นที่เปิดให้เข้าชม ชั้นที่เปิดนั้นคิดค่าเช่าคนละอัตราซึ่งต่ำกว่าค่าเช่าสำนักงานมาก เพราะผู้มาเยี่ยมชมไม่ใช่ผู้เช่า',
  'crown.reads.mast':'เสาสัญญาณพร้อมไฟสัญญาณการบิน โดยตัวมันไม่สร้างรายได้เลย ประโยชน์ทางการค้าเดียวที่มีคือใช้เป็นผิวโฆษณา ซึ่งเป็นสวิตช์อีกอันหนึ่ง',
+ 'crown.reads.figure':'รูปปั้นบนแท่นเหนือหลังคาด้วย เช่นพระคริสตรผู้พิชิตที่ริโอเดจาโร (ค.ศ. 1931) และแม่ชาติผู้เรียกร้องที่วอลโกกราด (ค.ศ. 1967) มันไม่สร้างรายได้ ต้องบำรุงรักษาเหมือนอาคารตลอดอายุ และถูกนับเต็มเป็นความสูงที่ได้รับอนุญาต',
+ 'crown.figure':'รูปปั้นบนแท่น',
 
  'garden.none':'ไม่มีลานกลางฟ้า',
  'garden.quarter':'เปิดหนึ่งในสี่ของชั้น',
@@ -1149,6 +1155,7 @@ const zh={
  'm.capex':'建设成本 · 一次性支付',
  'm.capexPerM2':'建设成本 / 每平方米建筑面积',
  'm.capexRatio':'建设成本 ÷ 年度贡献',
+ 'm.running':'年度运营成本',
  'm.crownHeight':'塔冠高度',
  'm.towerHeight':'含塔冠的塔楼总高',
  'm.crownReserve':'塔冠年储备',
@@ -1170,6 +1177,8 @@ const zh={
  'crown.reads.helipad':'挑出女儿墙的降落平台。下方楼板必须承担它，所以要看结构费率。',
  'crown.reads.post':'细柱立在观景层之上。观景层按另一个远低于办公租金的单价计收——参观者不是租户。',
  'crown.reads.mast':'带障碍灯的桅杆。它本身不产生收入。唯一的商业用途是作为广告表面，那是一个独立的开关。',
+ 'crown.reads.figure':'屋顶基座上的雕像：像里约热内卢的基督像（1931）和伏尔加格勒的母亲呼唤（1967）那类地标。它不产生收益，终生要像建筑一样维护，并且全额计入允许高度。',
+ 'crown.figure':'基座雕像',
 
  'garden.none':'不设空中平台',
  'garden.quarter':'开放四分之一层',
@@ -1658,7 +1667,7 @@ Object.assign(en,{
  'st.caught':'{0} roofs in it',
  'st.skyTitle':'The sky this plot would see',
  'st.skyNote':'Cosine-weighted over 72 bearings, counting only the buildings OpenStreetMap carries a height for — so this is a ceiling on the sky, not the sky itself. A sketch method: exact enough to compare plots, not a simulation.',
- 'st.lot':'m²','st.pickFirst':'Largest lot in range',
+ 'st.pickFirst':'Largest lot in range',
  'st.source':'Street, water and green: OpenStreetMap contributors, ODbL.',
  'st.choose':'Your plot',
  'st.srcSurvey':'Surveyed lot',
@@ -1679,6 +1688,8 @@ Object.assign(en,{
  'st.use':'Use this plate',
  'st.takesClamp':'This plot takes a {0} m plate. The instrument draws from {1} to {2} m, so the tower is set to the nearest size in range.',
  'st.takesShort':'This plot takes a plate smaller than the smallest this instrument draws ({0} m), so there is no size here that can be set to it.',
+ 'st.money':'What it costs, and what it earns',
+ 'st.moneyNote':'The capital is paid once and the contribution is earned every year. The ratio between them is not a payback period: it excludes land, podium, fit-out, plant, fees, financing and tax.',
  'st.none':'No lot in range is big enough for this plate. Raise the plot area or lower the span.'
 });
 Object.assign(th,{
@@ -1692,7 +1703,7 @@ Object.assign(th,{
  'st.caught':'หลังคา {0} หลังอยู่ในเงา',
  'st.skyTitle':'ท้องฟ้าที่แปลงนี้จะมองเห็น',
  'st.skyNote':'ถัวเฉลี่ยแบบถ่วงน้ำหนักโคไซน์ ทิศ 72 ตำแหน่ง นับเฉพาะตึกที่ OpenStreetMap มีข้อมูลความสูง จึงเป็นเพดานของท้องฟ้าที่มองเห็น ไม่ใช่ท้องฟ้าจริง เป็นวิธีคิดแบบร่าง พอให้เปรียบเทียบแปลงกันได้ แต่ไม่ใช่การจำลอง',
- 'st.lot':'ตร.ม.','st.pickFirst':'แปลงที่ใหญ่ที่สุดในระยะ',
+ 'st.pickFirst':'แปลงที่ใหญ่ที่สุดในระยะ',
  'st.source':'ถนน น้ำ และพื้นที่เขียว: ผู้มีส่วนร่วมใน OpenStreetMap, ODbL',
  'st.choose':'ที่ดินของคุณ',
  'st.srcSurvey':'แปลงจากการสำรวจ',
@@ -1713,6 +1724,8 @@ Object.assign(th,{
  'st.use':'ใช้พื้นที่ชั้นนี้',
  'st.takesClamp':'ที่ดินแปลงนี้รองรับพื้นที่ชั้น {0} ม. เครื่องมือวาดระหว่าง {1} ถึง {2} ม. จึงเลือกขนาดที่ใกล้ที่สุดในช่วงนี้',
  'st.takesShort':'ที่ดินแปลงนี้รองรับพื้นที่ชั้นที่เล็กกว่าพื้นที่ชั้นที่เล็กที่สุดที่เครื่องมือนี้วาด ({0} ม.) จึงไม่มีขนาดที่นำมาใช้ได้',
+ 'st.money':'ต้นทุนและรายได้',
+ 'st.moneyNote':'ต้นทุนก่อสร้างจ่ายครั้งเดียว ส่วนรายได้หลังหักสำรองได้มาทุกปี อัตราส่วนระหว่างสองอย่างนี้ไม่ใช่ระยะคืนทุน เพราะไม่รวมค่าที่ดิน โครงสร้างส่วนฐาน การตกแต่ง ระบบวิศวกรรม ค่าธรรมเนียม การเงิน และภาษี',
  'st.none':'ไม่มีแปลงใดในระยะที่ใหญ่พอสำหรับพื้นที่ชั้นนี้ เพิ่มพื้นที่ที่ดิน หรือลดความกว้างของอาคาร'
 });
 Object.assign(zh,{
@@ -1726,7 +1739,7 @@ Object.assign(zh,{
  'st.caught':'其中 {0} 个屋顶',
  'st.skyTitle':'该地块能看到的天空',
  'st.skyNote':'按 72 个方位余弦加权平均，且只计入 OpenStreetMap 标注了高度的建筑，因此这是可见天空的上限，而非实际值。属于草图方法，足以比较地块之间，但不是模拟。',
- 'st.lot':'m²','st.pickFirst':'范围内最大地块',
+ 'st.pickFirst':'范围内最大地块',
  'st.source':'道路、水体与绿地：OpenStreetMap 贡献者，ODbL。',
  'st.choose':'你的地块',
  'st.srcSurvey':'实测地块',
@@ -1747,6 +1760,8 @@ Object.assign(zh,{
  'st.use':'采用这个标准层',
  'st.takesClamp':'这块地能承受 {0} m 标准层。仪器绘制 {1} 到 {2} m，因此取范围内最接近的尺寸。',
  'st.takesShort':'这块地能承受的标准层比本仪器绘制的最小标准层（{0} 米）还小，因此没有可采用的尺寸。',
+ 'st.money':'造价与回报',
+ 'st.moneyNote':'建设成本一次支付，年度贡献逐年获得。两者之比不是回收期：它不含土地、裙楼、装修、机电、费用、融资与税。',
  'st.none':'范围内没有足以容纳该标准层的地块。请增大地块面积或减小建筑跨度。'
 });
 

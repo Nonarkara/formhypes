@@ -1,8 +1,8 @@
 // Local concept studies. East, north, up; SI internally. No weather/design-code inputs inferred.
-import {massingRings} from './model.js?v=49d3a6b6e7';
+import {massingRings} from './model.js?v=9531c58c62';
 import {ringArea,cityData} from './cityscape.js?v=dcc15cb0df';
 import {solarPosition,solarDefaults,studyDay} from './solar.js?v=9279efc6dc';
-import {projectedShadow} from './context.js?v=bfd492ed59';
+import {projectedShadow} from './context.js?v=6f0daee120';
 const sub=(a,b)=>a.map((x,i)=>x-b[i]),dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 const length=a=>Math.hypot(...a),unit=a=>{const l=length(a);return l?a.map(x=>x/l):[0,0,0]};

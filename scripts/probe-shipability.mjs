@@ -48,14 +48,20 @@ const cases=[
  ['the size adopted is not held inside the instrument range','context.js','const set=Math.max(lo,Math.min(hi,land));','const set=land;','the adopt action applies a size inside the range'],
  ['a plot too small for the instrument is still offered a plate','context.js','const drawable=land>=lo;','const drawable=true;','a plot too small for the instrument offers nothing'],
  ['the plate is sized at half the land','site.js','hi=Math.min(maxScale,extent(ring,0)/extent(plate,0),extent(ring,1)/extent(plate,1))','hi=Math.min(maxScale,extent(ring,0)/extent(plate,0),extent(ring,1)/extent(plate,1))/2','the land decides the size'],
- ['the floor area is priced from the current plate, not the one on the sheet','context.js','area(profile({...state,span:shown,orientation:bearing},0))','area(profile(state,0))','the floor area printed is the area of the plate']
+ ['the floor area is priced from the current plate, not the one on the sheet','context.js','area(profile({...state,span:shown,orientation:bearing},0))','area(profile(state,0))','the floor area printed is the area of the plate'],
+ // What the reader can put on top, and what the plate is worth.
+ ['the figure crown is not in the library','crowns.js',"figure:{label:'Figure on a pedestal'","flatx:{label:'Figure on a pedestal'",'the library offers a figure to put on top'],
+ ['the figure is drawn narrower than the pedestal it stands on','crowns.js','{t:1,f:c.foot*1.4}','{t:1,f:c.foot*.2}','the figure is drawn as a figure'],
+ ['the money is priced from the current model, not the plate on the land','context.js','evaluate({...state,span:set,orientation:bearing})','evaluate(state)','the sheet states what the plate costs'],
+ ['the running cost is never stated','context.js',"kv3(c['m.running'],formatMoney(econ.rent+econ.crownNetRent-econ.contribution,lang));",'','the sheet states what the plate costs']
 ];
 // The files the mutants are written into. Everything else is symlinked, so a
 // mutation cannot leak into the working tree.
 const MUTABLE=['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js',
- 'console.css','i18n.js','quantity.js','site.js'];
+ 'console.css','i18n.js','quantity.js','site.js','crowns.js'];
 const TESTS=['shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
- 'material-name.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs'];
+ 'material-name.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
+ 'crown.test.mjs'];
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));
  await symlink(resolve('node_modules'),join(dir,'node_modules'));

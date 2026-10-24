@@ -63,9 +63,9 @@
      ACI 318-19 Table 6.6.3.1.1(a): uncracked walls 0.70·Ig.
      EN 1991-1-1 Table 6.2: offices, category B1, q_k 2.5 kN/m²; RC 25 kN/m³.
    ASSUMPTIONS are marked ASSUMPTION where they are set. */
-import {profile,stack,area} from './model.js?v=49d3a6b6e7';
-import {leastWidth} from './structure.js?v=8534ae167d';
-import {windRead} from './wind.js?v=0bda855237';
+import {profile,stack,area} from './model.js?v=9531c58c62';
+import {leastWidth} from './structure.js?v=00bdb3ed38';
+import {windRead} from './wind.js?v=51eef709a9';
 // The drafting vocabulary this drawing is made of. The release stamper pins
 // this against drafting.js; a hand-written token would rot the moment the
 // vocabulary changed, which is the whole reason the stamper exists.

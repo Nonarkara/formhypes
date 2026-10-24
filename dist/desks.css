@@ -299,6 +299,12 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 .st-corner.st-first{fill:var(--paper);stroke:var(--accent)}
 /* WHAT THE LAND WILL CARRY. */
 .st-takes{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+/* The money is a second question on the same building, so it is a second block
+   inside the first, ruled off from the plate rows rather than floating in
+   them. */
+.st-money{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.st-money h4{margin:0 0 9px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;
+ color:var(--muted);font-weight:600}
 .st-takes h4{margin:0 0 9px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;
  color:var(--faint);font-weight:600}
 .st-use{margin:11px 0 6px;padding:6px 12px;border:1px solid var(--ink);background:none;

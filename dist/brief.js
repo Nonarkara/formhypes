@@ -9,7 +9,7 @@ import {displayText,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=48
 // hold a parameter Chen specifies, this panel says so on screen rather than
 // approximating it quietly.
 
-import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=49d3a6b6e7';
+import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=9531c58c62';
 
 export const BRIEF_I18N={
 en:{

@@ -36,7 +36,10 @@ export const CROWNS={
    reads:'A slender post above an occupied deck. The deck earns a separate, much lower rate than office rent — visitors are not tenants.'},
  mast:{label:'Aviation mast',thesis:'obstruction lighting and masts',h:46,foot:0.05,
    draw:'mast',use:'aviation',
-   reads:'A mast with obstruction lighting. It earns nothing on its own. Its only commercial use is as an advertising surface, which is a separate switch.'}};
+   reads:'A mast with obstruction lighting. It earns nothing on its own. Its only commercial use is as an advertising surface, which is a separate switch.'},
+ figure:{label:'Figure on a pedestal',thesis:'a landmark, after Rio de Janeiro, 1931',h:38,foot:0.12,
+   draw:'figure',use:'landmark',
+   reads:'A figure on a pedestal above the roof: the kind of landmark Christ the Redeemer in Rio (1931) and the Motherland Calls at Volgograd (1967) are. It earns nothing, it is maintained like a building for its whole life, and it is counted in full against the height allowance.'}};
 
 export const CROWNS_KEYS=Object.keys(CROWNS);
 export const crownOf=s=>CROWNS[s&&s.crown]||CROWNS.flat;
@@ -82,6 +85,12 @@ export function crownPlates(c){
   case 'hpad': return [{t:0,f:c.foot},{t:.30,f:1.14},{t:1,f:.20}];
   case 'post': return [{t:0,f:c.foot*1.7},{t:.30,f:c.foot},{t:.72,f:c.foot*.62},{t:1,f:.035}];
   case 'mast': return [{t:0,f:c.foot*3.2},{t:.22,f:c.foot},{t:1,f:.45}];
+ // A figure on a pedestal: a plinth, the pedestal, and the figure above it.
+ // The proportions follow the type rather than any one building — Rio's statue
+ // is 30 m on an 8 m pedestal — and the figure is WIDER than the thing it
+ // stands on, which is the only reason the drawing reads as a figure and not
+ // as a mast.
+ case 'figure': return [{t:0,f:c.foot*1.7},{t:.21,f:c.foot*.5},{t:1,f:c.foot*1.4}];
   default: return [{t:0,f:c.foot}]}
 }
 
