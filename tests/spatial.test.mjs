@@ -215,16 +215,24 @@ test('the console header keeps the studio parameters whole, and the nav keeps al
  const rules=parse(read('console.css'));
  const inMedia=(media,sel)=>rules.filter(r=>r.media===media&&r.sel===sel);
 
- // 1. Below 1440 the parameters take a row of their own, so they cannot be
- //    squeezed. `flex:1 0 100%` is what puts them on that row: they grow to
- //    the full width and refuse to shrink.
- const band=rules.filter(r=>/^@media\(max-width:1439px\)$/.test(r.media)&&r.sel==='body.is-console .console-site');
- assert.equal(band.length,1,'the site bar must take its own row below 1440');
+ // 1. The parameters take a row of their own when the header's line cannot
+ //    hold them. The page decides that now: `fitSiteBar` measures the bar
+ //    against the room the rest of the header leaves it, in the language
+ //    being read, and the class it sets is what puts the bar on that row.
+ //    The width used to be a constant — 1439px, measured from one language —
+ //    and Thai needs more header than Chinese, so at 1440 the bar was
+ //    squeezed and the headline figure lost its unit.
+ //    `flex:1 0 100%` is what holds it there: it grows to the full width
+ //    and refuses to shrink, so the figure cannot be clipped.
+ const band=rules.filter(r=>r.media==='@media(min-width:601px)'&&r.sel==='body.is-console header.bar-row .console-site');
+ assert.equal(band.length,1,'the site bar must be able to take a row of its own');
  assert.equal(decl(band[0].body,'flex'),'1 0 100%',
   'the site bar must grow to the full row and refuse to shrink, or it clips the headline figure');
- const head=rules.filter(r=>/^@media\(max-width:1439px\)$/.test(r.media)&&r.sel==='body.is-console header');
- assert.equal(head.length,1,'the header must be allowed to wrap below 1440');
+ const head=rules.filter(r=>r.media==='@media(min-width:601px)'&&r.sel==='body.is-console header.bar-row');
+ assert.equal(head.length,1,'the header must be allowed to wrap when the bar takes its own row');
  assert.equal(decl(head[0].body,'flex-wrap'),'wrap');
+ assert.equal(rules.filter(r=>/^@media\(max-width:1439px\)$/.test(r.media)).length,0,
+  'the parameters are placed by a constant measured from one language');
 
  // 2. Above that threshold the bar sits in the one-line header, so the
  //    header's own gaps have to leave it room: 8px between the parameters,
@@ -247,6 +255,20 @@ test('the console header keeps the studio parameters whole, and the nav keeps al
  const tight=rules.filter(r=>/^@media\(min-width:1360px\)$/.test(r.media)&&r.sel==='.console-nav button');
  assert.equal(tight.length,1,'the nav must tighten above 1360 or it breaks after fifteen');
  assert.equal(decl(tight[0].body,'padding'),'6px 7px');
+
+ // 4. Between the phone and the laptop the sixteen do not fit side by side,
+ //    and the strip used to wrap them onto a second row: eleven on the first,
+ //    five on the second, and five hundred pixels of nothing beside the
+ //    second. The mark now sits over its word, the way the phone has always
+ //    drawn it, and all sixteen land on ONE row.
+ const strip=rules.filter(r=>/min-width:601px/.test(r.media)&&r.sel==='.console-nav');
+ assert.equal(strip.length,1,'the strip must have one rule for the band between the phone and the laptop');
+ assert.equal(decl(strip[0].body,'flex-wrap'),'nowrap',
+  'the strip wraps in that band, and a wrapped strip is a row of noise with a void beside it');
+ const stack=rules.filter(r=>/min-width:601px/.test(r.media)&&r.sel==='.console-nav button');
+ assert.equal(stack.length,1,'the strip\'s buttons must have one rule for that band');
+ assert.equal(decl(stack[0].body,'flex-direction'),'column',
+  'the mark does not sit over its word, so sixteen of them cannot share one row');
 });
 
 /* ── the DOM stub the desk renders into ─────────────────────────────────── */

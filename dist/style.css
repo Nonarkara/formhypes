@@ -64,8 +64,14 @@ header{height:46px;padding:0 20px;border-bottom:1px solid var(--ink);display:fle
    stylesheet spends no shadows at all, and a rule is what it would have drawn
    anyway. The glyph inherits currentColor and carries no fill, so switching
    language or state never leaves a coloured icon behind a grey word. */
-.tabs{display:flex;gap:6px}
-.tabs a{border:0;border-bottom:2px solid transparent;padding:0 11px;min-height:auto;height:46px;
+/* The two destinations fill the header's own height. They were a fixed 46px
+   — the height the header had before the compact chrome cut it to 40 — so they
+   hung three pixels below the header's rule and lay across the workspace
+   strip underneath it, and the active tab's amber underline sat ON the
+   header's black rule instead of above it. A header smaller than its own
+   content is a header that clips. */
+.tabs{display:flex;gap:6px;align-self:stretch}
+.tabs a{border:0;border-bottom:2px solid transparent;padding:0 11px;min-height:auto;height:auto;
  font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);background:none;
  text-decoration:none;display:inline-flex;align-items:center;gap:7px}
 .tabs a:hover{color:var(--ink);background:none}

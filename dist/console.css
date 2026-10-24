@@ -35,8 +35,23 @@ body:not(.is-console) .console-site,body:not(.is-console) header .mastnote{displ
    1342 to give. Above 1360 the buttons give up four pixels a side and all
    sixteen land on ONE row. Fifteen and an orphan is a row of noise with
    1300px of void beside it, and 38px of chrome that does not need to exist.
-   Below 1360 the bar still wraps, and it wraps onto a second row of six. */
+
+   Below 1360 they do not fit side by side: they need about 1400px and the
+   band has 1000. The strip used to wrap them — eleven on the first row, five
+   on the second, with six hundred pixels of nothing beside the first row.
+   A row of noise with a void beside it is not a switchboard. So between the
+   phone and the laptop the mark sits over its word, the way the phone has
+   always drawn it, and all sixteen land on ONE row; where even that does not
+   fit, the strip scrolls and the cut-off label is the signifier that there
+   is more. */
 @media(min-width:1360px){.console-nav button{padding:6px 7px}}
+@media(min-width:601px) and (max-width:1359px){
+ .console-nav{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none}
+ .console-nav::-webkit-scrollbar{display:none}
+ .console-nav button{flex-direction:column;gap:1px;padding:4px 6px;min-height:44px;min-width:52px;
+  align-items:center;justify-content:center;flex:none;scroll-snap-align:start}
+ .console-nav .wt{font-size:11px;letter-spacing:.02em;white-space:nowrap}
+}
 .console-nav .wg{display:block;width:21px;height:21px;flex:0 0 auto}
 .console-nav .wt{letter-spacing:.04em}
 .console-nav button:hover{color:var(--ink)}
@@ -51,8 +66,12 @@ body.is-console .studio:not([data-task="form"]){grid-template-columns:minmax(0,1
 body.is-console .studio:not([data-task="form"])>.controls,body.is-console .studio:not([data-task="form"])>.results{display:none}
 body.is-console .studio:not([data-task="form"])>.viewport{grid-column:1}
 /* The luopan and its table need more width than a desk; the tower stays beside
-   them because turning the ring turns the tower. */
-body.is-console .studio[data-task="feng"]{grid-template-columns:minmax(0,.8fr) minmax(0,1.5fr)}
+   them because turning the ring turns the tower. The tower's column has a
+   floor of 380px: the floating tool row over the drawing is 363px wide, and
+   at 1024 the .8fr split gave the drawing 348 and pushed the last button off
+   the edge. A drawing with its own tools cut off is a drawing the reader
+   cannot operate. */
+body.is-console .studio[data-task="feng"]{grid-template-columns:minmax(380px,.8fr) minmax(0,1.5fr)}
 .console-dock{container-type:inline-size}
 @container (max-width:700px){.console-dock #fengshuiDesk .feng-grid{grid-template-columns:minmax(0,1fr)}}
 .console-dock{height:100%;min-height:0;min-width:0;overflow:auto;padding:10px 14px;border-left:2px solid var(--ink);overscroll-behavior:contain}
@@ -106,16 +125,31 @@ body.is-console .form-atlas svg{height:22px;width:22px;margin:0}
 /* One rule under one line — except where the line cannot hold what it is
    asked to hold. The console header carries the wordmark, the two
    destinations, the studio's own parameters (site area, floor area ratio,
-   city), the languages and the four actions. In Thai that is 1428px; a
-   1366px laptop has 1338. So below 1440 the parameters take their own row.
-   Before this rule the bar was squeezed instead, and everything from 1181
-   to 1439 silently clipped the site's own headline figure — at 1300 the
-   number was simply gone. A header that costs 38 more pixels is cheaper
-   than a header that eats the answer. */
-@media(max-width:1439px){
- body.is-console header{height:auto;flex-wrap:wrap;overflow:visible}
- body.is-console .console-site{flex:1 0 100%;order:3;border-left:0;padding:4px 0 6px}
- body.is-console .mastnote{display:none}
+   city), the languages and the four actions.
+
+   The parameters take their own row when the line cannot hold them, and the
+   page is asked instead of a constant: `fitSiteBar` measures the bar against
+   the room the rest of the header leaves it, in the language being read.
+   The width used to be a fixed 1439px, measured from one language: Thai
+   needs more header than Chinese, and the bar was squeezed in the
+   difference, and everything from 1181 to 1439 silently clipped the site's
+   own headline figure — at 1300 the number was simply gone, and at 1440 in
+   Thai the number lost its unit. A header that costs 30 more pixels is
+   cheaper than a header that eats the answer.
+
+   The phone keeps its own header: at that width the parameters collapse to
+   the status line and the header is a fixed band, because a header that
+   changes its height while the reader drags a slider shoves the drawing
+   under their hand. */
+@media(min-width:601px){
+ body.is-console header.bar-row{height:auto;flex-wrap:wrap;overflow:visible}
+ /* The bar's left rule is made transparent, not removed: it still occupies
+    its pixel, so the bar measures the same width whether it is on the line or
+    on a row of its own. A measurement that changes with the answer it gives
+    can be flipped by a layout that has not settled yet — and the flip leaves
+    the headline figure clipped. */
+ body.is-console header.bar-row .console-site{flex:1 0 100%;order:3;border-left-color:transparent;padding:4px 0 6px}
+ body.is-console header.bar-row .mastnote{display:none}
 }
 @media(max-width:900px){
  body.is-console main{padding:0 8px}

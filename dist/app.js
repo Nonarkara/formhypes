@@ -421,6 +421,10 @@ function update(){
  $('floor').value=Math.min(Number($('floor').value),state.floors);
  drawPlan();
  consoleUI?.render();
+ // The header's parameters were re-labelled above (the city, the allowance,
+ // the unit); the bar may no longer fit beside them, and the header answers
+ // by moving them to their own row rather than by cutting the number.
+ fitSiteBar(document.querySelector('header'));
 }
 
 /* ── where the rent comes from ────────────────────────────────────────── */
@@ -1885,8 +1889,32 @@ $('studyFile').onchange=async()=>{
    Thai and three in Chinese, and a hard-coded constant silently pushed the
    tower below the fold in both. Written into a custom property so the CSS can
    keep using it, and re-run whenever the language changes the wrapping. */
+/* The parameters in the header take their own row when the header's line
+   cannot hold them. The width used to be a constant — 1439px — measured from
+   one language: Thai needs more header than Chinese, and in the difference
+   the bar was squeezed and the site's own headline figure lost its unit.
+   The page is asked instead of a constant. The bar's children carry labels
+   that do not wrap, so they cannot shrink and their widths ARE the bar's
+   honest width; that is measured against the room the rest of the header
+   leaves, in the language being read. Nothing is clipped and no width is
+   guessed: the header either holds the parameters or it moves them down. */
+let fitRaf=0;
+function fitSiteBar(h){
+ const bar=document.getElementById('siteBar');
+ if(!bar||!h)return;
+ const bs=getComputedStyle(bar),bgap=parseFloat(bs.columnGap)||0;
+ let need=(parseFloat(bs.paddingLeft)||0)+(parseFloat(bs.borderLeftWidth)||0);
+ for(const c of bar.children)need+=c.offsetWidth;
+ need+=bgap*Math.max(0,bar.children.length-1);
+ const cs=getComputedStyle(h),hgap=parseFloat(cs.columnGap)||0;
+ let used=0,count=0;
+ for(const c of h.children){if(c===bar||!c.offsetWidth)continue;used+=c.offsetWidth;count++}
+ const avail=h.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-used-hgap*count;
+ h.classList.toggle('bar-row',need>avail);
+}
 function measureChrome(){
  const h=document.querySelector('header'),m=document.querySelector('.masthead');
+ if(h)fitSiteBar(h);
  document.documentElement.style.setProperty('--shell-header',(h?.offsetHeight||40)+'px');
  if(consoleUI){const vp=$('tower')?.parentElement;if(vp)vp.style.minHeight='0px';return}
  const vh=Math.max(window.innerHeight,320);
@@ -1895,7 +1923,13 @@ function measureChrome(){
  const vp=$('tower')?.parentElement;
  if(vp)vp.style.minHeight=Math.max(320,vh-(h?h.offsetHeight:46)-(m?m.offsetHeight:50)-4)+'px';
 }
-addEventListener('resize',()=>{measureChrome();if(searchRun)drawStudy()});
+addEventListener('resize',()=>{measureChrome();
+ /* A resize event arrives before the layout has settled: the scrollbar may not
+    be there yet and the widths measured in that moment can be wrong. The
+    header's own row is decided by a measurement, so it is measured again on
+    the next frame, where the layout has settled. */
+ if(!fitRaf)fitRaf=requestAnimationFrame(()=>{fitRaf=0;measureChrome()});
+ if(searchRun)drawStudy()});
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
 
 /* ── the dedication ──────────────────────────────────────────────────────

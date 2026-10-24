@@ -405,10 +405,16 @@ table.cx-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-
 #fengshuiDesk .feng-reading{margin:0 0 4px;font:400 12px/1.5 var(--sans);color:var(--ink)}
 /* Tightened: 4px row padding, 8px cell padding, and the bottom rule under the
    row is a single 1px line. The home palace's amber rule is the only colour
-   on the row — a filled slab outshouts the luopan it is supposed to read. */
+   on the row — a filled slab outshouts the luopan it is supposed to read.
+
+   The headers wrap and the figures may break. They did not: the headers were
+   held on one line, and the mass cell's "34 · 17,715 m² · 64 m" could not
+   break, so the table's smallest honest width was 457px — wider than the
+   column it sits in. The table pushed the sheet past its own edge, and the
+   last column was cut off the page. */
 #fengshuiDesk .feng-table{width:100%;border-collapse:collapse;font-size:12px}
-#fengshuiDesk .feng-table th{font:600 11px/1.6 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);text-align:left;border-bottom:1px solid var(--line);padding:0 8px 4px 4px;white-space:nowrap;font-weight:500}
-#fengshuiDesk .feng-table td{padding:4px 8px 4px 4px;border-bottom:1px solid var(--line);border-left:2px solid transparent;vertical-align:top}
+#fengshuiDesk .feng-table th{font:600 11px/1.6 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);text-align:left;border-bottom:1px solid var(--line);padding:0 8px 4px 4px;font-weight:500}
+#fengshuiDesk .feng-table td{padding:4px 8px 4px 4px;border-bottom:1px solid var(--line);border-left:2px solid transparent;vertical-align:top;overflow-wrap:anywhere}
 #fengshuiDesk .feng-table td b{font:500 12.5px/1.35 var(--sans);color:var(--ink)}
 #fengshuiDesk .feng-table td span{display:block;font:400 11px/1.4 var(--mono);color:var(--faint);margin-top:2px}
 #fengshuiDesk .feng-table tr.is-home td{border-left-color:var(--accent)}

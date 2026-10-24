@@ -53,15 +53,30 @@ const cases=[
  ['the figure crown is not in the library','crowns.js',"figure:{label:'Figure on a pedestal'","flatx:{label:'Figure on a pedestal'",'the library offers a figure to put on top'],
  ['the figure is drawn narrower than the pedestal it stands on','crowns.js','{t:1,f:c.foot*1.4}','{t:1,f:c.foot*.2}','the figure is drawn as a figure'],
  ['the money is priced from the current model, not the plate on the land','context.js','evaluate({...state,span:set,orientation:bearing})','evaluate(state)','the sheet states what the plate costs'],
- ['the running cost is never stated','context.js',"kv3(c['m.running'],formatMoney(econ.rent+econ.crownNetRent-econ.contribution,lang));",'','the sheet states what the plate costs']
+ ['the running cost is never stated','context.js',"kv3(c['m.running'],formatMoney(econ.rent+econ.crownNetRent-econ.contribution,lang));",'','the sheet states what the plate costs'],
+ // The chrome around the instrument, measured on the rendered page at 390,
+ // 1024 and 1440 in three languages. Each of these is a way the layout can
+ // go back to what it was.
+ ['the destinations do not fill the header','style.css','.tabs{display:flex;gap:6px;align-self:stretch}','.tabs{display:flex;gap:6px}','destinations fill the header'],
+ ['the destinations are a fixed height again','style.css','min-height:auto;height:auto;','min-height:auto;height:46px;','destinations fill the header'],
+ ['the strip wraps into a second row again','console.css','.console-nav{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none}','.console-nav{flex-wrap:wrap;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none}','workspace strip does not wrap'],
+ ['the strip cannot scroll','console.css','.console-nav{flex-wrap:nowrap;overflow-x:auto;','.console-nav{flex-wrap:nowrap;overflow-x:visible;','workspace strip does not wrap'],
+ ['the drawing beside the table loses its floor','console.css','grid-template-columns:minmax(380px,.8fr) minmax(0,1.5fr)','grid-template-columns:minmax(0,.8fr) minmax(0,1.5fr)','drawing beside'],
+ ['the table cannot shrink into its column','desks.css','vertical-align:top;overflow-wrap:anywhere}','vertical-align:top}','Feng Shui table'],
+ ['the table headings are held on one line again','desks.css','padding:0 8px 4px 4px;font-weight:500}','padding:0 8px 4px 4px;white-space:nowrap;font-weight:500}','Feng Shui table'],
+ ['the bar is measured without its own padding','app.js','let need=(parseFloat(bs.paddingLeft)||0)+(parseFloat(bs.borderLeftWidth)||0);','let need=0;','parameters take their own row'],
+ ['the gaps between the groups are not room','app.js','-used-hgap*count;','-used-hgap;','parameters take their own row'],
+ ['the bar is never moved to its own row','app.js',"h.classList.toggle('bar-row',need>avail);","h.classList.toggle('bar-row',false);",'parameters take their own row'],
+ ['the header is never asked','app.js','if(h)fitSiteBar(h);','','header is asked'],
+ ['the bar has no rule for a row of its own','console.css','body.is-console header.bar-row .console-site{flex:1 0 100%;order:3;border-left-color:transparent;padding:4px 0 6px}','','placed by a constant width']
 ];
 // The files the mutants are written into. Everything else is symlinked, so a
 // mutation cannot leak into the working tree.
 const MUTABLE=['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js',
- 'console.css','i18n.js','quantity.js','site.js','crowns.js'];
+ 'console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js'];
 const TESTS=['shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
  'material-name.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
- 'crown.test.mjs'];
+ 'crown.test.mjs','chrome-fit.test.mjs'];
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));
  await symlink(resolve('node_modules'),join(dir,'node_modules'));
