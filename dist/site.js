@@ -565,8 +565,8 @@ export function plotFacts(plot,{ground,buildings,towerH,plate,plateArea,sun,reac
     the exact defect this function exists to remove. It now returns the best
     attempt with `holds:false`, so the building stands on the lot and the `fit`
     fraction says by how much it is overhanging. */
-function seatFor(plate,ring,strict=false){
-  const holds=p=>strict?ringContainsRing(ring,plate.map(([x,y])=>[x+p[0],y+p[1]])):plate.every(([x,y])=>pointInRing(x+p[0],y+p[1],ring));
+function seatFor(plate,ring){
+  const holds=p=>ringContainsRing(ring,plate.map(([x,y])=>[x+p[0],y+p[1]]));
   const c=ringCentroid(ring);
   if(holds(c))return {at:c,holds:true,centred:true};
   const eye=observerPoint(ring);
@@ -741,7 +741,7 @@ export function plateThatFits(plate,plot,maxScale=64){
   if(!validPlotRing(ring)||!validPlotRing(plate)||!Number.isFinite(maxScale)||maxScale<=0)return null;
   const at=k=>{
    const scaled=plate.map(([x,y])=>[x*k,y*k]);
-   const seat=seatFor(scaled,ring,true),pts=scaled.map(([x,y])=>[x+seat.at[0],y+seat.at[1]]);
+   const seat=seatFor(scaled,ring),pts=scaled.map(([x,y])=>[x+seat.at[0],y+seat.at[1]]);
    const placed={pts,origin:seat.at,centred:seat.centred,holds:seat.holds,fit:seat.holds?1:0};
    return {k,plate:scaled,placed,fit:placed.fit,whole:seat.holds};
   };

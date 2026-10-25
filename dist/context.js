@@ -1,5 +1,5 @@
 let displayLang='en';
-import {displayText,displaySVG,toDisplay,quantity,formatMoney} from './preferences.js?v=48652b12d9';
+import {displayText,displaySVG,toDisplay,fromDisplay,unitLabel,quantity,formatMoney} from './preferences.js?v=48652b12d9';
 // Context desk — put the model on a real plot and count what its shadow does.
 // The five replaced buildings and their published figures are real and are
 // quoted as given. Every neighbouring block below is contextual massing composed
@@ -10,12 +10,12 @@ import {cities, solarDefaults, solarPosition, studyDay, incidence, facadeExposur
 import {lensOf,lensSVG,lensFormula,LENS_KEY,LIFE_YEARS} from './lens.js?v=2949cf8b98';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
 import {CITYSCAPE} from './cityscape.data.js?v=e5a1d6659e';
-import {parseGround,parseCity,plotCandidates,plotFacts,plateOnPlot,landscapeSVG,skyViewSVG,makeScene,rectangleRing,frameOf,plateThatFits,validPlotRing,ringArea,ringPerimeter} from './site.js?v=c2c70b3fb3';
+import {parseGround,parseCity,plotCandidates,plotFacts,plateOnPlot,landscapeSVG,skyViewSVG,makeScene,rectangleRing,frameOf,plateThatFits,validPlotRing,ringArea,ringPerimeter} from './site.js?v=5056e81975';
 import {SCHEMA} from './schema.js?v=fd56569c48';
 // The lens strings live in the shared translation file, not in this desk's own
 // dictionary: they are the same words the reader has already met in the rail,
 // and a second copy is a second thing to drift.
-import {t as I18N} from './i18n.js?v=f87b6ae560';
+import {t as I18N} from './i18n.js?v=bffcb73f5b';
 
 // Empire Tower 58F / 227 m / 1999, floor plate ≈3,000 m² and a 2.60 m Grade A
 // clear-height benchmark for Bangkok; Dayabumi Complex 35F / 157 m / 1984;
@@ -538,14 +538,15 @@ export function renderSite({lang,state,changed}){
  }else if(siteSource==='rect'){
   const fields=wrap('st-fields');
   const field=(id,label,key)=>{
-   const lab=el('label',label);lab.htmlFor=id;
+   const lab=el('label',label+' · '+unitLabel('m'));lab.htmlFor=id;
    const inp=document.createElement('input');
-   inp.type='number';inp.id=id;inp.min='5';inp.max='600';inp.step='1';inp.value=String(siteRect[key]);
+   inp.type='number';inp.id=id;inp.min=String(toDisplay(5,'m'));inp.max=String(toDisplay(600,'m'));inp.step='any';inp.value=String(Number(toDisplay(siteRect[key],'m').toFixed(3)));
    // On change, not on input: the desk rebuilds itself, and a rebuild takes
    // the caret with it. A reader typing a dimension would lose the field
    // after one keystroke.
-   inp.onchange=()=>{const v=Number(inp.value);
-    if(Number.isFinite(v)&&v>=5&&v<=600){siteRect[key]=v;renderSite({lang,state,changed})}};
+   inp.onchange=()=>{const v=fromDisplay(Number(inp.value),'m');
+    if(Number.isFinite(v)&&v>=5-1e-7&&v<=600+1e-7){siteRect[key]=Math.max(5,Math.min(600,v));renderSite({lang,state,changed})}
+    else{inp.value=String(Number(toDisplay(siteRect[key],'m').toFixed(3)));inp.reportValidity?.()}};
    const f=wrap('st-field');f.append(lab,inp);return f;
   };
   fields.append(field('siteRectW',c['st.rectW'],'w'),field('siteRectD',c['st.rectD'],'d'));
@@ -663,7 +664,7 @@ export function renderSite({lang,state,changed}){
   // drawing stays exactly where it is, because the map is where the corners
   // go. A table of em dashes would read as missing data on a sheet that is
   // three clicks away from an answer.
-  const warn=wrap('st-warn');warn.append(el('p',c['st.drawShort']));side.append(warn);
+  const warn=wrap('st-warn');warn.append(el('p',c[siteCorners.length>=3?'st.invalidOutline':'st.drawShort']));side.append(warn);
  }
  const dl=el('dl');dl.className='st-rows';
  // Each pair is wrapped in its own box. Without that, the grid below has no way
@@ -775,11 +776,6 @@ export function renderSite({lang,state,changed}){
     money.append(mrows);
     const mnote=el('p',c['st.moneyNote']);mnote.className='st-hint';money.append(mnote);
     block.append(money);
-    note.className='st-hint';block.append(note);
-    if(land>hi+0.01){
-     const warn=el('p',txt(c['st.takesClamp'],num(land,1),num(lo,0),num(hi,0)));
-     warn.className='st-hint';block.append(warn);
-    }
    }else{
     // The land carries less than the smallest plate this instrument draws.
     // Nothing is offered here: adopting it would put a tower over the plot,

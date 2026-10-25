@@ -1,9 +1,9 @@
 import {alternativesCsv} from './display-exports.js?v=4d76b0bc55';
 import {formatMoney,formatAmount,quantity,unitLabel,toDisplay,fromDisplay,displayText,displaySVG,displayContext,getPreferences,getRateBook} from './preferences.js?v=48652b12d9';
 import {mountSettings} from './settings.js?v=be17f4acee';
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=db5c567001';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=ec11b74f31';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=f12773df70';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=a8495429f1';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=f9542fbb27';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=ddfbfd2083';
 import {renderAssembly} from './assembly.js?v=5c7afa6d67';
 import {renderStructure} from './structure.js?v=00bdb3ed38';
 import {mountConsole} from './console.js?v=9af14a24c3';
@@ -11,14 +11,14 @@ import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
 import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=9531c58c62';
 import{familyResponse,lattice}from'./explore.js?v=d7b28ee88a';
-import{t,langs,langMeta,translator}from'./i18n.js?v=f87b6ae560';
+import{t,langs,langMeta,translator}from'./i18n.js?v=bffcb73f5b';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
 import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,crownOf,gardenOf,crownPlates} from './crowns.js?v=caf18dfca2';
 import {cityData,skyline,visibleMassings,ringArea,splitByPlot} from './cityscape.js?v=dcc15cb0df';
 import {sweptHull,reachSteps,reachLabelled,contactOffset} from './reach.js?v=3742398937';
-import {parseGround} from './site.js?v=c2c70b3fb3';
+import {parseGround} from './site.js?v=5056e81975';
 import {GROUND,GROUND_ROAD_M} from './ground.data.js?v=f889d5bab6';
 import {DETAILS,DETAIL_KEYS,detailOf,detailSVG,detailSpec,DETAIL_BASIS} from './details.js?v=e0caa40f91';
 import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=4280077da8';
@@ -31,13 +31,13 @@ import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=4
 // module that injects its own prefixed CSS, so nothing here owns their styling.
 import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=966ad18efa';
 import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=20e9936338';
-import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=13b51731d5';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=6f0daee120';
+import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=bae2aaec60';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=e6a2624bfc';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
-import {quantityCsv, howMeasured} from './quantity.js?v=c978052ddd';
+import {quantityCsv, howMeasured} from './quantity.js?v=0d0e69f234';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
 import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=78494dc493';
 import {WORKSPACES} from './console.js?v=9af14a24c3';
@@ -1661,6 +1661,9 @@ canvas.onkeydown=e=>{
  if(['ArrowLeft','ArrowRight','+','-'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')yaw-=.1;if(e.key==='ArrowRight')yaw+=.1;if(e.key==='+')zoom=Math.min(1.7,zoom+.1);if(e.key==='-')zoom=Math.max(.5,zoom-.1);drawTower()}};
 $('zoomIn').onclick=()=>{if(view==='core'){coreZoom=Math.min(6,coreZoom*1.35)}else zoom=Math.min(1.7,zoom+.1);drawTower()};
 $('zoomOut').onclick=()=>{if(view==='core'){coreZoom=Math.max(.05,coreZoom/1.35)}else zoom=Math.max(.5,zoom-.1);drawTower()};
+// Phone controls open on demand so the drawing remains visible.
+$('viewToolsToggle').onclick=()=>{const open=$('viewToolsToggle').getAttribute('aria-expanded')!=='true';$('viewToolsToggle').setAttribute('aria-expanded',String(open));$('viewTools').classList.toggle('is-open',open)};
+$('viewTools').addEventListener('click',e=>{if(!e.target.closest('button'))return;$('viewTools').classList.remove('is-open');$('viewToolsToggle').setAttribute('aria-expanded','false');if(matchMedia('(max-width:600px)').matches)$('viewToolsToggle').focus()});
 $('homeView').onclick=()=>{yaw=-.65;zoom=1;neighbourhood=false;view='orbit';panX=0;panY=0;corePan=0;coreZoom=1;$('cityView').setAttribute('aria-pressed','false');$('planView').setAttribute('aria-pressed','false');$('coreView').setAttribute('aria-pressed','false');stopCoreLoop();syncDragHint();drawTower()};
 /* Plan is a mode, not a modifier. Turning on the neighbourhood framing implies
    the orbit again, because those two answer different questions and stacking

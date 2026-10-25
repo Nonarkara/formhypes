@@ -466,3 +466,11 @@ function tree(render,id,lang) {
     return {classes: top.map(r => r.cls), by, top};
   });
 }
+test('palace names and readings have separate ink baselines at every compass bearing',()=>{
+ const st=fengStudy({...defaults,orientation:0},cityData(defaults.city),null);
+ for(const lang of ['en','th','zh']){
+  const labels=[...luopanSVG(st,lang).matchAll(/<text\b([^>]*)>([^<]*)<\/text>/g)].map(m=>({size:Number(m[1].match(/font-size="([\d.]+)"/)?.[1]),y:Number(m[1].match(/\by="([\d.-]+)"/)?.[1])})).filter(n=>n.size===8||n.size===6.5);
+  assert.equal(labels.length,16);
+  for(let i=0;i<labels.length;i+=2)assert.ok(Math.abs(labels[i].y-labels[i+1].y)>=(labels[i].size+labels[i+1].size)/2,lang+' palace '+i/2+' label overlap');
+ }
+});

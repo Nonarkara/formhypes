@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {rectangleRing,plateThatFits,ringContainsRing,validPlotRing,ringArea} from '../dist/site.js';
+import {rectangleRing,plateThatFits,plateOnPlot,ringContainsRing,validPlotRing,ringArea} from '../dist/site.js';
 
 test('a fitting plate is contained geometrically, not certified by a raster sample',()=>{
  const lot=rectangleRing(0,0,10,10),fit=plateThatFits(rectangleRing(0,0,1,1),{ring:lot});
@@ -17,6 +17,7 @@ test('containment checks edges across a concave notch, not just vertices',()=>{
  assert.equal(ringContainsRing(lot,[[1,8],[9,8],[9,9],[1,9]]),false);
  assert.equal(ringContainsRing(lot,[[0,0],[10,0],[10,3],[0,3]]),true);
  const fit=plateThatFits(rectangleRing(0,0,1,1),{ring:lot});assert.ok(fit.whole);assert.ok(ringContainsRing(lot,fit.placed.pts));
+ const reseated=plateOnPlot(fit.plate,{ring:lot});assert.ok(reseated.holds);assert.ok(ringContainsRing(lot,reseated.pts));
 });
 test('crossed, degenerate and nonfinite outlines cannot receive a sizing verdict',()=>{
  for(const ring of [[[0,0],[10,10],[0,10],[10,0]],[[0,0],[1,0],[2,0]],[[0,0],[10,0],[10,10],[0,0]],[[0,0],[NaN,1],[1,0]]]){

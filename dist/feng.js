@@ -392,12 +392,12 @@ export function luopanSVG(st,lang){
 
  /* The star names, outside the mountain ring, on the palace centre line. */
  for(let i=0;i<8;i++){
-  const p=PALACE[i],star=st.stars[i],[lx,ly]=pt(C,C,R.shanOut+11,p.deg);
-  o.push(`<text x="${f2(lx)}" y="${f2(ly)}" font-size="8" text-anchor="middle" dominant-baseline="central"`
+  const p=PALACE[i],star=st.stars[i],[lx,ly]=pt(C,C,R.shanOut+19,p.deg);
+  o.push(`<text x="${f2(lx)}" y="${f2(ly-5)}" font-size="8" text-anchor="middle" dominant-baseline="central"`
    +` font-family="Noto Sans SC, IBM Plex Sans, sans-serif" fill="${star.luck?'#7ea36a':'#8a6a63'}"`
    +`>${star.cn}</text>`);
   const [dx,dy]=pt(C,C,R.shanOut+19,p.deg);
-  o.push(`<text x="${f2(dx)}" y="${f2(dy)}" font-size="6.5" text-anchor="middle" dominant-baseline="central"`
+  o.push(`<text x="${f2(dx)}" y="${f2(dy+6)}" font-size="6.5" text-anchor="middle" dominant-baseline="central"`
    +` font-family="IBM Plex Mono, monospace" fill="${faint}">${p.ro.toUpperCase()}·${T[p.el]}</text>`);
  }
 

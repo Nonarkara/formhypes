@@ -6,6 +6,13 @@ import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
 const dir=await mkdtemp(join(tmpdir(),'shdt-contract-mutations-'));
 const cases=[
+ ['phone view controls cannot open','app.js',"const open=$('viewToolsToggle').getAttribute('aria-expanded')!=='true'",'const open=false','phone view tools are exposed'],
+ ['phone view controls remain over the drawing after selection','app.js',"$('viewTools').classList.remove('is-open');",'', 'phone view tools are exposed'],
+ ['compass label rows share the same ink','feng.js','f2(ly-5)','f2(ly)','palace names and readings have separate'],
+ ['rectangle display edit bypasses canonical conversion','context.js',"const v=fromDisplay(Number(inp.value),'m');",'const v=Number(inp.value);','rectangle controls use'],
+ ['crossed outline is accepted for appraisal','context.js',"siteSource==='draw'&&validPlotRing(siteCorners)?","siteSource==='draw'&&siteCorners.length>=3?",'crossed outline shows'],
+ ['normal seating ignores concave edge crossings','site.js','const holds=p=>ringContainsRing(ring,plate.map(([x,y])=>[x+p[0],y+p[1]]));','const holds=p=>plate.every(([x,y])=>pointInRing(x+p[0],y+p[1],ring));','containment checks edges'],
+ ['the range repeats a unit after a formatted quantity','i18n.js','to {1} across.','to {1} m across.','capped-site range is explained once'],
  ['unknown package version accepted','decisions.js','![3,4].includes(data.version)','false','malformed packages'],
  ['comparison reference drifts to current','decisions.js','before=evaluate(reference.state)','before=evaluate(current.state)','comparison preserves'],
  ['supplied import metrics trusted','decisions.js','state,brief,environment:','state,metrics:data.metrics,brief,environment:','versioned import'],
@@ -73,10 +80,10 @@ const cases=[
 // The files the mutants are written into. Everything else is symlinked, so a
 // mutation cannot leak into the working tree.
 const MUTABLE=['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js',
- 'console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js'];
+ 'console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js','feng.js'];
 const TESTS=['shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
  'material-name.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
- 'crown.test.mjs','chrome-fit.test.mjs'];
+ 'crown.test.mjs','chrome-fit.test.mjs','site-display-boundary.test.mjs','plot-fit.test.mjs','view-controls.test.mjs','feng.test.mjs'];
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));
  await symlink(resolve('node_modules'),join(dir,'node_modules'));

@@ -24,7 +24,7 @@ import {MATERIALS, materialOf} from './materials.js?v=be1c7d7582';
 // meant the schedule and the studio could disagree about what a material is
 // called; the one name now lives in the string table, like the crowns and the
 // façade families.
-import {t as I18N} from './i18n.js?v=f87b6ae560';
+import {t as I18N} from './i18n.js?v=bffcb73f5b';
 
 const SHARE_PCT=Math.round(CIRCULATION_SHARE*100);
 

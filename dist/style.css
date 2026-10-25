@@ -884,3 +884,12 @@ header{height:40px;padding:0 14px;gap:16px}.actions{padding-left:12px}.actions b
    headings under it read as sections. */
 #research h1{font-size:32px;line-height:1.15;letter-spacing:-.01em}
 /* 2026-10-19: re-stamped so edges holding an error for the previous URL fetch afresh. */
+
+/* One phone command reveals the existing camera tools without covering the
+   drawing throughout the study. Desktop keeps its directly visible controls. */
+.view-tools-toggle{display:none}
+@media(max-width:600px){
+ .view-tools-toggle{display:block;position:absolute;top:32px;left:12px;z-index:3;padding:3px 8px;background:var(--dark);border-color:var(--muted);color:var(--dim)}
+ .viewtools:not(.is-open){display:none}
+ .viewtools.is-open{top:80px;max-width:calc(100% - 24px)}
+}
