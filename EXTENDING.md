@@ -21,6 +21,7 @@ dist/geometry.js   plan maths (areas, perimeters, offsets)
 dist/solar.js      sun position, shading, façade exposure
 dist/core.js       core section + core arithmetic (lift speed, risers)
 dist/core3d.js     core geometry only — no arithmetic
+dist/drawing-viewer.js  shared readable method-sheet dialog (no calculations)
 dist/drafting.js   the drawing vocabulary: poché, leaders, dimensions, notes
 dist/i18n.js       the interface strings for the desks
 dist/reader*.js    the research section (pages, diagrams, sources)

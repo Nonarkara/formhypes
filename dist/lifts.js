@@ -1,3 +1,4 @@
+import {mountDrawingViewer} from './drawing-viewer.js?v=89fa2f4dac';
 /* Lifts lab — the morning rush, run in section.
 
    Two instruments side by side, and the point is that they are side by side.
@@ -105,6 +106,7 @@ export function shuttleRTT({d,v,a,td,tp=LIFT_ASSUME.tp,P}){return 2*flightTime(d
 
 export function awtCibse(interval,loadFactor){
  const lf=Math.max(0,fin(loadFactor));
+ if(lf>0.8)return null; // Barney, Uppeak Revisited, Eq. 4: https://liftescalatorlibrary.org/paper_indexing/papers/00000286.pdf
  return (lf<=0.5?0.4:0.4+Math.pow(1.8*lf-0.77,2))*fin(interval);
 }
 
@@ -216,8 +218,9 @@ export function liftPlan(s,o={},metrics,noCounterpart=false){
  for(const g of groups)g.hcPct=g.pop>0?g.hc/g.pop*100:Infinity;
  const lowHc=groups.reduce((m,g)=>g.hcPct<m.hcPct?g:m,groups[0]);
  const saturated=groups.some(g=>g.saturated);
- let awt=0;for(const g of locals)awt+=g.pop*(g.awt+(g.bank==='high'&&shuttle?shuttle.awt:0));
- awt=pop>0?awt/pop:0;if(saturated)awt=Infinity;
+ const awtUnavailable=groups.some(g=>g.awt===null);
+ let awt=0;for(const g of locals)if(g.awt!==null&&(!shuttle||shuttle.awt!==null))awt+=g.pop*(g.awt+(g.bank==='high'&&shuttle?shuttle.awt:0));
+ awt=awtUnavailable?null:pop>0?awt/pop:0;if(saturated)awt=Infinity;
  const most=groups.reduce((m,g)=>g.cars>m.cars?g:m,groups[0]),big=most.cars>A.groupMax?most:null;
  const verdict=saturated?'sat':worst.interval>A.intervalMax?'int':lowHc.hcPct<rate-1e-9?'hc':big?'group':'pass';
  // shafts
@@ -232,7 +235,7 @@ export function liftPlan(s,o={},metrics,noCounterpart=false){
  const plan={pattern,pop,popDefault,net,rate,cap,v,a,td,tp,Z,decks,dd,dest,auto,carsM,sky,skyOK,L,snap,cands,
   N,top,df,levelZ:Zs,levelH:Hs,towerTop:Zs[top]+Hs[top],
   voids:st.filter(l=>!l.gfa&&l.use!=='garden').map(l=>({z:l.z,h:l.h})),
-  groups,cols,worst,lowHc,awt,saturated,verdict,big,cars:groups.reduce((t,g)=>t+g.cars,0),
+  groups,cols,worst,lowHc,awt,awtUnavailable,saturated,verdict,big,cars:groups.reduce((t,g)=>t+g.cars,0),
   interval:worst.interval,hcPct:lowHc.hcPct,
   shaftA:Ash,shafts,bands,shaftFloorArea,groundArea,coreArea,core,suggestCore,run,vTypical,
   coreDesk:{zones:cd.zones,cars:cd.carsPerZone,rt:cd.rt,interval:cd.interval},
@@ -436,7 +439,7 @@ export const LIFTS_TEXT={
    dd:'Double-deck cars',ddNote:'Two decks serve two adjacent floors per stop: floors paired, decks load in parallel, plus 1 s per stop assumed for decks that do not line up.'},
   u:{s:'s',ms:'m/s',m2:'m²',m:'m',p:'persons'},
   k:{awt:'Average wait',p90:'90th percentile wait',queue:'Longest queue',interval:'Worst up-peak interval',hc:'Handling capacity, 5 min',ground:'Shafts at the lobby',top:'Shafts at the top floor',sky:'Sky lobby, rentable recovered',coreDesk:'Core desk (simplified)'},
-  v:{awt:'CIBSE {c} s · simulated {s} s',p90:'{s} s simulated',queue:'{n} now · {m} at most',interval:'{i} s · {g}',hc:'{h}% of population, lowest group · demand {r}%',
+  v:{awtScope:'CIBSE unavailable above 80% car load · simulated {s} s',awt:'CIBSE {c} s · simulated {s} s',p90:'{s} s simulated',queue:'{n} now · {m} at most',interval:'{i} s · {g}',hc:'{h}% of population, lowest group · demand {r}%',
    ground:'{n} shafts · {a} m² · {p}% of the {c} m² core',top:'{n} shafts · {a} m²',sky:'{m} m² over the tower · {u} m² above the sky lobby',skyOff:'Off',coreDesk:'{z} zones × {c} cars · RTT {r} s · interval {i} s',sat:'saturated'},
   status:'Simulated: average wait {a} s · 90th percentile {p} s · longest queue {q}',
   statusSat:'Saturated: arrivals outrun the cars and the queue only grows',
@@ -450,7 +453,7 @@ export const LIFTS_TEXT={
    sat:'Saturated: {g} cannot carry the arrival rate, and its queue grows without limit.'},
   coreDesk:'Why the Core desk differs: it sizes each zone with H = S = N/2, and no express run past the lower zones. Both use the same rated speed and the same stop time (one-floor flight plus doors). This lab takes S and H from the probability formulas and adds each upper zone’s express run. Same formula, fuller inputs.',
   simGap:'When the simulated wait is longer than the CIBSE figure: the formula assumes cars leave the lobby at even intervals, about 80% full. The simulated group has no dispatcher, so cars bunch and leave fuller, as an unmanaged collective group does. The gap between the two numbers is the case for good dispatching.',
-  chart:{sat:'saturated',title:'Average wait against cars per zone',note:'The CIBSE average wait (solid) falls with each car added, by less each time; the shaft area at the lobby (dashed) climbs in a straight line. The current choice is marked.',x:'cars per zone',xd:'cars per group, against the CIBSE minimum',y:'average wait, s',a:'lobby shafts, m²'},
+  chart:{sat:'AWT unavailable',title:'Average wait against cars per zone',note:'The CIBSE average wait (solid) falls with each car added, by less each time; the shaft area at the lobby (dashed) climbs in a straight line. The current choice is marked.',x:'cars per zone',xd:'cars per group, against the CIBSE minimum',y:'average wait, s',a:'lobby shafts, m²'},
   apply:'Apply a {c} m core to the tower',applyNote:'The lift shafts here take more than half of the {s} m core at the lobby (half is an assumption, leaving room for stairs, risers and toilets).',
   m:{aria:'Method drawing: one lift zone in section, with the express run below it, the probable stops, the floor where the car turns round, the passengers waiting at the lobby, and the round trip time split into travelling, stopping and doors, and passengers.',
    title:'Round trip, {n} cars',
@@ -483,7 +486,7 @@ export const LIFTS_TEXT={
    dd:'รถลิฟต์สองชั้น',ddNote:'สองห้องโดยสารให้บริการสองชั้นติดกันต่อการจอดหนึ่งครั้ง จับคู่ชั้น ผู้โดยสารขึ้นลงพร้อมกันทั้งสองห้อง และสมมติเพิ่ม 1 วินาทีต่อการจอดเมื่อระดับห้องไม่ตรงกัน'},
   u:{s:'วินาที',ms:'ม./วินาที',m2:'ตร.ม.',m:'ม.',p:'คน'},
   k:{awt:'เวลารอเฉลี่ย',p90:'เวลารอเปอร์เซ็นไทล์ที่ 90',queue:'แถวคอยที่ยาวที่สุด',interval:'ช่วงห่างขาขึ้นที่แย่ที่สุด',hc:'ความสามารถในการขนส่ง 5 นาที',ground:'ช่องลิฟต์ที่ชั้นล็อบบี้',top:'ช่องลิฟต์ที่ชั้นบนสุด',sky:'สกายล็อบบี้ พื้นที่ให้เช่าที่ได้คืน',coreDesk:'แผงแกนอาคาร (แบบย่อ)'},
-  v:{awt:'CIBSE {c} วินาที · จำลอง {s} วินาที',p90:'จำลอง {s} วินาที',queue:'ตอนนี้ {n} · สูงสุด {m}',interval:'{i} วินาที · {g}',hc:'{h}% ของผู้ใช้อาคาร กลุ่มที่ต่ำที่สุด · ความต้องการ {r}%',
+  v:{awtScope:'CIBSE ไม่ให้ค่าที่บรรทุกเกิน 80% · จำลอง {s} วินาที',awt:'CIBSE {c} วินาที · จำลอง {s} วินาที',p90:'จำลอง {s} วินาที',queue:'ตอนนี้ {n} · สูงสุด {m}',interval:'{i} วินาที · {g}',hc:'{h}% ของผู้ใช้อาคาร กลุ่มที่ต่ำที่สุด · ความต้องการ {r}%',
    ground:'{n} ช่อง · {a} ตร.ม. · {p}% ของแกน {c} ตร.ม.',top:'{n} ช่อง · {a} ตร.ม.',sky:'{m} ตร.ม. ทั้งอาคาร · {u} ตร.ม. เหนือสกายล็อบบี้',skyOff:'ปิด',coreDesk:'{z} โซน × {c} คัน · RTT {r} วินาที · ช่วงห่าง {i} วินาที',sat:'อิ่มตัว'},
   status:'ผลจำลอง: เวลารอเฉลี่ย {a} วินาที · เปอร์เซ็นไทล์ที่ 90 {p} วินาที · แถวคอยยาวสุด {q}',
   statusSat:'อิ่มตัว: คนมาถึงเร็วกว่าที่รถลิฟต์รับได้ แถวคอยจึงยาวขึ้นเรื่อย ๆ',
@@ -497,7 +500,7 @@ export const LIFTS_TEXT={
    sat:'อิ่มตัว: {g} รับอัตราการมาถึงไม่ไหว แถวคอยยาวขึ้นไม่สิ้นสุด'},
   coreDesk:'เหตุที่ต่างจากแผงแกนอาคาร: แผงนั้นคิดแต่ละโซนด้วย H = S = N/2 และไม่คิดระยะวิ่งด่วนผ่านโซนล่าง ทั้งสองใช้ความเร็วพิกัดและเวลาต่อการจอดเดียวกัน (เวลาวิ่งหนึ่งชั้นรวมเวลาเปิดปิดประตู) ส่วนนี้คิด S และ H จากสูตรความน่าจะเป็น เพิ่มระยะวิ่งด่วนของโซนบน และนับเวลาเคลื่อนที่หนึ่งชั้นกับเวลาประตู สูตรเดียวกัน แต่ข้อมูลครบกว่า',
   simGap:'เมื่อเวลารอจากการจำลองนานกว่าตัวเลขของ CIBSE: สูตรสมมติว่ารถออกจากล็อบบี้เป็นช่วงห่างเท่ากัน บรรทุกราว 80% แต่กลุ่มลิฟต์ในการจำลองไม่มีระบบจัดสรร รถจึงจับกลุ่มกันและออกไปแน่นกว่า เหมือนกลุ่มลิฟต์แบบรวมเรียกที่ไม่มีการควบคุม ช่องว่างระหว่างสองตัวเลขนี้คือเหตุผลที่ต้องมีการจัดสรรรถที่ดี',
-  chart:{sat:'อิ่มตัว',title:'เวลารอเฉลี่ยเทียบกับจำนวนรถต่อโซน',note:'เวลารอเฉลี่ยตาม CIBSE (เส้นทึบ) ลดลงทุกครั้งที่เพิ่มรถ แต่ลดน้อยลงทุกครั้ง ส่วนพื้นที่ช่องลิฟต์ที่ล็อบบี้ (เส้นประ) เพิ่มเป็นเส้นตรง จุดที่เลือกอยู่ทำเครื่องหมายไว้',x:'รถต่อโซน',xd:'รถต่อกลุ่ม เทียบกับจำนวนต่ำสุดตาม CIBSE',y:'เวลารอเฉลี่ย วินาที',a:'ช่องลิฟต์ที่ล็อบบี้ ตร.ม.'},
+  chart:{sat:'ไม่มีค่าประมาณ',title:'เวลารอเฉลี่ยเทียบกับจำนวนรถต่อโซน',note:'เวลารอเฉลี่ยตาม CIBSE (เส้นทึบ) ลดลงทุกครั้งที่เพิ่มรถ แต่ลดน้อยลงทุกครั้ง ส่วนพื้นที่ช่องลิฟต์ที่ล็อบบี้ (เส้นประ) เพิ่มเป็นเส้นตรง จุดที่เลือกอยู่ทำเครื่องหมายไว้',x:'รถต่อโซน',xd:'รถต่อกลุ่ม เทียบกับจำนวนต่ำสุดตาม CIBSE',y:'เวลารอเฉลี่ย วินาที',a:'ช่องลิฟต์ที่ล็อบบี้ ตร.ม.'},
   apply:'ใช้แกนอาคารขนาด {c} ม. กับอาคาร',applyNote:'ช่องลิฟต์ที่นี่กินพื้นที่เกินครึ่งของแกน {s} ม. ที่ชั้นล็อบบี้ (ครึ่งหนึ่งเป็นค่าสมมติ เผื่อพื้นที่บันได ช่องท่อ และห้องน้ำ)',
   m:{aria:'ภาพวิธีคำนวณ: ภาคตัดโซนลิฟต์หนึ่งโซน พร้อมระยะวิ่งด่วนใต้โซน จุดหยุดที่น่าจะเกิดขึ้น ชั้นที่รถกลับตัว ผู้โดยสารที่รออยู่ที่ล็อบบี้ และเวลาเดินทางไปกลับที่แบ่งเป็นเวลาเดินทาง เวลาหยุดเปิดปิดประตู และเวลาผู้โดยสาร',
    title:'เวลาเดินทางไปกลับ, {n} คัน',
@@ -530,7 +533,7 @@ export const LIFTS_TEXT={
    dd:'双层轿厢',ddNote:'两层轿厢每次停靠服务相邻两层：楼层成对，两层同时上下客，并假定轿厢与楼层不能同时对齐时每次停靠多 1 秒。'},
   u:{s:'秒',ms:'米/秒',m2:'平方米',m:'米',p:'人'},
   k:{awt:'平均候梯时间',p90:'第 90 百分位候梯时间',queue:'最长队列',interval:'最不利上行间隔',hc:'5 分钟输送能力',ground:'首层大堂井道',top:'顶层井道',sky:'空中大堂，收回的可租面积',coreDesk:'核心筒面板（简化）'},
-  v:{awt:'CIBSE {c} 秒 · 模拟 {s} 秒',p90:'模拟 {s} 秒',queue:'当前 {n} · 最多 {m}',interval:'{i} 秒 · {g}',hc:'占人数 {h}%（最低一组）· 需求 {r}%',
+  v:{awtScope:'载荷超过 80%，CIBSE 近似值不适用 · 模拟 {s} 秒',awt:'CIBSE {c} 秒 · 模拟 {s} 秒',p90:'模拟 {s} 秒',queue:'当前 {n} · 最多 {m}',interval:'{i} 秒 · {g}',hc:'占人数 {h}%（最低一组）· 需求 {r}%',
    ground:'{n} 个井道 · {a} 平方米 · 占 {c} 平方米核心筒的 {p}%',top:'{n} 个井道 · {a} 平方米',sky:'全楼 {m} 平方米 · 空中大堂以上 {u} 平方米',skyOff:'关',coreDesk:'{z} 个分区 × {c} 台 · RTT {r} 秒 · 间隔 {i} 秒',sat:'饱和'},
   status:'模拟：平均候梯 {a} 秒 · 第 90 百分位 {p} 秒 · 最长队列 {q}',
   statusSat:'饱和：到达人数超过电梯运力，队列只会越来越长',
@@ -544,7 +547,7 @@ export const LIFTS_TEXT={
    sat:'饱和：{g}无法承担该到达率，队列将无限增长。'},
   coreDesk:'与核心筒面板不同的原因：该面板按 H = S = N/2 计算每个分区，不计穿过低区的直驶段；两者采用相同的额定速度和相同的停靠时间（单层运行加开关门）。本实验按概率公式求 S 和 H，加入高区的直驶段，并计入单层运行时间和开关门时间。公式相同，输入更完整。',
   simGap:'模拟候梯时间长于 CIBSE 数值时：公式假定轿厢以均匀间隔、约 80% 满载离开大堂；模拟中的电梯组没有调度器，轿厢会扎堆、载得更满才出发，就像缺乏管理的集选电梯组。两个数字之间的差距，正说明良好派梯的价值。',
-  chart:{sat:'饱和',title:'平均候梯时间与每区轿厢数',note:'CIBSE 平均候梯时间（实线）随每增加一台轿厢而下降，但降幅越来越小；首层井道面积（虚线）则直线上升。当前选择已标出。',x:'每区轿厢数',xd:'每组轿厢数（相对 CIBSE 最少配置）',y:'平均候梯 秒',a:'首层井道 平方米'},
+  chart:{sat:'无候梯近似值',title:'平均候梯时间与每区轿厢数',note:'CIBSE 平均候梯时间（实线）随每增加一台轿厢而下降，但降幅越来越小；首层井道面积（虚线）则直线上升。当前选择已标出。',x:'每区轿厢数',xd:'每组轿厢数（相对 CIBSE 最少配置）',y:'平均候梯 秒',a:'首层井道 平方米'},
   apply:'将 {c} 米核心筒应用到塔楼',applyNote:'此处电梯井道在首层占用了 {s} 米核心筒一半以上的面积（一半为假定值，为楼梯、管井和卫生间留出空间）。',
   m:{aria:'方法图示：一个电梯分区的剖面，含下方直驶段、可能的停站层、轿厢折返层、在大堂候梯的乘客，以及往返时间在行驶、停站开关门与乘客之间的分配。',
    title:'往返时间，{n} 台',
@@ -782,6 +785,7 @@ function build(host,lang){
  const methodFig=el('figure','lt-method');
  const methodBox=el('div','lt-methodsvg');
  methodFig.append(methodBox,el('figcaption',null,c.m1));
+ const methodViewer=mountDrawingViewer({figure:methodFig,source:methodBox,lang,onOpen:()=>{const running=!!raf;stop();return running?loop:null}});
  const cannot=el('p','lt-prose lt-limits',c.cannot),src=el('p','lt-src',c.src);
  root.append(head,sheet,status,lede,ctls,verdict,dl,tw,applyB,applyN,coreNote,simGap,chartT,chart,chartN,methodFig,m2,m3,cannot,src);
  host.append(root);
@@ -789,7 +793,7 @@ function build(host,lang){
  if(ro){ro.observe(sheet);ro.observe(chart)}
  // Canvas text: the mono face first, then the non-looped Thai and the Chinese
  // faces the page already loads, so th and zh labels never fall to a system face.
- ui={host,lang,c,root,sheet,chart,status,R,verdict,rows,tbody,applyB,applyN,m3,methodBox,ro,font:"11px 'IBM Plex Mono','IBM Plex Sans Thai','Noto Sans SC',ui-monospace,monospace",lastDom:0};
+ ui={host,lang,c,root,sheet,chart,status,R,verdict,rows,tbody,applyB,applyN,m3,methodBox,methodViewer,ro,font:"11px 'IBM Plex Mono','IBM Plex Sans Thai','Noto Sans SC',ui-monospace,monospace",lastDom:0};
  size();
 }
 
@@ -868,8 +872,8 @@ function refresh(){
     this plan just produced — never a copy of last time's. */
  try{
   const pay=liftsMethodPayload(p);
-  ui.methodBox.innerHTML=pay?liftsMethodSVG(pay,{lang:ui.lang}):'';
- }catch{ui.methodBox.innerHTML=''}
+  ui.methodBox.innerHTML=pay?liftsMethodSVG(pay,{lang:ui.lang}):'';ui.methodViewer.setAvailable(!!pay);
+ }catch{ui.methodBox.innerHTML='';ui.methodViewer.setAvailable(false)}
  const key=planKey(p);
  if(!sim||sim.key!==key){sim=createSim(p,{seed:7});sim.key=key;sim.k=timeScale(Math.max(...p.groups.map(g=>g.rtt)));}
  else sim.plan=p;
@@ -883,7 +887,7 @@ function updateLive(force){
  const a=wait?fmt(st.avg,1):'—',p9=wait?fmt(st.p90,1):'—';
  ui.status.textContent=shown(st.saturated||plan.saturated?c.statusSat:fill(c.status,{a,p:p9,q:fmt(st.queue)}));
  ui.status.classList.toggle('lt-flag',!!(st.saturated||plan.saturated));
- ui.rows.awt.textContent=shown(fill(c.v.awt,{c:plan.saturated?c.v.sat:fmt(plan.awt,1),s:a}));
+ ui.rows.awt.textContent=shown(fill(plan.awt===null?c.v.awtScope:c.v.awt,{c:plan.saturated?c.v.sat:fmt(plan.awt,1),s:a}));
  ui.rows.p90.textContent=shown(fill(c.v.p90,{s:p9}));
  ui.rows.queue.textContent=shown(fill(c.v.queue,{n:fmt(st.queue),m:fmt(st.queueMax)}));
 }

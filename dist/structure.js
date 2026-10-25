@@ -15,8 +15,9 @@ import {displayText} from './preferences.js?v=48652b12d9';
      ASCE 7 Table 12.8-2 approximate period Ta = Ct·h^x ("all other systems",
      Ct 0.0488, x 0.75 in metres) as the lower bound of the band.
    - Vortex shedding: EN 1991-1-4 Annex E, E.1.3.1 v_crit = b·n1/St, St from
-     Table E.1 (0.11 sharp-cornered square, 0.18 circle). The St given to the
-     faceted families in between is an interpolation and is labelled as one.
+     Table E.1 / Fig. E.1 (0.12 sharp-cornered square, 0.18 circle).
+     Other plan families retain assumed sketch values; the standard does not
+     tabulate these shapes.
    - Slenderness: 432 Park Avenue 1:15 and 111 West 57th 1:24 (Guinness World
      Records); about 1:7 is described as slender by practising engineers. The
      band edges at 1:10 and 1:15 are read from those exemplars, not a code.
@@ -34,10 +35,20 @@ export const EXEMPLARS=[{name:'432 Park Ave',ratio:15},{name:'111 W 57th',ratio:
 export const DIAGRID_OPTIMUM=[55,75];
 export const CORE_BENCHMARK=0.24;
 export const FLOORS_PER_LIFT_GROUP=16,MAX_LIFT_GROUPS=4;
-// Table E.1: sharp square 0.11, circle 0.18. Faceted plans sit between; the
-// value for them is an interpolation by corner count, not a tabulated number.
-const ST={box:.11,chamfer:.12,cross:.11,star:.11,rub:.11,pinwheel:.11,triangle:.11,hexagon:.13,octagon:.14,petal:.15,oval:.16};
-export const ST_TABULATED=new Set(['box','cross','star','rub','pinwheel','triangle']);
+// Fig. E.1: sharp square 0.12; Table E.1: circle 0.18. All other
+// values below are assumptions, including the blend by corner count.
+const ST={box:.12,chamfer:.12,cross:.11,star:.11,rub:.11,pinwheel:.11,triangle:.11,hexagon:.13,octagon:.14,petal:.15,oval:.16};
+// EN 1991-1-4 Table E.1 / Fig. E.1 tabulates a sharp square, not the
+// project's star, pinwheel, triangle or finite-arm cruciform plans. Their
+// retained values are sketch assumptions, including the corner-count blend.
+// Primary standard, pp. 115–117:
+// https://www.phd.eng.br/wp-content/uploads/2015/12/en.1991.1.4.2005.pdf
+export const ST_TABULATED=new Set(['box']);
+export function strouhalOf(s,{normal=true}={}){
+ const st=ST[s.family]??.11;
+ const stTabulated=s.family==='box'&&Math.abs((s.aspect??1)-1)<1e-6&&!(s.twist)&&normal;
+ return {st,stBasis:stTabulated?'tabulated':'assumed',stTabulated};
+}
 
 /* Least width of a plan: the smallest distance between two parallel lines
    that enclose it, found on the convex hull (rotating calipers). A triangle or
@@ -56,14 +67,15 @@ export function leastWidth(poly){
 }
 
 export function structureRead(s,m=evaluate(s)){
- const H=stackHeight(s),bBase=leastWidth(profile(s,0)),bMid=leastWidth(profile(s,2/3));
+ const H=stackHeight(s),bBase=leastWidth(profile(s,0)),bMid=leastWidth(profile(s,2/3)),bV=leastWidth(profile(s,1));
  const lambda=H/bBase,band=STRUCTURE_BANDS.find(([edge])=>lambda<edge)[1];
  const tEC=H/46,tASCE=0.0488*Math.pow(H,0.75),n1=46/H;
- const st=ST[s.family]??.11,vCrit=bMid*n1/st;
+ // E.1.3.1 uses the width at maximum modal deflection: the roof of this cantilever.
+ const {st,stBasis,stTabulated}=strouhalOf(s),vCrit=bV*n1/st;
  const coreShare=m.gross>0?m.core/m.gross:0;
  const diagridAngle=s.system==='diagrid'?Math.atan2(8*s.height,6)*180/Math.PI:null;
  const groups=Math.ceil(s.floors/FLOORS_PER_LIFT_GROUP);
- return {H,bBase,bMid,lambda,band,tEC,tASCE,n1,st,stTabulated:ST_TABULATED.has(s.family),vCrit,coreShare,
+ return {H,bBase,bMid,bV,lambda,band,tEC,tASCE,n1,st,stBasis,stTabulated,vCrit,coreShare,
   diagridAngle,diagridInBand:diagridAngle==null?null:diagridAngle>=DIAGRID_OPTIMUM[0]&&diagridAngle<=DIAGRID_OPTIMUM[1],
   diagridFloorsInRange:s.system==='diagrid'?s.floors>=20&&s.floors<=100:null,
   liftGroups:groups,skyLobby:groups>MAX_LIFT_GROUPS};
@@ -75,7 +87,7 @@ export const STRUCT_TEXT={
   lede:'{h} m tall on a {b} m least base width.',
   axis:'Height ÷ least base width',here:'this tower',
   k:{lambda:'Slenderness',period:'First sway period, band',vcrit:'Vortex lock-in wind speed',core:'Core share of gross area',diagrid:'Diagrid angle',lifts:'Lift groups at 16 floors each'},
-  periodV:'{a}–{b} s',coreV:'{p}% · towers average 24%',vcritV:'{v} m/s{est}',est:' · St interpolated',
+  periodV:'{a}–{b} s',coreV:'{p}% · towers average 24%',vcritV:'{v} m/s{est}',est:' · St assumed',
   diagridV:'{a}° · efficient about 55–75°',liftsV:'{n}',skyLobby:' · above four groups: shuttles and a sky lobby, not modelled',
   vcritNote:'EN 1991-1-4 lets vortex effects be ignored when this speed is above 1.25 × the site mean wind at this height. The site wind is not modelled.',
   sys:{'column-grid':'Column grid and core: the core carries the wind. Khan found frames inefficient from about 20 storeys, which is why tall towers add outriggers or a perimeter tube.',outrigger:'Outriggers tie the core to perimeter columns; it is the system of the tallest towers, Taipei 101 and Shanghai Tower among them.',diagrid:'Perimeter diagrid: built at about 20–100 storeys.'},
@@ -87,7 +99,7 @@ export const STRUCT_TEXT={
   lede:'สูง {h} ม. บนฐานกว้างด้านแคบสุด {b} ม.',
   axis:'ความสูง ÷ ความกว้างฐานด้านแคบสุด',here:'อาคารนี้',
   k:{lambda:'ความชะลูด',period:'คาบการโยกตัวแรก (ช่วง)',vcrit:'ความเร็วลมที่กระแสวนล็อกตัว',core:'สัดส่วนแกนกลางต่อพื้นที่รวม',diagrid:'มุมไดอะกริด',lifts:'กลุ่มลิฟต์ กลุ่มละ 16 ชั้น'},
-  periodV:'{a}–{b} วินาที',coreV:'{p}% · ตึกสูงเฉลี่ย 24%',vcritV:'{v} ม./วินาที{est}',est:' · ค่า St ประมาณช่วงกลาง',
+  periodV:'{a}–{b} วินาที',coreV:'{p}% · ตึกสูงเฉลี่ย 24%',vcritV:'{v} ม./วินาที{est}',est:' · สมมติค่า St',
   diagridV:'{a}° · ช่วงที่มีประสิทธิภาพราว 55–75°',liftsV:'{n}',skyLobby:' · เกินสี่กลุ่ม ต้องมีลิฟต์ด่วนและสกายล็อบบี้ ซึ่งยังไม่ได้จำลอง',
   vcritNote:'EN 1991-1-4 ยอมให้ไม่ต้องพิจารณาผลของกระแสวน เมื่อความเร็วนี้สูงกว่า 1.25 เท่าของความเร็วลมเฉลี่ยของที่ตั้งที่ระดับความสูงนี้ ระบบนี้ยังไม่ได้จำลองลมของที่ตั้ง',
   sys:{'column-grid':'ระบบเสาและแกนกลาง แกนกลางรับแรงลม Khan พบว่าโครงข้อแข็งเริ่มไม่คุ้มตั้งแต่ราว 20 ชั้น ตึกสูงจึงเพิ่มเอาท์ริกเกอร์หรือท่อรอบนอก',outrigger:'เอาท์ริกเกอร์ยึดแกนกลางเข้ากับเสารอบนอก เป็นระบบของตึกที่สูงที่สุด เช่น ไทเป 101 และเซี่ยงไฮ้ทาวเวอร์',diagrid:'ไดอะกริดรอบนอก สร้างจริงราว 20–100 ชั้น'},
@@ -99,7 +111,7 @@ export const STRUCT_TEXT={
   lede:'高 {h} 米，底部最窄宽度 {b} 米。',
   axis:'高度 ÷ 底部最窄宽度',here:'本塔楼',
   k:{lambda:'高宽比',period:'第一阶摆动周期（区间）',vcrit:'涡激锁定风速',core:'核心筒占总建筑面积',diagrid:'斜交网格角度',lifts:'电梯分区，每区 16 层'},
-  periodV:'{a}–{b} 秒',coreV:'{p}% · 超高层平均 24%',vcritV:'{v} 米/秒{est}',est:' · St 为插值',
+  periodV:'{a}–{b} 秒',coreV:'{p}% · 超高层平均 24%',vcritV:'{v} 米/秒{est}',est:' · St 为假定值',
   diagridV:'{a}° · 高效区间约 55–75°',liftsV:'{n}',skyLobby:' · 超过四个分区：需穿梭电梯和空中大堂，未建模',
   vcritNote:'按 EN 1991-1-4，当此风速高于该高度处场地平均风速的 1.25 倍时，可不考虑涡激效应。场地风况未建模。',
   sys:{'column-grid':'柱网加核心筒：由核心筒承担风荷载。Khan 发现框架约从 20 层起就不再经济，所以高楼会加伸臂桁架或外框筒。',outrigger:'伸臂桁架把核心筒和外围柱连成一体，是最高一批塔楼的体系，例如台北 101 和上海中心。',diagrid:'外围斜交网格：实际建成约 20–100 层。'},

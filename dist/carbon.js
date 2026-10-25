@@ -1,3 +1,4 @@
+import {mountDrawingViewer} from './drawing-viewer.js?v=89fa2f4dac';
 /* Carbon lab — structural material, upfront carbon and cost as the tower
    grows taller and slimmer. The premium for height, made playable.
 
@@ -27,7 +28,7 @@
       material scales as H³/(E·b) for the tower: the steep premium, and the one
       that slenderness bends upward.
    4. Carbon, A1–A5 (upfront): kg × A1–A3 factor, + A4 road transport
-      kg·km × 0.10749 g/kg/km, + A5 waste WF × (A1–A3 + A4).
+      kg·km × 0.10749 g/kg/km, + A5 waste WF × (A1–A3 + A4 + C2 waste haul + C3–C4 waste processing).
    5. Cost: quantities × user rates. Illustrative inputs, not prices.
 
    SOURCES (verified 2026-10):
@@ -64,8 +65,8 @@
      EN 1991-1-1 Table 6.2: offices, category B1, q_k 2.5 kN/m²; RC 25 kN/m³.
    ASSUMPTIONS are marked ASSUMPTION where they are set. */
 import {profile,stack,area} from './model.js?v=67662478b8';
-import {leastWidth} from './structure.js?v=b0e70550ec';
-import {windRead} from './wind.js?v=b3877d0604';
+import {leastWidth} from './structure.js?v=61ce37f11f';
+import {windRead} from './wind.js?v=b4244c91aa';
 // The drafting vocabulary this drawing is made of. The release stamper pins
 // this against drafting.js; a hand-written token would rot the moment the
 // vocabulary changed, which is the whole reason the stamper exists.
@@ -94,6 +95,12 @@ export const SECTION_ECF={eaf:0.567,bof:2.450,global:1.580,uk:1.740};
 export const TEF_ROAD=0.10749/1000;        // kgCO2e per kg per km, Table 2.4
 export const CONCRETE_KM=50;               // Table 2.5 "locally manufactured"
 export const WASTE={concrete:0.053,rebar:0.053,steel:0.010}; // Table 2.6 WF
+// IStructE 2022 Eq. 2.3, Table 2.7 / Eq. 2.8 and worked example p.46.
+// Defaults for construction waste only: local 50 km haul, generic processing
+// when no product-specific EPD is available. These are charged within A5w,
+// not a model of the installed structure's future end of life.
+// https://www.egbc.ca/getmedia/a7603519-43cc-4795-8558-6960b2b7b5d1/HTCEC-2nd-edition.pdf
+export const WASTE_HAUL_ECF=0.005,WASTE_PROCESS_ECF=0.013; // kgCO2e/kg wasted
 export const RHO_C=2400,RHO_S=7850;        // kg/m³
 export const GAMMA_RC=25;                  // kN/m³, EN 1991-1-1 Annex A
 export const Q_IMPOSED=2.5;                // kN/m², EN 1991-1-1 Table 6.2, B1
@@ -232,10 +239,14 @@ export function account(kg,o={}){
  const km={conc:CONCRETE_KM,rebar:clamp(fin(o.km,300),0,20000),steel:clamp(fin(o.km,300),0,20000)};
  const wf={conc:WASTE.concrete,rebar:WASTE.rebar,steel:WASTE.steel};
  const rates={...DEFAULT_CTL.rates,...(o.rates||{})};
- const out={ecf:ec,carbon:{},a13:0,a4:0,a5:0,cost:0,byMat:{conc:0,rebar:0,steel:0},byPart:{grav:0,lat:0}};
+ const out={ecf:ec,carbon:{},a13:0,a4:0,a5:0,a5Parts:{production:0,inbound:0,outbound:0,processing:0},wasteECF:{haul:WASTE_HAUL_ECF,processing:WASTE_PROCESS_ECF},cost:0,byMat:{conc:0,rebar:0,steel:0},byPart:{grav:0,lat:0}};
  for(const part of ['grav','lat'])for(const mat of ['conc','rebar','steel']){
   const m=Math.max(0,fin(kg[part+'_'+mat]));
-  const a13=m*ec[mat],a4=m*km[mat]*TEF_ROAD,a5=wf[mat]*(a13+a4),c=a13+a4+a5;
+  const a13=m*ec[mat],a4=m*km[mat]*TEF_ROAD;
+  const wasteMass=m*wf[mat],outbound=wasteMass*WASTE_HAUL_ECF,processing=wasteMass*WASTE_PROCESS_ECF;
+  const a5=wf[mat]*(a13+a4)+outbound+processing,c=a13+a4+a5;
+  out.a5Parts.production+=wf[mat]*a13;out.a5Parts.inbound+=wf[mat]*a4;
+  out.a5Parts.outbound+=outbound;out.a5Parts.processing+=processing;
   out.a13+=a13;out.a4+=a4;out.a5+=a5;out.byMat[mat]+=c;out.byPart[part]+=c;
   out.cost+=mat==='conc'?m/RHO_C*fin(rates.conc):m*fin(mat==='rebar'?rates.rebar:rates.steel);
  }
@@ -322,12 +333,13 @@ export const CARBON_TEXT={
    ground:'Grade: no foundations or substructure counted',
    byStage:'By stage',
    sA13:'A1–A3 product',sA4:'A4 transport',sA5:'A5 waste',
-   scope:'B, C and D are not modelled: upfront carbon A1–A5 only',
-   transport:'Road: concrete {c} km, steel and rebar {s} km, at {f} gCO₂e/kg/km',
+   scope:'Installed structure: B, C and D not modelled; A5a site activities excluded',
+   transport:'Road: concrete {c} km, steel and rebar {s} km, at {f} gCO₂e/kg/km (SI)',
+   waste:'A5 waste includes haul {haul} + processing {process} kgCO₂e/kg wasted (SI)',
    perkg:'kgCO₂e/kg'},
   assume:'Assumptions: floor slabs per m² — 250 mm flat slab with 25 kg/m² reinforcement (core + grid), 130 mm composite slab with 35 or 40 kg/m² steel framing (outrigger, diagrid); superimposed dead 2.5 kN/m²; imposed 2.5 kN/m² (EN 1991-1-1, B1); working stress 0.4·f_ck in concrete, 213 MPa in S355 steel; walls at 0.70·E_cm (ACI 318-19); reinforcement 2% in columns, 1% in walls; lever arm 0.9 of the core or the least plan width; an outrigger moves half the moment to the perimeter (40–60% is published); a diagrid uses 0.8 of a conventional perimeter frame (Hearst Tower), that frame 1.6 × ideal flanges. Steel quantities are calibrated so a 68 m square, 108-storey steel tower lands inside Khan’s 142–205 kg/m².',
   cannot:'Cannot claim: an order-of-magnitude scaling law, not a structural design and not a certified life-cycle assessment. No foundations or substructure (SCORS includes them, so the band shown flatters the tower), no transfer structures, no site activities A5a, no seismic design, no dynamic wind response. Carbon factors vary by country and supplier; use EPDs once the supply chain is known.',
-  src:'Sources: IStructE, How to calculate embodied carbon, 2nd ed. 2022, Tables 2.3–2.6 (ICE V3, CARES, worldsteel; EAF/BOF bounds for sections from the UK row, global average 1.580) · Arnold, Cook, Cox, Gibbons & Orr, SCORS (bands read from Fig. 1; per m² GIA), The Structural Engineer 98(10) 2020 · Price & Myers carbon data · Khan, premium for height (Lehigh; Construction 1972; Britannica) · Hearst Tower steel (Foster + Partners via BD+C) · outrigger moment relief (Designing Buildings Wiki) · Foraboschi, Mercanzin & Trabucco, Energy and Buildings 68, 2014 · EN 1991-1-4 via the Wind tab · EN 1991-1-1 · EN 1992-1-1 Table 3.1 · ACI 318-19 Table 6.6.3.1.1.'},
+  src:'Sources: IStructE, How to calculate embodied carbon, 2nd ed. 2022, Tables 2.3–2.7, Eq. 2.3/2.8 (ICE V3, CARES, worldsteel; EAF/BOF bounds for sections from the UK row, global average 1.580) · Arnold, Cook, Cox, Gibbons & Orr, SCORS (bands read from Fig. 1; per m² GIA), The Structural Engineer 98(10) 2020 · Price & Myers carbon data · Khan, premium for height (Lehigh; Construction 1972; Britannica) · Hearst Tower steel (Foster + Partners via BD+C) · outrigger moment relief (Designing Buildings Wiki) · Foraboschi, Mercanzin & Trabucco, Energy and Buildings 68, 2014 · EN 1991-1-4 via the Wind tab · EN 1991-1-1 · EN 1992-1-1 Table 3.1 · ACI 318-19 Table 6.6.3.1.1.'},
  th:{title:'คาร์บอนแฝงและต้นทุนส่วนเพิ่มของความสูง',
   lede:'คาร์บอนอยู่ตรงไหน: โครงสร้าง เหล็กเสริมในโครง และเหล็กรูปพรรณที่อยู่ข้าง ๆ — แต่ละอย่างคิดด้วยตัวค่าของตัวเอง ขนมาที่ไซต์ แล้วคิดค่าของเสียอีกครั้ง',
   run:'ชั้น {n} จาก {N} · {kg} กก./ตร.ม. · {c} กก.CO₂e/ตร.ม.',
@@ -361,12 +373,13 @@ export const CARBON_TEXT={
    ground:'ระดับดิน: ไม่มีฐานรากและโครงสร้างใต้ดินในการคิดนี้',
    byStage:'แยกตามขั้นตอน',
    sA13:'A1–A3 การผลิต',sA4:'A4 การขนส่ง',sA5:'A5 ของเสีย',
-   scope:'B, C และ D ไม่ได้อยู่ในแบบจำลองนี้: คิดเฉพาะคาร์บอนเริ่มต้น A1–A5',
-   transport:'ทางถนน: คอนกรีต {c} กม. เหล็กและเหล็กเสริม {s} กม. ที่ {f} กก.CO₂e/กก./กม.',
+   scope:'โครงสร้างที่ติดตั้ง: ไม่รวม B, C, D และกิจกรรมหน้างาน A5a',
+   transport:'ทางถนน: คอนกรีต {c} กม. เหล็กและเหล็กเสริม {s} กม. ที่ {f} กรัมCO₂e/กก./กม. (SI)',
+   waste:'A5 ของเสียรวมการขนออก {haul} + การจัดการ {process} กก.CO₂e/กก.ของเสีย (SI)',
    perkg:'กก.CO₂e/กก.'},
   assume:'สมมติฐาน: พื้นต่อ ตร.ม. — พื้นไร้คาน 250 มม. เหล็กเสริม 25 กก./ตร.ม. (แกนกลาง + เสา) พื้นคอมโพสิต 130 มม. โครงเหล็ก 35 หรือ 40 กก./ตร.ม. (เอาท์ริกเกอร์ ไดอะกริด) น้ำหนักบรรทุกคงที่เพิ่มเติม 2.5 kN/ตร.ม. น้ำหนักบรรทุกจร 2.5 kN/ตร.ม. (EN 1991-1-1 B1) หน่วยแรงใช้งาน 0.4·f_ck สำหรับคอนกรีต 213 MPa สำหรับเหล็ก S355 ผนังใช้ 0.70·E_cm (ACI 318-19) เหล็กเสริม 2% ในเสา 1% ในผนัง ระยะแขนโมเมนต์ 0.9 ของแกนกลางหรือความกว้างผังด้านแคบสุด เอาท์ริกเกอร์ย้ายโมเมนต์ครึ่งหนึ่งไปที่เสารอบนอก (ข้อมูลที่เผยแพร่ 40–60%) ไดอะกริดใช้เหล็ก 0.8 เท่าของโครงรอบนอกแบบทั่วไป (Hearst Tower) และโครงแบบทั่วไปใช้ 1.6 เท่าของปีกในอุดมคติ ปริมาณเหล็กปรับเทียบให้อาคารเหล็กผังสี่เหลี่ยม 68 ม. สูง 108 ชั้น อยู่ในช่วง 142–205 กก./ตร.ม. ของ Khan',
   cannot:'สิ่งที่อ้างไม่ได้: เป็นกฎการปรับขนาดระดับลำดับขนาด ไม่ใช่การออกแบบโครงสร้าง และไม่ใช่การประเมินวัฏจักรชีวิตที่ได้รับการรับรอง ไม่รวมฐานรากและโครงสร้างใต้ดิน (SCORS รวมไว้ ระดับที่แสดงจึงดูดีกว่าความจริง) ไม่รวมโครงสร้างถ่ายแรง กิจกรรมในสถานที่ก่อสร้าง A5a การออกแบบต้านแผ่นดินไหว และการตอบสนองเชิงพลวัตต่อลม ค่าคาร์บอนแตกต่างตามประเทศและผู้ผลิต เมื่อทราบแหล่งวัสดุให้ใช้ EPD',
-  src:'แหล่งอ้างอิง: IStructE, How to calculate embodied carbon ฉบับที่ 2 ปี 2022 ตาราง 2.3–2.6 (ICE V3, CARES, worldsteel; ค่าขอบเขต EAF/BOF ของเหล็กรูปพรรณจากแถวสหราชอาณาจักร ค่าเฉลี่ยโลก 1.580) · Arnold, Cook, Cox, Gibbons และ Orr, SCORS (ช่วงคะแนนอ่านจากรูปที่ 1 ต่อ ตร.ม. พื้นที่ภายในรวม), The Structural Engineer 98(10) 2020 · ข้อมูลคาร์บอนของ Price & Myers · Khan ส่วนเพิ่มของความสูง (Lehigh; Construction 1972; Britannica) · เหล็กของ Hearst Tower (Foster + Partners ผ่าน BD+C) · การลดโมเมนต์ด้วยเอาท์ริกเกอร์ (Designing Buildings Wiki) · Foraboschi, Mercanzin และ Trabucco, Energy and Buildings 68, 2014 · EN 1991-1-4 ผ่านแท็บลม · EN 1991-1-1 · EN 1992-1-1 ตาราง 3.1 · ACI 318-19 ตาราง 6.6.3.1.1'},
+  src:'แหล่งอ้างอิง: IStructE, How to calculate embodied carbon ฉบับที่ 2 ปี 2022 ตาราง 2.3–2.7 สมการ 2.3/2.8 (ICE V3, CARES, worldsteel; ค่าขอบเขต EAF/BOF ของเหล็กรูปพรรณจากแถวสหราชอาณาจักร ค่าเฉลี่ยโลก 1.580) · Arnold, Cook, Cox, Gibbons และ Orr, SCORS (ช่วงคะแนนอ่านจากรูปที่ 1 ต่อ ตร.ม. พื้นที่ภายในรวม), The Structural Engineer 98(10) 2020 · ข้อมูลคาร์บอนของ Price & Myers · Khan ส่วนเพิ่มของความสูง (Lehigh; Construction 1972; Britannica) · เหล็กของ Hearst Tower (Foster + Partners ผ่าน BD+C) · การลดโมเมนต์ด้วยเอาท์ริกเกอร์ (Designing Buildings Wiki) · Foraboschi, Mercanzin และ Trabucco, Energy and Buildings 68, 2014 · EN 1991-1-4 ผ่านแท็บลม · EN 1991-1-1 · EN 1992-1-1 ตาราง 3.1 · ACI 318-19 ตาราง 6.6.3.1.1'},
  zh:{title:'隐含碳与高度溢价',
   lede:'碳在哪里：混凝土框架、其中的钢筋、旁边的型钢——各按自身排放因子计价，运到工地，再加一次损耗。',
   run:'第 {n} 层 / 共 {N} 层 · {kg} 千克/平方米 · {c} 千克CO₂e/平方米',
@@ -400,12 +413,13 @@ export const CARBON_TEXT={
    ground:'地面：本次计算不含基础与地下结构',
    byStage:'按阶段',
    sA13:'A1–A3 生产',sA4:'A4 运输',sA5:'A5 损耗',
-   scope:'B、C、D 阶段未建模：仅计算前期碳排 A1–A5',
-   transport:'公路：混凝土 {c} 公里，钢筋与型钢 {s} 公里，{f} 克CO₂e/千克/公里',
+   scope:'已安装结构不含 B、C、D 阶段；不含现场施工 A5a',
+   transport:'公路：混凝土 {c} 公里，钢筋与型钢 {s} 公里，{f} 克CO₂e/千克/公里 (SI)',
+   waste:'A5 损耗含外运 {haul} + 处理 {process} 千克CO₂e/千克废料 (SI)',
    perkg:'千克CO₂e/千克'},
   assume:'假定：每平方米楼板——250 毫米无梁楼板配筋 25 千克/平方米（核心筒 + 柱网）；130 毫米组合楼板配钢梁 35 或 40 千克/平方米（伸臂桁架、斜交网格）；附加恒载 2.5 kN/平方米；活载 2.5 kN/平方米（EN 1991-1-1，B1 类）；工作应力混凝土取 0.4·f_ck，S355 钢取 213 MPa；墙体刚度取 0.70·E_cm（ACI 318-19）；柱配筋率 2%，墙 1%；力臂取核心筒或平面最窄宽度的 0.9；伸臂桁架将一半力矩转移到外围（文献为 40–60%）；斜交网格用钢为常规外框的 0.8（赫斯特大厦），常规外框为理想翼缘的 1.6 倍。钢材用量经校准，使 68 米见方、108 层的钢结构塔楼落在 Khan 的 142–205 千克/平方米范围内。',
   cannot:'不能据此断言：这是数量级的比例关系，不是结构设计，也不是经认证的生命周期评估。不含基础和地下结构（SCORS 包含这些，因此所示等级偏乐观），不含转换结构、现场施工活动 A5a、抗震设计和风致动力响应。碳排放因子因国家和供应商而异；供应链明确后应使用 EPD。',
-  src:'来源：IStructE《How to calculate embodied carbon》第 2 版，2022，表 2.3–2.6（ICE V3、CARES、worldsteel；型钢 EAF/BOF 取值来自英国行，全球平均 1.580）· Arnold、Cook、Cox、Gibbons、Orr，SCORS（等级取自图 1；按建筑内部面积计），The Structural Engineer 98(10)，2020 · Price & Myers 碳数据 · Khan 高度溢价（理海大学；Construction 1972；大英百科）· 赫斯特大厦（Hearst Tower）用钢（Foster + Partners，经 BD+C）· 伸臂桁架力矩折减（Designing Buildings Wiki）· Foraboschi、Mercanzin、Trabucco，Energy and Buildings 68，2014 · EN 1991-1-4（经“风”页）· EN 1991-1-1 · EN 1992-1-1 表 3.1 · ACI 318-19 表 6.6.3.1.1'}
+  src:'来源：IStructE《How to calculate embodied carbon》第 2 版，2022，表 2.3–2.7、公式 2.3/2.8（ICE V3、CARES、worldsteel；型钢 EAF/BOF 取值来自英国行，全球平均 1.580）· Arnold、Cook、Cox、Gibbons、Orr，SCORS（等级取自图 1；按建筑内部面积计），The Structural Engineer 98(10)，2020 · Price & Myers 碳数据 · Khan 高度溢价（理海大学；Construction 1972；大英百科）· 赫斯特大厦（Hearst Tower）用钢（Foster + Partners，经 BD+C）· 伸臂桁架力矩折减（Designing Buildings Wiki）· Foraboschi、Mercanzin、Trabucco，Energy and Buildings 68，2014 · EN 1991-1-4（经“风”页）· EN 1991-1-1 · EN 1992-1-1 表 3.1 · ACI 318-19 表 6.6.3.1.1'}
 };
 
 /* ── DOM ──────────────────────────────────────────────────────────────── */
@@ -444,6 +458,7 @@ function build(host,lang){
  const method=el('figure','cb-method');
  const methodSheet=el('div','cb-sheet');
  method.append(methodSheet,el('figcaption','cb-caption',c.lede));
+ const methodViewer=mountDrawingViewer({figure:method,source:methodSheet,lang,onOpen:()=>{const running=!!raf;stop();return running?go:null}});
  const ctls=el('div','cb-controls');
  const field=()=>{const w=el('div','cb-field');ctls.append(w);return w};
  const range=(key,label,min,max,step,note,on,later)=>{
@@ -497,7 +512,7 @@ function build(host,lang){
  host.append(root);
  const ro=typeof ResizeObserver==='function'?new ResizeObserver(()=>{size();drawAll()}):null;
  if(ro){ro.observe(elevC);ro.observe(chartC)}
- ui={host,lang,c,elevC,chartC,run,metricB,holdB,floors,slender,sys,applyB,applyN,conc,ggbs,rebar,steel,km,vb,rateIn,verdict,rows,bars,scItems,ro,methodSheet,svgN:0,font:'12px monospace'};
+ ui={host,lang,c,elevC,chartC,run,metricB,holdB,floors,slender,sys,applyB,applyN,conc,ggbs,rebar,steel,km,vb,rateIn,verdict,rows,bars,scItems,ro,methodSheet,methodViewer,svgN:0,font:'12px monospace'};
  // Thai and Chinese labels use the sans stack: the mono face has no Thai or
  // CJK glyphs and the fallback can be a looped Thai face.
  try{const f=getComputedStyle(host).getPropertyValue(lang==='en'?'--mono':'--sans').trim();if(f)ui.font='12px '+f}catch{}
@@ -522,7 +537,7 @@ function sync(){
    picture of an idea: it is the same accounting the ledger shows, cut. */
 function paintMethod(h,tw,system){
  if(!ui||!ui.methodSheet||!h)return;
- try{ui.methodSheet.innerHTML=carbonMethodSVG({h,tower:tw,system,options:ctl},{lang:ui.lang});}catch{}
+ try{ui.methodSheet.innerHTML=carbonMethodSVG({h,tower:tw,system,options:ctl},{lang:ui.lang});ui.methodViewer.setAvailable(true)}catch{ui.methodViewer.setAvailable(false)}
 }
 
 function refresh(geometry,light){
@@ -908,11 +923,13 @@ export function carbonMethodSVG(payload,{lang='en'}={}){
  }
  {const t=fill(c.m.transport,{c:N(CONCRETE_KM,0),s:N(kmS,0),f:N(TEF_ROAD*1000,5)});
   g+=leader(stSeg[1].x+stSeg[1].w/2,SY1,COL,putB(t),t);}
+ {const t=fill(c.m.waste,{haul:N(ac.wasteECF?.haul??WASTE_HAUL_ECF,3),process:N(ac.wasteECF?.processing??WASTE_PROCESS_ECF,3)});
+  g+=leader(stSeg[2].x+stSeg[2].w/2,SY1,COL,putB(t),t);}
  for(const s of mtSeg){
   const t=`${s.r[0]} ${PC(mtTotal>0?s.v/mtTotal:0)} · ${N(s.v,1)} ${c.u.co2m2}`;
   // A material the take-off does not contain gets no leader: a leader pointing
   // at a neighbour's block would say the wrong thing about the wrong material.
   if(s.w>0)g+=leader(s.x+s.w/2,(MY0+MY1)/2,COL,putB(t),t);else g+=txt(COL,putB(t),t);
  }
- return sheet(g,CM.w,CM.h,(c.m.aria||'').replace(/"/g,'&quot;'));
+ return sheet(g,CM.w,Math.max(CM.h,ny+12,ay+12,MY1+12),(c.m.aria||'').replace(/"/g,'&quot;'));
 }

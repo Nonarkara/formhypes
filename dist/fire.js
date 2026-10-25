@@ -1,3 +1,4 @@
+import {mountDrawingViewer} from './drawing-viewer.js?v=89fa2f4dac';
 /* Fire lab — everybody leaving the tower by the stairs, computed rather than drawn.
 
    The hero is a section of the tower with each stair shaft. The dots are the
@@ -219,16 +220,50 @@ export function liftEvac(s,levels,users,netArea,pre){
  let time=0,rttMax=0,total=0;const zs=[];
  for(let z=0;z<zones;z++){
   const ls=occ.slice(z*per,(z+1)*per);if(!ls.length)continue;
-  let Nz=0,Hz=0;for(const l of ls){const u=users[l.i]||0;Nz+=u;Hz+=u*l.z}
-  const H=Nz>0?Hz/Nz:ls[0].z;
   const v=(ld&&ld.carSpeed)||M.carSpeed;
-  const rtt=2*(H/v+v/M.carAccel)+2*M.doorTime+2*P*M.transferTime;
-  const trips=Math.ceil(Nz/P-1e-9),each=Math.ceil(trips/cars);
-  const tz=Nz>0?fin(pre)+each*rtt:0;
+  // Scenario dispatch: highest floor first; the next trip takes the first
+  // available car. Each car returns to grade before its next floor visit.
+  const ready=Array(cars).fill(Math.max(0,fin(pre))),jobs=[];
+  let Nz=0,Hz=0,rtt=0;
+  for(const l of [...ls].reverse()){
+   const u=Math.max(0,fin(users[l.i]));Nz+=u;Hz+=u*l.z;
+   const d=Math.max(0,l.z),a=M.carAccel;
+   const flight=d>=v*v/a?d/v+v/a:2*Math.sqrt(d/a);
+   const count=Math.ceil(u/P-1e-9);
+   for(let j=0;j<count;j++){
+    const passengers=Math.min(P,Math.max(0,u-j*P));
+    const duration=2*flight+2*M.doorTime+2*passengers*M.transferTime;
+    let car=0;for(let c=1;c<cars;c++)if(ready[c]<ready[car])car=c;
+    const start=ready[car];ready[car]+=duration;rtt=Math.max(rtt,duration);
+    jobs.push({floor:l.i,height:d,flight,dwell:M.doorTime+passengers*M.transferTime,passengers,car,start,end:ready[car],duration});
+   }
+  }
+  const tz=Nz>0?Math.max(...ready):0,H=Nz>0?Hz/Nz:ls[0].z;
   time=Math.max(time,tz);rttMax=Math.max(rttMax,rtt);total+=Nz;
-  zs.push({from:ls[0].i,to:ls[ls.length-1].i,users:Nz,rtt,trips,time:tz,h:H});
+  zs.push({from:ls[0].i,to:ls[ls.length-1].i,users:Nz,rtt,trips:jobs.length,time:tz,h:H,jobs});
  }
  return {time,rtt:rttMax,zones,cars,users:total,zs,speed:(ld&&ld.carSpeed)||M.carSpeed};
+}
+
+/* Drawing positions are a reading of the scheduled trips, never a mean floor.
+   Idle cars remain at grade; top and bottom dwell belong to the same job. */
+export function evacuationCarsAt(lifts,t){
+ if(!lifts)return [];
+ return lifts.zs.flatMap((zone,q)=>Array.from({length:lifts.cars},(_,car)=>{
+  const job=zone.jobs.find(j=>j.car===car&&t>=j.start&&t<j.end);
+  if(!job)return{zone:q,car,z:0,floor:null,phase:'idle'};
+  const u=t-job.start,d=job.height,v=lifts.speed,a=CORE_METHOD.carAccel,T=job.flight;
+  const pos=elapsed=>{
+   if(elapsed<=0)return 0;if(elapsed>=T)return d;
+   const ta=Math.min(v/a,T/2),vp=a*ta;
+   if(elapsed<ta)return .5*a*elapsed*elapsed;
+   if(elapsed>T-ta)return d-.5*a*(T-elapsed)**2;
+   return .5*a*ta*ta+vp*(elapsed-ta);
+  };
+  const down=u-T-job.dwell;
+  const z=u<T?pos(u):down<0?d:down<T?d-pos(down):0;
+  return{zone:q,car,z,floor:job.floor,phase:u<T?'up':down<0?'loading':down<T?'down':'unloading'};
+ }));
 }
 
 /* ── one scenario ───────────────────────────────────────────────────────── */
@@ -346,18 +381,18 @@ export const FIRE_TEXT={
  en:{title:'Fire evacuation',
   lede:'Everyone leaving by the stairs at once, or in phases: where the queues form, how fast the stair moves, and when the last person reaches the exit level.',
   ctl:{load:'Occupant load',loadNote:'Net area per person. CIBSE Guide D gives 10–12 m²/p for offices (the lift design uses 11); BS 9999:2017 Table 1 gives 6 m²/p for offices, a dense case; IBC 2021 Table 1004.5 gives 150 ft² gross per person for business, about 13.9 m²/p.',loadLift:'Use the lift-design load',
-   stairs:'Number of stairs',width:'Clear stair width',widthNote:'Effective width = clear width − 2 × 0.15 m boundary layer (SFPE): {we} m.',
-   tread:'Riser / tread',treadNote:'SFPE stair type: speed constant k {k} m/s, maximum specific flow {f} people/s per metre effective, travel {c} × the rise.',
-   strategy:'Evacuation strategy',liftShare:'Share using evacuation lifts',liftNote:'An input, not a code value. This tower’s own lift groups: {z} zones × {c} cars at {v} m/s, one floor per trip. Occupants with reduced mobility take the lifts first.',
+   stairs:'Number of stairs',width:'Clear stair width',widthNote:'Effective width = clear width − 2 × {boundary} {lengthUnit} boundary layer (SFPE): {we} {lengthUnit}.',
+   tread:'Riser / tread',treadNote:'SFPE stair type: speed constant k {k} {speedUnit}, maximum specific flow {f} people/(s·{lengthUnit}) effective width, travel {c} × the rise is a scenario assumption, with source verification pending.',
+   strategy:'Evacuation strategy',liftShare:'Share using evacuation lifts',liftNote:'An input, not a code value. This tower’s own lift groups: {z} zones × {c} cars at {v} m/s, one floor per trip, highest floors first and the next available car (assumed dispatch). Occupants with reduced mobility take the lifts first.',
    refuge:'Refuge floors',fire:'Fire floor',fireOut:'level {f}',pre:'Pre-movement time',preNote:'An input. Occupants start between 0.5× and 1.5× this time, then walk to the stair at 1.19 m/s. Take it from PD 7974-6 or the fire engineer.',
-   prm:'Occupants with reduced mobility',prmSpeed:'Their stair speed',prmNote:'They wait for their floor’s queue to clear, then descend at their own speed. About 0.3 m/s: reported mobility-impaired stair descent clusters near 0.31–0.33 m/s (NIST stair-descent studies report 0.31 ± 0.16 m/s; Boyce, Shields & Silcock 1999). Verify for the project.'},
+   prm:'Occupants with reduced mobility',prmSpeed:'Their stair speed',prmNote:'They wait for their floor’s queue to clear, then descend at their own speed. About {about} {speedUnit}: reported mobility-impaired stair descent clusters near {lo}–{hi} {speedUnit} (NIST stair-descent studies report {mean} ± {sd} {speedUnit}; Boyce, Shields & Silcock 1999). Verify for the project.'},
   strat:{simultaneous:'Simultaneous',phased:'Phased',lifts:'With lifts'},
   stratNote:{simultaneous:'Every floor is alarmed at once.',phased:'The fire floor and the floors directly above and below go first; the rest are alarmed when those floors have all entered the stair.',lifts:'Every floor at once; a share of occupants uses the lifts (IBC 2021 §3008 concept).'},
   ref:{off:'Off',hk:'HK · ≤25 storeys',gb:'GB · ≤50 m'},
-  refNote:{off:'No refuge floors: everyone descends to the exit level.',hk:'HK Code of Practice for Fire Safety in Buildings 2011, B18: over 25 storeys, a refuge floor at most every 25 storeys (20 for Use Classification 6); net refuge area at least 50% of the floor’s gross area.',gb:'GB 50016-2014 §5.5.23: public buildings over 100 m, the first refuge floor at most 50 m up, then preferably at most 50 m apart.',snap:'Placed on this tower’s refuge and mechanical levels where one falls inside the limit; otherwise an office floor is converted. Capacity 50% of the plate at 5 people/m².',notReq:'Not required at this height under the chosen code.'},
+  refNote:{off:'No refuge floors: everyone descends to the exit level.',hk:'HK Code of Practice for Fire Safety in Buildings 2011, B18: over 25 storeys, a refuge floor at most every 25 storeys (20 for Use Classification 6); net refuge area at least 50% of the floor’s gross area.',gb:'GB 50016-2014 §5.5.23: public buildings over 100 m, the first refuge floor at most 50 m up, then preferably at most 50 m apart.',snap:'Placed on this tower’s refuge and mechanical levels where one falls inside the limit; otherwise an office floor is converted. Capacity is a combined scenario assumption: HK 50% plate area × GB 5 people/m², not a single-code capacity rule.',notReq:'Not required at this height under the chosen code.'},
   u:{m:'m',mm:'mm',s:'s',min:'min',p:'people',pmin:'people/min',m2p:'m²/p',pct:'%',ms:'m/s',h:'h'},
   k:{pop:'Population',total:'Total evacuation, simultaneous',pauls:'Pauls’ approximation',bound:'Flow bound, by hand',phased:'Phased: alarm floors',phasedAll:'Phased: whole building',safety:'To a refuge or the exit',queue:'Longest queue',flow:'Stair flow, each stair',refuge:'Refuge capacity',lifts:'Share using lifts',prm:'Last occupant with reduced mobility'},
-  val:{pop:'{n} · {a} m²/p · lift design {l}',queue:'{n} at level {f} · {w} to clear',flow:'{f} people/min · W_e {we} m',refuge:'level {f}: {d} / {c} people',over:'over capacity',none:'—',liftsOff:'not used',lifts:'{p}% · last car down {t}',alarm:'levels {a}–{b} · {t}',pauls:'{t} · p {p}/m',extra:'extrapolated beyond 15 storeys',bound:'{t} = ½ pre + N ÷ (n·W_e·F_s,max)',off:'off',kind:{refuge:'refuge level',mech:'mechanical level',converted:'converted office floor'}},
+  val:{pop:'{n} · {a} m²/p · lift design {l}',queue:'{n} at level {f} · {w} to clear',flow:'{f} people/min · W_e {we} m',refuge:'level {f}: {d} / {c} people',over:'over capacity',none:'—',liftsOff:'not used',lifts:'{p}% · last car down {t}',alarm:'levels {a}–{b} · {t}',pauls:'{t} · p {p} people/m (SI)',extra:'extrapolated beyond 15 storeys',bound:'{t} = ½ pre + N ÷ (n·W_e·F_s,max)',off:'off',kind:{refuge:'refuge level',mech:'mechanical level',converted:'converted office floor'}},
   canvas:{scale:'1 s on screen = {k} s',dot:'1 dot = {n} people · hollow: reduced mobility',clear:'floors clear {c} / {n}',out:'out {n}',held:'in refuge {n}',fire:'fire',refuge:'refuge',lift:'lifts',section:'Section · stairs to scale in height, plates not to scale'},
   status:{simultaneous:'Simultaneous: the last person reaches {target} at {t}.',phased:'Phased: the alarm floors are out at {a}; everyone reaches {target} at {t}.',lifts:'With lifts: the last person reaches {target} at {t}.'},
   target:{exit:'the exit level',safety:'a refuge or the exit level'},
@@ -367,22 +402,22 @@ export const FIRE_TEXT={
   method:'Each stair is a column of short cells: speed S = k(1 − 0.266·D) and specific flow F_s = S·D, so a crowded stair moves slower and passes fewer. Floors join at their door, sharing the space half and half. Refuge floors take people off the stair until they fill.',
   m:{pre:'pre-movement',p1:'phase 1: refuge',p1b:'phase 1: fire floor',p2:'phase 2: exit',tail:'last: reduced',tailLift:'lifts still going',times:'min : sec',total:'total',fire:'fire · level {f}',refuge:'refuge {f} · {h} held',exit:'exit level {f}',stair:'riser/tread {r}/{t}',pitch:'pitch {a}°',flow:'people move down',skip:'{n} storeys',storeys:'{n} storeys',people:'{n} in the tower',onStairs:'{n} on the stairs',prm:'{n} reduced mobility',strategy:'strategy: {s}',release:'the rest is released',aria:'Schematic section of the escape stair. The refuge level and the fire floor are marked, and people move down the flights to the exit level at the bottom. Beside it, the total evacuation time is split in proportion into the pre-movement allowance, the descent to the refuge level, the descent from the refuge level to the exit, and the last occupant with reduced mobility.'},
   cannot:'Cannot claim: this is not a performance-based fire engineering assessment. No smoke, tenability or fire growth; no human-behaviour model beyond hydraulic flow; no firefighters climbing against the flow; exits at grade and landings are assumed not to limit. One occupant load for every floor, retail included. Local code and the authority having jurisdiction govern.',
-  src:'Sources: SFPE Handbook of Fire Protection Engineering, 5th ed. (2016), Gwynne & Rosenbaum, hydraulic model (constants as reproduced in NIST TN 1722 and PD 7974-6:2019 Annex G) (speed, specific flow, boundary layers, stair types, travel factors) · Pauls; Proulx, “Evacuation Timing”, SFPE Handbook, t = 0.68 + 0.081·p^0.73, stated up to 15 storeys (NIST TN 1722 Eq. 31) · NFPA 101 · BS 9999:2017 Table 1 · IBC 2021 Table 1004.5 and §3008 · HK Code of Practice for Fire Safety in Buildings 2011 · GB 50016-2014 §5.5.23 · Boyce, Shields & Silcock, Fire Technology 35 (1999) · CIBSE Guide D. Each value to be checked against the edition in force.'},
+  src:'Sources: SFPE Handbook of Fire Protection Engineering, 5th ed. (2016), Gwynne & Rosenbaum, hydraulic model (constants as reproduced in NIST TN 1722 and PD 7974-6:2019 Annex G) (speed, specific flow, boundary layers, stair types); travel multipliers are unverified scenario assumptions · Pauls; Proulx, “Evacuation Timing”, SFPE Handbook, t = 0.68 + 0.081·p^0.73, stated up to 15 storeys (NIST TN 1722 Eq. 31) · NFPA 101 · BS 9999:2017 Table 1 · IBC 2021 Table 1004.5 and §3008 · HK Code of Practice for Fire Safety in Buildings 2011 · GB 50016-2014 §5.5.23 · Boyce, Shields & Silcock, Fire Technology 35 (1999) · CIBSE Guide D. Each value to be checked against the edition in force.'},
  th:{title:'การอพยพหนีไฟ',
   lede:'ทุกคนลงบันไดพร้อมกัน หรือทยอยเป็นระยะ คิวเกิดขึ้นที่ใด บันไดเคลื่อนตัวเร็วเพียงใด และคนสุดท้ายถึงระดับทางออกเมื่อใด',
   ctl:{load:'อัตราผู้ใช้อาคาร',loadNote:'พื้นที่สุทธิต่อคน CIBSE Guide D ให้ 10–12 ตร.ม./คน สำหรับสำนักงาน (การออกแบบลิฟต์ใช้ 11) BS 9999:2017 ตาราง 1 ให้ 6 ตร.ม./คน สำหรับสำนักงาน เป็นกรณีหนาแน่น IBC 2021 ตาราง 1004.5 ให้ 150 ตร.ฟุต พื้นที่รวมต่อคน สำหรับอาคารธุรกิจ ราว 13.9 ตร.ม./คน',loadLift:'ใช้ค่าจากการออกแบบลิฟต์',
-   stairs:'จำนวนบันได',width:'ความกว้างสุทธิของบันได',widthNote:'ความกว้างประสิทธิผล = ความกว้างสุทธิ − 2 × 0.15 ม. (ชั้นขอบตาม SFPE): {we} ม.',
-   tread:'ลูกตั้ง / ลูกนอน',treadNote:'ประเภทบันไดตาม SFPE: ค่าคงที่ความเร็ว k {k} ม./วินาที อัตราการไหลจำเพาะสูงสุด {f} คน/วินาที ต่อเมตรประสิทธิผล ระยะเดิน {c} เท่าของความสูง',
-   strategy:'กลยุทธ์การอพยพ',liftShare:'สัดส่วนผู้ใช้ลิฟต์อพยพ',liftNote:'เป็นค่าที่ป้อนเอง ไม่ใช่ค่าตามมาตรฐาน ใช้กลุ่มลิฟต์ของอาคารนี้ {z} โซน × {c} ตัว ที่ {v} ม./วินาที เที่ยวละหนึ่งชั้น ผู้มีข้อจำกัดในการเคลื่อนไหวใช้ลิฟต์ก่อน',
+   stairs:'จำนวนบันได',width:'ความกว้างสุทธิของบันได',widthNote:'ความกว้างประสิทธิผล = ความกว้างสุทธิ − 2 × {boundary} {lengthUnit} (ชั้นขอบตาม SFPE): {we} {lengthUnit}',
+   tread:'ลูกตั้ง / ลูกนอน',treadNote:'ประเภทบันไดตาม SFPE: ค่าคงที่ความเร็ว k {k} {speedUnit} อัตราการไหลจำเพาะสูงสุด {f} คน/(s·{lengthUnit}) ความกว้างประสิทธิผล ระยะเดิน {c} เท่าของความสูงเป็นสมมติฐานของสถานการณ์ ยังไม่ยืนยันแหล่งที่มา',
+   strategy:'กลยุทธ์การอพยพ',liftShare:'สัดส่วนผู้ใช้ลิฟต์อพยพ',liftNote:'เป็นค่าที่ป้อนเอง ไม่ใช่ค่าตามมาตรฐาน ใช้กลุ่มลิฟต์ของอาคารนี้ {z} โซน × {c} ตัว ที่ {v} ม./วินาที เที่ยวละหนึ่งชั้น สมมติให้ชั้นสูงลงก่อนโดยใช้รถที่ว่างก่อน ผู้มีข้อจำกัดในการเคลื่อนไหวใช้ลิฟต์ก่อน',
    refuge:'ชั้นหลบภัย',fire:'ชั้นที่เกิดเพลิงไหม้',fireOut:'ชั้น {f}',pre:'เวลาก่อนเริ่มเคลื่อนที่',preNote:'เป็นค่าที่ป้อนเอง ผู้ใช้อาคารเริ่มเคลื่อนที่ระหว่าง 0.5 ถึง 1.5 เท่าของเวลานี้ แล้วเดินไปยังบันไดที่ 1.19 ม./วินาที ให้ใช้ค่าจาก PD 7974-6 หรือวิศวกรป้องกันอัคคีภัย',
-   prm:'ผู้มีข้อจำกัดในการเคลื่อนไหว',prmSpeed:'ความเร็วบนบันไดของกลุ่มนี้',prmNote:'รอให้คิวของชั้นตนเองหมดก่อน แล้วจึงลงด้วยความเร็วของตนเอง ราว 0.3 ม./วินาที ค่าการลงบันไดที่มีรายงานของผู้มีข้อจำกัดในการเคลื่อนไหวอยู่ราว 0.31–0.33 ม./วินาที (การศึกษาของ NIST รายงาน 0.31 ± 0.16 ม./วินาที; Boyce, Shields & Silcock 1999) ควรตรวจสอบสำหรับโครงการจริง'},
+   prm:'ผู้มีข้อจำกัดในการเคลื่อนไหว',prmSpeed:'ความเร็วบนบันไดของกลุ่มนี้',prmNote:'รอให้คิวของชั้นตนเองหมดก่อน แล้วจึงลงด้วยความเร็วของตนเอง ราว {about} {speedUnit} ค่าการลงบันไดที่มีรายงานของผู้มีข้อจำกัดในการเคลื่อนไหวอยู่ราว {lo}–{hi} {speedUnit} (การศึกษาของ NIST รายงาน {mean} ± {sd} {speedUnit}; Boyce, Shields & Silcock 1999) ควรตรวจสอบสำหรับโครงการจริง'},
   strat:{simultaneous:'พร้อมกัน',phased:'ทยอยเป็นระยะ',lifts:'ใช้ลิฟต์ร่วม'},
   stratNote:{simultaneous:'ส่งสัญญาณทุกชั้นพร้อมกัน',phased:'ชั้นที่เกิดเพลิงไหม้และชั้นที่อยู่ติดกันด้านบนและด้านล่างออกก่อน ชั้นอื่นได้รับสัญญาณเมื่อทุกคนจากชั้นเหล่านั้นเข้าบันไดแล้ว',lifts:'ทุกชั้นพร้อมกัน โดยผู้ใช้อาคารส่วนหนึ่งใช้ลิฟต์ (แนวคิดตาม IBC 2021 ข้อ 3008)'},
   ref:{off:'ปิด',hk:'ฮ่องกง · ≤25 ชั้น',gb:'GB · ≤50 ม.'},
-  refNote:{off:'ไม่มีชั้นหลบภัย ทุกคนลงถึงระดับทางออก',hk:'HK Code of Practice for Fire Safety in Buildings 2011 ข้อ B18: อาคารสูงเกิน 25 ชั้น ต้องมีชั้นหลบภัยทุก ๆ ไม่เกิน 25 ชั้น (20 ชั้นสำหรับประเภทการใช้ 6) พื้นที่หลบภัยสุทธิไม่น้อยกว่า 50% ของพื้นที่รวมของชั้นนั้น',gb:'GB 50016-2014 ข้อ 5.5.23: อาคารสาธารณะสูงเกิน 100 ม. ชั้นหลบภัยแรกสูงไม่เกิน 50 ม. และชั้นถัดไปควรห่างกันไม่เกิน 50 ม.',snap:'วางบนชั้นหลบภัยและชั้นงานระบบของอาคารนี้เมื่ออยู่ในระยะที่กำหนด หากไม่มีจะเปลี่ยนชั้นสำนักงานหนึ่งชั้น ความจุคิดจากครึ่งหนึ่งของพื้นที่ชั้นที่ 5 คน/ตร.ม.',notReq:'มาตรฐานที่เลือกไม่กำหนดให้มีที่ความสูงนี้'},
+  refNote:{off:'ไม่มีชั้นหลบภัย ทุกคนลงถึงระดับทางออก',hk:'HK Code of Practice for Fire Safety in Buildings 2011 ข้อ B18: อาคารสูงเกิน 25 ชั้น ต้องมีชั้นหลบภัยทุก ๆ ไม่เกิน 25 ชั้น (20 ชั้นสำหรับประเภทการใช้ 6) พื้นที่หลบภัยสุทธิไม่น้อยกว่า 50% ของพื้นที่รวมของชั้นนั้น',gb:'GB 50016-2014 ข้อ 5.5.23: อาคารสาธารณะสูงเกิน 100 ม. ชั้นหลบภัยแรกสูงไม่เกิน 50 ม. และชั้นถัดไปควรห่างกันไม่เกิน 50 ม.',snap:'วางบนชั้นหลบภัยและชั้นงานระบบของอาคารนี้เมื่ออยู่ในระยะที่กำหนด หากไม่มีจะเปลี่ยนชั้นสำนักงานหนึ่งชั้น ความจุเป็นสมมติฐานผสมของสถานการณ์: พื้นที่ 50% ตาม HK × 5 คน/ตร.ม. ตาม GB ไม่ใช่เกณฑ์ความจุจากมาตรฐานเดียว',notReq:'มาตรฐานที่เลือกไม่กำหนดให้มีที่ความสูงนี้'},
   u:{m:'ม.',mm:'มม.',s:'วินาที',min:'นาที',p:'คน',pmin:'คน/นาที',m2p:'ตร.ม./คน',pct:'%',ms:'ม./วินาที',h:'ชม.'},
   k:{pop:'จำนวนผู้ใช้อาคาร',total:'เวลาอพยพทั้งหมด แบบพร้อมกัน',pauls:'ค่าประมาณของ Pauls',bound:'ขอบเขตจากอัตราการไหล คำนวณด้วยมือ',phased:'แบบทยอย: ชั้นที่ได้รับสัญญาณ',phasedAll:'แบบทยอย: ทั้งอาคาร',safety:'ถึงชั้นหลบภัยหรือทางออก',queue:'คิวที่ยาวที่สุด',flow:'อัตราการไหลต่อบันได',refuge:'ความจุชั้นหลบภัย',lifts:'สัดส่วนผู้ใช้ลิฟต์',prm:'ผู้มีข้อจำกัดในการเคลื่อนไหวคนสุดท้าย'},
-  val:{pop:'{n} · {a} ตร.ม./คน · การออกแบบลิฟต์ {l}',queue:'{n} ที่ชั้น {f} · อีก {w} จึงหมด',flow:'{f} คน/นาที · W_e {we} ม.',refuge:'ชั้น {f}: {d} / {c} คน',over:'เกินความจุ',none:'—',liftsOff:'ไม่ใช้',lifts:'{p}% · ลิฟต์เที่ยวสุดท้ายถึงชั้นล่าง {t}',alarm:'ชั้น {a}–{b} · {t}',pauls:'{t} · p {p}/ม.',extra:'ต่อเส้นเกิน 15 ชั้น',bound:'{t} = ½ เวลาก่อนเคลื่อนที่ + N ÷ (n·W_e·F_s,max)',off:'ปิด',kind:{refuge:'ชั้นหลบภัย',mech:'ชั้นงานระบบ',converted:'ชั้นสำนักงานที่เปลี่ยนเป็นชั้นหลบภัย'}},
+  val:{pop:'{n} · {a} ตร.ม./คน · การออกแบบลิฟต์ {l}',queue:'{n} ที่ชั้น {f} · อีก {w} จึงหมด',flow:'{f} คน/นาที · W_e {we} ม.',refuge:'ชั้น {f}: {d} / {c} คน',over:'เกินความจุ',none:'—',liftsOff:'ไม่ใช้',lifts:'{p}% · ลิฟต์เที่ยวสุดท้ายถึงชั้นล่าง {t}',alarm:'ชั้น {a}–{b} · {t}',pauls:'{t} · p {p} คน/ม. (SI)',extra:'ต่อเส้นเกิน 15 ชั้น',bound:'{t} = ½ เวลาก่อนเคลื่อนที่ + N ÷ (n·W_e·F_s,max)',off:'ปิด',kind:{refuge:'ชั้นหลบภัย',mech:'ชั้นงานระบบ',converted:'ชั้นสำนักงานที่เปลี่ยนเป็นชั้นหลบภัย'}},
   canvas:{scale:'1 วินาทีบนจอ = {k} วินาทีจริง',dot:'1 จุด = {n} คน · จุดกลวง: ผู้มีข้อจำกัดในการเคลื่อนไหว',clear:'ชั้นที่ว่างแล้ว {c} / {n}',out:'ออกแล้ว {n}',held:'ในชั้นหลบภัย {n}',fire:'เพลิง',refuge:'หลบภัย',lift:'ลิฟต์',section:'รูปตัด · ความสูงตามมาตราส่วน ความกว้างพื้นไม่ตามมาตราส่วน'},
   status:{simultaneous:'พร้อมกัน: คนสุดท้ายถึง{target}ที่ {t}',phased:'ทยอย: ชั้นที่ได้รับสัญญาณออกหมดที่ {a} ทุกคนถึง{target}ที่ {t}',lifts:'ใช้ลิฟต์ร่วม: คนสุดท้ายถึง{target}ที่ {t}'},
   target:{exit:'ระดับทางออก',safety:'ชั้นหลบภัยหรือระดับทางออก'},
@@ -392,22 +427,22 @@ export const FIRE_TEXT={
   method:'บันไดแต่ละชุดแบ่งเป็นช่วงสั้น ๆ ความเร็ว S = k(1 − 0.266·D) อัตราการไหลจำเพาะ F_s = S·D บันไดที่แออัดจึงเคลื่อนช้าลงและให้คนผ่านได้น้อยลง แต่ละชั้นเข้าสู่บันไดที่ประตูของตนและแบ่งพื้นที่กันครึ่งหนึ่ง ชั้นหลบภัยรับคนออกจากบันไดจนเต็ม',
   m:{pre:'ก่อนเคลื่อนที่',p1:'ระยะที่ 1: หลบภัย',p1b:'ระยะที่ 1: ชั้นเพลิง',p2:'ระยะที่ 2: ทางออก',tail:'คนสุดท้าย: ช้า',tailLift:'ลิฟต์ยังทำงาน',times:'นาที : วินาที',total:'รวม',fire:'เพลิงไหม้ · ชั้น {f}',refuge:'หลบภัย {f} {h} คน',exit:'ระดับทางออก {f}',stair:'บันได {r}/{t} มม.',pitch:'มุม {a}°',flow:'เคลื่อนที่ลง',skip:'{n} ชั้น',storeys:'{n} ชั้น',people:'{n} คนในอาคาร',onStairs:'{n} คนบนบันได',prm:'{n} เคลื่อนที่ช้า',strategy:'วิธี: {s}',release:'ชั้นอื่นได้รับสัญญาณ',aria:'ภาพตัดแบบแผนผังของบันไดหนีไฟ มีการกำหนดชั้นหลบภัยและชั้นที่เกิดเพลิงไหม้ ผู้ใช้อาคารเคลื่อนที่ลงตามชั้นบันไดไปยังระดับทางออกด้านล่าง ข้าง ๆ คือเวลาอพยพทั้งหมดที่แบ่งตามสัดส่วนเป็นเวลาก่อนเริ่มเคลื่อนที่ ช่วงลงถึงชั้นหลบภัย ช่วงลงจากชั้นหลบภัยถึงทางออก และผู้มีข้อจำกัดในการเคลื่อนไหวคนสุดท้าย'},
   cannot:'สิ่งที่อ้างไม่ได้: นี่ไม่ใช่การประเมินทางวิศวกรรมป้องกันอัคคีภัยแบบอิงสมรรถนะ ไม่มีควัน สภาวะที่ทนได้ หรือการลุกลามของไฟ ไม่มีแบบจำลองพฤติกรรมมนุษย์นอกเหนือจากการไหลแบบไฮดรอลิก ไม่มีพนักงานดับเพลิงที่เดินสวนขึ้นมา สมมติว่าทางออกที่ระดับพื้นและชานพักไม่เป็นข้อจำกัด ใช้อัตราผู้ใช้อาคารเดียวกันทุกชั้นรวมถึงพื้นที่ค้าปลีก มาตรฐานท้องถิ่นและหน่วยงานผู้มีอำนาจเป็นผู้กำหนด',
-  src:'แหล่งอ้างอิง: SFPE Handbook of Fire Protection Engineering ฉบับที่ 5 (2016) Gwynne & Rosenbaum แบบจำลองไฮดรอลิก (ค่าคงที่ตามที่อ้างใน NIST TN 1722 และ PD 7974-6:2019 ภาคผนวก G) (ความเร็ว อัตราการไหลจำเพาะ ชั้นขอบ ประเภทบันได ตัวคูณระยะเดิน) · Pauls; Proulx, “Evacuation Timing”, SFPE Handbook, t = 0.68 + 0.081·p^0.73 ใช้กับอาคารไม่เกิน 15 ชั้น (NIST TN 1722 สมการ 31) · NFPA 101 · BS 9999:2017 ตาราง 1 · IBC 2021 ตาราง 1004.5 และข้อ 3008 · HK Code of Practice for Fire Safety in Buildings 2011 · GB 50016-2014 ข้อ 5.5.23 · Boyce, Shields & Silcock, Fire Technology 35 (1999) · CIBSE Guide D ทุกค่าควรตรวจสอบกับฉบับที่ใช้บังคับ'},
+  src:'แหล่งอ้างอิง: SFPE Handbook of Fire Protection Engineering ฉบับที่ 5 (2016) Gwynne & Rosenbaum แบบจำลองไฮดรอลิก (ค่าคงที่ตามที่อ้างใน NIST TN 1722 และ PD 7974-6:2019 ภาคผนวก G) (ความเร็ว อัตราการไหลจำเพาะ ชั้นขอบ ประเภทบันได) ตัวคูณระยะเดินเป็นสมมติฐานของสถานการณ์ที่ยังไม่ยืนยันแหล่งอ้างอิง · Pauls; Proulx, “Evacuation Timing”, SFPE Handbook, t = 0.68 + 0.081·p^0.73 ใช้กับอาคารไม่เกิน 15 ชั้น (NIST TN 1722 สมการ 31) · NFPA 101 · BS 9999:2017 ตาราง 1 · IBC 2021 ตาราง 1004.5 และข้อ 3008 · HK Code of Practice for Fire Safety in Buildings 2011 · GB 50016-2014 ข้อ 5.5.23 · Boyce, Shields & Silcock, Fire Technology 35 (1999) · CIBSE Guide D ทุกค่าควรตรวจสอบกับฉบับที่ใช้บังคับ'},
  zh:{title:'火灾疏散',
   lede:'所有人同时走楼梯撤离，或分阶段撤离：队伍在哪里形成，楼梯走得多快，最后一个人何时到达出口层。',
   ctl:{load:'人员密度',loadNote:'每人净面积。CIBSE Guide D 给出办公 10–12 平方米/人（电梯设计取 11）；BS 9999:2017 表 1 给出办公 6 平方米/人，属高密度情形；IBC 2021 表 1004.5 规定商务用途每人 150 平方英尺（总面积），约 13.9 平方米/人。',loadLift:'采用电梯设计的人数',
-   stairs:'楼梯数量',width:'楼梯净宽',widthNote:'有效宽度 = 净宽 − 2 × 0.15 米边界层（SFPE）：{we} 米。',
-   tread:'踏步高 / 踏步宽',treadNote:'SFPE 楼梯类型：速度常数 k {k} 米/秒，最大比流量 {f} 人/秒·米有效宽度，行走距离为层高的 {c} 倍。',
-   strategy:'疏散策略',liftShare:'使用疏散电梯的比例',liftNote:'这是输入值，不是规范值。采用本塔楼自身的电梯分组：{z} 个分区 × {c} 台，速度 {v} 米/秒，每趟服务一层。行动不便者优先乘梯。',
+   stairs:'楼梯数量',width:'楼梯净宽',widthNote:'有效宽度 = 净宽 − 2 × {boundary} {lengthUnit} 边界层（SFPE）：{we} {lengthUnit}。',
+   tread:'踏步高 / 踏步宽',treadNote:'SFPE 楼梯类型：速度常数 k {k} {speedUnit}，最大比流量 {f} 人/(s·{lengthUnit}) 有效宽度，行走距离取层高的 {c} 倍，为情景假设，来源尚待核实。',
+   strategy:'疏散策略',liftShare:'使用疏散电梯的比例',liftNote:'这是输入值，不是规范值。采用本塔楼自身的电梯分组：{z} 个分区 × {c} 台，速度 {v} 米/秒，每趟服务一层；假定先服务高层，由最先空闲的轿厢执行下一趟。行动不便者优先乘梯。',
    refuge:'避难层',fire:'起火层',fireOut:'第 {f} 层',pre:'疏散准备时间',preNote:'这是输入值。人员在此时间的 0.5 至 1.5 倍之间开始行动，再以 1.19 米/秒走到楼梯。应按 PD 7974-6 或消防工程师的意见取值。',
-   prm:'行动不便者比例',prmSpeed:'其楼梯速度',prmNote:'他们等本层队伍走完后，再以自己的速度下楼。约 0.3 米/秒：已报道的行动不便者下楼速度约为 0.31–0.33 米/秒（NIST 楼梯疏散研究报告 0.31 ± 0.16 米/秒；Boyce, Shields & Silcock 1999），实际项目须核实。'},
+   prm:'行动不便者比例',prmSpeed:'其楼梯速度',prmNote:'他们等本层队伍走完后，再以自己的速度下楼。约 {about} {speedUnit}：已报道的行动不便者下楼速度约为 {lo}–{hi} {speedUnit}（NIST 楼梯疏散研究报告 {mean} ± {sd} {speedUnit}；Boyce, Shields & Silcock 1999），实际项目须核实。'},
   strat:{simultaneous:'同时疏散',phased:'分阶段疏散',lifts:'结合电梯'},
   stratNote:{simultaneous:'所有楼层同时报警。',phased:'起火层及其上下相邻楼层先撤离；这些楼层的人员全部进入楼梯后，其余楼层再报警。',lifts:'所有楼层同时撤离，部分人员乘电梯（IBC 2021 第 3008 节的概念）。'},
   ref:{off:'关',hk:'香港 · ≤25 层',gb:'国标 · ≤50 米'},
-  refNote:{off:'不设避难层：所有人下到出口层。',hk:'香港《建筑物消防安全守则》2011 第 B18 条：超过 25 层的建筑，每隔不超过 25 层设一个避难层（第 6 类用途为 20 层）；避难净面积不少于该层总楼面面积的 50%。',gb:'GB 50016-2014 第 5.5.23 条：建筑高度超过 100 米的公共建筑，第一个避难层距地面不大于 50 米，两个避难层之间不宜大于 50 米。',snap:'在限值范围内优先落在本塔楼的避难层和设备层上；否则将一个办公层改为避难层。容量按楼板面积的 50%、每平方米 5 人计。',notReq:'在此高度下，所选规范不要求设置。'},
+  refNote:{off:'不设避难层：所有人下到出口层。',hk:'香港《建筑物消防安全守则》2011 第 B18 条：超过 25 层的建筑，每隔不超过 25 层设一个避难层（第 6 类用途为 20 层）；避难净面积不少于该层总楼面面积的 50%。',gb:'GB 50016-2014 第 5.5.23 条：建筑高度超过 100 米的公共建筑，第一个避难层距地面不大于 50 米，两个避难层之间不宜大于 50 米。',snap:'在限值范围内优先落在本塔楼的避难层和设备层上；否则将一个办公层改为避难层。容量为组合情景假设：香港的 50% 楼板面积 × GB 的每平方米 5 人，并非单一规范的容量规则。',notReq:'在此高度下，所选规范不要求设置。'},
   u:{m:'米',mm:'毫米',s:'秒',min:'分',p:'人',pmin:'人/分',m2p:'平方米/人',pct:'%',ms:'米/秒',h:'小时'},
   k:{pop:'总人数',total:'同时疏散总时间',pauls:'Pauls 近似值',bound:'流量下限（手算）',phased:'分阶段：报警楼层',phasedAll:'分阶段：整栋建筑',safety:'到达避难层或出口',queue:'最长队伍',flow:'每部楼梯的流量',refuge:'避难层容量',lifts:'使用电梯的比例',prm:'最后一位行动不便者'},
-  val:{pop:'{n} · {a} 平方米/人 · 电梯设计 {l}',queue:'第 {f} 层 {n} 人 · {w} 后清空',flow:'{f} 人/分 · W_e {we} 米',refuge:'第 {f} 层：{d} / {c} 人',over:'超出容量',none:'—',liftsOff:'未使用',lifts:'{p}% · 最后一趟电梯 {t} 到达',alarm:'第 {a}–{b} 层 · {t}',pauls:'{t} · p {p}/米',extra:'超过 15 层为外推',bound:'{t} = ½ 准备时间 + N ÷ (n·W_e·F_s,max)',off:'关',kind:{refuge:'避难层',mech:'设备层',converted:'改作避难层的办公层'}},
+  val:{pop:'{n} · {a} 平方米/人 · 电梯设计 {l}',queue:'第 {f} 层 {n} 人 · {w} 后清空',flow:'{f} 人/分 · W_e {we} 米',refuge:'第 {f} 层：{d} / {c} 人',over:'超出容量',none:'—',liftsOff:'未使用',lifts:'{p}% · 最后一趟电梯 {t} 到达',alarm:'第 {a}–{b} 层 · {t}',pauls:'{t} · p {p} 人/米 (SI)',extra:'超过 15 层为外推',bound:'{t} = ½ 准备时间 + N ÷ (n·W_e·F_s,max)',off:'关',kind:{refuge:'避难层',mech:'设备层',converted:'改作避难层的办公层'}},
   canvas:{scale:'屏幕 1 秒 = 实际 {k} 秒',dot:'1 点 = {n} 人 · 空心：行动不便者',clear:'已清空楼层 {c} / {n}',out:'已撤出 {n}',held:'避难层内 {n}',fire:'起火',refuge:'避难',lift:'电梯',section:'剖面 · 高度按比例，楼板宽度不按比例'},
   status:{simultaneous:'同时疏散：最后一人在 {t} 到达{target}。',phased:'分阶段：报警楼层在 {a} 撤空；所有人在 {t} 到达{target}。',lifts:'结合电梯：最后一人在 {t} 到达{target}。'},
   target:{exit:'出口层',safety:'避难层或出口层'},
@@ -417,7 +452,7 @@ export const FIRE_TEXT={
   method:'每部楼梯分成一串短单元：速度 S = k(1 − 0.266·D)，比流量 F_s = S·D，楼梯越拥挤走得越慢、通过的人越少。各楼层从本层的门进入，容纳不下时各占一半。避难层把人从楼梯上接走，直到住满为止。',
   m:{pre:'疏散准备',p1:'第一阶段: 避难层',p1b:'第一阶段: 起火层',p2:'第二阶段: 出口层',tail:'最后: 行动不便',tailLift:'电梯仍在运行',times:'分 : 秒',total:'合计',fire:'起火 · 第 {f} 层',refuge:'避难层 {f} · {h} 人',exit:'出口层 {f}',stair:'踏步高/宽 {r}/{t} 毫米',pitch:'坡度 {a}°',flow:'人员向下移动',skip:'{n} 层',storeys:'{n} 层',people:'楼内 {n} 人',onStairs:'楼梯上 {n} 人',prm:'{n} 人行动不便',strategy:'方式：{s}',release:'其余楼层开始疏散',aria:'疏散楼梯剖面示意。标出避难层与起火层，人员沿梯段下行至底部出口层。旁边按比例划分总疏散时间：疏散准备、下行至避难层、从避难层下行至出口层，以及最后一位行动不便者。'},
   cannot:'不能据此断言：这不是性能化消防评估。没有烟气、可承受条件或火灾发展；除水力流动外没有人员行为模型；没有逆向上楼的消防员；假定首层出口和楼梯平台不构成限制。所有楼层（包括零售层）采用同一人员密度。以当地规范和主管部门为准。',
-  src:'来源：SFPE Handbook of Fire Protection Engineering 第 5 版（2016），Gwynne & Rosenbaum，水力模型（常数据 NIST TN 1722 与 PD 7974-6:2019 附录 G 转引）（速度、比流量、边界层、楼梯类型、行走距离系数）· Pauls；Proulx，“Evacuation Timing”，SFPE Handbook，t = 0.68 + 0.081·p^0.73，适用于不超过 15 层的建筑（NIST TN 1722 式 31）· NFPA 101 · BS 9999:2017 表 1 · IBC 2021 表 1004.5 及第 3008 节 · 香港《建筑物消防安全守则》2011 · GB 50016-2014 第 5.5.23 条 · Boyce, Shields & Silcock，Fire Technology 35（1999）· CIBSE Guide D。各数值须对照现行版本核实。'}
+  src:'来源：SFPE Handbook of Fire Protection Engineering 第 5 版（2016），Gwynne & Rosenbaum，水力模型（常数据 NIST TN 1722 与 PD 7974-6:2019 附录 G 转引）（速度、比流量、边界层、楼梯类型）；行走距离倍数为来源待核实的情景假设· Pauls；Proulx，“Evacuation Timing”，SFPE Handbook，t = 0.68 + 0.081·p^0.73，适用于不超过 15 层的建筑（NIST TN 1722 式 31）· NFPA 101 · BS 9999:2017 表 1 · IBC 2021 表 1004.5 及第 3008 节 · 香港《建筑物消防安全守则》2011 · GB 50016-2014 第 5.5.23 条 · Boyce, Shields & Silcock，Fire Technology 35（1999）· CIBSE Guide D。各数值须对照现行版本核实。'}
 };
 
 /* ── DOM ──────────────────────────────────────────────────────────────── */
@@ -437,6 +472,23 @@ export function fmtTime(sec,u={min:'min',s:'s',h:'h'}){
  return m>0?m+' '+u.min+' '+String(s).padStart(2,'0')+' '+u.s:s+' '+u.s;
 }
 const clock=sec=>{const t=Math.max(0,Math.round(sec)),h=Math.floor(t/3600),m=Math.floor(t/60)%60,s=t%60;return (h?h+':'+String(m).padStart(2,'0'):String(m))+':'+String(s).padStart(2,'0')};
+
+/* These mixed expressions contain dimensionless multipliers, uncertainty and
+   inverse length. Convert each physical quantity once, before composing text;
+   the generic prose converter must not reinterpret their finished strings. */
+export function fireReferenceText(r,lang='en'){
+ const c=FIRE_TEXT[lang]||FIRE_TEXT.en;
+ const n=(v,d=2)=>v.toLocaleString(loc(lang),{minimumFractionDigits:d,maximumFractionDigits:d});
+ const lengthUnit=getPreferences().units==='imperial'?unitLabel('m'):c.u.m;
+ const speedUnit=getPreferences().units==='imperial'?unitLabel('m/s'):c.u.ms;
+ const speed=v=>n(toDisplay(v,'m/s'));
+ return{
+  width:fill(c.ctl.widthNote,{boundary:n(toDisplay(BOUNDARY,'m')),we:n(toDisplay(r.We,'m')),lengthUnit}),
+  tread:fill(c.ctl.treadNote,{k:speed(r.k),f:n(r.fsMax/toDisplay(1,'m')),c:n(r.conv),speedUnit,lengthUnit}),
+  prm:fill(c.ctl.prmNote,{about:speed(.3),lo:speed(.31),hi:speed(.33),mean:speed(.31),sd:speed(.16),speedUnit}),
+  pauls:fill(c.val.pauls,{t:fmtTime(r.pauls,c.u),p:n(r.paulsP,0)})+(r.paulsExtrapolated?' · '+c.val.extra:'')
+ };
+}
 
 function build(host,lang){
  const c=FIRE_TEXT[lang]||FIRE_TEXT.en;
@@ -478,12 +530,13 @@ function build(host,lang){
  const chartT=el('h3','fe-sub',c.chart.title),chart=el('canvas','fe-canvas fe-chart'),chartN=el('p','fe-hint');chart.setAttribute('role','img');
  const methodFig=el('figure','fe-method');
  const method=el('figcaption','fe-prose',c.method),cannot=el('p','fe-prose fe-limits',c.cannot),src=el('p','fe-src',c.src);
- methodFig.append(method);
+ const methodBox=el('div','fe-methodsvg');methodFig.append(methodBox,method);
+ const methodViewer=mountDrawingViewer({figure:methodFig,source:methodBox,lang,onOpen:()=>{const running=!!raf;stop();return running?loop:null}});
  root.append(head,hero,status,lede,ctls,verdict,dl,chartT,chart,chartN,methodFig,cannot,src);
  host.append(root);
  const ro=typeof ResizeObserver==='function'?new ResizeObserver(()=>{size();drawChart();if(!raf)drawStatic()}):null;
  if(ro){ro.observe(hero);ro.observe(chart)}
- ui={host,lang,c,hero,chart,chartN,status,load,stairs,width,tread,strat,lift,refuge,fire,pre,prm,prmV,rows,verdict,ro,occ:[],font:'12px monospace',fontL:'15px monospace',key:'',methodFig,method};
+ ui={host,lang,c,hero,chart,chartN,status,load,stairs,width,tread,strat,lift,refuge,fire,pre,prm,prmV,rows,verdict,ro,occ:[],font:'12px monospace',fontL:'15px monospace',key:'',methodFig,method,methodBox,methodViewer};
  try{const f=getComputedStyle(host).getPropertyValue('--mono').trim();if(f){ui.font='12px '+f;ui.fontL='15px '+f}}catch{}
  size();
 }
@@ -503,16 +556,17 @@ function refresh(force){
  if(!force&&key===ui.key&&ui.r)return;
  let r;try{r=fireRead(state,ctl,metrics)}catch{return}
  ui.r=r;ui.key=key;
+ const referenceText=fireReferenceText(r,ui.lang);
  const T=(sec)=>fmtTime(sec,u);
  ui.occ=r.levels.filter(l=>l.i>0&&l.occ).map(l=>l.i);
  // controls
  ui.load.inp.value=toDisplay(r.c.apP,'m²/person');ui.load.out.textContent=shown(fmt(r.c.apP,1)+' '+u.m2p);
  for(const [v,b]of ui.stairs.bs)b.setAttribute('aria-pressed',String(r.c.stairs===v));ui.stairs.out.textContent=shown(String(r.c.stairs));
  ui.width.inp.value=toDisplay(r.c.width,'m');ui.width.out.textContent=shown(fmt(r.c.width,2)+' '+u.m);
- ui.width.note.textContent=shown(fill(c.ctl.widthNote,{we:fmt(r.We,2)}));
+ ui.width.note.textContent=referenceText.width;
  for(const [v,b]of ui.tread.bs)b.setAttribute('aria-pressed',String(r.c.tread===v));
  ui.tread.out.textContent=shown(r.riser+'/'+r.treadMM+' '+u.mm);
- ui.tread.note.textContent=shown(fill(c.ctl.treadNote,{k:fmt(r.k,2),f:fmt(r.fsMax,2),c:fmt(r.conv,2)}));
+ ui.tread.note.textContent=referenceText.tread;
  for(const [v,b]of ui.strat.bs)b.setAttribute('aria-pressed',String(r.c.strategy===v));
  ui.strat.out.textContent=shown(c.strat[r.c.strategy]);ui.strat.note.textContent=shown(c.stratNote[r.c.strategy]);
  const ld=(()=>{try{return liftDesign(state,metrics?.rentable??0)}catch{return {zones:1,carsPerZone:1,carSpeed:CORE_METHOD.carSpeed}}})();
@@ -527,12 +581,13 @@ function refresh(force){
  ui.fire.out.textContent=shown(fill(c.ctl.fireOut,{f:r.fire??'—'}));
  ui.pre.inp.value=r.c.pre;ui.pre.out.textContent=shown(T(r.c.pre));
  ui.prm.inp.value=r.c.prmShare*100;ui.prm.out.textContent=shown(fmt(r.c.prmShare*100,1)+u.pct);
+ ui.prmV.note.textContent=referenceText.prm;
  ui.prmV.inp.value=toDisplay(r.c.prmSpeed,'m/s');ui.prmV.out.textContent=shown(fmt(r.c.prmSpeed,2)+' '+u.ms);
  // readouts
  const R=ui.rows,v=c.val;
  R.pop.textContent=shown(fill(v.pop,{n:fmt(r.pop),a:fmt(r.c.apP,1),l:fmt(r.liftPop)}));
  R.total.textContent=shown(T(r.simTotal));
- R.pauls.textContent=shown(fill(v.pauls,{t:T(r.pauls),p:fmt(r.paulsP)})+(r.paulsExtrapolated?' · '+v.extra:''));
+ R.pauls.textContent=referenceText.pauls;
  R.bound.textContent=shown(fill(v.bound,{t:T(r.bound)}));
  const a0=r.alarm[0],a1=r.alarm[r.alarm.length-1];
  R.phased.textContent=shown(r.alarm.length?fill(v.alarm,{a:a0,b:a1,t:T(r.phasedAlarm)}):v.none);
@@ -561,7 +616,7 @@ function refresh(force){
  // the method, drawn: the same read, drawn rather than described
  try{
   const node=svgElement(fireMethodSVG(r,{lang:ui.lang}));
-  ui.methodFig.replaceChildren(...(node?[node]:[]),ui.method);
+  ui.methodBox.replaceChildren(...(node?[node]:[]));ui.methodViewer.setAvailable(!!node);
  }catch{}
  // animation: restart the clock from zero on any change
  const run=r.chosen,pop=Math.max(1,r.stairPop);
@@ -664,9 +719,16 @@ function drawHero(t){
  if(run.prmDots.length){x.strokeStyle=INK;for(const p of run.prmDots){if(p.count<=0)continue;let y;const yT=yOf(lv[p.i].z),yE=yOf(lv[p.j].z);
   if(t<p.start)y=yT-3;else if(t<p.end)y=yT+(yE-yT)*(t-p.start)/Math.max(1,p.end-p.start);else continue;
   const X=t<p.start?coreL-6:coreL+2;x.strokeRect(Math.round(X)+0.5,Math.round(t<p.start?y-5:y)-1.5,3,3)}}
- // lift cars, one per zone, on the computed round trip
- if(run.lifts)run.lifts.zs.forEach((z,q)=>{const X0=coreL+ns*(sw+gap)+q*(lw+2);x.strokeStyle=DIM;x.strokeRect(X0+0.5,yOf(r.height)+0.5,lw-1,bot-yOf(r.height));
-  if(t<r.c.pre||t>z.time||!(z.users>0))return;const ph=((t-r.c.pre)%z.rtt)/z.rtt,f=ph<0.5?ph*2:2-ph*2,y=bot-f*z.h*zpx;x.fillStyle=INK;x.fillRect(X0+1,Math.round(y)-4,lw-2,4)});
+ // Scheduled cars share a schematic zone shaft horizontally; elevations
+ // and timing read the actual floor-specific jobs, including idle periods.
+ if(run.lifts){
+  run.lifts.zs.forEach((z,q)=>{const X0=coreL+ns*(sw+gap)+q*(lw+2);x.strokeStyle=DIM;x.strokeRect(X0+0.5,yOf(r.height)+0.5,lw-1,bot-yOf(r.height))});
+  for(const car of evacuationCarsAt(run.lifts,t)){
+   const X0=coreL+ns*(sw+gap)+car.zone*(lw+2),offset=car.car%3*.5;
+   x.fillStyle=car.phase==='idle'?DIM:INK;
+   x.fillRect(X0+1+offset,Math.round(yOf(car.z))-4,Math.max(1,lw-2-offset),4);
+  }
+ }
  // fire label
  x.font=ui.font;x.textAlign='left';
  x.fillStyle=INK;for(const i of sinks.keys())x.fillText(c.canvas.refuge,4,yOf(lv[i].z)-7);

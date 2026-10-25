@@ -1,0 +1,9 @@
+/* The overview stays in its sheet. Only the requested enlargement scrolls;
+   its width is derived from the smallest annotation at 16 CSS pixels. */
+.drawing-open{margin-top:6px}
+.drawing-dialog{width:fit-content;max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);padding:12px;overflow:hidden}
+.drawing-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.drawing-head h2{margin:0}
+.drawing-hint{margin:0;max-width:32em}
+.drawing-scroll{overflow:auto;max-width:calc(100vw - 50px);max-height:calc(100dvh - 150px);margin-top:8px;border:1px solid var(--line)}
+.drawing-dialog .drawing-scroll svg{display:block;max-width:none;height:auto;background:var(--paper)}

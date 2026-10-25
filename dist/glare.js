@@ -1,3 +1,4 @@
+import {mountDrawingViewer} from './drawing-viewer.js?v=89fa2f4dac';
 /* Glare lab — reflected sunlight from the curtain wall, followed to the ground.
 
    What it computes, and only this:
@@ -297,7 +298,7 @@ export const GLARE_TEXT={
    law1:'r = d − 2(d·n)n',
    law2:'ρ(θ)=ρn+(1−ρn)·w(θ)',
    law3:'Eₕ = DNI · Σ(ρc), c=−r_z'},
-  enlarge:'Enlarge drawing',drawing:'Reflection method',closeDrawing:'Close',panDrawing:'Scroll across the drawing to read the annotations.',sourcesHead:'Sources',sourceDNI:'NASA POWER · DNI definition',sourcePAN:'City of London · Solar Glare (2017)',
+  drawing:'Reflection method',sourcesHead:'Sources',sourceDNI:'NASA POWER · DNI definition',sourcePAN:'City of London · Solar Glare (2017)',
   sources:'City of London, Planning Advice Note: Solar Glare, July 2017 (with P. Littlefair) · BRE IP 3/87, Solar dazzle reflected from sloping glazed facades · Mayor of London, The London Plan 2021, Policy D9 · 20 Fenchurch Street: National Geographic, 4 Sep 2013 · Vdara: NBC News and ENR, 2010 · Disney Hall: Playbill, 2004; Texas Tech Architecture Library archive · Sun: SunCalc 2.1.0 · DNI reference 0.8 kW/m², as elsewhere in FormHypes · Neighbours © OpenStreetMap contributors, ODbL',
   compass:['N','NE','E','SE','S','SW','W','NW'],
   cityNames:{tokyo:'Tokyo',bangkok:'Bangkok',kl:'Kuala Lumpur',jakarta:'Jakarta',hcmc:'Ho Chi Minh City',shenzhen:'Shenzhen'},
@@ -347,7 +348,7 @@ export const GLARE_TEXT={
    law1:'สะท้อน: r = d − 2(d·n)n',
    law2:'การสะท้อนแสง: ρ(θ)=ρn+(1−ρn)·w(θ)',
    law3:'พื้น: Eₕ = DNI · Σ(ρc), c=−r_z'},
-  enlarge:'ขยายภาพแบบ',drawing:'วิธีคำนวณการสะท้อน',closeDrawing:'ปิด',panDrawing:'เลื่อนภาพในแนวนอนเพื่ออ่านคำอธิบาย',sourcesHead:'แหล่งอ้างอิง',sourceDNI:'NASA POWER · นิยาม DNI',sourcePAN:'City of London · Solar Glare (2017)',
+  drawing:'วิธีคำนวณการสะท้อน',sourcesHead:'แหล่งอ้างอิง',sourceDNI:'NASA POWER · นิยาม DNI',sourcePAN:'City of London · Solar Glare (2017)',
   sources:'City of London, Planning Advice Note: Solar Glare, กรกฎาคม 2017 (ร่วมกับ P. Littlefair) · BRE IP 3/87, Solar dazzle reflected from sloping glazed facades · Mayor of London, The London Plan 2021, นโยบาย D9 · 20 Fenchurch Street: National Geographic, 4 ก.ย. 2013 · Vdara: NBC News และ ENR, 2010 · Disney Hall: Playbill, 2004; คลังเอกสาร Texas Tech Architecture Library · ดวงอาทิตย์: SunCalc 2.1.0 · ค่าอ้างอิง DNI 0.8 kW/m² เช่นเดียวกับส่วนอื่นของ FormHypes · อาคารข้างเคียง © OpenStreetMap contributors, ODbL',
   compass:['เหนือ','ตะวันออกเฉียงเหนือ','ตะวันออก','ตะวันออกเฉียงใต้','ใต้','ตะวันตกเฉียงใต้','ตะวันตก','ตะวันตกเฉียงเหนือ'],
   cityNames:{tokyo:'โตเกียว',bangkok:'กรุงเทพฯ',kl:'กัวลาลัมเปอร์',jakarta:'จาการ์ตา',hcmc:'นครโฮจิมินห์',shenzhen:'เซินเจิ้น'},
@@ -397,7 +398,7 @@ export const GLARE_TEXT={
    law1:'反射: r = d − 2(d·n)n',
    law2:'反射率: ρ(θ)=ρn+(1−ρn)·w(θ)',
    law3:'地面: Eₕ = DNI · Σ(ρc), c=−r_z'},
-  enlarge:'放大图纸',drawing:'反射计算方法',closeDrawing:'关闭',panDrawing:'横向滚动图纸以阅读标注。',sourcesHead:'资料来源',sourceDNI:'NASA POWER · DNI定义',sourcePAN:'City of London · Solar Glare (2017)',
+  drawing:'反射计算方法',sourcesHead:'资料来源',sourceDNI:'NASA POWER · DNI定义',sourcePAN:'City of London · Solar Glare (2017)',
   sources:'City of London, Planning Advice Note: Solar Glare，2017 年 7 月（与 P. Littlefair 合作）· BRE IP 3/87, Solar dazzle reflected from sloping glazed facades · Mayor of London, The London Plan 2021，D9 政策 · 20 Fenchurch Street：National Geographic，2013 年 9 月 4 日 · Vdara：NBC News 与 ENR，2010 · 迪士尼音乐厅：Playbill，2004；Texas Tech Architecture Library 档案 · 太阳位置：SunCalc 2.1.0 · DNI 参考值 0.8 kW/m²，与 FormHypes 其他部分一致 · 相邻建筑 © OpenStreetMap contributors，ODbL',
   compass:['北','东北','东','东南','南','西南','西','西北'],
   cityNames:{tokyo:'东京',bangkok:'曼谷',kl:'吉隆坡',jakarta:'雅加达',hcmc:'胡志明市',shenzhen:'深圳'},
@@ -562,12 +563,8 @@ export function glareMethodSVG(p,{lang='en'}={}){
  return sheet(g,MW,MH,M.aria);
 }
 
-// Keep the overview in place; the enlarged copy uses the same measured SVG.
-export function openGlareDrawing(source,dialog,scroll){
- const svg=source.querySelector('svg');if(!svg)return false;
- scroll.replaceChildren(svg.cloneNode(true));dialog.showModal();
- scroll.scrollLeft=0;scroll.scrollTop=0;scroll.focus();return true;
-}
+// Preserve the public helper used by the radiometry guards.
+export {openDrawing as openGlareDrawing} from './drawing-viewer.js?v=89fa2f4dac';
 
 /* ── the lab ────────────────────────────────────────────────────────────── */
 const MAT_RHO={'float':.08,'low-e':.13,'reflective':.30,'pv':.08};
@@ -640,16 +637,10 @@ function build(host){
     it explained the reflection and the summation; the sheet is what those
     words mean. */
  const methodFig=node('figure','gl-method'),methodBox=node('div','gl-methodsvg');
- const enlarge=node('button','gl-enlarge',t.enlarge);enlarge.type='button';enlarge.disabled=true;
- const dialog=node('dialog','gl-drawing-dialog');dialog.setAttribute('aria-label',t.drawing);
- const dialogHead=node('div','gl-drawing-head'),close=node('button','',t.closeDrawing);close.type='button';close.onclick=()=>dialog.close();
- dialogHead.append(node('h2','',t.drawing),close);
- const drawingScroll=node('div','gl-drawing-scroll');drawingScroll.tabIndex=0;drawingScroll.setAttribute('aria-label',t.panDrawing);
- dialog.append(dialogHead,node('p','gl-hint',t.panDrawing),drawingScroll);
- enlarge.onclick=()=>{if(openGlareDrawing(methodBox,dialog,drawingScroll)){L.playing=false;syncTransport()}};
- methodFig.append(methodBox,node('figcaption','gl-cap',t.m1),enlarge);
- root.append(fig,legend,zoom,tr,ctl,verdict,dl,barsBox,yearBox,methodFig,prose,dialog);host.append(root);
- L.els={zoomBtns,root,plan,sec,secCap,play,scrub,clock,city,date,quickBtns,rho,rhoV,matP,frit,fritV,lean,leanV,leanOn,leanModel,barsList,verdict,dd,yearBtn,yearOut,methodBox,enlarge};
+ methodFig.append(methodBox,node('figcaption','gl-cap',t.m1));
+ const methodViewer=mountDrawingViewer({figure:methodFig,source:methodBox,lang:L.lang,title:t.drawing,onOpen:()=>{L.playing=false;syncTransport()}});
+ root.append(fig,legend,zoom,tr,ctl,verdict,dl,barsBox,yearBox,methodFig,prose);host.append(root);
+ L.els={zoomBtns,root,plan,sec,secCap,play,scrub,clock,city,date,quickBtns,rho,rhoV,matP,frit,fritV,lean,leanV,leanOn,leanModel,barsList,verdict,dd,yearBtn,yearOut,methodBox,methodViewer};
  // events
  play.onclick=()=>{L.playing=!L.playing;syncTransport();loop()};
  scrub.oninput=()=>{L.playing=false;setFrame(+scrub.value);syncTransport();loop()};
@@ -701,8 +692,8 @@ function recompute(){
      down with it. */
   try{
    const pay=glareMethodPayload(L.result);
-   L.els.methodBox.innerHTML=pay?glareMethodSVG(pay,{lang:L.lang}):'';L.els.enlarge.disabled=!pay;
-  }catch{L.els.methodBox.innerHTML='';L.els.enlarge.disabled=true}
+   L.els.methodBox.innerHTML=pay?glareMethodSVG(pay,{lang:L.lang}):'';L.els.methodViewer.setAvailable(!!pay);
+  }catch{L.els.methodBox.innerHTML='';L.els.methodViewer.setAvailable(false)}
   readouts();bars();syncTransport();setFrame(L.frame);
   L.els.yearOut.textContent=shown('');L.els.yearBtn.disabled=false;
  }catch(err){if(L.els)L.els.verdict.textContent=shown('—')}

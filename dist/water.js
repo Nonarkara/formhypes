@@ -1,3 +1,4 @@
+import {mountDrawingViewer} from './drawing-viewer.js?v=89fa2f4dac';
 /* ── the water lab ─────────────────────────────────────────────────────────
    Two questions an owner asks of a tall building in a wet city, answered on the
    model's own level stack rather than on a typical floor.
@@ -245,6 +246,16 @@ export function drainageDesign(s,input={}){
  return{inp,roof,wall,catchment,Q,cap,need,design,n,auto:inp.n==null,capacity,excess,
   pondRate,pond,pondKPa:pond*M.g/1000,facade,Qf,
   detention:(Q+Qf)*inp.dur*60/1000,H,waste:servicesDesign(s)};
+}
+
+/* Zero discharge from the below-grade tank; roof excess drains through the
+   same stacks after the rain stops. Every cubic metre occupies one place. */
+export function drainageAt(r,minutes){
+ const elapsed=Math.max(0,num(minutes,0)),rainSeconds=Math.min(elapsed,r.inp.dur)*60;
+ const afterSeconds=Math.max(0,elapsed-r.inp.dur)*60;
+ const inflow=(r.Q+r.Qf)*rainSeconds/1000;
+ const roofVolume=Math.max(0,r.excess*rainSeconds-r.capacity*afterSeconds)/1000;
+ return{inflow,roofVolume,collected:inflow-roofVolume,depth:roofVolume*1000/r.roof};
 }
 
 /* The best strategy for THIS tower: the least pumping energy among those that
@@ -615,9 +626,10 @@ function build(host,lang){
  const methodFig=el('figure','wat-method');
  const methodBox=el('div','wat-methodsvg');
  methodFig.append(methodBox,el('figcaption','wat-methodcap',T.m1));
+ const methodViewer=mountDrawingViewer({figure:methodFig,source:methodBox,lang:S.lang,onOpen:()=>{const running=!!S.raf;if(S.raf)cancelAnimationFrame(S.raf);S.raf=0;return running?loop:null}});
  root.append(canvas,bar,time.node,storm.node,sup,dr,read,rec,methodFig,note,cannot,assumes,src);
  host.append(root);
- S.ui={root,canvas,view,strat,play,stratName,time,storm,sup,dr,sc,dc,useSeg,modeSeg,dnSeg,popIn,read,rec,note,cannot,assumes,src,methodFig,methodBox,rows:{},T};
+ S.ui={root,canvas,view,strat,play,stratName,time,storm,sup,dr,sc,dc,useSeg,modeSeg,dnSeg,popIn,read,rec,note,cannot,assumes,src,methodFig,methodBox,methodViewer,rows:{},T};
  if(S.ro)S.ro.disconnect();
  if(typeof ResizeObserver==='function'){S.ro=new ResizeObserver(()=>{size();if(S.active||reduced())draw()});S.ro.observe(canvas)}
  S.mono=(getComputedStyle(host).getPropertyValue('--mono')||'').trim()||'monospace';
@@ -691,7 +703,7 @@ function update(){
   }
   u.cannot.textContent=shown(T.cannot);u.assumes.textContent=shown(T.assumes);
   /* the method sheet, drawn from the SAME design the numbers above came from */
-  try{const pay=waterMethodPayload(S.d);u.methodBox.innerHTML=pay?waterMethodSVG(pay,{lang:S.lang}):''}catch{u.methodBox.innerHTML=''}
+  try{const pay=waterMethodPayload(S.d);u.methodBox.innerHTML=pay?waterMethodSVG(pay,{lang:S.lang}):'';u.methodViewer.setAvailable(!!pay)}catch{u.methodBox.innerHTML='';u.methodViewer.setAvailable(false)}
   u.canvas.setAttribute('aria-label',T.aria+'. '+u.rec.textContent);
   loop();draw();
  }catch(e){/* never throw into the console */}
@@ -847,7 +859,7 @@ function drawDrain(ctx,W,Hc){
  const T=S.ui.T,c=S.ctl,r=S.r,phase=S.phase||0,motion=!reduced();
  const pad=10,top=24,bottom=Hc-22,lx0=pad+30,lx1=Math.round(W*0.42),rx0=lx1+28,rx1=W-pad;
  const zMin=-14,zMax=r.H+12,y=z=>bottom-(z-zMin)/(zMax-zMin)*(bottom-top);
- const prog=Math.min(1,c.tm/r.inp.dur),raining=c.tm<=r.inp.dur;
+ const volumes=drainageAt(r,c.tm),raining=c.tm<=r.inp.dur,draining=raining||volumes.roofVolume>0;
  // rain over the tower, slanted by the wind onto the windward (left) face
  const drops=Math.min(220,Math.round(r.inp.i*0.8)),hash=k=>((Math.sin(k*127.1)*43758.5453)%1+1)%1;
  ctx.strokeStyle=C.dim;ctx.lineWidth=1;
@@ -869,7 +881,7 @@ function drawDrain(ctx,W,Hc){
  const n=Math.min(r.n,12),gap=Math.min(12,(lx1-lx0-40)/Math.max(1,n));
  for(let j=0;j<n;j++){const x=lx0+(lx1-lx0)*0.3+j*gap;
   line(ctx,x,y(r.H),x,y(-3),C.faint,2);
-  if(raining)line(ctx,x,y(r.H),x,y(-3),C.water,full?2.5:1.5,full?[]:[3,5],motion?-(phase*40*(0.4+load))%8:0);
+  if(draining)line(ctx,x,y(r.H),x,y(-3),C.water,full?2.5:1.5,full?[]:[3,5],motion?-(phase*40*(0.4+load))%8:0);
  }
  text(ctx,T.cRW+' ×'+r.n,lx0+(lx1-lx0)*0.3-4,y(r.H)-6,C.text);
  // wastewater, with velocity breakers on a tall stack
@@ -879,12 +891,12 @@ function drawDrain(ctx,W,Hc){
  text(ctx,T.cWW,wx,y(r.H)-6,C.dim,'center');
  // detention below grade, filling across the storm
  const dy=y(-4),dh=Math.max(12,y(-13)-dy);
- tank(ctx,lx0+4,dy,lx1-lx0-8,dh,prog);
+ tank(ctx,lx0+4,dy,lx1-lx0-8,dh,r.detention>0?volumes.collected/r.detention:0);
  // the roof, enlarged: what the stacks cannot take stands here
  const by0=top,by1=top+Math.round((bottom-top)*0.46),slab=by1-14,parH=Math.min(60,by1-by0-30);
  text(ctx,T.cDetail+' · '+Math.round(r.roof)+' m²',rx0,by0-8,C.dim);
  line(ctx,rx0,slab,rx1,slab,C.dim,3);line(ctx,rx0+1,slab,rx0+1,slab-parH,C.dim,2);line(ctx,rx1-1,slab,rx1-1,slab-parH,C.dim,2);
- const depth=r.pondRate*Math.min(c.tm,r.inp.dur),dpx=Math.min(parH-2,depth*0.35);
+ const depth=volumes.depth,dpx=Math.min(parH-2,depth*0.35);
  if(dpx>0.3){ctx.fillStyle=C.water;ctx.fillRect(rx0+2,slab-1.5-dpx,rx1-rx0-4,dpx)}
  if(raining)for(let k=0;k<Math.round(drops*0.4);k++){
   const sp=slab-by0-4,yy=by0+(hash(k+50)*sp+phase*200)%sp,xx=rx0+4+hash(k+77)*(rx1-rx0-8);
@@ -892,7 +904,7 @@ function drawDrain(ctx,W,Hc){
  }
  const no=Math.min(r.n,24);
  for(let j=0;j<no;j++){const x=rx0+(j+1)*(rx1-rx0)/(no+1);
-  line(ctx,x,slab+2,x,by1,C.faint,2);if(raining)line(ctx,x,slab+2,x,by1,C.water,1.5,[3,4],motion?-(phase*30)%7:0)}
+  line(ctx,x,slab+2,x,by1,C.faint,2);if(draining)line(ctx,x,slab+2,x,by1,C.water,1.5,[3,4],motion?-(phase*30)%7:0)}
  text(ctx,depth>0.05?T.cPond+' '+depth.toFixed(0)+' mm':T.cNoPond,rx0+6,Math.min(slab-parH+12,slab-dpx-6),depth>0.05?C.amber:C.text);
  // inflow against capacity
  const qy=by1+30,mx=Math.max(r.Q,r.capacity)*1.08||1,bw=v=>(rx1-rx0)*v/mx;
@@ -903,7 +915,7 @@ function drawDrain(ctx,W,Hc){
  ctx.strokeStyle=C.dim;ctx.lineWidth=1;ctx.strokeRect(rx0+0.5,qy+35.5,bw(r.capacity)-1,7);
  text(ctx,T.cFacade+' ≤ '+r.Qf.toFixed(0)+' L/s',rx0,qy+66,C.dim);
  text(ctx,T.cWW+' '+r.waste.stacks+'×DN'+r.waste.stackMM+(wb?' · '+wb+' '+T.cBrk:''),rx0,qy+86,C.dim);
- text(ctx,T.cDetention+' '+Math.round(r.detention*prog)+' / '+Math.round(r.detention)+' m³',rx0,qy+106,C.dim);
+ text(ctx,T.cDetention+' '+Math.round(volumes.collected)+' / '+Math.round(r.detention)+' m³',rx0,qy+106,C.dim);
  text(ctx,Math.round(Math.min(c.tm,r.inp.dur))+' / '+r.inp.dur+' min · '+r.inp.i+' mm/h',rx0,bottom,C.text);
 }
 

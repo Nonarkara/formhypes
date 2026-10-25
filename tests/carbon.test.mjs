@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {defaults,families} from '../dist/model.js';
@@ -26,11 +27,11 @@ test('cement replacement lowers concrete carbon monotonically, for every class',
 test('carbon arithmetic: tonnes × factor, plus A4 and A5 waste, by hand',()=>{
  const kg={grav_conc:1e6,grav_rebar:0,grav_steel:0,lat_conc:0,lat_rebar:0,lat_steel:0};
  const a=account(kg,{...base,ggbs:25,concrete:'C32/40'});
- const a13=1e6*0.120,a4=1e6*CONCRETE_KM*0.10749e-3,a5=WASTE.concrete*(a13+a4);
+ const a13=1e6*0.120,a4=1e6*CONCRETE_KM*0.10749e-3,a5=WASTE.concrete*(a13+a4+1e6*(0.005+0.013));
  near(a.a13,a13,1e-6);near(a.a4,a4,1e-6);near(a.a5,a5,1e-6);near(a.total,a13+a4+a5,1e-6);
  near(a13,120000,1e-6);                  // 1,000 t of C32/40 at 25% GGBS = 120 tCO2e A1–A3
  const s=account({grav_conc:0,grav_rebar:0,grav_steel:1000,lat_conc:0,lat_rebar:0,lat_steel:0},{...base,steelEAF:100,km:0});
- near(s.total,1000*0.567*(1+WASTE.steel),1e-9);
+ near(s.total,1000*0.567*(1+WASTE.steel)+1000*WASTE.steel*(0.005+0.013),1e-9);
  near(account(kg,{...base,rates:{conc:200}}).cost,1e6/RHO_C*200,1e-6);
 });
 
@@ -378,4 +379,43 @@ test('the drawing\'s own words are translated, in all three languages',()=>{
         assert.doesNotMatch(v.replace(/\{[^}]*\}/g,''),/[A-Za-z]{4,}/,`zh m.${k} contains a Latin word`);
       }else assert.ok(!CJK.test(v),`${l}.m.${k} contains CJK`);
     }
+});
+
+
+test('A5w includes waste haul and processing from IStructE Eq.2.3 even when inbound transport is zero',()=>{
+ const a=account({grav_conc:1000,lat_rebar:1000,lat_steel:1000},{concrete:'C25/30',ggbs:25,km:0});
+ near(a.a5Parts.outbound,(53+53+10)*0.005);
+ near(a.a5Parts.processing,(53+53+10)*0.013);
+ near(a.a5,Object.values(a.a5Parts).reduce((n,v)=>n+v,0));
+ near(a.total,a.a13+a.a4+a.a5);
+ const r=drawing('column-grid',40);
+ for(const lang of ['en','th','zh']){
+  const text=flatText(carbonMethodSVG({h:r.r.here,tower:r.r.hereTw,system:r.r.system,options:base},{lang}));
+  assert.ok(text.includes('0.005')&&text.includes('0.013'),lang+': waste assumptions not exposed');
+ }
+});
+
+
+test('Thai transport labels the same gram factor as the other scripts',()=>{
+ const r=drawing('column-grid',40);
+ const text=flatText(carbonMethodSVG({h:r.r.here,tower:r.r.hereTw,system:r.r.system,options:base},{lang:'th'}));
+ assert.ok(text.includes('0.107')&&text.includes('กรัมCO₂e/กก./กม.'));
+ assert.ok(!text.includes('0.107 กก.CO₂e/กก./กม.'));
+});
+
+
+test('source carbon factors retain explicit SI dimensions in imperial drawings',async()=>{
+ const ref=readFileSync(new URL('../dist/carbon.js',import.meta.url),'utf8').match(/from ['"](.\/preferences.js[^'"]*)['"]/)[1];
+ const pref=await import(new URL('../dist/'+ref.replace('./',''),import.meta.url));
+ try{
+  pref.setPreferences({units:'imperial'});
+  const r=drawing('column-grid',40);
+  for(const lang of ['en','th','zh']){
+   const text=flatText(carbonMethodSVG({h:r.r.here,tower:r.r.hereTw,system:r.r.system,options:base},{lang}));
+   assert.ok(text.includes('0.005')&&text.includes('0.013'));
+   assert.ok(text.includes('(SI)'));
+   assert.ok(text.includes(CARBON_TEXT[lang].m.transport.split('{f}')[1].trim()),lang);
+   assert.ok(text.includes(CARBON_TEXT[lang].m.waste.split('{process}')[1].trim()),lang);
+  }
+ }finally{pref.resetPreferences()}
 });

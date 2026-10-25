@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {defaults,families,stackHeight} from '../dist/model.js';
+import {defaults,families,stackHeight,profile} from '../dist/model.js';
 import {leastWidth,structureRead,STRUCT_TEXT,DIAGRID_OPTIMUM} from '../dist/structure.js';
 
 const near=(a,b,e=1e-6)=>assert.ok(Math.abs(a-b)<=e,`${a} != ${b}`);
@@ -35,4 +35,15 @@ test('structure text has the same keys in all three languages',()=>{
  const keys=o=>Object.entries(o).flatMap(([k,v])=>typeof v==='object'?keys(v).map(x=>k+'.'+x):[k]).sort();
  assert.deepEqual(keys(STRUCT_TEXT.th),keys(STRUCT_TEXT.en));
  assert.deepEqual(keys(STRUCT_TEXT.zh),keys(STRUCT_TEXT.en));
+});
+
+
+test('structure vortex speed uses roof width and labels unsupported Strouhal values as assumptions',()=>{
+ const s={...defaults,family:'box',span:40,aspect:1,taper:0.5,twist:0};
+ const r=structureRead(s);
+ near(r.bV,leastWidth(profile(s,1)));near(r.bV,20);
+ near(r.st,.12);near(r.vCrit,20*46/r.H/.12);assert.equal(r.stBasis,'tabulated');
+ for(const family of ['cross','star','rub','pinwheel','triangle']){
+  const x=structureRead({...s,family});assert.equal(x.stBasis,'assumed');assert.equal(x.stTabulated,false);
+ }
 });

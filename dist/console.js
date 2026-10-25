@@ -2,12 +2,12 @@ import {toDisplay,fromDisplay,unitLabel,displayText} from './preferences.js?v=48
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
 import {profile,stack,grossOf} from './model.js?v=67662478b8';
-import {renderCarbonLab} from './carbon.js?v=5dc21a0b72';
-import {renderLiftsLab} from './lifts.js?v=1e66bf9393';
-import {renderFireLab} from './fire.js?v=728ed01faf';
-import {renderWindLab} from './wind.js?v=b3877d0604';
-import {renderWaterLab} from './water.js?v=aa60968459';
-import {renderGlareLab} from './glare.js?v=26dc5cbc30';
+import {renderCarbonLab} from './carbon.js?v=f81303fa83';
+import {renderLiftsLab} from './lifts.js?v=ad51b29c3a';
+import {renderFireLab} from './fire.js?v=2fe91fc6df';
+import {renderWindLab} from './wind.js?v=b4244c91aa';
+import {renderWaterLab} from './water.js?v=7fe945a8bd';
+import {renderGlareLab} from './glare.js?v=e488300d4d';
 import {renderFacade} from './facade.js?v=a6f7de2b5e';
 export const CONSOLE_TEXT={
  en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Lifts','Evacuation','Wind','Water','Glare','Carbon','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},

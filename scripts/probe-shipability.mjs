@@ -6,8 +6,22 @@ import {join,resolve} from 'node:path';
 import {runProbe} from './probe-process.mjs';
 const dir=await mkdtemp(join(tmpdir(),'shdt-contract-mutations-'));
 const cases=[
- ['enlargement removes the original method drawing','glare.js','scroll.replaceChildren(svg.cloneNode(true))','scroll.replaceChildren(svg)','enlarging the method preserves'],
- ['enlarged method viewer never opens','glare.js','dialog.showModal();','','enlarging the method preserves'],
+ ['fire boundary-layer count becomes a length','fire.js',"width:fill(c.ctl.widthNote,{boundary","width:fill(c.ctl.widthNote.replace('2 ×',toDisplay(2,'m').toFixed(1)+' ×'),{boundary",'rendered fire references preserve'],
+ ['fire specific flow scales as length instead of reciprocal width','fire.js',"r.fsMax/toDisplay(1,'m')","r.fsMax*toDisplay(1,'m')",'rendered fire references preserve'],
+ ['compound carbon source factor loses canonical-unit boundary','carbon.js','kgCO₂e/kg wasted (SI)','kgCO₂e/kg wasted','source carbon factors retain explicit SI dimensions'],
+ ['modal equivalent mass collapses to roof mass','wind.js','const mE=massWeighted/modeWeight;','const mE=SYSTEM_MASS[system]*1000*area(vortexSection)/storeyHeight;','Scruton equivalent mass follows'],
+ ['evacuation drawing ignores its actual destination floor','fire.js','const z=u<T?pos(u):down<0?d:down<T?d-pos(down):0;','const z=0;','evacuation drawing reads actual per-car'],
+ ['Thai transport changes grams into kilograms','carbon.js','ที่ {f} กรัมCO₂e/กก./กม.','ที่ {f} กก.CO₂e/กก./กม.','Thai transport labels the same gram factor'],
+ ['evacuation drops partial floor trips','fire.js','const count=Math.ceil(u/P-1e-9);','const count=u<P?0:Math.ceil(u/P-1e-9);','evacuation lift trips visit every floor'],
+ ['waiting formula extrapolates beyond its source','lifts.js','if(lf>0.8)return null;','/* scope limit removed */','Barney wait approximation has no value'],
+ ['tank fills with water still on the roof','water.js','roofVolume,collected:inflow-roofVolume','roofVolume,collected:inflow','storm animation conserves inflow'],
+ ['vortex speed uses force-reference width','wind.js','vCrit=bV*n1/st','vCrit=be*n1/st','tapered vortex reference follows'],
+ ['unsupported Strouhal values claim code provenance','structure.js',"stBasis:stTabulated?'tabulated':'assumed'","stBasis:'tabulated'",'structure vortex speed uses roof width'],
+ ['construction waste omits haul and processing','carbon.js','wf[mat]*(a13+a4)+outbound+processing','wf[mat]*(a13+a4)','A5w includes waste haul and processing'],
+ ['enlarged annotations shrink below readable scale','drawing-viewer.js','width*16/Math.min(...sizes)','width*4/Math.min(...sizes)','viewer scale keeps'],
+ ['closing a hidden drawing resumes its lab','drawing-viewer.js','source.isConnected&&source.getBoundingClientRect().width>0','source.isConnected','closing clears the copy'],
+ ['enlargement removes the original method drawing','drawing-viewer.js','scroll.replaceChildren(copy)','scroll.replaceChildren(svg)','enlarging the method preserves'],
+ ['enlarged method viewer never opens','drawing-viewer.js','dialog.showModal();','','enlarging the method preserves'],
  ['ground irradiance loses the receiver projection','glare.js','Math.max(0,-r[2]/length)','1','horizontal receiver conserves'],
  ['cached glare beams lose their direction','glare.js','rho:b.rho,r:b.r','rho:b.rho','cached frames and method contributions'],
  ['glare method uses beam-normal power','glare.js','W:GLARE_DNI*rho*cosGround','W:GLARE_DNI*rho','cached frames and method contributions'],
@@ -88,9 +102,9 @@ const cases=[
 // The files the mutants are written into. Everything else is symlinked, so a
 // mutation cannot leak into the working tree.
 const MUTABLE=['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js',
- 'console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js','feng.js','materials.js','glare.js'];
+ 'console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js','feng.js','materials.js','glare.js','drawing-viewer.js','fire.js','lifts.js','water.js','wind.js','structure.js','carbon.js'];
 const TESTS=['shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
- 'material-name.test.mjs','material-basis.test.mjs','glare-radiometry.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
+ 'fire-units.test.mjs','services-method-audit.test.mjs','wind.test.mjs','structure.test.mjs','carbon.test.mjs','material-name.test.mjs','material-basis.test.mjs','glare-radiometry.test.mjs','drawing-viewer.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
  'crown.test.mjs','chrome-fit.test.mjs','site-display-boundary.test.mjs','plot-fit.test.mjs','view-controls.test.mjs','feng.test.mjs'];
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));

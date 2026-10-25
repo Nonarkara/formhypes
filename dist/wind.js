@@ -1,3 +1,4 @@
+import {mountDrawingViewer} from './drawing-viewer.js?v=89fa2f4dac';
 /* Wind lab — the tower in a wind tunnel, computed rather than drawn.
 
    Every number on this sheet comes from the model's own form and a published
@@ -18,8 +19,8 @@
      as 1 (not computed).
    - Annex E, E.1.3.1 v_crit = b·n1/St, E.1.3.3 / Eq. E.4 Scruton number
      Sc = 2·δ_s·m_i,e/(ρ·b²), E.1.2(3) vortex effects need not be examined when
-     v_crit > 1.25·v_m. St from structure.js (Table E.1, interpolated families
-     labelled there).
+     v_crit > 1.25·v_m. St from structure.js (square from Fig. E.1; other families
+     are labelled assumptions).
    - Annex F, F.2 Eq. F.2 n1 = 46/h; Table F.1 mode exponent; Table F.2
      structural logarithmic decrement δ_s: reinforced-concrete buildings 0.10,
      mixed steel–concrete 0.08, steel 0.05; F.5 Eq. F.15 δ = δ_s + δ_a + δ_d,
@@ -27,8 +28,8 @@
    - Occupant comfort: ISO 10137:2007; ISO 6897; NatHaz (Kareem), 10-year
      return peak acceleration about 10–15 milli-g residential, 20–25 milli-g
      office. Quoted, never computed here. */
-import {profile,stackHeight,families,inside} from './model.js?v=67662478b8';
-import {structureRead,STRUCT_TEXT,STRUCTURE_BANDS} from './structure.js?v=b0e70550ec';
+import {profile,stackHeight,families,inside,area} from './model.js?v=67662478b8';
+import {structureRead,strouhalOf,STRUCT_TEXT,STRUCTURE_BANDS} from './structure.js?v=61ce37f11f';
 import {sheet,cut,beyond,leader as draftLeader,head,dim as draftDim,rule,txt as draftTxt,ground,flow,cl} from './drafting.js?v=5dc3f3c796';
 import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay} from './preferences.js?v=48652b12d9';
 let displayLang='en',displayKey='';
@@ -108,7 +109,7 @@ export function cfOf(family,dOverB=1,{normal=true,aspect=1}={}){
 
 export function defaultZeta(system){return (SYSTEM_DELTA[system]??0.10)/(2*Math.PI)}
 
-/* Vortex reading. r = v_m(z_e)/v_crit, which is also f_s/n1.
+/* Vortex reading. r = v_m(H)/v_crit, which is also f_s/n1.
    'clear'  : v_crit > 1.25·v_m (E.1.2(3)), r < 0.8
    'lockin' : r in [0.8, 1.25] — shedding at the tower's own frequency now
    'below'  : r > 1.25 — resonance happens at a lower, more frequent wind
@@ -127,23 +128,35 @@ export function windRead(s,o={},m){
  const sr=structureRead(s,m||{gross:0,core:0});
  const H=fin(stackHeight(s),1)||1,plan=t=>profile({...s,orientation:0},t);
  const normal=Math.abs(((dir%90)+90)%90)<5||Math.abs(((dir%90)+90)%90)>85;
- const dz=H/N_STRIPS;let F=0,M=0,cfSum=0;const strips=[];
+ const dz=H/N_STRIPS,mode=SYSTEM_MODE[system];
+ const massPerM2=SYSTEM_MASS[system]*1000,storeyHeight=Math.max(0.5,fin(s.height,4));
+ let F=0,M=0,cfSum=0,massWeighted=0,modeWeight=0;const strips=[];
  for(let i=0;i<N_STRIPS;i++){
-  const z=(i+0.5)*dz,{b,d}=projectedWidth(plan(z/H),dir);
+  const z=(i+0.5)*dz,poly=plan(z/H),{b,d}=projectedWidth(poly,dir);
   const c=cfOf(s.family,d/b,{normal,aspect:s.aspect}),q=qp(z,vb,terrain),f=c.cf*q*b*dz;
-  F+=f;M+=f*z;cfSum+=c.cf;strips.push({z,b,v:vm(z,vb,terrain),q});
+  F+=f;M+=f*z;cfSum+=c.cf;
+  // EN F.4 / Eq. F.14: mode-weighted equivalent mass, not roof-local mass.
+  // Integrate with the same midpoint strips and phi=(z/H)^mode as the drawing.
+  // Uniform floor mass and storey height remain explicit sketch assumptions.
+  const phi2=Math.pow(z/H,2*mode),massPerLength=massPerM2*area(poly)/storeyHeight;
+  massWeighted+=massPerLength*phi2*dz;modeWeight+=phi2*dz;
+  strips.push({z,b,v:vm(z,vb,terrain),q,massPerLength});
  }
  const ze=2*H/3,sec=plan(2/3),{b:be,d:de}=projectedWidth(sec,dir);
  const cfE=cfOf(s.family,de/be,{normal,aspect:s.aspect});
- const st=sr.st,n1=46/H,vE=vm(ze,vb,terrain),fs=st*vE/be,vCrit=be*n1/st,ratio=vE/vCrit;
- const area=Math.abs(sec.reduce((a,p,i)=>{const q=sec[(i+1)%sec.length];return a+p[0]*q[1]-q[0]*p[1]},0))/2;
- const massPerM2=SYSTEM_MASS[system]*1000,mE=massPerM2*area/Math.max(0.5,fin(s.height,4));
- const sc=2*delta*mE/(RHO*be*be);
+ // Keep the force reference z_e separate from vortex shedding. Annex E.1.3.1
+ // defines b at maximum modal deflection, at the roof for this first mode.
+ // https://www.phd.eng.br/wp-content/uploads/2015/12/en.1991.1.4.2005.pdf#page=117
+ const zV=H,vortexSection=plan(1),{b:bV}=projectedWidth(vortexSection,dir);
+ const {st,stBasis,stTabulated}=strouhalOf(s,{normal:Math.abs(Math.sin(dir*Math.PI/90))<1e-6});
+ const n1=46/H,vE=vm(ze,vb,terrain),vV=vm(zV,vb,terrain),fs=st*vV/bV,vCrit=bV*n1/st,ratio=vV/vCrit;
+ const mE=massWeighted/modeWeight;
+ const sc=2*delta*mE/(RHO*bV*bV);
  const state=vortexState(ratio);
  return {H,vb,terrain,dir,zeta,delta,deltaS:SYSTEM_DELTA[system],tmd:!!o.tmd,
   vTop:vm(H,vb,terrain),qTop:qp(H,vb,terrain),shear:F/1e6,moment:M/1e6,cfMean:cfSum/N_STRIPS,
-  cfE:cfE.cf,cfBasis:cfE.basis,ze,bE:be,dE:de,section:sec,vE,fs,n1,st,stTabulated:sr.stTabulated,vCrit,ratio,state,
-  mE,sc,scBand:scBand(sc),lambda:sr.lambda,band:sr.band,mode:SYSTEM_MODE[system],strips};
+  cfE:cfE.cf,cfBasis:cfE.basis,ze,bE:be,dE:de,section:sec,vE,zV,bV,vV,vortexSection,fs,n1,st,stBasis,stTabulated,vCrit,ratio,state,
+  mE,sc,scBand:scBand(sc),lambda:sr.lambda,band:sr.band,mode,strips};
 }
 
 /* Every plan family at this tower's span, height and wind, sorted by base shear. */
@@ -169,8 +182,8 @@ export const WIND_TEXT={
   k:{vTop:'Mean wind at the top',qTop:'Peak pressure at the top',shear:'Along-wind base shear',moment:'Overturning moment',ratio:'Shedding ÷ sway frequency',vcrit:'Lock-in wind speed v_crit',sc:'Scruton number',damping:'Damping',lambda:'Slenderness',cf:'Force coefficient c_f at z_e'},
   basis:{tabulated:'tabulated',interpolated:'interpolated',assumed:'assumed'},
   sc:{low:'low — vortex response can be large',mid:'moderate',high:'high — vortex response is suppressed'},
-  scNote:'Reading bands are indicative, not code limits. Floor mass {m} t/m² assumed.',
-  plan:'Plan at z_e = 2H/3 · {z} m',wind:'wind',time:'1 s on screen = {k} s real',freq:'f_s {fs} Hz · n1 {n1} Hz',
+  scNote:'Reading bands are indicative, not code limits. Floor mass {m} t/m² and uniform storey height assumed; m_e = ∫mφ²dz / ∫φ²dz, φ = (z/H)^{p} (EN F.4).',
+  plan:'Roof plan · vortex reference H = {z} m',wind:'wind',time:'1 s on screen = {k} s real',freq:'f_s {fs} Hz · n1 {n1} Hz',
   status:{clear:'Outside lock-in band: v_crit is above 1.25 × v_m',lockin:'Lock-in: shedding at the tower’s own frequency',below:'Lock-in at a lower wind, {v} m/s'},
   elev:'Elevation · true proportion 1:{l}',exag:'Sway exaggerated, relative, not a deflection',vLab:'v_m(z)',qLab:'q_p(z)',ze:'z_e',
   compare:'Every plan at this height and wind',compareNote:'Base shear, lowest first, with the lock-in wind. Change the plan in the Form tab.',
@@ -186,7 +199,7 @@ export const WIND_TEXT={
   mode:'first mode, exaggerated',ghost:'undeflected',
   period:'n1 {n} {u}',tsec:'T {t} {u}',damp:'ζ {z} % · δ {d}',cf:'c_f {c} at z_e',
   z0:'z0 {z} {u}',vb:'v_b {v} {u}',vtop:'v_m {v} {u}',zmin:'z_min {z} {u}',ze:'z_e {z} {u}',
-  stiff:'stiff enough',sway:'swaying',ve:'v_m {v} {u}',vcrit:'v_crit {v} {u}',ratio:'r {r}',terrCat:'terrain',terr:'{t}',
+  stiff:'stiff enough',sway:'swaying',ve:'v_m(H) {v} {u}',vcrit:'v_crit {v} {u}',roof:'b(H) {b} {u} · St {basis}',ratio:'r {r}',terrCat:'terrain',terr:'{t}',
   band:{conventional:'conventional',slender:'slender',damped:'damped',super:'super-slender'}}},
  th:{title:'อุโมงค์ลม',
   lede:'อาคารในกระแสลมคงที่ โปรไฟล์ตามความสูง โหมดการโยกแรก และช่วงที่กระแสวนจะล็อกตัว',
@@ -197,8 +210,8 @@ export const WIND_TEXT={
   k:{vTop:'ความเร็วลมเฉลี่ยที่ยอดอาคาร',qTop:'แรงดันลมสูงสุดที่ยอดอาคาร',shear:'แรงเฉือนที่ฐานตามทิศลม',moment:'โมเมนต์พลิกคว่ำ',ratio:'ความถี่กระแสวน ÷ ความถี่การโยก',vcrit:'ความเร็วลมที่เกิดการล็อก v_crit',sc:'เลขสครูตัน',damping:'การหน่วง',lambda:'ความชะลูด',cf:'สัมประสิทธิ์แรง c_f ที่ z_e'},
   basis:{tabulated:'ค่าจากตาราง',interpolated:'ค่าประมาณช่วงกลาง',assumed:'ค่าสมมติ'},
   sc:{low:'ต่ำ การตอบสนองต่อกระแสวนอาจรุนแรง',mid:'ปานกลาง',high:'สูง การตอบสนองต่อกระแสวนถูกกดไว้'},
-  scNote:'ช่วงการอ่านค่าเป็นแนวทาง ไม่ใช่ขีดจำกัดตามมาตรฐาน สมมติมวลพื้น {m} ตัน/ตร.ม.',
-  plan:'ผังที่ z_e = 2H/3 · {z} ม.',wind:'ลม',time:'1 วินาทีบนจอ = {k} วินาทีจริง',freq:'f_s {fs} เฮิรตซ์ · n1 {n1} เฮิรตซ์',
+  scNote:'ช่วงการอ่านค่าเป็นแนวทาง ไม่ใช่ขีดจำกัดตามมาตรฐาน สมมติมวลพื้น {m} ตัน/ตร.ม. และความสูงชั้นคงที่; m_e = ∫mφ²dz / ∫φ²dz, φ = (z/H)^{p} (EN F.4)',
+  plan:'ผังยอดอาคาร · อ้างอิงกระแสวน H = {z} ม.',wind:'ลม',time:'1 วินาทีบนจอ = {k} วินาทีจริง',freq:'f_s {fs} เฮิรตซ์ · n1 {n1} เฮิรตซ์',
   status:{clear:'นอกช่วงล็อก: v_crit สูงกว่า 1.25 × v_m',lockin:'ล็อก: กระแสวนหลุดที่ความถี่ของอาคารเอง',below:'ล็อกที่ลมอ่อนกว่า {v} ม./วินาที'},
   elev:'รูปด้าน · สัดส่วนจริง 1:{l}',exag:'การโยกขยายเกินจริง เป็นค่าเปรียบเทียบ ไม่ใช่การแอ่นตัว',vLab:'v_m(z)',qLab:'q_p(z)',ze:'z_e',
   compare:'ผังทุกแบบที่ความสูงและลมนี้',compareNote:'แรงเฉือนที่ฐาน เรียงจากน้อยไปมาก พร้อมความเร็วลมที่เกิดการล็อก เปลี่ยนผังได้ที่แท็บรูปทรง',
@@ -214,7 +227,7 @@ export const WIND_TEXT={
   mode:'โหมดแรก ขยายเกินจริง',ghost:'ก่อนแอ่น',
   period:'n1 {n} {u}',tsec:'T {t} {u}',damp:'ζ {z} % · δ {d}',cf:'c_f {c} ที่ z_e',
   z0:'z0 {z} {u}',vb:'v_b {v} {u}',vtop:'v_m {v} {u}',zmin:'z_min {z} {u}',ze:'z_e {z} {u}',
-  stiff:'แข็งแรงพอ',sway:'โยกได้มาก',ve:'v_m {v} {u}',vcrit:'v_crit {v} {u}',ratio:'r {r}',terrCat:'ภูมิประเทศ',terr:'{t}',
+  stiff:'แข็งแรงพอ',sway:'โยกได้มาก',ve:'v_m(H) {v} {u}',vcrit:'v_crit {v} {u}',roof:'ยอด b(H) {b} {u} · St {basis}',ratio:'r {r}',terrCat:'ภูมิประเทศ',terr:'{t}',
   band:{conventional:'ทั่วไป',slender:'ชะลูด',damped:'ชะลูดมาก',super:'ชะลูดพิเศษ'}}},
  zh:{title:'风洞',
   lede:'稳定风中的塔楼：沿高度的廓线、第一阶振型，以及锁定的位置。',
@@ -225,8 +238,8 @@ export const WIND_TEXT={
   k:{vTop:'顶部平均风速',qTop:'顶部峰值风压',shear:'顺风向基底剪力',moment:'倾覆力矩',ratio:'脱落频率 ÷ 摆动频率',vcrit:'锁定风速 v_crit',sc:'斯克鲁顿数',damping:'阻尼',lambda:'高宽比',cf:'z_e 处体型系数 c_f'},
   basis:{tabulated:'查表值',interpolated:'插值',assumed:'假定值'},
   sc:{low:'低：涡激响应可能很大',mid:'中等',high:'高：涡激响应受到抑制'},
-  scNote:'分档仅供参考，不是规范限值。假定楼面质量 {m} 吨/平方米。',
-  plan:'z_e = 2H/3 处平面 · {z} 米',wind:'风',time:'屏幕 1 秒 = 实际 {k} 秒',freq:'f_s {fs} 赫兹 · n1 {n1} 赫兹',
+  scNote:'分档仅供参考，不是规范限值。假定楼面质量 {m} 吨/平方米、层高一致；m_e = ∫mφ²dz / ∫φ²dz，φ = (z/H)^{p}（EN F.4）。',
+  plan:'屋顶平面 · 涡激参考高度 H = {z} 米',wind:'风',time:'屏幕 1 秒 = 实际 {k} 秒',freq:'f_s {fs} 赫兹 · n1 {n1} 赫兹',
   status:{clear:'锁定区间外：v_crit 高于 1.25 × v_m',lockin:'锁定：旋涡以塔楼自身频率脱落',below:'在较低风速 {v} 米/秒 时锁定'},
   elev:'立面 · 真实比例 1:{l}',exag:'摆动经过放大，仅作相对比较，不是位移',vLab:'v_m(z)',qLab:'q_p(z)',ze:'z_e',
   compare:'同一高度与风况下的所有平面',compareNote:'基底剪力由小到大排列，并列出锁定风速。可在“形体”页更换平面。',
@@ -242,7 +255,7 @@ export const WIND_TEXT={
   mode:'第一振型，已放大',ghost:'未变形',
   period:'n1 {n} {u}',tsec:'T {t} {u}',damp:'ζ {z} % · δ {d}',cf:'z_e 处 c_f {c}',
   z0:'z0 {z} {u}',vb:'v_b {v} {u}',vtop:'v_m {v} {u}',zmin:'z_min {z} {u}',ze:'z_e {z} {u}',
-  stiff:'足够刚劲',sway:'容易摆动',ve:'v_m {v} {u}',vcrit:'v_crit {v} {u}',ratio:'r {r}',terrCat:'地形类别',terr:'{t}',
+  stiff:'足够刚劲',sway:'容易摆动',ve:'v_m(H) {v} {u}',vcrit:'v_crit {v} {u}',roof:'屋顶 b(H) {b} {u} · St {basis}',ratio:'r {r}',terrCat:'地形类别',terr:'{t}',
   band:{conventional:'常规',slender:'细长',damped:'很细长',super:'超细长'}}}
 };
 
@@ -266,7 +279,7 @@ export const WIND_TEXT={
 
    Every WORD on the sheet comes out of WIND_TEXT[lang]. There is no English
    left lying about on the Thai sheet or the Chinese one. */
-const MW=360,MH=322;
+const MW=360,MH=344;
 
 /* The payload is the lab's own reading and nothing else. If a quantity the
    sheet needs is not in it, the fix is to carry it here — never to invent it
@@ -278,7 +291,7 @@ export function windMethodPayload(r){
  if(strips.length<2)return null;
  return {H:r.H,lambda:r.lambda,band:r.band,n1:r.n1,zeta:r.zeta,delta:r.delta,mode:r.mode,
   cf:r.cfE,cfBasis:r.cfBasis,ze:r.ze,vb:r.vb,terrain:r.terrain,z0:t.z0,zmin:t.zmin,
-  vMin:vm(t.zmin,r.vb,r.terrain),vTop:r.vTop,vE:r.vE,vCrit:r.vCrit,ratio:r.ratio,state:r.state,
+  vMin:vm(t.zmin,r.vb,r.terrain),vTop:r.vTop,vE:r.vE,vV:r.vV,zV:r.zV,bV:r.bV,stBasis:r.stBasis,vCrit:r.vCrit,ratio:r.ratio,state:r.state,
   strips:strips.map(s=>({z:s.z,v:s.v,b:s.b}))};
 }
 
@@ -414,8 +427,9 @@ export function windMethodSVG(p,{lang='en'}={}){
     resolver moved one of them so far that it stopped reading as part of the
     lock-in panel at all. */
  g+=txt(LK0,278,c.cmp[p.state],{size:7.5});
- g+=txt(LK0,292,fill(M.ve,{v:f1(p.vE),u:U.ms}),{size:7.5});
+ g+=txt(LK0,292,fill(M.ve,{v:f1(p.vV),u:U.ms}),{size:7.5});
  g+=txt(LK0,306,fill(M.vcrit,{v:f1(p.vCrit),u:U.ms}),{size:7.5});
+ g+=txt(LK0,320,fill(M.roof,{b:f1(p.bV),u:U.m,basis:c.basis[p.stBasis]||c.basis.assumed}),{size:7.5});
 
  return sheet(g,MW,MH,M.aria);
 }
@@ -473,11 +487,12 @@ function build(host,lang){
  const methodFig=el('figure','wl-method');
  const methodBox=el('div','wl-methodsvg');
  methodFig.append(methodBox,el('figcaption','wl-methodcap',c.lede));
+ const methodViewer=mountDrawingViewer({figure:methodFig,source:methodBox,lang,onOpen:()=>{const running=!!raf;stop();return running?loop:null}});
  root.append(head,views,status,methodFig,ctls,verdict,dl,hint,cmpT,cmpN,cmp,comfort,cannot,src);
  host.append(root);
  const ro=typeof ResizeObserver==='function'?new ResizeObserver(()=>{size();if(!raf)drawStatic()}):null;
  if(ro){ro.observe(planC);ro.observe(elevC)}
- ui={host,lang,c,planC,elevC,status,vb,dir,damp,terrB,tmdB,rows,verdict,cmp,ro,font:'12px monospace',methodBox};
+ ui={host,lang,c,planC,elevC,status,vb,dir,damp,terrB,tmdB,rows,verdict,cmp,ro,font:'12px monospace',methodBox,methodViewer};
  try{const f=getComputedStyle(host).getPropertyValue('--mono').trim();if(f)ui.font='12px '+f}catch{}
  size();
 }
@@ -509,8 +524,8 @@ function refresh(geometryChanged){
  R.shear.textContent=shown(fmt(r.shear,1)+' '+c.u.mn);
  R.moment.textContent=shown(fmt(r.moment)+' '+c.u.mnm);
  R.ratio.textContent=shown(fmt(r.ratio,2)+' · '+fmt(r.fs,3)+' / '+fmt(r.n1,3)+' '+c.u.hz);
- R.vcrit.textContent=shown(fmt(r.vCrit,1)+' '+c.u.ms+' · v_m(z_e) '+fmt(r.vE,1)+' '+c.u.ms+(r.stTabulated?'':' · St '+c.basis.interpolated));
- R.sc.textContent=shown(fmt(r.sc,1)+' · '+c.sc[r.scBand]);R.sc.title=fill(c.scNote,{m:fmt(SYSTEM_MASS[system],1)});
+ R.vcrit.textContent=shown(fmt(r.vCrit,1)+' '+c.u.ms+' · v_m(H) '+fmt(r.vV,1)+' '+c.u.ms+' · St '+c.basis[r.stBasis]);
+ R.sc.textContent=shown(fmt(r.sc,1)+' · '+c.sc[r.scBand]);R.sc.title=fill(c.scNote,{m:fmt(SYSTEM_MASS[system],1),p:fmt(r.mode,1)});
  R.damping.textContent=shown('ζ '+fmt(r.zeta*100,1)+'% · δ '+fmt(r.delta,3)+(r.tmd?' · TMD':''));
  const sv=(STRUCT_TEXT[ui.lang]||STRUCT_TEXT.en).verdict[r.band];
  R.lambda.textContent=shown('1:'+fmt(r.lambda,1)+' · '+sv);
@@ -519,7 +534,7 @@ function refresh(geometryChanged){
  ui.verdict.classList.toggle('wl-flag',r.state!=='clear');
  const st=fill(c.status[r.state],{v:fmt(r.vCrit,1)});
  ui.status.textContent=shown(st);ui.status.classList.toggle('wl-flag',r.state!=='clear');
- ui.planC.setAttribute('aria-label',fill(c.plan,{z:fmt(r.ze)})+'. '+st);
+ ui.planC.setAttribute('aria-label',fill(c.plan,{z:fmt(r.zV)})+'. '+st);
  ui.elevC.setAttribute('aria-label',fill(c.elev,{l:fmt(r.lambda,1)}));
  // comparison
  let rows;try{rows=familyComparison(state,{...ctl,zeta})}catch{rows=[]}
@@ -539,10 +554,10 @@ function refresh(geometryChanged){
  else sim.r=r;
  /* The method sheet is drawn from the SAME reading the facts above are read
     from, so the drawing cannot show a number the lab does not report. */
- try{ui.methodBox.innerHTML=windMethodSVG(windMethodPayload(r),{lang:ui.lang});}catch{ui.methodBox.innerHTML=''}
+ try{ui.methodBox.innerHTML=windMethodSVG(windMethodPayload(r),{lang:ui.lang});ui.methodViewer.setAvailable(true)}catch{ui.methodBox.innerHTML='';ui.methodViewer.setAvailable(false)}
  if(!raf)drawStatic();
 }
-const keyOf=r=>r.section.length+':'+r.dir+':'+r.bE.toFixed(3)+':'+r.H.toFixed(2);
+const keyOf=r=>r.vortexSection.length+':'+r.dir+':'+r.bV.toFixed(3)+':'+r.H.toFixed(2);
 
 /* ── FLOW ─────────────────────────────────────────────────────────────────
    Potential flow round an equivalent cylinder of the projected width, plus
@@ -562,13 +577,13 @@ function velocity(x,y,U,R,vort){
 
 function geom(cv,r){
  const W=cv._w||cv.clientWidth||300,H=cv._h||cv.clientHeight||200;
- const Rc=Math.max(1,...r.section.map(([x,y])=>Math.hypot(x,y)));
+ const Rc=Math.max(1,...r.vortexSection.map(([x,y])=>Math.hypot(x,y)));
  const pxm=Math.min(W*0.12,H*0.26)/Rc,k=timeScale(pxm,W);
  return {W,H,pxm,k,cx:W*0.28,cy:H*0.5};
 }
 
 function step(dtScreen){
- const r=sim.r,cv=ui.planC,g=geom(cv,r),U=r.vE,R=r.bE/2,dt=dtScreen*g.k;
+ const r=sim.r,cv=ui.planC,g=geom(cv,r),U=r.vV,R=r.bV/2,dt=dtScreen*g.k;
  sim.tReal+=dt;
  // shedding: one vortex every half period, alternating flanks
  sim.phase+=r.fs*dt*2;
@@ -577,7 +592,7 @@ function step(dtScreen){
  const xmax=(g.W-g.cx)/g.pxm+R*2;
  for(const w of sim.vort){const [u,v]=velocity(w.x,w.y,U,R,[]);w.x+=Math.max(0.5*U,u*0.85)*dt;w.y+=v*0.3*dt;w.age+=dt}
  sim.vort=sim.vort.filter(w=>w.x<xmax).slice(-14);
- const sec=r.section.map(([x,y])=>rotXY(x,y,r.dir));
+ const sec=r.vortexSection.map(([x,y])=>rotXY(x,y,r.dir));
  if(!sim.particles){const n=Math.round(Math.min(520,Math.max(120,g.W*g.H/260)));sim.particles=Array.from({length:n},()=>spawn(g,true))}
  const ymax=g.H/2/g.pxm;
  for(const p of sim.particles){
@@ -599,7 +614,7 @@ function ctx2d(cv){const x=cv.getContext&&displayContext(cv.getContext('2d'),dis
 
 function drawPlan(g,sec,fade){
  const x=ctx2d(ui.planC);if(!x)return;const r=sim.r,c=ui.c,lock=r.state==='lockin';
- const sx=X=>g.cx+X*g.pxm,sy=Y=>g.cy-Y*g.pxm,R=r.bE/2;
+ const sx=X=>g.cx+X*g.pxm,sy=Y=>g.cy-Y*g.pxm,R=r.bV/2;
  x.fillStyle=fade?'rgba(17,20,22,0.22)':DARK;x.fillRect(0,0,g.W,g.H);
  x.lineWidth=1;
  for(const p of sim.particles){
@@ -619,7 +634,7 @@ function drawPlan(g,sec,fade){
  const band=16*(lines.length+1)+6;
  x.fillStyle=DARK;x.fillRect(0,0,g.W,22);x.fillRect(0,g.H-band,g.W,band);
  x.textBaseline='middle';x.fillStyle=DIM;
- x.fillText(fill(c.plan,{z:fmt(r.ze)})+' · '+c.wind+' →',8,12);
+ x.fillText(fill(c.plan,{z:fmt(r.zV)})+' · '+c.wind+' →',8,12);
  lines.forEach((t,i)=>x.fillText(t,8,g.H-band+11+16*i));
  x.fillStyle=r.state==='clear'?INK:ACC;
  x.fillText(fill(c.status[r.state],{v:fmt(r.vCrit,1)}),8,g.H-band+11+16*lines.length);

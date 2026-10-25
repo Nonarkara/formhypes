@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {defaults,families} from '../dist/model.js';
+import {defaults,families,profile} from '../dist/model.js';
 import {windMethodPayload,windMethodSVG,LOCK_BAND,TERRAIN,kr,cr,Iv,qp,vm,projectedWidth,cfOf,cf0Rect,vortexState,windRead,familyComparison,defaultZeta,timeScale,WIND_TEXT,TERRAIN_KEYS,renderWindLab} from '../dist/wind.js';
 
 const near=(a,b,e=1e-6)=>assert.ok(Math.abs(a-b)<=e,`${a} != ${b}`);
@@ -47,7 +47,7 @@ test('lock-in flag follows E.1.2(3): clear below 0.8, lock-in 0.8–1.25, below 
  assert.equal(vortexState(1.3),'below');assert.equal(vortexState(NaN),'clear');
  const r=windRead(defaults,{vb:30,terrain:'IV'});
  near(r.ratio,r.fs/r.n1,1e-9);                           // f_s/n1 = v_m/v_crit
- near(r.vCrit,r.bE*r.n1/r.st,1e-9);near(r.n1,46/r.H,1e-12);
+ near(r.vCrit,r.bV*r.n1/r.st,1e-9);near(r.n1,46/r.H,1e-12);
  // a slender box in a strong wind passes through lock-in; a squat one does not
  const slim={...defaults,family:'box',span:26,floors:90};
  let found=false;for(let vb=15;vb<=55;vb++)if(windRead(slim,{vb,terrain:'IV'}).state==='lockin')found=true;
@@ -247,5 +247,49 @@ test('clear wind status names the lock-in band rather than declaring safety',()=
   assert.equal(c.cmp.clear.toLowerCase(),expected[lang].toLowerCase());
   const svg=windMethodSVG(windMethodPayload(windRead(defaults,{vb:30,terrain:'IV'})),{lang});
   assert.ok(svg.includes(c.cmp.clear),'the drawn label must carry the same scoped claim');
+ }
+});
+
+
+test('tapered vortex reference follows maximum modal deflection at the roof, separately from force z_e',()=>{
+ const s={...defaults,family:'box',taper:0.5,twist:0,floors:60,span:40,aspect:1};
+ const r=windRead(s,{vb:30,dir:0});
+ near(r.bV,20);near(r.bE,40*2/3);near(r.zV,r.H);near(r.ze,2*r.H/3);
+ near(r.st,0.12);near(r.vCrit,20*(46/r.H)/0.12);near(r.fs,0.12*r.vTop/20);
+ near(r.ratio,r.vTop/r.vCrit);assert.deepEqual(r.vortexSection,profile({...s,orientation:0},1));
+ const text=said(windMethodSVG(windMethodPayload(r),{lang:'en'}));
+ assert.ok(text.includes('b(H) 20.0 m'),'method omits the width used for vortex speed');
+ assert.ok(text.includes('v_m(H) '+r.vTop.toFixed(1)+' m/s'),'method compares against the wrong-height wind');
+ assert.ok(text.includes(r.vCrit.toFixed(1)+' m/s'));
+});
+
+test('only a normal untwisted sharp square claims tabulated Strouhal provenance',()=>{
+ for(const family of ['cross','star','rub','pinwheel','triangle','octagon','oval']){
+  const r=windRead({...defaults,family});
+  assert.equal(r.stBasis,'assumed',family);assert.equal(r.stTabulated,false,family);
+  assert.ok(said(windMethodSVG(windMethodPayload(r),{lang:'en'})).includes('St assumed'),family);
+ }
+ const s={...defaults,family:'box',aspect:1,twist:0};
+ assert.equal(windRead(s,{dir:0}).stBasis,'tabulated');
+ assert.equal(windRead(s,{dir:45}).stBasis,'assumed');
+ assert.equal(windRead({...s,aspect:1.5}).stBasis,'assumed');
+ assert.equal(windRead({...s,twist:30}).stBasis,'assumed');
+});
+
+
+test('Scruton equivalent mass follows EN F.14 mode weighting for a tapered square',()=>{
+ const s={...defaults,family:'box',span:40,aspect:1,taper:0.5,twist:0,height:4,floors:60};
+ for(const system of ['column-grid','outrigger','diagrid']){
+  const r=windRead({...s,system});
+  const k=2*r.mode,a=0.5;
+  // Integral of (1-a*u)^2*u^k divided by integral u^k, u=z/H.
+  const weightedAreaFraction=1-2*a*(k+1)/(k+2)+a*a*(k+1)/(k+3);
+  const floorMass={ 'column-grid':1000,outrigger:900,diagrid:800 }[system];
+  const analytic=40*40*floorMass/4*weightedAreaFraction;
+  assert.ok(Math.abs(r.mE/analytic-1)<0.0005,`${system}: ${r.mE} vs ${analytic}`);
+  assert.ok(r.mE>40*40*floorMass/4*0.25,'roof-local mass must not replace modal mass');
+  near(r.sc,2*r.delta*r.mE/(1.25*20*20));
+  const uniform=windRead({...s,system,taper:1});
+  near(uniform.mE,40*40*floorMass/4,1e-6);
  }
 });

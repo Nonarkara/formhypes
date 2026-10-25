@@ -50,7 +50,7 @@ test('cached frames and method contributions retain the actual receiver directio
 });
 
 test('enlarging the method preserves the overview and opens its own vector copy',()=>{
- const copy={},svg={cloneNode:deep=>{assert.equal(deep,true);return copy}};
+ const copy={style:{}},svg={getAttribute:()=>null,querySelectorAll:()=>[],cloneNode:deep=>{assert.equal(deep,true);return copy}};
  let shown=0,focused=0,content;
  const source={querySelector:selector=>{assert.equal(selector,'svg');return svg}};
  const dialog={showModal:()=>shown++},scroll={scrollLeft:99,scrollTop:88,replaceChildren:x=>content=x,focus:()=>focused++};
