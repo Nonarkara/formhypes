@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {reflect,dot,groundHit,reflectance,facadeFacets,facetLean,glareStep,glareDay,sunAt,leanOffset,yearAdd,yearSummary,YEAR_DAYS,GLARE_TEXT,GLARE_DNI,renderGlareLab,glareMethodPayload,glareMethodSVG} from '../dist/glare.js';
+import {reflect,dot,groundHit,groundCosine,makeGrid,overlapAt,reflectance,facadeFacets,facetLean,glareStep,glareDay,sunAt,leanOffset,yearAdd,yearSummary,YEAR_DAYS,GLARE_TEXT,GLARE_DNI,renderGlareLab,glareMethodPayload,glareMethodSVG} from '../dist/glare.js';
 import {defaults,families} from '../dist/model.js';
 import {cities,solarPosition} from '../dist/solar.js';
 const near=(a,b,tol=1e-9,msg='')=>assert.ok(Math.abs(a-b)<=tol,`${msg} ${a} vs ${b}`);
@@ -41,7 +41,7 @@ test('a convex box never overlaps beams; a concave cross does',()=>{
  for(const date of ['2026-03-20','2026-06-21','2026-12-21']){const r=glareDay(box,{city:'bangkok',date,frames:false});assert.ok(r.maxOverlap<=1,date+' box overlap '+r.maxOverlap);assert.equal(r.focus,null)}
  const cross=glareDay({...defaults,family:'cross'},{city:'bangkok',date:'2026-06-21',frames:false});
  assert.ok(cross.maxOverlap>1,'cross overlap '+cross.maxOverlap);
- assert.ok(cross.focus&&cross.focus.count>1&&Math.abs(cross.focus.W-GLARE_DNI*cross.focus.rho)<1e-6);
+ assert.ok(cross.focus&&cross.focus.count>1&&Math.abs(cross.focus.W-GLARE_DNI*cross.focus.gain)<1e-6);
  assert.ok(cross.worst.W>=cross.focus.W,'peak is the brightest cell, overlapping or not');
  // A crown that leans outward (20 Fenchurch Street) focuses the box too.
  const lean=glareDay(box,{city:'bangkok',date:'2026-06-21',lean:15,frames:false});
@@ -203,11 +203,12 @@ test('the method sheet states the numbers the lab actually computed',()=>{
   assert.ok(has(pay.dist,0.6),`${name}: the distance ${pay.dist} is not on the sheet`);
   assert.ok(has(pay.cell,0),`${name}: the cell size is not on the sheet`);
   assert.ok(has(pay.dni,0),`${name}: the DNI is not on the sheet`);
-  assert.ok(has(pay.rhoSum,0.006),`${name}: the sum of rho is not on the sheet`);
+  assert.ok(has(pay.gainSum,0.006),`${name}: the projected reflectance sum is not on the sheet`);
   assert.ok(has(pay.main.theta,0.06),`${name}: the incidence angle is not on the sheet`);
   assert.ok(has(pay.sun.altitude,0.6),`${name}: the sun's altitude is not on the sheet`);
   for(const part of pay.parts){
    assert.ok(has(part.rho,0.006),`${name}: rho ${part.rho} is not on the sheet`);
+   assert.ok(has(part.cosGround,0.006),`${name}: ground cosine is not on the sheet`);
    assert.ok(has(part.W,0.6),`${name}: the beam's ${part.W} W/m² is not on the sheet`);
   }
   // And the bar is in proportion: each segment as long as its share of the peak.

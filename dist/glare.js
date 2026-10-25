@@ -11,7 +11,8 @@
      concentrates only where beams from SEVERAL facets land on the same ground —
      a concave plan corner, or a façade whose lean grows with height, as at
      20 Fenchurch Street. So the ground is rasterised and the beams per cell are
-     counted; the peak is DNI·Σρ over the beams that overlap.
+     counted; horizontal-ground irradiance is DNI·Σ[ρ·max(0,−r_z)]
+     for unit reflected directions r. It is not absorbed heat or temperature.
    - Self-shading and self-blocking are tested in plan against the tower's own
      outline at the facet's level; neighbour shading and neighbour hits are
      tested against the OpenStreetMap prisms harvested around the plot.
@@ -162,6 +163,14 @@ export function glareStep(geom,sun,{rhoN=.13,frit=0,nbs=[],maxNbH=0,reach=900}={
  return out;
 }
 
+// Receiver projection: DNI is defined per area normal to the beam (NASA
+// POWER, Derived Parameters). A horizontal receiver gets the downward cosine.
+// Normalize directions so the same ray scaled by any positive factor agrees.
+export function groundCosine(r){
+ if(!r||r.length!==3||!r.every(Number.isFinite))return 0;
+ const length=Math.hypot(...r);return length>0?Math.max(0,-r[2]/length):0;
+}
+
 /* ── ground raster ─────────────────────────────────────────────────────── */
 export function makeGrid(radius=600,cell=5){const n=Math.ceil(2*radius/cell);return {R:n*cell/2,cell,n}}
 export function cellCentre(g,idx){const i=idx%g.n,j=(idx/g.n)|0;return [-g.R+(i+.5)*g.cell,-g.R+(j+.5)*g.cell]}
@@ -177,15 +186,15 @@ export function rasterPolygon(poly,g,cb){
  }
 }
 /** Beams per cell at one instant. The peak is the cell with the most reflected
- *  irradiance (Σρ); the focus is the strongest cell where two or more beams
+ *  irradiance (Σρ·cosGround); the focus is the strongest cell where two or more beams
  *  overlap. They differ: one beam at a glancing angle can out-shine two at
  *  normal incidence, because reflectance rises steeply past 60°. */
 export function overlapAt(beams,g,mask){
  const count=new Map(),rs=new Map();
- for(const b of beams){if(b.kind!=='ground')continue;rasterPolygon(b.foot,g,idx=>{if(mask&&mask[idx])return;count.set(idx,(count.get(idx)||0)+1);rs.set(idx,(rs.get(idx)||0)+b.rho)})}
- let maxCount=0,maxRho=0,maxIdx=-1,focusRho=0,focusIdx=-1;
- for(const [idx,c]of count){const r=rs.get(idx);if(c>maxCount)maxCount=c;if(r>maxRho+1e-12){maxRho=r;maxIdx=idx}if(c>=2&&r>focusRho+1e-12){focusRho=r;focusIdx=idx}}
- return {count,rhoSum:rs,maxCount,maxRho,maxIdx,focusRho,focusIdx,focusCount:focusIdx>=0?count.get(focusIdx):0};
+ for(const b of beams){if(b.kind!=='ground')continue;const gain=b.rho*groundCosine(b.r);rasterPolygon(b.foot,g,idx=>{if(mask&&mask[idx])return;count.set(idx,(count.get(idx)||0)+1);rs.set(idx,(rs.get(idx)||0)+gain)})}
+ let maxCount=0,maxGain=0,maxIdx=-1,focusGain=0,focusIdx=-1;
+ for(const [idx,c]of count){const r=rs.get(idx);if(c>maxCount)maxCount=c;if(r>maxGain+1e-12){maxGain=r;maxIdx=idx}if(c>=2&&r>focusGain+1e-12){focusGain=r;focusIdx=idx}}
+ return {count,gainSum:rs,maxCount,maxGain,maxIdx,focusGain,focusIdx,focusCount:focusIdx>=0?count.get(focusIdx):0};
 }
 
 /* ── one day ────────────────────────────────────────────────────────────── */
@@ -217,10 +226,10 @@ export function glareDay(s,{city=s.city,date=s.solarDate,rhoN=.13,frit=0,lean=nu
   const cells=new Int32Array(ov.count.size),hot=[];let k=0;
   for(const [idx,c]of ov.count){hours[idx]+=dt;if(c>maxOv[idx])maxOv[idx]=Math.min(255,c);cells[k++]=idx;if(c>=2)hot.push(idx)}
   maxOverlap=Math.max(maxOverlap,ov.maxCount);
-  const at=(idx,rho)=>{const [x,y]=cellCentre(g,idx),edges=new Set();for(const b of beams)if(b.kind==='ground'&&pointInRing(x,y,b.foot))edges.add(b.f.edge);return {time,count:ov.count.get(idx),rho,W:GLARE_DNI*rho,x,y,edges:[...edges],frame:out.length}};
-  if(ov.maxIdx>=0&&(!worst||ov.maxRho>worst.rho+1e-9))worst=at(ov.maxIdx,ov.maxRho);
-  if(ov.focusIdx>=0&&(!focus||ov.focusRho>focus.rho+1e-9))focus=at(ov.focusIdx,ov.focusRho);
-  if(frames)out.push({time,sun,beams:beams.filter(b=>b.kind==='ground'||b.kind==='sky'||b.kind==='neighbour').map(b=>({e:b.f.edge,k:b.f.level,cx:b.f.c[0],cy:b.f.c[1],x:b.x,y:b.y,kind:b.kind,foot:b.foot||null,nb:b.nb?b.nb.id:-1,rho:b.rho})),cells,hot:Int32Array.from(hot),peakIdx:ov.focusIdx,count:ov.focusCount,W:GLARE_DNI*ov.maxRho});
+  const at=(idx,gain)=>{const [x,y]=cellCentre(g,idx),edges=new Set();for(const b of beams)if(b.kind==='ground'&&pointInRing(x,y,b.foot))edges.add(b.f.edge);return {time,count:ov.count.get(idx),gain,W:GLARE_DNI*gain,x,y,edges:[...edges],frame:out.length}};
+  if(ov.maxIdx>=0&&(!worst||ov.maxGain>worst.gain+1e-9))worst=at(ov.maxIdx,ov.maxGain);
+  if(ov.focusIdx>=0&&(!focus||ov.focusGain>focus.gain+1e-9))focus=at(ov.focusIdx,ov.focusGain);
+  if(frames)out.push({time,sun,beams:beams.filter(b=>b.kind==='ground'||b.kind==='sky'||b.kind==='neighbour').map(b=>({e:b.f.edge,k:b.f.level,cx:b.f.c[0],cy:b.f.c[1],x:b.x,y:b.y,kind:b.kind,foot:b.foot||null,nb:b.nb?b.nb.id:-1,rho:b.rho,r:b.r})),cells,hot:Int32Array.from(hot),peakIdx:ov.focusIdx,count:ov.focusCount,W:GLARE_DNI*ov.maxGain});
   else out.push(null);
  }
  const nbs=nb.list.filter(n=>nbHours.has(n.id)).map(n=>({...n,hours:nbHours.get(n.id)})).sort((a,b)=>b.hours-a.hours);
@@ -256,17 +265,17 @@ export const GLARE_TEXT={
   frit:'Frit / ceramic-dot coverage',fritHint:'Treated as removing that share of the mirror reflection. A simplification: real frit also scatters light.',
   leanOn:'Override façade lean',lean:'Lean at crown',leanHint:'Grows from 0° at grade to this value at the top. Positive overhangs, as the top of 20 Fenchurch Street does; negative leans back.',
   leanModel:'Model taper and twist: lean {v}°',
-  matNote:'ρv starts from the model material, {m}.',matOther:'The model material is not clear glass; ρv applies to the glazed areas.',
+  matNote:'Illustrative reflectance for {m}, not a verified product rating.',matOther:'Every skin facet uses this reflectance. No product or glazing fraction is modeled.',
   legend:'Hours of reflection so far today',radius:'Plan radius',
   bars:'Hours each face reflects to the ground',barsNone:'No face reflects the sun to the ground on this date.',
   barHint:'Select a face to draw its section.',
-  peak:'Peak reflected irradiance',single:'×1, no overlap',conc:'Strongest convergence',beyond:'Hours of ground reflection beyond 50 m',
+  peak:'Peak reflection on horizontal ground',single:'×1, no overlap',conc:'Strongest convergence',beyond:'Hours of ground reflection beyond 50 m',
   reach:'Farthest reach from tower centre',worst:'Worst time',faces:'Faces responsible',nb:'Neighbour façades hit',sky:'Hours with beams rising to the sky',
   none:'none',beyondR:'beyond {r} m',
   nbFmt:'{n} buildings; worst {h} h ({ht} m tall, {d} m {dir})',
   vNone:'No face reflects the sun to the ground on {date}.',
   vDiverge:'Beams diverge: {n} faces reflect to the ground, but no two beams land on the same spot. Peak about {w} W/m², a single beam.',
-  vConverge:'{c} beams converge at {time} on {date}, {d} m {dir} of the tower centre: about {w} W/m² on a surface facing them.',
+  vConverge:'{c} beams converge at {time} on {date}, {d} m {dir} of the tower centre: about {w} W/m² on horizontal ground.',
   year:'Estimate the year',yearRun:'Computing {p} %',
   yearOut:'Year, from 24 sampled days: worst ground point {g} h/yr; {a} m² of ground over 50 h/yr; worst neighbour façade {nh} h/yr.',
   yearNote:'The City of London treats under 50 hours a year of reflected sun as unlikely to cause serious discomfort glare, except at sensitive locations.',
@@ -275,20 +284,20 @@ export const GLARE_TEXT={
   precHead:'Why it matters',
   prec:'In 2013 the concave south face of 20 Fenchurch Street, London, was reported to focus sunlight onto the street strongly enough to warp parts of a parked car; a sunshade of horizontal fins was later fitted. Guests at Vdara, Las Vegas, reported burning heat on the pool deck below its curved glass, and a film was applied to cut the reflection. At the Walt Disney Concert Hall, Los Angeles, polished steel panels reflected into nearby flats and pavements, and were dulled in 2005. The City of London has asked for solar glare assessment at planning stage since its 2017 advice note, and the London Plan 2021 (Policy D9) asks tall buildings to avoid adverse reflected glare.',
   cannotHead:'Cannot claim',
-  cannot:'Mirror reflection from flat facets, traced from facet centres; the sun as a point with no 0.5° disc spread; no sky or diffuse light, no atmospheric loss, no second bounces. No disability-glare metric (no DGP, no driver sightlines), no neighbour windows or occupants; neighbour heights are as mapped or inferred. A screening sketch only: a formal solar glare and convergence study is required for planning.',
+  cannot:'Horizontal-ground irradiance uses an assumed DNI of 800 W/m² and an illustrative broadband reflectance extended from a glare curve. It is not absorbed heat, surface temperature or an eye-safety result. Mirror reflection from flat facets, traced from facet centres; the sun as a point with no 0.5° disc spread; no sky or diffuse light, no atmospheric loss, no second bounces. No disability-glare metric (no DGP, no driver sightlines), no neighbour windows or occupants; neighbour heights are as mapped or inferred. A screening sketch only: a formal solar glare and convergence study is required for planning.',
   m1:'One facet, at the angle the sun meets it: the ray in, the normal, the ray out at the same angle to the normal. The bar is the peak on the ground, split in proportion into the beams that land on one cell.',
   mth:{aria:'Method drawing: the reflection at one facet — the sun ray in, the facet normal, the mirror beam out — and the peak reflected irradiance on the ground, split in proportion into the beams that land on one cell.',
    title:'peak {w} W/m², {t}',
    cell:'{n} beams on one {c} {u} cell, {d} {u} {b}°',
-   seg:'{f} · ρ {r} · {w} W/m²',
-   total:'DNI {d} · Σρ {s}',
+   seg:'{f} · ρ {r} · c {c} · {w} W/m²',
+   total:'DNI {d} W/m² · Σ(ρc) {s}',
    inc:'{a}° in, {a}° out',
    sunUp:'sun {a}° up',
    normal:'normal',
    law1:'r = d − 2(d·n)n',
    law2:'ρ(θ)=ρn+(1−ρn)·w(θ)',
-   law3:'peak = DNI · Σρ'},
-  sourcesHead:'Sources',
+   law3:'Eₕ = DNI · Σ(ρc), c=−r_z'},
+  enlarge:'Enlarge drawing',drawing:'Reflection method',closeDrawing:'Close',panDrawing:'Scroll across the drawing to read the annotations.',sourcesHead:'Sources',sourceDNI:'NASA POWER · DNI definition',sourcePAN:'City of London · Solar Glare (2017)',
   sources:'City of London, Planning Advice Note: Solar Glare, July 2017 (with P. Littlefair) · BRE IP 3/87, Solar dazzle reflected from sloping glazed facades · Mayor of London, The London Plan 2021, Policy D9 · 20 Fenchurch Street: National Geographic, 4 Sep 2013 · Vdara: NBC News and ENR, 2010 · Disney Hall: Playbill, 2004; Texas Tech Architecture Library archive · Sun: SunCalc 2.1.0 · DNI reference 0.8 kW/m², as elsewhere in FormHypes · Neighbours © OpenStreetMap contributors, ODbL',
   compass:['N','NE','E','SE','S','SW','W','NW'],
   cityNames:{tokyo:'Tokyo',bangkok:'Bangkok',kl:'Kuala Lumpur',jakarta:'Jakarta',hcmc:'Ho Chi Minh City',shenzhen:'Shenzhen'},
@@ -306,17 +315,17 @@ export const GLARE_TEXT={
   frit:'สัดส่วนลายเซรามิก (frit)',fritHint:'คิดเป็นการลดแสงสะท้อนแบบกระจกเงาตามสัดส่วนนั้น เป็นการประมาณอย่างง่าย เพราะลายเซรามิกจริงยังกระจายแสงด้วย',
   leanOn:'กำหนดความเอียงของผนังเอง',lean:'ความเอียงที่ยอดอาคาร',leanHint:'เพิ่มจาก 0° ที่ระดับพื้นจนถึงค่านี้ที่ยอด ค่าบวกคือยื่นออก เช่นส่วนบนของ 20 Fenchurch Street ค่าลบคือเอนเข้า',
   leanModel:'ความสอบและการบิดของแบบ: เอียง {v}°',
-  matNote:'ρv เริ่มจากวัสดุของแบบ คือ {m}',matOther:'วัสดุของแบบไม่ใช่กระจกใส ค่า ρv ใช้กับส่วนที่เป็นกระจก',
+  matNote:'ค่าสะท้อนสมมติสำหรับ {m} ไม่ใช่ค่าผลิตภัณฑ์ที่ตรวจสอบแล้ว',matOther:'ทุกแผ่นผิวใช้ค่าสะท้อนนี้ ยังไม่ได้ระบุผลิตภัณฑ์หรือสัดส่วนกระจก',
   legend:'ชั่วโมงที่ได้รับแสงสะท้อนถึงขณะนี้',radius:'รัศมีผัง',
   bars:'ชั่วโมงที่แต่ละด้านสะท้อนแสงลงพื้น',barsNone:'ไม่มีด้านใดสะท้อนแสงแดดลงพื้นในวันนี้',
   barHint:'เลือกด้านเพื่อแสดงรูปตัด',
-  peak:'ความเข้มแสงสะท้อนสูงสุด',single:'×1 ไม่มีการซ้อนกัน',conc:'จุดที่ลำแสงรวมกันแรงที่สุด',beyond:'ชั่วโมงที่แสงสะท้อนตกไกลเกิน 50 ม.',
+  peak:'ความเข้มแสงสะท้อนสูงสุดบนพื้นราบ',single:'×1 ไม่มีการซ้อนกัน',conc:'จุดที่ลำแสงรวมกันแรงที่สุด',beyond:'ชั่วโมงที่แสงสะท้อนตกไกลเกิน 50 ม.',
   reach:'ระยะไกลสุดจากศูนย์กลางอาคาร',worst:'ช่วงเวลาที่รุนแรงที่สุด',faces:'ด้านที่เป็นต้นเหตุ',nb:'ผนังอาคารข้างเคียงที่โดนแสง',sky:'ชั่วโมงที่ลำแสงพุ่งขึ้นฟ้า',
   none:'ไม่มี',beyondR:'เกิน {r} ม.',
   nbFmt:'{n} อาคาร หนักสุด {h} ชม. (สูง {ht} ม. ห่าง {d} ม. ทาง{dir})',
   vNone:'ไม่มีด้านใดสะท้อนแสงแดดลงพื้นในวันที่ {date}',
   vDiverge:'ลำแสงกระจายออก: มี {n} ด้านที่สะท้อนลงพื้น แต่ไม่มีลำแสงใดตกซ้อนกัน ความเข้มสูงสุดประมาณ {w} W/m² จากลำแสงเดียว',
-  vConverge:'ลำแสง {c} ลำรวมกันเวลา {time} วันที่ {date} ห่างจากศูนย์กลางอาคาร {d} ม. ทาง{dir} ความเข้มประมาณ {w} W/m² บนพื้นผิวที่หันรับ',
+  vConverge:'ลำแสง {c} ลำรวมกันเวลา {time} วันที่ {date} ห่างจากศูนย์กลางอาคาร {d} ม. ทาง{dir} ความเข้มประมาณ {w} W/m² บนพื้นราบ',
   year:'ประเมินทั้งปี',yearRun:'กำลังคำนวณ {p} %',
   yearOut:'ทั้งปี จาก 24 วันตัวอย่าง: จุดบนพื้นที่หนักสุด {g} ชม./ปี พื้นที่ {a} ตร.ม. เกิน 50 ชม./ปี ผนังอาคารข้างเคียงที่หนักสุด {nh} ชม./ปี',
   yearNote:'City of London ถือว่าแสงสะท้อนน้อยกว่า 50 ชั่วโมงต่อปีไม่น่าก่อปัญหาแสงจ้ารบกวนอย่างร้ายแรง ยกเว้นในตำแหน่งที่อ่อนไหว',
@@ -325,20 +334,20 @@ export const GLARE_TEXT={
   precHead:'เหตุใดจึงสำคัญ',
   prec:'ปี 2013 มีรายงานว่าผนังเว้าด้านใต้ของ 20 Fenchurch Street กรุงลอนดอน รวมแสงแดดลงบนถนนจนชิ้นส่วนของรถที่จอดอยู่บิดเสียรูป ภายหลังจึงติดแผงบังแดดแบบครีบแนวนอน แขกของโรงแรม Vdara ในลาสเวกัสรายงานความร้อนแผดเผาบนลานสระว่ายน้ำใต้ผนังกระจกโค้ง จึงมีการติดฟิล์มเพื่อลดแสงสะท้อน ที่ Walt Disney Concert Hall ในลอสแอนเจลิส แผ่นเหล็กขัดเงาสะท้อนแสงเข้าห้องพักและทางเท้าใกล้เคียง และถูกทำให้ด้านลงในปี 2005 City of London กำหนดให้ประเมินแสงสะท้อนตั้งแต่ขั้นขออนุญาตตามเอกสารแนะนำปี 2017 และ London Plan 2021 (นโยบาย D9) ให้อาคารสูงหลีกเลี่ยงแสงสะท้อนที่ก่อผลกระทบ',
   cannotHead:'สิ่งที่สรุปไม่ได้',
-  cannot:'คิดเฉพาะการสะท้อนแบบกระจกเงาจากแผ่นเรียบ ลากจากจุดกึ่งกลางแผ่น ถือดวงอาทิตย์เป็นจุดโดยไม่มีการกระจายของจานสุริยะ 0.5° ไม่มีแสงจากท้องฟ้าหรือแสงกระจาย ไม่คิดการสูญเสียในบรรยากาศ ไม่ติดตามการสะท้อนซ้ำ ไม่มีตัวชี้วัดแสงจ้าบดบังการมองเห็น (ไม่มี DGP ไม่มีแนวสายตาผู้ขับขี่) ไม่มีหน้าต่างหรือผู้ใช้อาคารข้างเคียง ความสูงอาคารข้างเคียงมาจากข้อมูลแผนที่หรือการอนุมาน เป็นเพียงการคัดกรองเบื้องต้น การขออนุญาตต้องมีการศึกษาแสงสะท้อนและการรวมแสงอย่างเป็นทางการ',
+  cannot:'คำนวณความเข้มบนพื้นราบด้วย DNI สมมติ 800 W/m² และค่าสะท้อนรวมย่านคลื่นที่อนุมานจากเส้นโค้งแสงจ้า ไม่ใช่ความร้อนที่ดูดกลืน อุณหภูมิพื้นผิว หรือผลความปลอดภัยต่อดวงตา คิดเฉพาะการสะท้อนแบบกระจกเงาจากแผ่นเรียบ ลากจากจุดกึ่งกลางแผ่น ถือดวงอาทิตย์เป็นจุดโดยไม่มีการกระจายของจานสุริยะ 0.5° ไม่มีแสงจากท้องฟ้าหรือแสงกระจาย ไม่คิดการสูญเสียในบรรยากาศ ไม่ติดตามการสะท้อนซ้ำ ไม่มีตัวชี้วัดแสงจ้าบดบังการมองเห็น (ไม่มี DGP ไม่มีแนวสายตาผู้ขับขี่) ไม่มีหน้าต่างหรือผู้ใช้อาคารข้างเคียง ความสูงอาคารข้างเคียงมาจากข้อมูลแผนที่หรือการอนุมาน เป็นเพียงการคัดกรองเบื้องต้น การขออนุญาตต้องมีการศึกษาแสงสะท้อนและการรวมแสงอย่างเป็นทางการ',
   m1:'หนึ่งแผ่นเรียบ ณ มุมที่แสงเข้ามา: ลำแสงเข้า เส้นปกติ ลำแสงออกที่ทำมุมกับเส้นปกติเท่ากัน แถบคือค่าสูงสุดบนพื้น แบ่งตามสัดส่วนเป็นลำแสงที่ตกบนช่องเดียวกัน',
   mth:{aria:'ภาพวิธีคำนวณ: การสะท้อนที่แผ่นเรียบหนึ่งแผ่น คือลำแสงที่เข้ามา เส้นปกติของแผ่น และลำแสงที่สะท้อนออก พร้อมค่าความเข้มแสงสะท้อนสูงสุดบนพื้น แบ่งตามสัดส่วนเป็นลำแสงที่ตกบนช่องเดียวกัน',
    title:'ค่าสูงสุด {w} W/m² เวลา {t}',
    cell:'{n} ลำแสงตกบนช่อง {c} {u} ห่างจากศูนย์กลางอาคาร {d} {u} ทิศ {b}°',
-   seg:'ลำแสง {f} · ρ {r} · {w} W/m²',
-   total:'รังสีตรง {d} · Σρ {s}',
+   seg:'ลำแสง {f} · ρ {r} · c {c} · {w} W/m²',
+   total:'รังสีตรง {d} W/m² · Σ(ρc) {s}',
    inc:'{a}° เข้า {a}° ออก',
    sunUp:'แสดดสูง {a}°',
    normal:'เส้นปกติ',
    law1:'สะท้อน: r = d − 2(d·n)n',
    law2:'การสะท้อนแสง: ρ(θ)=ρn+(1−ρn)·w(θ)',
-   law3:'ค่าสูงสุด = DNI · Σρ'},
-  sourcesHead:'แหล่งอ้างอิง',
+   law3:'พื้น: Eₕ = DNI · Σ(ρc), c=−r_z'},
+  enlarge:'ขยายภาพแบบ',drawing:'วิธีคำนวณการสะท้อน',closeDrawing:'ปิด',panDrawing:'เลื่อนภาพในแนวนอนเพื่ออ่านคำอธิบาย',sourcesHead:'แหล่งอ้างอิง',sourceDNI:'NASA POWER · นิยาม DNI',sourcePAN:'City of London · Solar Glare (2017)',
   sources:'City of London, Planning Advice Note: Solar Glare, กรกฎาคม 2017 (ร่วมกับ P. Littlefair) · BRE IP 3/87, Solar dazzle reflected from sloping glazed facades · Mayor of London, The London Plan 2021, นโยบาย D9 · 20 Fenchurch Street: National Geographic, 4 ก.ย. 2013 · Vdara: NBC News และ ENR, 2010 · Disney Hall: Playbill, 2004; คลังเอกสาร Texas Tech Architecture Library · ดวงอาทิตย์: SunCalc 2.1.0 · ค่าอ้างอิง DNI 0.8 kW/m² เช่นเดียวกับส่วนอื่นของ FormHypes · อาคารข้างเคียง © OpenStreetMap contributors, ODbL',
   compass:['เหนือ','ตะวันออกเฉียงเหนือ','ตะวันออก','ตะวันออกเฉียงใต้','ใต้','ตะวันตกเฉียงใต้','ตะวันตก','ตะวันตกเฉียงเหนือ'],
   cityNames:{tokyo:'โตเกียว',bangkok:'กรุงเทพฯ',kl:'กัวลาลัมเปอร์',jakarta:'จาการ์ตา',hcmc:'นครโฮจิมินห์',shenzhen:'เซินเจิ้น'},
@@ -356,17 +365,17 @@ export const GLARE_TEXT={
   frit:'釉点（彩釉）覆盖率',fritHint:'按比例扣除镜面反射。这是简化处理：实际釉点还会散射光线。',
   leanOn:'自定义立面倾角',lean:'顶部倾角',leanHint:'从地面的 0° 逐渐增加到顶部的设定值。正值为外挑，如 20 Fenchurch Street 的上部；负值为后仰。',
   leanModel:'模型的收分与扭转：倾角 {v}°',
-  matNote:'ρv 初值取自模型材料：{m}。',matOther:'模型材料并非透明玻璃；ρv 适用于玻璃部分。',
+  matNote:'{m}的示意反射率，并非经验证的产品评级。',matOther:'所有表皮单元均采用此反射率，未指定产品或玻璃比例。',
   legend:'截至此刻的累计反射小时数',radius:'平面范围',
   bars:'各立面向地面反射的小时数',barsNone:'当天没有立面把阳光反射到地面。',
   barHint:'选择一个立面以绘制其剖面。',
-  peak:'峰值反射辐照度',single:'×1，无叠加',conc:'最强汇聚点',beyond:'反射落在 50 米以外的小时数',
+  peak:'水平地面峰值反射辐照度',single:'×1，无叠加',conc:'最强汇聚点',beyond:'反射落在 50 米以外的小时数',
   reach:'距塔楼中心的最远距离',worst:'最不利时刻',faces:'造成影响的立面',nb:'被照射的相邻建筑立面',sky:'光束射向天空的小时数',
   none:'无',beyondR:'超过 {r} 米',
   nbFmt:'{n} 栋建筑；最严重 {h} 小时（高 {ht} 米，位于{dir} {d} 米）',
   vNone:'{date} 没有立面把阳光反射到地面。',
   vDiverge:'光束发散：{n} 个立面向地面反射，但没有两束光落在同一处。峰值约 {w} W/m²，仅单束。',
-  vConverge:'{date} {time}，{c} 束光汇聚于塔楼中心{dir} {d} 米处：迎光表面约 {w} W/m²。',
+  vConverge:'{date} {time}，{c} 束光汇聚于塔楼中心{dir} {d} 米处：水平地面约 {w} W/m²。',
   year:'估算全年',yearRun:'计算中 {p}%',
   yearOut:'全年（24 个采样日）：地面最不利点 {g} 小时/年；超过 50 小时/年的地面面积 {a} 平方米；最不利相邻立面 {nh} 小时/年。',
   yearNote:'伦敦金融城认为，每年少于 50 小时的反射阳光不太可能造成严重的不适眩光，敏感位置除外。',
@@ -375,20 +384,20 @@ export const GLARE_TEXT={
   precHead:'为何重要',
   prec:'2013 年，据报道伦敦 20 Fenchurch Street 内凹的南立面把阳光聚焦到街上，致使一辆停放汽车的部分部件变形，后来加装了水平遮阳百叶。拉斯维加斯 Vdara 酒店的住客反映，弧形玻璃下方的泳池平台热得灼人，酒店随后贴膜以减少反射。洛杉矶华特·迪士尼音乐厅的抛光不锈钢板把光反射进附近住宅和人行道，这些板材于 2005 年做了消光处理。伦敦金融城自 2017 年的规划指引起要求在规划阶段评估反光，《伦敦规划 2021》（D9 政策）也要求高层建筑避免造成不良反射眩光。',
   cannotHead:'不能据此断言',
-  cannot:'仅计算平面单元的镜面反射，从单元中心追踪；把太阳视为点光源，不计 0.5° 日盘扩散；不含天空光或漫射光，不计大气衰减，不追踪二次反射。没有失能眩光指标（无 DGP，无驾驶视线），不含相邻建筑的窗户或使用者；相邻建筑高度取自地图标注或推断。这只是初步筛查：规划报批需要正式的反光与聚光研究。',
+  cannot:'以假设的800 W/m² DNI及由眩光曲线扩展的示意宽波段反射率计算水平地面辐照度，并非吸收热量、表面温度或眼睛安全结论。仅计算平面单元的镜面反射，从单元中心追踪；把太阳视为点光源，不计 0.5° 日盘扩散；不含天空光或漫射光，不计大气衰减，不追踪二次反射。没有失能眩光指标（无 DGP，无驾驶视线），不含相邻建筑的窗户或使用者；相邻建筑高度取自地图标注或推断。这只是初步筛查：规划报批需要正式的反光与聚光研究。',
   m1:'一个立面单元在阳光入射角下的反射：入射、法线、与法线成等角的出射。条形图为地面峰值，按落在同一网格的光束比例拆分。',
   mth:{aria:'方法图示：一个立面单元的反射——入射阳光、单元法线、镜面反射光束，以及地面上的峰值反射辐照度，按落在同一网格的光束比例拆分。',
    title:'峰值 {w} W/m²，{t}',
    cell:'{n} 束 {c} {u} {d} {u} {b}°',
-   seg:'立面 {f} · ρ {r} · {w} W/m²',
-   total:'直射 {d} · Σρ {s}',
+   seg:'立面 {f} · ρ {r} · c {c} · {w} W/m²',
+   total:'直射 {d} W/m² · Σ(ρc) {s}',
    inc:'角 {a}°',
    sunUp:'日 {a}°',
    normal:'法线',
    law1:'反射: r = d − 2(d·n)n',
    law2:'反射率: ρ(θ)=ρn+(1−ρn)·w(θ)',
-   law3:'峰值 = DNI · Σρ'},
-  sourcesHead:'资料来源',
+   law3:'地面: Eₕ = DNI · Σ(ρc), c=−r_z'},
+  enlarge:'放大图纸',drawing:'反射计算方法',closeDrawing:'关闭',panDrawing:'横向滚动图纸以阅读标注。',sourcesHead:'资料来源',sourceDNI:'NASA POWER · DNI定义',sourcePAN:'City of London · Solar Glare (2017)',
   sources:'City of London, Planning Advice Note: Solar Glare，2017 年 7 月（与 P. Littlefair 合作）· BRE IP 3/87, Solar dazzle reflected from sloping glazed facades · Mayor of London, The London Plan 2021，D9 政策 · 20 Fenchurch Street：National Geographic，2013 年 9 月 4 日 · Vdara：NBC News 与 ENR，2010 · 迪士尼音乐厅：Playbill，2004；Texas Tech Architecture Library 档案 · 太阳位置：SunCalc 2.1.0 · DNI 参考值 0.8 kW/m²，与 FormHypes 其他部分一致 · 相邻建筑 © OpenStreetMap contributors，ODbL',
   compass:['北','东北','东','东南','南','西南','西','西北'],
   cityNames:{tokyo:'东京',bangkok:'曼谷',kl:'吉隆坡',jakarta:'雅加达',hcmc:'胡志明市',shenzhen:'深圳'},
@@ -438,17 +447,17 @@ export function glareMethodPayload(day){
  const parts=hits.map(b=>{
   const f=F.find(x=>x.edge===b.e&&x.level===b.k);
   if(!f)return null;
-  const rho=Number.isFinite(b.rho)?b.rho:0;
-  return {edge:b.e,level:b.k,rho,W:GLARE_DNI*rho,
+  const rho=Number.isFinite(b.rho)?b.rho:0,cosGround=groundCosine(b.r);
+  return {edge:b.e,level:b.k,rho,cosGround,W:GLARE_DNI*rho*cosGround,
    theta:Math.acos(Math.max(-1,Math.min(1,-dot(d,f.n))))/RAD,
    bearing:day.geom.edgeBearing[b.e],n:f.n,c:f.c,x:b.x,y:b.y};
- }).filter(Boolean).sort((a,b)=>b.rho-a.rho||a.edge-b.edge||a.level-b.level);
+ }).filter(Boolean).sort((a,b)=>b.W-a.W||a.edge-b.edge||a.level-b.level);
  if(!parts.length)return null;
  return {peak:src.W,count:src.count,time:src.time,x:src.x,y:src.y,
   dist:Math.hypot(src.x,src.y),bearing:(Math.atan2(src.y,src.x)/RAD+360)%360,
   cell:day.grid?day.grid.cell:0,rhoN:day.rhoN,frit:day.frit,dni:GLARE_DNI,
   sun:{east:fr.sun.east,north:fr.sun.north,up:fr.sun.up,altitude:fr.sun.altitude},
-  parts,rhoSum:parts.reduce((a,b)=>a+b.rho,0),main:parts[0]};
+  parts,gainSum:parts.reduce((a,b)=>a+b.rho*b.cosGround,0),main:parts[0]};
 }
 
 export function glareMethodSVG(p,{lang='en'}={}){
@@ -519,7 +528,7 @@ export function glareMethodSVG(p,{lang='en'}={}){
  g+=txt(BX0-3,24,fill(M.title,{w:f0(p.peak),t:p.time}),{anchor:'start'});
  /* The total, dimensioned over the bar. It sits ABOVE the bar so that the
     leaders to the segments below it never cross it. */
- g+=dim(BX0,40,BX1,40,fill(M.total,{d:f0(p.dni),s:f2(p.rhoSum)}));
+ g+=dim(BX0,40,BX1,40,fill(M.total,{d:f0(p.dni),s:f2(p.gainSum)}));
  /* The beams, each named: which face it came from, how much of the light it
     carried back, and how much of the peak it is.
 
@@ -533,7 +542,7 @@ export function glareMethodSVG(p,{lang='en'}={}){
  const LC=BX1+4;
  for(let i=0;i<p.parts.length;i++){
   const part=p.parts[i];
-  const text=fill(M.seg,{f:faceLabel(part.edge,part.bearing),r:f2(part.rho),w:f0(part.W)});
+  const text=fill(M.seg,{f:faceLabel(part.edge,part.bearing),r:f2(part.rho),c:f2(part.cosGround),w:f0(part.W)});
   g+=leader(mids[i],BY1,LC,112+i*24,text,{anchor:'start'});
  }
  /* Where the peak is: how many beams, on one cell of the raster, how far out.
@@ -551,6 +560,13 @@ export function glareMethodSVG(p,{lang='en'}={}){
  g+=leader(FX+inc[0]*0.76,FY+inc[1]*0.76,LM,104,fill(M.sunUp,{a:f0(p.sun.altitude)}));
  g+=leader(FX-nrm[0]*0.62,FY-nrm[1]*0.62,LM,154,M.normal);
  return sheet(g,MW,MH,M.aria);
+}
+
+// Keep the overview in place; the enlarged copy uses the same measured SVG.
+export function openGlareDrawing(source,dialog,scroll){
+ const svg=source.querySelector('svg');if(!svg)return false;
+ scroll.replaceChildren(svg.cloneNode(true));dialog.showModal();
+ scroll.scrollLeft=0;scroll.scrollTop=0;scroll.focus();return true;
 }
 
 /* ── the lab ────────────────────────────────────────────────────────────── */
@@ -617,14 +633,23 @@ function build(host){
  const yearBox=node('div','gl-year'),yearBtn=node('button','',t.year);yearBtn.type='button';const yearOut=node('p','gl-year-out');yearOut.setAttribute('aria-live','polite');
  yearBox.append(yearBtn,yearOut,node('p','gl-hint',t.yearNote));
  const prose=node('div','gl-prose');
- for(const [h,p]of [['howHead','how'],['precHead','prec'],['cannotHead','cannot'],['sourcesHead','sources']]){const s=node('section','gl-note'+(p==='sources'?' gl-sources':''));s.append(node('h3','gl-h',t[h]),node('p',p==='sources'?'gl-src':'',t[p]));prose.append(s)}
+ for(const [h,p]of [['howHead','how'],['precHead','prec'],['cannotHead','cannot'],['sourcesHead','sources']]){const s=node('section','gl-note'+(p==='sources'?' gl-sources':''));s.append(node('h3','gl-h',t[h]),node('p',p==='sources'?'gl-src':'',t[p]));
+  if(p==='sources')for(const [label,url]of [[t.sourceDNI,'https://power.larc.nasa.gov/docs/methodology/energy-fluxes/derived-parameters/'],[t.sourcePAN,'https://newsite.cityoflondon.gov.uk/assets/Services-Environment/solar-glare-planning-advice-note.pdf']]){const a=node('a','',label);a.href=url;a.target='_blank';a.rel='noopener';const line=node('p','gl-src');line.append(a);s.append(line)}
+  prose.append(s)}
  /* The method is a drawing now, not a paragraph. The prose that stood in for
     it explained the reflection and the summation; the sheet is what those
     words mean. */
  const methodFig=node('figure','gl-method'),methodBox=node('div','gl-methodsvg');
- methodFig.append(methodBox,node('figcaption','gl-cap',t.m1));
- root.append(fig,legend,zoom,tr,ctl,verdict,dl,barsBox,yearBox,methodFig,prose);host.append(root);
- L.els={zoomBtns,root,plan,sec,secCap,play,scrub,clock,city,date,quickBtns,rho,rhoV,matP,frit,fritV,lean,leanV,leanOn,leanModel,barsList,verdict,dd,yearBtn,yearOut,methodBox};
+ const enlarge=node('button','gl-enlarge',t.enlarge);enlarge.type='button';enlarge.disabled=true;
+ const dialog=node('dialog','gl-drawing-dialog');dialog.setAttribute('aria-label',t.drawing);
+ const dialogHead=node('div','gl-drawing-head'),close=node('button','',t.closeDrawing);close.type='button';close.onclick=()=>dialog.close();
+ dialogHead.append(node('h2','',t.drawing),close);
+ const drawingScroll=node('div','gl-drawing-scroll');drawingScroll.tabIndex=0;drawingScroll.setAttribute('aria-label',t.panDrawing);
+ dialog.append(dialogHead,node('p','gl-hint',t.panDrawing),drawingScroll);
+ enlarge.onclick=()=>{if(openGlareDrawing(methodBox,dialog,drawingScroll)){L.playing=false;syncTransport()}};
+ methodFig.append(methodBox,node('figcaption','gl-cap',t.m1),enlarge);
+ root.append(fig,legend,zoom,tr,ctl,verdict,dl,barsBox,yearBox,methodFig,prose,dialog);host.append(root);
+ L.els={zoomBtns,root,plan,sec,secCap,play,scrub,clock,city,date,quickBtns,rho,rhoV,matP,frit,fritV,lean,leanV,leanOn,leanModel,barsList,verdict,dd,yearBtn,yearOut,methodBox,enlarge};
  // events
  play.onclick=()=>{L.playing=!L.playing;syncTransport();loop()};
  scrub.oninput=()=>{L.playing=false;setFrame(+scrub.value);syncTransport();loop()};
@@ -676,8 +701,8 @@ function recompute(){
      down with it. */
   try{
    const pay=glareMethodPayload(L.result);
-   L.els.methodBox.innerHTML=pay?glareMethodSVG(pay,{lang:L.lang}):'';
-  }catch{L.els.methodBox.innerHTML=''}
+   L.els.methodBox.innerHTML=pay?glareMethodSVG(pay,{lang:L.lang}):'';L.els.enlarge.disabled=!pay;
+  }catch{L.els.methodBox.innerHTML='';L.els.enlarge.disabled=true}
   readouts();bars();syncTransport();setFrame(L.frame);
   L.els.yearOut.textContent=shown('');L.els.yearBtn.disabled=false;
  }catch(err){if(L.els)L.els.verdict.textContent=shown('—')}

@@ -6,6 +6,11 @@ import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
 const dir=await mkdtemp(join(tmpdir(),'shdt-contract-mutations-'));
 const cases=[
+ ['enlargement removes the original method drawing','glare.js','scroll.replaceChildren(svg.cloneNode(true))','scroll.replaceChildren(svg)','enlarging the method preserves'],
+ ['enlarged method viewer never opens','glare.js','dialog.showModal();','','enlarging the method preserves'],
+ ['ground irradiance loses the receiver projection','glare.js','Math.max(0,-r[2]/length)','1','horizontal receiver conserves'],
+ ['cached glare beams lose their direction','glare.js','rho:b.rho,r:b.r','rho:b.rho','cached frames and method contributions'],
+ ['glare method uses beam-normal power','glare.js','W:GLARE_DNI*rho*cosGround','W:GLARE_DNI*rho','cached frames and method contributions'],
  ['material assumptions presented as verified','materials.js','verified:false','verified:true','material scenario provenance describes'],
  ['material basis lost from JSON','app.js','materialScenario:materialAssumptions(state),','','the actual study download carries'],
  ['material note promotes an assumption to a published value','i18n.js','This multiplier is an unverified assumption, not a quote.','This multiplier is a published value.','rendered material notes disclose'],
@@ -83,9 +88,9 @@ const cases=[
 // The files the mutants are written into. Everything else is symlinked, so a
 // mutation cannot leak into the working tree.
 const MUTABLE=['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js',
- 'console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js','feng.js','materials.js'];
+ 'console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js','feng.js','materials.js','glare.js'];
 const TESTS=['shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
- 'material-name.test.mjs','material-basis.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
+ 'material-name.test.mjs','material-basis.test.mjs','glare-radiometry.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
  'crown.test.mjs','chrome-fit.test.mjs','site-display-boundary.test.mjs','plot-fit.test.mjs','view-controls.test.mjs','feng.test.mjs'];
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));

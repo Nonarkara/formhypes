@@ -70,3 +70,12 @@
  .gl-bar{min-height:44px}
 }
 @media(prefers-reduced-motion:reduce){.gl *{transition:none!important}}
+
+/* A readable vector drawing at 1000 px: the smallest 7.5-unit note in a
+   460-unit frame renders above 16 px. The phone overview stays in place. */
+.gl-enlarge{margin-top:6px}
+.gl-drawing-dialog{width:calc(100vw - 24px);max-width:1100px;max-height:calc(100dvh - 24px);padding:12px;overflow:hidden}
+.gl-drawing-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.gl-drawing-head h2{margin:0}
+.gl-drawing-scroll{overflow:auto;max-height:calc(100dvh - 150px);margin-top:8px;border:1px solid var(--line)}
+.gl-drawing-scroll svg{display:block;width:1000px;max-width:none;height:auto;background:var(--paper)}
