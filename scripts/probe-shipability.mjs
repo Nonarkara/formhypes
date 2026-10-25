@@ -124,14 +124,32 @@ try{
   for(const [f,s]of Object.entries(original))await writeFile(join(dir,'dist',f),f===file?s.replaceAll(before,after):s);
   await writeFile(join(dir,'scripts/release-id.mjs'),file==='stamper'?stamperOriginal.replace(before,after):stamperOriginal);};
  const heightOriginal=await readFile('scripts/building-height.mjs','utf8');
- const run=pattern=>runProbe(['--test',...(pattern?['--test-name-pattern',pattern]:[]),...TESTS.map(t=>join(dir,'tests',t))]);
+ // The suite is slow under load: a mutant that redraws the site spends most of
+ // its time inside the DOM stub. A tight ceiling turns a loaded machine into a
+ // false verdict, so the ceiling is generous and the wall clock is reported.
+ const run=pattern=>runProbe(['--test',...(pattern?['--test-name-pattern',pattern]:[]),...TESTS.map(t=>join(dir,'tests',t))],{timeout:600000});
  await stage();const baseline=run();if(baseline.status!==0)throw Error('Isolated baseline failed: '+baseline.stdout+baseline.stderr);
  console.log('PASS: isolated baseline');
  for(const [name,file,before,after,pattern]of cases){
   const source=file==='height'?heightOriginal:(file==='stamper'?stamperOriginal:original[file]);
   if(!source.includes(before))throw Error('Missing mutation target: '+name);
   await writeFile(join(dir,'scripts/building-height.mjs'),file==='height'?heightOriginal.replace(before,after):heightOriginal);
-  await stage(file,before,after);const result=run(pattern);
-  if(result.status===0){console.error('SURVIVED: '+name);process.exitCode=1}else console.log('KILLED: '+name);
+  await stage(file,before,after);
+  const began=Date.now();
+  let result;
+  try{
+   result=run(pattern);
+  }catch(e){
+   // A mutant that hangs is not a mutant that was killed. It is a gate that
+   // stopped answering, and it must be reported as such — with the name of
+   // the mutant that did it — and it must never be counted as a pass.
+   const why=String(e&&e.message||e);
+   const hung=/ETIMEDOUT|SIGTERM|SIGKILL/.test(why);
+   console.error((hung?'TIMED OUT: ':'PROBE ERROR: ')+name+' ('+((Date.now()-began)/1000).toFixed(0)+'s) — '+why.slice(0,90));
+   process.exitCode=1;continue;
+  }
+  const secs=((Date.now()-began)/1000).toFixed(1);
+  if(result.status===0){console.error('SURVIVED: '+name+' ('+secs+'s)');process.exitCode=1}
+  else console.log('KILLED: '+name+' ('+secs+'s)');
  }
 }finally{await rm(dir,{recursive:true,force:true})}
