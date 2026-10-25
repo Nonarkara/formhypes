@@ -3,7 +3,7 @@
 import {mkdtemp,mkdir,readdir,symlink,copyFile,readFile,writeFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
-import {spawnSync} from 'node:child_process';
+import {runProbe} from './probe-process.mjs';
 const dir=await mkdtemp(join(tmpdir(),'shdt-contract-mutations-'));
 const cases=[
  ['enlargement removes the original method drawing','glare.js','scroll.replaceChildren(svg.cloneNode(true))','scroll.replaceChildren(svg)','enlarging the method preserves'],
@@ -110,7 +110,7 @@ try{
   for(const [f,s]of Object.entries(original))await writeFile(join(dir,'dist',f),f===file?s.replaceAll(before,after):s);
   await writeFile(join(dir,'scripts/release-id.mjs'),file==='stamper'?stamperOriginal.replace(before,after):stamperOriginal);};
  const heightOriginal=await readFile('scripts/building-height.mjs','utf8');
- const run=pattern=>{const r=spawnSync(process.execPath,['--test',...(pattern?['--test-name-pattern',pattern]:[]),...TESTS.map(t=>join(dir,'tests',t))],{encoding:'utf8',timeout:120000});if(r.error||r.signal||r.status===null)throw Error('Probe did not complete: '+(r.error?.code||r.signal||'no exit status')+' · '+(pattern||'baseline'));return r};
+ const run=pattern=>runProbe(['--test',...(pattern?['--test-name-pattern',pattern]:[]),...TESTS.map(t=>join(dir,'tests',t))]);
  await stage();const baseline=run();if(baseline.status!==0)throw Error('Isolated baseline failed: '+baseline.stdout+baseline.stderr);
  console.log('PASS: isolated baseline');
  for(const [name,file,before,after,pattern]of cases){

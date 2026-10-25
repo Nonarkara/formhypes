@@ -342,7 +342,7 @@ export const GLARE_TEXT={
    seg:'ลำแสง {f} · ρ {r} · c {c} · {w} W/m²',
    total:'รังสีตรง {d} W/m² · Σ(ρc) {s}',
    inc:'{a}° เข้า {a}° ออก',
-   sunUp:'แสดดสูง {a}°',
+   sunUp:'มุมเงย {a}°',
    normal:'เส้นปกติ',
    law1:'สะท้อน: r = d − 2(d·n)n',
    law2:'การสะท้อนแสง: ρ(θ)=ρn+(1−ρn)·w(θ)',

@@ -28,7 +28,7 @@ An independent visual review found that the overview's phone annotations needed 
 
 ## Verification
 
-646 tests pass. Six new tests check exact mirror-power conservation, mixed-direction overlap, a ground-peak ranking reversal, cached frame/payload direction, non-destructive enlargement and the distinction between exposure contours and receptor-glare criteria. Existing diagram-number, proportional-bar, multilingual, collision and frame-boundary tests remain. Mutation probes cover omitted receiver projection, lost frame direction, beam-normal method contributions, removed overview and a viewer that never opens.
+649 tests cover the final change. Six new tests check exact mirror-power conservation, mixed-direction overlap, a ground-peak ranking reversal, cached frame/payload direction, non-destructive enlargement and the distinction between exposure contours and receptor-glare criteria. Three runner tests exercise large failure output, timeouts and signals. Existing diagram-number, proportional-bar, multilingual, collision and frame-boundary tests remain. Mutation probes cover omitted receiver projection, lost frame direction, beam-normal method contributions, removed overview and a viewer that never opens.
 
 A comparison against the prior committed module, with default state, explicit ρ=0.13 and the same geometry/sampling, found:
 
@@ -44,7 +44,9 @@ Real browser: overview and enlarged method at 390 × 844, 1024 × 900 and 1440 �
 
 Evidence: `.scratch/glare-*` and `.scratch/shots/integration-2026-10-25/glare/`. Verified lesson: SecondBrain `Scars/Debug-Logs/2026-10-25-beam-normal-irradiance-cannot-be-summed-as-horizontal-ground-irradiance.md`.
 
-Release checks caught 69 main mutants, three release-graph mutants and six preference mutants (78 total). The release-graph fixture twice failed before mutations with an empty diagnostic; those runs were not counted as successes. A separate ten-test verification completed in 36 seconds. Subprocess allowances now permit 120 seconds under load and explicitly report timeout/signal failures; an incomplete process cannot count as a killed mutant. The restamped verification and isolated release/preference probes then passed. The original subprocess failure's exact cause was not retained by the old diagnostic.
+The suite contains 69 main, three release-graph and six preference mutation probes (78 total). A release-graph fixture twice failed before mutations with an empty diagnostic; those runs were not counted as successes. A separate ten-test verification completed in 36 seconds, and the restamped isolated release/preference probes passed. The original empty-diagnostic failure's exact cause was not retained.
+
+Stricter completion checks then exposed CI run 40163806399's `ENOBUFS`: a failing small-plot assertion emitted 1,408,617 bytes, exceeding the old capture allowance. A status-only check could mistake interrupted output capture for a caught mutant. A shared runner now permits bounded 16 MiB per stream and 120 seconds, throwing on subprocess errors, signals and missing exit status. An independent two-MiB fixture reproduces the old interruption and completes with the new runner. The actual small-plot mutation replay has a passing isolated baseline and a normally completed exit 1 with all diagnostics captured. Fresh-checkout CI is the final full-suite gate under these stricter rules.
 
 ## Standing goal
 

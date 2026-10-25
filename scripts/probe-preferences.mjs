@@ -2,7 +2,7 @@
 import {mkdtemp,cp,mkdir,copyFile,readFile,writeFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {spawnSync} from 'node:child_process';
+import {runProbe} from './probe-process.mjs';
 const stage=await mkdtemp(join(tmpdir(),'shdt-preferences-'));
 let failed=0;
 try{
@@ -10,7 +10,7 @@ try{
  await copyFile('tests/preferences.test.mjs',join(stage,'tests/preferences.test.mjs'));
  await cp('dist',join(stage,'dist'),{recursive:true});
  const file=join(stage,'dist/preferences.js'),source=await readFile(file,'utf8');
- const verify=()=>spawnSync(process.execPath,['--test','tests/preferences.test.mjs'],{cwd:stage,encoding:'utf8',timeout:30000});
+ const verify=()=>runProbe(['--test','tests/preferences.test.mjs'],{cwd:stage});
  const baseline=verify();if(baseline.status!==0)throw Error('Baseline failed: '+baseline.stdout+baseline.stderr);
  const mutations=[
   ['feet treated as metres',"'m':[1/.3048,'ft']","'m':[1,'ft']"],

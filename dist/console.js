@@ -7,7 +7,7 @@ import {renderLiftsLab} from './lifts.js?v=1e66bf9393';
 import {renderFireLab} from './fire.js?v=728ed01faf';
 import {renderWindLab} from './wind.js?v=b3877d0604';
 import {renderWaterLab} from './water.js?v=aa60968459';
-import {renderGlareLab} from './glare.js?v=6b74f40501';
+import {renderGlareLab} from './glare.js?v=26dc5cbc30';
 import {renderFacade} from './facade.js?v=a6f7de2b5e';
 export const CONSOLE_TEXT={
  en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Lifts','Evacuation','Wind','Water','Glare','Carbon','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
