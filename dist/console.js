@@ -1,14 +1,14 @@
 import {toDisplay,fromDisplay,unitLabel,displayText} from './preferences.js?v=48652b12d9';
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
-import {profile,stack,grossOf} from './model.js?v=9531c58c62';
-import {renderCarbonLab} from './carbon.js?v=869287af5c';
-import {renderLiftsLab} from './lifts.js?v=57415a9757';
-import {renderFireLab} from './fire.js?v=38ba111448';
-import {renderWindLab} from './wind.js?v=51eef709a9';
-import {renderWaterLab} from './water.js?v=7cb2118014';
-import {renderGlareLab} from './glare.js?v=dc2238c96c';
-import {renderFacade} from './facade.js?v=d8686c3578';
+import {profile,stack,grossOf} from './model.js?v=67662478b8';
+import {renderCarbonLab} from './carbon.js?v=5dc21a0b72';
+import {renderLiftsLab} from './lifts.js?v=1e66bf9393';
+import {renderFireLab} from './fire.js?v=728ed01faf';
+import {renderWindLab} from './wind.js?v=b3877d0604';
+import {renderWaterLab} from './water.js?v=aa60968459';
+import {renderGlareLab} from './glare.js?v=1b45fc436b';
+import {renderFacade} from './facade.js?v=a6f7de2b5e';
 export const CONSOLE_TEXT={
  en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Lifts','Evacuation','Wind','Water','Glare','Carbon','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
  th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',capacityShort:'พื้นที่ / ที่ให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','ลิฟต์','อพยพหนีไฟ','อุโมงค์ลม','ระบบน้ำ','แสงสะท้อน','คาร์บอน','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},

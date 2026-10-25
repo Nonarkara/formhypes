@@ -15,16 +15,16 @@ import {toDisplay,unitLabel,quantity,getPreferences} from './preferences.js?v=48
 
    Import this module for the numbers. The page only downloads the file. */
 
-import {stack, profile, area, evaluate, glazingAt, facadeFamilies} from './model.js?v=9531c58c62';
+import {stack, profile, area, evaluate, glazingAt, facadeFamilies} from './model.js?v=67662478b8';
 import {planLibrary, loftTable, lateralArea} from './geometry.js?v=eb7a621ab9';
 import {splitOf, CIRCULATION_SHARE} from './areasplit.js?v=7506bcd419';
-import {MATERIALS, materialOf} from './materials.js?v=be1c7d7582';
+import {MATERIALS, materialOf} from './materials.js?v=732faea440';
 // The material's name is a common noun, so it is written in the language the
 // reader is reading in. It used to live in a private map in this file, which
 // meant the schedule and the studio could disagree about what a material is
 // called; the one name now lives in the string table, like the crowns and the
 // façade families.
-import {t as I18N} from './i18n.js?v=bffcb73f5b';
+import {t as I18N} from './i18n.js?v=30b639f8d3';
 
 const SHARE_PCT=Math.round(CIRCULATION_SHARE*100);
 

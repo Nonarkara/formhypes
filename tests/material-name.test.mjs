@@ -99,7 +99,7 @@ test('the note under the material is headed by the material, in the reader\'s la
   const ctx = {
     displayText,lang: 'th', tt: translator('th'),
     state: {material: 'float'},
-    mt: {thesis: 'Sears Tower 1929', envelope: 1, carbon: 25, upkeep: 1},
+    mt: {envelope: 1},
     $: id => (id === 'materialNote' ? note : null),
   };
   runInNewContext(source, ctx);

@@ -26,7 +26,7 @@ import {displayText} from './preferences.js?v=48652b12d9';
    - Core share: 135 supertall office towers, mean core 24% of GFA (Tampere
      University, Space Efficiency in Contemporary Supertall Office Buildings).
    - Lifts: CIBSE Guide D practice of about 16 floors per lift group. */
-import {profile,stackHeight,evaluate} from './model.js?v=9531c58c62';
+import {profile,stackHeight,evaluate} from './model.js?v=67662478b8';
 import {convexHull} from './geometry.js?v=eb7a621ab9';
 
 export const STRUCTURE_BANDS=[[7,'conventional'],[10,'slender'],[15,'damped'],[Infinity,'super']];

@@ -101,6 +101,7 @@
       <label id="materialLabel" for="material" class="ctl" data-i18n="c.material">What it is made of</label>
       <select id="material"></select>
       <p class="note" id="materialNote"></p>
+      <details id="materialBasis"><summary data-i18n="mat.method">Material assumptions &amp; sources</summary><p class="note" data-i18n="mat.basis"></p><p class="note" data-i18n="mat.sources"></p><p class="note"><a href="https://www.energystar.gov/independently-tested-and-certified-energy-performance" target="_blank" rel="noopener" data-i18n="mat.ratingSource"></a><br><a href="https://www.vitroglazings.com/media/nf0nm25r/epd-flat-glass-products.pdf" target="_blank" rel="noopener" data-i18n="mat.epdSource"></a></p></details>
       <div class="matstrip" id="matStrip" role="group" aria-labelledby="materialLabel"></div>
 
       <label for="detail" class="ctl" data-i18n="c.detail">How it is assembled</label>
@@ -160,7 +161,7 @@
            skyline came from. In flow with the rest of the sheet footer, so it
            cannot collide with the rows around it. It CAN still be drawn on: the
            canvas is absolutely positioned across the whole sheet, so the drawing
-           is clipped to the field above this band in app.js?v=7517b9b004 Being in flow was
+           is clipped to the field above this band in app.js?v=5a3e9348d1 Being in flow was
            never sufficient on its own, and a comment claiming it was hid that
            for as long as it stood — orbit the model and the tower went behind
            the credit line. As an absolutely positioned plate it printed across
@@ -402,5 +403,5 @@
 <dialog id="knowledgeDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="k.button">Architectural knowledge</h2><div id="knowledgeContent" role="status"></div><p class="knowledgeDownloads"><a href="knowledge/designon-knowledge.json?v=38eb5f372c" download data-i18n="k.download">Download</a><a href="knowledge/DESIGNON-LICENSE.txt?v=1950c131d0" data-i18n="k.license">License</a></p></dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="app.js?v=7517b9b004"></script>
+<script type="module" src="app.js?v=5a3e9348d1"></script>
 </body></html>

@@ -383,12 +383,14 @@ test('every workspace is named by a drawing, and the word is kept for the reader
  assert.match(app,/b\.title=c\.work\[i\]/,'no hover name on the mark');
 });
 
-test('twelve materials, each with the properties that move a figure',()=>{
+test('twelve schematic materials retain their scenario parameters and reserve effect',()=>{
  const keys=MATERIAL_KEYS;
  assert.equal(keys.length,12,'the brief was a dozen materials');
  for(const k of keys){
   const m=MATERIALS[k];
-  assert.ok(m.label?.trim()&&m.thesis?.trim(),`${k}: no name or precedent`);
+  assert.ok(m.label?.trim(),`${k}: no name`);
+  assert.equal(m.basis,'scenario-2026',`${k}: missing scenario provenance`);
+  assert.equal(m.thesis,undefined,`${k}: unsupported thesis association`);
   assert.ok(m.vt>=0&&m.vt<=1,`${k}: visible transmittance out of range`);
   assert.ok(m.shgc>=0&&m.shgc<=1,`${k}: solar heat gain out of range`);
   assert.ok(m.upkeep>0&&m.cycle>0&&m.carbon>0,`${k}: a physical property is missing or not positive`);

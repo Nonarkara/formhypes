@@ -1,20 +1,20 @@
 import {alternativesCsv} from './display-exports.js?v=4d76b0bc55';
 import {formatMoney,formatAmount,quantity,unitLabel,toDisplay,fromDisplay,displayText,displaySVG,displayContext,getPreferences,getRateBook} from './preferences.js?v=48652b12d9';
 import {mountSettings} from './settings.js?v=be17f4acee';
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=a8495429f1';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=f9542fbb27';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=ddfbfd2083';
-import {renderAssembly} from './assembly.js?v=5c7afa6d67';
-import {renderStructure} from './structure.js?v=00bdb3ed38';
-import {mountConsole} from './console.js?v=9af14a24c3';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=b11d0d46dd';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=77c2ddd678';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=7a6d03fccf';
+import {renderAssembly} from './assembly.js?v=e8ac8d5cfa';
+import {renderStructure} from './structure.js?v=b0e70550ec';
+import {mountConsole} from './console.js?v=d5f11c0fce';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=9531c58c62';
-import{familyResponse,lattice}from'./explore.js?v=d7b28ee88a';
-import{t,langs,langMeta,translator}from'./i18n.js?v=bffcb73f5b';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=67662478b8';
+import{familyResponse,lattice}from'./explore.js?v=5153c1362b';
+import{t,langs,langMeta,translator}from'./i18n.js?v=30b639f8d3';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
-import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern} from './materials.js?v=be1c7d7582';
+import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern,materialAssumptions} from './materials.js?v=732faea440';
 import {CROWNS,CROWNS_KEYS,GARDENS,GARDENS_KEYS,crownOf,gardenOf,crownPlates} from './crowns.js?v=caf18dfca2';
 import {cityData,skyline,visibleMassings,ringArea,splitByPlot} from './cityscape.js?v=dcc15cb0df';
 import {sweptHull,reachSteps,reachLabelled,contactOffset} from './reach.js?v=3742398937';
@@ -25,22 +25,22 @@ import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=4280077da8';
 import {coreScene} from './core3d.js?v=702aed5396';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy as getFengPlayStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=4e75674e4b';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=9c6e6dc40a';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=966ad18efa';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=20e9936338';
-import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=bae2aaec60';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=e6a2624bfc';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=579be89f62';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=c4f63f582c';
+import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=4112c7b289';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=4180544332';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
-import {quantityCsv, howMeasured} from './quantity.js?v=0d0e69f234';
+import {quantityCsv, howMeasured} from './quantity.js?v=843f6319c2';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=78494dc493';
-import {WORKSPACES} from './console.js?v=9af14a24c3';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=dad40eb986';
+import {WORKSPACES} from './console.js?v=d5f11c0fce';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI,settingsUI;
 const money=v=>formatMoney(v,lang);
@@ -240,7 +240,7 @@ function sync(){
  // and names the figures it is not allowed to move. Silence would let the
  // reader assume concrete makes the tower quieter or bigger. It does neither.
  const mt=materialOf(state);
- if($('materialNote'))$('materialNote').textContent=displayText(tt('mat.reads',{name:tt('mat.'+state.material),t:mt.thesis,e:mt.envelope.toFixed(2),c:mt.carbon,u:mt.upkeep.toFixed(2)}),lang);
+ if($('materialNote'))$('materialNote').textContent=displayText(tt('mat.reads',{name:tt('mat.'+state.material),e:mt.envelope.toFixed(2)}),lang);
  if($('matStrip')){
   const strip=$('matStrip');
   const existing=new Map([...strip.children].map(b=>[b.dataset.material,b]));
@@ -2707,7 +2707,7 @@ $('exportJson').onclick=()=>download('formhypes-study.json',JSON.stringify({
  author:'Dr Non',affiliation:'depa + Axiom',anniversary:'2006–2026',
  source:'Inspired by Dr Non’s MIT classmate Shouheng Chen. Embedded design knowledge after Shouheng Chen, MIT SMArchS 2006. Financial and political readings are extensions.',
  contextStudies:{environment:getEnvironmentStudy(),ground:getLocationStudy(),fengShui:getFengStudy(state),fengPlay:getFengPlayStudy(),brief:getBriefStudy(state),walk:getWalkStudy()},
- regime:regimes[state.regime].label,state,metrics,howMeasured:howMeasured(metrics,lang),createdAt:new Date().toISOString()},null,2),'application/json');
+ regime:regimes[state.regime].label,materialScenario:materialAssumptions(state),state,metrics,howMeasured:howMeasured(metrics,lang),createdAt:new Date().toISOString()},null,2),'application/json');
 $('exportQty').onclick=()=>download('formhypes-quantities.csv',quantityCsv(state,lang),'text/csv');
 $('exportCsv').onclick=()=>download('formhypes-alternatives.csv',alternativesCsv(alternatives,searchRun.objective),'text/csv');
 

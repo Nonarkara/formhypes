@@ -7,14 +7,16 @@
    solar gain on the face behind them.
 
    So the material is an overlay on the envelope, not a change to it. Each row
-   carries the properties that move a number, and nothing else. It does NOT
+   carries schematic appearance and scenario parameters. It does NOT
    change the floor plate, the core, the structure or the rent: choosing a
-   material does not make a floor bigger. If a row cannot move a figure it is
-   decoration, and it is not here.
+   material does not make a floor bigger.
 
-   The figures are indicative published ranges for commercial tower cladding,
-   not a specification and not a quotation. They are stated so the reader can
-   disagree with them: swap a number and every derived figure follows.
+   All numeric presets are unverified FormHypes scenario assumptions (2026),
+   not published product ranges, quotations or thesis measurements. Only
+   envelope changes the envelope reserve and capital cost. vt===0 groups opaque
+   schedule faces; the
+   remaining optical, carbon and maintenance fields are unused legacy inputs,
+   not predictions. No product, assembly, thickness or EPD is selected.
 
    vt    visible transmittance — the share of visible light reaching the glass
    shgc  solar heat gain coefficient — the share of solar energy passing
@@ -25,40 +27,40 @@
    draw          how the surface is inked in the three views
 */
 export const MATERIALS={
- 'float':{label:'Float glass, clear',thesis:'Sears Tower 1929',
+ 'float':{label:'Float glass, clear',basis:'scenario-2026',
   vt:.90,shgc:.85,upkeep:1.00,cycle:10,carbon:25,envelope:1.00,
   fill:'#8ea0a8',edge:'#c3d0d4',draw:'curtain'},
- 'reflective':{label:'Reflective coated glass',thesis:'HSBC Hong Kong 1985',
+ 'reflective':{label:'Reflective coated glass',basis:'scenario-2026',
   vt:.55,shgc:.30,upkeep:.85,cycle:12,carbon:28,envelope:1.12,
   fill:'#6f8494',edge:'#9fb4c0',draw:'curtain'},
- 'low-e':{label:'Low-e insulated glazing unit',thesis:'Chicago Stock Exchange 1994',
+ 'low-e':{label:'Low-e insulated glazing unit',basis:'scenario-2026',
   vt:.68,shgc:.32,upkeep:1.10,cycle:18,carbon:32,envelope:1.28,
   fill:'#7d929c',edge:'#b2c4cc',draw:'curtain'},
- 'pv':{label:'Photovoltaic glass',thesis:'BIPV curtain wall',
+ 'pv':{label:'Photovoltaic glass',basis:'scenario-2026',
   vt:.45,shgc:.20,upkeep:1.15,cycle:25,carbon:41,envelope:1.55,
   fill:'#3f5260',edge:'#7d94a0',draw:'cell'},
- 'alu-spandrel':{label:'Anodised aluminium spandrel',thesis:'Hong Kong and Shanghai Bank 1985',
+ 'alu-spandrel':{label:'Anodised aluminium spandrel',basis:'scenario-2026',
   vt:0,shgc:0,upkeep:.95,cycle:20,carbon:40,envelope:1.05,
   fill:'#9aa0a2',edge:'#d2d6d7',draw:'band'},
- 'precast':{label:'Precast concrete panel',thesis:'César Pelli · One Shell Plaza',
+ 'precast':{label:'Precast concrete panel',basis:'scenario-2026',
   vt:0,shgc:0,upkeep:1.00,cycle:50,carbon:60,envelope:0.86,
   fill:'#9d9a92',edge:'#cfcbc2',draw:'panel'},
- 'boardformed':{label:'Board-formed concrete',thesis:'Bauhaus · in-situ tradition',
+ 'boardformed':{label:'Board-formed concrete',basis:'scenario-2026',
   vt:0,shgc:0,upkeep:1.05,cycle:50,carbon:62,envelope:0.90,
   fill:'#948f86',edge:'#c6c0b6',draw:'board'},
- 'terracotta':{label:'Terracotta louvre screen',thesis:'Louvre, Paris, 1983–89',
+ 'terracotta':{label:'Terracotta louvre screen',basis:'scenario-2026',
   vt:0,shgc:0,upkeep:1.25,cycle:40,carbon:45,envelope:1.18,
   fill:'#a2705a',edge:'#cfa588',draw:'louvre'},
- 'timber':{label:'Timber soffit and reveal',thesis:'Delaware · deliberately limited',
+ 'timber':{label:'Timber soffit and reveal',basis:'scenario-2026',
   vt:0,shgc:0,upkeep:1.30,cycle:25,carbon:18,envelope:1.10,
   fill:'#a8814f',edge:'#d3b483',draw:'band'},
- 'zinc':{label:'Zinc standing seam',thesis:'Haussmannian roof tradition',
+ 'zinc':{label:'Zinc standing seam',basis:'scenario-2026',
   vt:0,shgc:0,upkeep:1.10,cycle:40,carbon:85,envelope:1.22,
   fill:'#8e959a',edge:'#c3c9cc',draw:'seam'},
- 'corten':{label:'Weathering steel',thesis:'Rijo-iin tower, Helsinki, 1978',
+ 'corten':{label:'Weathering steel',basis:'scenario-2026',
   vt:0,shgc:0,upkeep:1.20,cycle:50,carbon:95,envelope:0.98,
   fill:'#8a5f43',edge:'#b98a6a',draw:'panel'},
- 'granite':{label:'Granite cladding',thesis:'Standard for the period, everywhere',
+ 'granite':{label:'Granite cladding',basis:'scenario-2026',
   vt:0,shgc:0,upkeep:.90,cycle:60,carbon:55,envelope:1.02,
   fill:'#8b8a85',edge:'#c3c2bd',draw:'panel'}};
 
@@ -67,8 +69,8 @@ export const materialOf=s=>MATERIALS[s&&s.material]||MATERIALS.float;
 
 /* The one honest consequence of choosing a material: the same integrated skin
    area, charged at this material's rate. Returns the annual reserve only —
-   it does not touch rent, plate, core or contribution, because none of those
-   move when you change what the wall is made of. */
+   it does not itself recalculate a study. evaluate() uses the same coefficient
+   for reserve and envelope capital cost; derived contribution and ratios move. */
 export function materialEnvelopeCost(annualEnvelopeCost,s){
  const m=materialOf(s);
  return Math.max(0,annualEnvelopeCost)*m.envelope;
@@ -107,4 +109,14 @@ export function surfacePattern(s,cols=6,rows=8){
    for(let j=0;j<rows;j++)out.push(['d',j/rows]);
    break}
  return out;
+}
+
+// Travels with an exported study so the financial assumption cannot be
+// mistaken for measured material performance away from the interface.
+export function materialAssumptions(state){
+ const m=materialOf(state);
+ return {material:MATERIALS[state?.material]?state.material:'float',basis:m.basis,
+  verified:false,multiplier:m.envelope,baseline:'float glass = 1.00',
+  affects:['annual envelope reserve','envelope capital cost','derived contribution and capital/contribution ratio'],product:null,epd:null,
+  scope:'Financial scenario; schematic appearance and schedule grouping. No material carbon, energy or maintenance prediction.'};
 }

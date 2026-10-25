@@ -6,6 +6,9 @@ import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
 const dir=await mkdtemp(join(tmpdir(),'shdt-contract-mutations-'));
 const cases=[
+ ['material assumptions presented as verified','materials.js','verified:false','verified:true','material scenario provenance describes'],
+ ['material basis lost from JSON','app.js','materialScenario:materialAssumptions(state),','','the actual study download carries'],
+ ['material note promotes an assumption to a published value','i18n.js','This multiplier is an unverified assumption, not a quote.','This multiplier is a published value.','rendered material notes disclose'],
  ['phone view controls cannot open','app.js',"const open=$('viewToolsToggle').getAttribute('aria-expanded')!=='true'",'const open=false','phone view tools are exposed'],
  ['phone view controls remain over the drawing after selection','app.js',"$('viewTools').classList.remove('is-open');",'', 'phone view tools are exposed'],
  ['compass label rows share the same ink','feng.js','f2(ly-5)','f2(ly)','palace names and readings have separate'],
@@ -80,9 +83,9 @@ const cases=[
 // The files the mutants are written into. Everything else is symlinked, so a
 // mutation cannot leak into the working tree.
 const MUTABLE=['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js',
- 'console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js','feng.js'];
+ 'console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js','feng.js','materials.js'];
 const TESTS=['shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
- 'material-name.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
+ 'material-name.test.mjs','material-basis.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
  'crown.test.mjs','chrome-fit.test.mjs','site-display-boundary.test.mjs','plot-fit.test.mjs','view-controls.test.mjs','feng.test.mjs'];
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));
