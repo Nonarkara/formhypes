@@ -5,15 +5,16 @@ import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
 const stage=await mkdtemp(join(tmpdir(),'shdt-release-guards-'));
-const run=(args)=>spawnSync(process.execPath,args,{cwd:stage,encoding:'utf8',timeout:30000});
+const run=(args)=>spawnSync(process.execPath,args,{cwd:stage,encoding:'utf8',timeout:120000});
+const completed=(r,label)=>{if(r.error||r.signal||r.status===null)throw Error(label+' did not complete: '+(r.error?.code||r.signal||'no exit status'));return r};
 let failed=0;
 try{
  await mkdir(join(stage,'tests'));await mkdir(join(stage,'scripts'));
  for(const file of ['package.json','scripts/release-id.mjs','scripts/release-graph.mjs','tests/release-graph.test.mjs'])await copyFile(file,join(stage,file));
  await symlink(resolve('node_modules'),join(stage,'node_modules'));
  const reset=async()=>{await rm(join(stage,'dist'),{recursive:true,force:true});await cp('dist',join(stage,'dist'),{recursive:true,filter:p=>!p.includes('/.wrangler')})};
- const verify=()=>run(['--test','tests/release-graph.test.mjs']);
- const stamp=()=>{const r=run(['scripts/release-id.mjs']);if(r.status!==0)throw Error(r.stdout+r.stderr)};
+ const verify=()=>completed(run(['--test','tests/release-graph.test.mjs']),'Release graph verification');
+ const stamp=()=>{const r=completed(run(['scripts/release-id.mjs']),'Release stamping');if(r.status!==0)throw Error(r.stdout+r.stderr)};
  await reset();stamp();const baseline=verify();if(baseline.status!==0)throw Error('Baseline failed: '+baseline.stdout+baseline.stderr);
  const mutations=[
   ['double-quoted missing import',async()=>{const file=join(stage,'dist/play.js');await writeFile(file,(await readFile(file,'utf8'))+'\nimport "./missing-release-probe.js";\n')}],

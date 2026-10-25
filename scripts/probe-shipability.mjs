@@ -110,7 +110,7 @@ try{
   for(const [f,s]of Object.entries(original))await writeFile(join(dir,'dist',f),f===file?s.replaceAll(before,after):s);
   await writeFile(join(dir,'scripts/release-id.mjs'),file==='stamper'?stamperOriginal.replace(before,after):stamperOriginal);};
  const heightOriginal=await readFile('scripts/building-height.mjs','utf8');
- const run=pattern=>spawnSync(process.execPath,['--test',...(pattern?['--test-name-pattern',pattern]:[]),...TESTS.map(t=>join(dir,'tests',t))],{encoding:'utf8'});
+ const run=pattern=>{const r=spawnSync(process.execPath,['--test',...(pattern?['--test-name-pattern',pattern]:[]),...TESTS.map(t=>join(dir,'tests',t))],{encoding:'utf8',timeout:120000});if(r.error||r.signal||r.status===null)throw Error('Probe did not complete: '+(r.error?.code||r.signal||'no exit status')+' · '+(pattern||'baseline'));return r};
  await stage();const baseline=run();if(baseline.status!==0)throw Error('Isolated baseline failed: '+baseline.stdout+baseline.stderr);
  console.log('PASS: isolated baseline');
  for(const [name,file,before,after,pattern]of cases){

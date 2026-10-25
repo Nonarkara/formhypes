@@ -16,7 +16,7 @@ E_horizontal = DNI × Σ [ρ_i × max(0, −r_i,z / |r_i|)]
 
 This is not a NASA building-validation procedure. No additional mirror-incidence factor belongs in that expression: mirror interception already determines the projected footprint. The independent conservation identity is received irradiance times horizontal footprint area equals DNI times reflectance times mirror area times mirror-incidence cosine.
 
-[City of London, Solar Glare Planning Advice Note, July 2017](https://newsite.cityoflondon.gov.uk/assets/Services-Environment/solar-glare-planning-advice-note.pdf) remains the existing reflectance-curve/methodology reference. Cover, contents and introductory discussion were retrieved this round; a later fetch timed out. No claim is made that the entire planning method or all the lab's historical examples were revalidated. The angle-dependent extension is explicitly an illustrative broadband assumption, rather than a measured product spectrum. Both primary references are now reachable from the lab.
+[City of London, Solar Glare Planning Advice Note, July 2017](https://newsite.cityoflondon.gov.uk/assets/Services-Environment/solar-glare-planning-advice-note.pdf) remains the existing reflectance-curve/methodology reference. Cover, contents and introduction were retrieved; a later fetch timed out. A primary-source search then retrieved the discomfort-glare discussion on printed p. 9. It concerns sensitive occupied locations, not generic ground cells. The annual output now states that its 50-hour exposure contour is not a planning or safety threshold. No claim is made that the entire planning method or all historical examples were revalidated. The curve extension remains an illustrative broadband assumption, rather than a measured product spectrum. Both references are reachable from the lab.
 
 ## Changed
 
@@ -28,7 +28,7 @@ An independent visual review found that the overview's phone annotations needed 
 
 ## Verification
 
-645 tests pass. Five new tests check exact mirror-power conservation, mixed-direction overlap, a ground-peak ranking reversal, cached frame/payload direction and non-destructive enlargement. Existing diagram-number, proportional-bar, multilingual, collision and frame-boundary tests remain. Mutation probes cover omitted receiver projection, lost frame direction, beam-normal method contributions, removed overview and a viewer that never opens.
+646 tests pass. Six new tests check exact mirror-power conservation, mixed-direction overlap, a ground-peak ranking reversal, cached frame/payload direction, non-destructive enlargement and the distinction between exposure contours and receptor-glare criteria. Existing diagram-number, proportional-bar, multilingual, collision and frame-boundary tests remain. Mutation probes cover omitted receiver projection, lost frame direction, beam-normal method contributions, removed overview and a viewer that never opens.
 
 A comparison against the prior committed module, with default state, explicit ρ=0.13 and the same geometry/sampling, found:
 
@@ -43,6 +43,8 @@ These are sensitivity examples under a fixed irradiance assumption, not city wea
 Real browser: overview and enlarged method at 390 × 844, 1024 × 900 and 1440 × 900 in EN/TH/ZH. No document overflow, clipped method labels or browser errors. Enlarged modal stays within viewport; measured text rectangles are 19–21 px high. Keyboard ArrowRight pans 662 px on phone; Escape closes and restores focus to the enlargement command. Source SVG stays present. Independent source/test and saved-image review found no remaining issue in this change.
 
 Evidence: `.scratch/glare-*` and `.scratch/shots/integration-2026-10-25/glare/`. Verified lesson: SecondBrain `Scars/Debug-Logs/2026-10-25-beam-normal-irradiance-cannot-be-summed-as-horizontal-ground-irradiance.md`.
+
+Release checks caught 69 main mutants, three release-graph mutants and six preference mutants (78 total). The release-graph fixture twice failed before mutations with an empty diagnostic; those runs were not counted as successes. A separate ten-test verification completed in 36 seconds. Subprocess allowances now permit 120 seconds under load and explicitly report timeout/signal failures; an incomplete process cannot count as a killed mutant. The restamped verification and isolated release/preference probes then passed. The original subprocess failure's exact cause was not retained by the old diagnostic.
 
 ## Standing goal
 

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {reflect,groundHit,groundCosine,makeGrid,overlapAt,cellCentre,glareDay,facadeFacets,glareMethodPayload,openGlareDrawing,GLARE_DNI} from '../dist/glare.js';
+import {reflect,groundHit,groundCosine,makeGrid,overlapAt,cellCentre,glareDay,facadeFacets,glareMethodPayload,openGlareDrawing,GLARE_TEXT,GLARE_DNI} from '../dist/glare.js';
 import {defaults} from '../dist/model.js';
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 const area=p=>Math.abs(p.reduce((sum,a,i)=>{const b=p[(i+1)%p.length];return sum+a[0]*b[1]-b[0]*a[1]},0))/2;
@@ -60,4 +60,12 @@ test('enlarging the method preserves the overview and opens its own vector copy'
  assert.equal(scroll.scrollLeft,0);assert.equal(scroll.scrollTop,0);
  assert.equal(openGlareDrawing({querySelector:()=>null},dialog,scroll),false);
  assert.equal(shown,1,'a missing drawing must not open an empty viewer');
+});
+
+test('annual ground exposure is not presented as a receptor glare compliance threshold',()=>{
+ const markers={en:/not a planning or safety threshold/,th:/ไม่ใช่เกณฑ์อนุญาตหรือความปลอดภัย/,zh:/并非规划或安全阈值/};
+ for(const lang of ['en','th','zh']){
+  assert.match(GLARE_TEXT[lang].yearNote,markers[lang]);
+  assert.match(GLARE_TEXT[lang].yearNote,/50/);
+ }
 });
