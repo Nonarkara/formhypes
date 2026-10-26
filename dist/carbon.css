@@ -37,7 +37,7 @@
 .cb-field input[type=range]{width:100%}
 .cb-seg{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 .cb-seg button,.cb-toggle,.cb-apply{font-size:12px;border-radius:0}
-.cb-seg button{flex:1 1 auto;justify-content:center}
+.cb-seg button{flex:0 1 auto;max-width:100%;justify-content:center;white-space:normal;overflow-wrap:anywhere}
 .cb-apply{margin-top:8px}
 .cb-apply:not(:disabled){border-color:var(--accent)}
 .cb-rate{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 0}
@@ -71,7 +71,8 @@
 .cb-scors li.cb-on .cb-band{color:var(--ink);font-weight:600}
 
 @media(pointer:coarse){
- .cb-seg button,.cb-toggle,.cb-apply,.cb-field input[type=range],.cb-rate input{min-height:44px}
+ .cb-seg button{min-height:32px}
+ .cb-toggle,.cb-apply,.cb-field input[type=range],.cb-rate input{min-height:44px}
 }
 @media(prefers-reduced-motion:reduce){.cb *{transition:none}}
 /* Mono has no Thai or CJK glyphs; those languages read in the sans stack. */

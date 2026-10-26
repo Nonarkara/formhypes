@@ -41,7 +41,7 @@
 .fe-field input[type=range]:disabled{opacity:.45}
 .fe-seg{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 .fe-seg button,.fe-toggle{font-size:12px;border-radius:0;margin-top:4px}
-.fe-seg button{flex:1 1 auto;justify-content:center}
+.fe-seg button{flex:0 1 auto;max-width:100%;justify-content:center;white-space:normal;overflow-wrap:anywhere}
 
 .fe-facts{margin:0;display:grid;grid-template-columns:minmax(0,1fr)}
 @container (min-width:640px){.fe-facts{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px}}
@@ -51,6 +51,7 @@
 .fe-flagtext{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
 
 @media(pointer:coarse){
- .fe-seg button,.fe-toggle,.fe-field input[type=range]{min-height:44px}
+ .fe-seg button{min-height:32px}
+ .fe-toggle,.fe-field input[type=range]{min-height:44px}
 }
 @media(prefers-reduced-motion:reduce){.fe *{transition:none}}

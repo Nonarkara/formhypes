@@ -284,15 +284,25 @@ body.is-console [hidden]{display:none!important}
    the columns carry their own class, so moving a column cannot move the
    hiding onto a column that still holds a value. */
 .console-dock .tablewrap .c-gross,.console-dock .tablewrap .c-rentable{display:none}
-/* The action is pinned to the right edge of the scroller. The table is wider
-   than a phone, and the reader's job here is to compare and then press — the
-   button must not be the thing that falls off the edge. It is a column with a
-   hairline on its left, not a floating panel: no shadow, no blur, no fill. */
-.console-dock .tablewrap th:last-child,.console-dock .tablewrap td:last-child{
- position:sticky;right:0;background:var(--paper);border-left:1px solid var(--line);
- padding-left:10px;padding-right:8px}
-.console-dock .tablewrap tbody tr.win td:last-child{background:#fdf3e0}
-.console-dock .tablewrap tbody tr:hover td:last-child{background:var(--panel)}
+/* The candidate is one label — an index and a family name — and a family name
+   is one word. Chinese may break between any two ideographs, so without this
+   the cell's minimum width collapses to a single character and the table hands
+   the column twenty-eight pixels: "十字" is then written down the page, one
+   character to a line, and "Eight-point" breaks at its hyphen. The column
+   takes the width the label needs, or the label does not fit. */
+.console-dock .tablewrap td.c-cand{white-space:nowrap}
+/* Keep the candidate visible while reading the drivers, and Apply visible
+   at the decision edge. Compact cell padding reserves room for the two money
+   columns; scrolling exposes every driver between the frozen ends. */
+.console-dock .tablewrap th,.console-dock .tablewrap td{padding-left:4px;padding-right:4px}
+.console-dock .tablewrap th.c-cand,.console-dock .tablewrap td.c-cand{
+ position:sticky;left:0;background:var(--paper);border-right:1px solid var(--line)}
+.console-dock .tablewrap tbody tr.win td.c-cand{background:#fdf3e0}
+.console-dock .tablewrap tbody tr:hover td.c-cand{background:var(--panel)}
+.console-dock .tablewrap th.c-apply,.console-dock .tablewrap td.c-apply{
+ position:sticky;right:0;background:var(--paper);border-left:1px solid var(--line)}
+.console-dock .tablewrap tbody tr.win td.c-apply{background:#fdf3e0}
+.console-dock .tablewrap tbody tr:hover td.c-apply{background:var(--panel)}
 /* Feng Shui table headers wrap rather than clip. */
 .console-dock #fengshuiDesk th{white-space:normal}
 /* Reset, Save and Export act on the studio; on the reading pages they are noise. */

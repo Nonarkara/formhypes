@@ -91,7 +91,7 @@ test('the two identical columns are hidden by name, not by their position', () =
 test('the action is pinned to the right edge of the scroller, with a rule and no decoration', () => {
   const rules = css.replace(/\/\*[\s\S]*?\*\//g, '');
   const sticky = [...rules.matchAll(/([^{}]*)\{([^}]*position:sticky[^}]*)\}/g)]
-    .filter(m => /last-child/.test(m[1]));
+    .filter(m => /\.c-apply/.test(m[1]));
   assert.equal(sticky.length, 1, 'the action column is not pinned');
   const body = sticky[0][2];
   assert.match(body, /right:\s*0/, 'the pinned column is not pinned to the right edge');

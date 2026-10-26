@@ -6,6 +6,10 @@ import {join,resolve} from 'node:path';
 import {runProbe} from './probe-process.mjs';
 const dir=await mkdtemp(join(tmpdir(),'shdt-contract-mutations-'));
 const cases=[
+ ['wind choices stretch beyond their labels','wind.css','flex:0 1 auto;max-width:100%','flex:1 1 auto;max-width:100%','dense lab choices retain'],
+ ['lifts choices stretch beyond their labels','lifts.css','flex:0 1 auto;max-width:100%','flex:1 1 auto;max-width:100%','dense lab choices retain'],
+ ['fire choices stretch beyond their labels','fire.css','flex:0 1 auto;max-width:100%','flex:1 1 auto;max-width:100%','dense lab choices retain'],
+ ['carbon choices stretch beyond their labels','carbon.css','flex:0 1 auto;max-width:100%','flex:1 1 auto;max-width:100%','dense lab choices retain'],
  ['fire boundary-layer count becomes a length','fire.js',"width:fill(c.ctl.widthNote,{boundary","width:fill(c.ctl.widthNote.replace('2 ×',toDisplay(2,'m').toFixed(1)+' ×'),{boundary",'rendered fire references preserve'],
  ['fire specific flow scales as length instead of reciprocal width','fire.js',"r.fsMax/toDisplay(1,'m')","r.fsMax*toDisplay(1,'m')",'rendered fire references preserve'],
  ['compound carbon source factor loses canonical-unit boundary','carbon.js','kgCO₂e/kg wasted (SI)','kgCO₂e/kg wasted','source carbon factors retain explicit SI dimensions'],
@@ -102,8 +106,8 @@ const cases=[
 // The files the mutants are written into. Everything else is symlinked, so a
 // mutation cannot leak into the working tree.
 const MUTABLE=['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js',
- 'console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js','feng.js','materials.js','glare.js','drawing-viewer.js','fire.js','lifts.js','water.js','wind.js','structure.js','carbon.js'];
-const TESTS=['shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
+ 'wind.css','lifts.css','fire.css','carbon.css','console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js','feng.js','materials.js','glare.js','drawing-viewer.js','fire.js','lifts.js','water.js','wind.js','structure.js','carbon.js'];
+const TESTS=['control-fit.test.mjs','shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
  'fire-units.test.mjs','services-method-audit.test.mjs','wind.test.mjs','structure.test.mjs','carbon.test.mjs','material-name.test.mjs','material-basis.test.mjs','glare-radiometry.test.mjs','drawing-viewer.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
  'crown.test.mjs','chrome-fit.test.mjs','site-display-boundary.test.mjs','plot-fit.test.mjs','view-controls.test.mjs','feng.test.mjs'];
 try{
@@ -112,6 +116,7 @@ try{
 
  await mkdir(join(dir,'scripts'));await copyFile('scripts/release-graph.mjs',join(dir,'scripts/release-graph.mjs'));await copyFile('scripts/building-height.mjs',join(dir,'scripts/building-height.mjs'));
  await copyFile('scripts/release-id.mjs',join(dir,'scripts/release-id.mjs'));
+ await copyFile('scripts/control-fit.mjs',join(dir,'scripts/control-fit.mjs'));
  await copyFile('package.json',join(dir,'package.json'));
  for(const t of TESTS)await copyFile('tests/'+t,join(dir,'tests',t));
  // The plot desk's test reads the panel through the shared DOM stub, so the
