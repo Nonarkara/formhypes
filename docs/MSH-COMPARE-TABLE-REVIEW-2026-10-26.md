@@ -17,7 +17,7 @@ compliance, market value, indoor daylight or energy performance.
 | The compare table | the geometry of every column, read from the rendered page | the candidate column was 28px wide in Chinese |
 | The pinned action | the overlap of the pinned column against the text beside it | the height was under the button |
 | The lab corrections | an independent review of ten numbered claims against the primary sources | PASS, with eight findings |
-| The guards | the mutation harness, every mutant timed and named | 92 probes, none survived |
+| The guards | the mutation harness, every mutant timed and named | 99 probes, none survived |
 
 Every number below was measured on the page. None was read out of a source
 file. Both defects were invisible in the CSS that caused them: a rule that

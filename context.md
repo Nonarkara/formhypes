@@ -535,4 +535,4 @@ An independent review of the ten numbered lab claims of `fc4219b`, checked again
 
 The deploy can be re-authorised by the next person: the working Cloudflare OAuth flow, PKCE with wrangler's own public client and a callback that waits long enough to use, is now in the repository with a test that runs the deployer and reads its exit code. The mutation harness times every mutant and names it, so an interrupted run is reported as an interrupted run rather than ending the suite with no verdict.
 
-684 tests green; 92 mutation probes, none survived. Evidence, measurements and what is still open: `docs/MSH-COMPARE-TABLE-REVIEW-2026-10-26.md`.
+684 tests green; 99 mutation probes, none survived. Evidence, measurements and what is still open: `docs/MSH-COMPARE-TABLE-REVIEW-2026-10-26.md`.
