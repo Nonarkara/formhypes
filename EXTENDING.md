@@ -223,6 +223,27 @@ stops the freshness window from being load-bearing.
 **Deploy before push, and push after.** A pushed commit that was never
 deployed is a lie in the history.
 
+**When the deploy says it cannot be authorised.** The deployer reads
+wrangler's stored credential before it stages a byte. A dead access token with
+no refresh token beside it cannot authorise a deploy, and wrangler reports that
+as a failed request — which reads like a network fault, so the deployer names
+it instead:
+
+```bash
+node scripts/login-cloudflare.mjs   # opens a URL; Allow within 15 minutes
+```
+
+It is wrangler's own OAuth flow — authorisation code with PKCE, wrangler's
+public client, its redirect URI and its token endpoint — with a callback that
+waits long enough for a person to use. `wrangler login` gives about sixty
+seconds to press Allow, which is not a window a person can use; that is the
+whole difference. The token is written into wrangler's config in wrangler's
+format and is never printed. `WAIT_MINUTES=30` waits longer.
+
+`tests/deploy-credential.test.mjs` runs the deployer in a fixture and reads
+its exit code: 4 is "no usable credential", 5 is "the credential was fine and
+wrangler is not installed".
+
 ---
 
 ## 8. The traps

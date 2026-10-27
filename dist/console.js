@@ -2,10 +2,10 @@ import {toDisplay,fromDisplay,unitLabel,displayText} from './preferences.js?v=48
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
 import {profile,stack,grossOf} from './model.js?v=67662478b8';
-import {renderCarbonLab} from './carbon.js?v=f81303fa83';
-import {renderLiftsLab} from './lifts.js?v=ad51b29c3a';
+import {renderCarbonLab} from './carbon.js?v=d90e397524';
+import {renderLiftsLab} from './lifts.js?v=a839f5889c';
 import {renderFireLab} from './fire.js?v=2fe91fc6df';
-import {renderWindLab} from './wind.js?v=b4244c91aa';
+import {renderWindLab} from './wind.js?v=188de29185';
 import {renderWaterLab} from './water.js?v=7fe945a8bd';
 import {renderGlareLab} from './glare.js?v=e488300d4d';
 import {renderFacade} from './facade.js?v=a6f7de2b5e';

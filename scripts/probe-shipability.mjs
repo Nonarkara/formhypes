@@ -23,6 +23,7 @@ const cases=[
  ['unsupported Strouhal values claim code provenance','structure.js',"stBasis:stTabulated?'tabulated':'assumed'","stBasis:'tabulated'",'structure vortex speed uses roof width'],
  ['construction waste omits haul and processing','carbon.js','wf[mat]*(a13+a4)+outbound+processing','wf[mat]*(a13+a4)','A5w includes waste haul and processing'],
  ['enlarged annotations shrink below readable scale','drawing-viewer.js','width*16/Math.min(...sizes)','width*4/Math.min(...sizes)','viewer scale keeps'],
+ ['an annotation declares no size','drafting.js','font-size="${p.size}"','font-size=""','every annotation on the six real method sheets declares a size'],
  ['closing a hidden drawing resumes its lab','drawing-viewer.js','source.isConnected&&source.getBoundingClientRect().width>0','source.isConnected','closing clears the copy'],
  ['enlargement removes the original method drawing','drawing-viewer.js','scroll.replaceChildren(copy)','scroll.replaceChildren(svg)','enlarging the method preserves'],
  ['enlarged method viewer never opens','drawing-viewer.js','dialog.showModal();','','enlarging the method preserves'],
@@ -69,7 +70,9 @@ const cases=[
  ['the action column is not last','app.js',"['cand',tt('s.col.candidate'),false],","['apply',tt('s.col.candidate'),false],",'the candidate table reads in decision order'],
  ['the columns lose their names','app.js','class="c-${c}"','class=""','every column carries its own name'],
  ['the identical columns are hidden by position again','console.css','.console-dock .tablewrap .c-gross,.console-dock .tablewrap .c-rentable{display:none}','.console-dock .tablewrap th:nth-child(3),.console-dock .tablewrap td:nth-child(3),.console-dock .tablewrap th:nth-child(4),.console-dock .tablewrap td:nth-child(4){display:none}','the two identical columns are hidden by name'],
- ['the action is not pinned','console.css','position:sticky;right:0;','position:static;','the action is pinned to the right edge'],
+ ['the candidate is frozen no more','console.css','position:sticky;left:0;','position:static;','the candidate name is frozen at the left'],
+ ['the action is pinned over the drivers again','console.css','border-left:1px solid var(--line)}','position:sticky;right:0;background:var(--paper);border-left:1px solid var(--line)}','not pinned over the drivers'],
+ ['the candidate label is broken again','console.css','td.c-cand{white-space:nowrap}','td.c-cand{white-space:normal}','the candidate label is never broken'],
  ['a module ships without being hashed','stamper',"'crowns.js','materials.js','details.js',","'crowns.js','details.js',",'every module that ships is hashed'],
  ['an import edge is left out of the stamp','stamper',"'./materials.js','./i18n.js'","'./materials.js'",'the stamper covers every edge'],
  // The reader's own plot: the land decides the size. These six are the
@@ -106,15 +109,19 @@ const cases=[
 // The files the mutants are written into. Everything else is symlinked, so a
 // mutation cannot leak into the working tree.
 const MUTABLE=['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js',
- 'wind.css','lifts.css','fire.css','carbon.css','console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js','feng.js','materials.js','glare.js','drawing-viewer.js','fire.js','lifts.js','water.js','wind.js','structure.js','carbon.js'];
+ 'wind.css','lifts.css','fire.css','carbon.css','console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js','feng.js','materials.js','glare.js','drawing-viewer.js','fire.js','lifts.js','water.js','wind.js','structure.js','carbon.js','drafting.js'];
 const TESTS=['control-fit.test.mjs','shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
  'fire-units.test.mjs','services-method-audit.test.mjs','wind.test.mjs','structure.test.mjs','carbon.test.mjs','material-name.test.mjs','material-basis.test.mjs','glare-radiometry.test.mjs','drawing-viewer.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
- 'crown.test.mjs','chrome-fit.test.mjs','site-display-boundary.test.mjs','plot-fit.test.mjs','view-controls.test.mjs','feng.test.mjs'];
+ 'crown.test.mjs','chrome-fit.test.mjs','site-display-boundary.test.mjs','plot-fit.test.mjs','view-controls.test.mjs','feng.test.mjs',
+ 'method-sheet-annotations.test.mjs','deploy-credential.test.mjs'];
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));
  await symlink(resolve('node_modules'),join(dir,'node_modules'));
 
  await mkdir(join(dir,'scripts'));await copyFile('scripts/release-graph.mjs',join(dir,'scripts/release-graph.mjs'));await copyFile('scripts/building-height.mjs',join(dir,'scripts/building-height.mjs'));
+ // The deployer is guarded by running it, so the sandbox needs it and the two
+ // modules it reads.
+ for(const f of ['deploy.mjs','public-release.mjs','cloudflare-credential.mjs'])await copyFile('scripts/'+f,join(dir,'scripts',f));
  await copyFile('scripts/release-id.mjs',join(dir,'scripts/release-id.mjs'));
  await copyFile('scripts/control-fit.mjs',join(dir,'scripts/control-fit.mjs'));
  await copyFile('package.json',join(dir,'package.json'));

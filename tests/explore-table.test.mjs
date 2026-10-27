@@ -7,9 +7,22 @@ import {quantity,toDisplay,displayText,formatAmount,getPreferences} from '../dis
    and the Δ column was cut mid-number, showing "+U". A reader on a phone
    could read the money and could not press anything.
 
-   So the table now reads the way the decision is made: the candidate and the
+   So the table reads the way the decision is made: the candidate and the
    two money columns first, the drivers that produced them after, and the
-   action pinned to the right edge of the scroller where it cannot be lost.
+   action at the end of the row.
+
+   The action is NOT pinned to the right edge, and that took a measurement to
+   learn. A pin slides left by exactly the table's overflow, so it stands on
+   the column beside it: on the phone in Chinese the pinned button sat on the
+   height and on the corners, the last two drivers, and a reader could press a
+   candidate whose numbers they had never seen. Freezing the candidate at the
+   other end as well only moved the hiding — at the far end of the scroll the
+   money column went under the name. Two frozen ends hide a column at each
+   end.
+
+   One frozen end hides nothing where the reader starts. The candidate's name
+   is frozen at the left, the action is the end of the row, and every column
+   reaches its natural place where all of it can be read.
 
    The guards read the shipped builder and the shipped stylesheet, and they
    hold the values, not the names. */
@@ -88,17 +101,44 @@ test('the two identical columns are hidden by name, not by their position', () =
     `a column is still hidden by its position in the row:\n${positional.join('\n')}`);
 });
 
-test('the action is pinned to the right edge of the scroller, with a rule and no decoration', () => {
+test('the candidate name is frozen at the left, with a rule and no decoration', () => {
   const rules = css.replace(/\/\*[\s\S]*?\*\//g, '');
   const sticky = [...rules.matchAll(/([^{}]*)\{([^}]*position:sticky[^}]*)\}/g)]
-    .filter(m => /\.c-apply/.test(m[1]));
-  assert.equal(sticky.length, 1, 'the action column is not pinned');
+    .filter(m => /\.c-cand/.test(m[1]));
+  assert.equal(sticky.length, 1, 'the candidate column is not frozen at the left');
   const body = sticky[0][2];
-  assert.match(body, /right:\s*0/, 'the pinned column is not pinned to the right edge');
-  assert.match(body, /background:\s*var\(--paper\)/, 'the pinned column has no ground of its own, so the scrolled row shows through it');
-  assert.match(body, /border-left:\s*1px solid/, 'the pinned column has no hairline to say where it ends');
+  assert.match(body, /left:\s*0/, 'the frozen column is not frozen to the left edge');
+  assert.match(body, /background:\s*var\(--paper\)/, 'the frozen column has no ground of its own, so the scrolled row shows through it');
+  assert.match(body, /border-right:\s*1px solid/, 'the frozen column has no hairline to say where it ends');
   // The house does not float things: no shadow, no blur, no gradient.
   for (const banned of [/box-shadow/, /filter\s*:\s*blur/, /backdrop-filter/, /gradient/]) {
-    assert.doesNotMatch(body, banned, `the pinned column is decorated with ${banned}`);
+    assert.doesNotMatch(body, banned, `the frozen column is decorated with ${banned}`);
   }
+});
+
+test('the action is the end of the row and is not pinned over the drivers', () => {
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  // A pin slides left by exactly the table's overflow and stands on the
+  // column beside it. The action is the last column, so the column it stood
+  // on was the last driver — the height, and on a phone the corners too.
+  const pinned = [...rules.matchAll(/([^{}]*)\{([^}]*position:sticky[^}]*)\}/g)]
+    .filter(m => /\.c-apply/.test(m[1]));
+  assert.deepEqual(pinned, [],
+    `the action column is pinned over the data:\n${pinned.map(m => m[0]).join('\n')}`);
+  // It is still named, still marked, and still a column of its own.
+  const named = [...rules.matchAll(/([^{}]*\.c-apply[^{}]*)\{([^}]*)\}/g)];
+  assert.ok(named.length, 'the action column carries no rule of its own');
+  assert.ok(named.some(m => /border-left:\s*1px solid/.test(m[2])),
+    'the action column has no hairline to say where the decision begins');
+});
+
+test('the candidate label is never broken across lines', () => {
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  // Chinese may break between any two ideographs, so a candidate cell that
+  // may wrap has a minimum width of one character: the table handed the
+  // column twenty-eight pixels and wrote "十字" down the page, one character
+  // to a line, and broke "Eight-point" at its hyphen.
+  const nowrap = [...rules.matchAll(/([^{}]*)\{([^}]*white-space:nowrap[^}]*)\}/g)]
+    .filter(m => /\.c-cand/.test(m[1]));
+  assert.equal(nowrap.length, 1, 'the candidate label may be broken across lines');
 });

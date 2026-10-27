@@ -43,7 +43,6 @@ const ST={box:.12,chamfer:.12,cross:.11,star:.11,rub:.11,pinwheel:.11,triangle:.
 // retained values are sketch assumptions, including the corner-count blend.
 // Primary standard, pp. 115–117:
 // https://www.phd.eng.br/wp-content/uploads/2015/12/en.1991.1.4.2005.pdf
-export const ST_TABULATED=new Set(['box']);
 export function strouhalOf(s,{normal=true}={}){
  const st=ST[s.family]??.11;
  const stTabulated=s.family==='box'&&Math.abs((s.aspect??1)-1)<1e-6&&!(s.twist)&&normal;
@@ -89,7 +88,7 @@ export const STRUCT_TEXT={
   k:{lambda:'Slenderness',period:'First sway period, band',vcrit:'Vortex lock-in wind speed',core:'Core share of gross area',diagrid:'Diagrid angle',lifts:'Lift groups at 16 floors each'},
   periodV:'{a}–{b} s',coreV:'{p}% · towers average 24%',vcritV:'{v} m/s{est}',est:' · St assumed',
   diagridV:'{a}° · efficient about 55–75°',liftsV:'{n}',skyLobby:' · above four groups: shuttles and a sky lobby, not modelled',
-  vcritNote:'EN 1991-1-4 lets vortex effects be ignored when this speed is above 1.25 × the site mean wind at this height. The site wind is not modelled.',
+  vcritNote:'EN 1991-1-4 lets vortex effects be ignored when this speed is above 1.25 × the site mean wind at this height. The site wind is not modelled, and this figure assumes wind normal to the face.',
   sys:{'column-grid':'Column grid and core: the core carries the wind. Khan found frames inefficient from about 20 storeys, which is why tall towers add outriggers or a perimeter tube.',outrigger:'Outriggers tie the core to perimeter columns; it is the system of the tallest towers, Taipei 101 and Shanghai Tower among them.',diagrid:'Perimeter diagrid: built at about 20–100 storeys.'},
   diagridOut:' This tower is outside that range.',
   limits:'Rules of thumb from the form alone. They do not include mass, stiffness, the site wind or soil, and they are not a structural design.',
@@ -101,7 +100,7 @@ export const STRUCT_TEXT={
   k:{lambda:'ความชะลูด',period:'คาบการโยกตัวแรก (ช่วง)',vcrit:'ความเร็วลมที่กระแสวนล็อกตัว',core:'สัดส่วนแกนกลางต่อพื้นที่รวม',diagrid:'มุมไดอะกริด',lifts:'กลุ่มลิฟต์ กลุ่มละ 16 ชั้น'},
   periodV:'{a}–{b} วินาที',coreV:'{p}% · ตึกสูงเฉลี่ย 24%',vcritV:'{v} ม./วินาที{est}',est:' · สมมติค่า St',
   diagridV:'{a}° · ช่วงที่มีประสิทธิภาพราว 55–75°',liftsV:'{n}',skyLobby:' · เกินสี่กลุ่ม ต้องมีลิฟต์ด่วนและสกายล็อบบี้ ซึ่งยังไม่ได้จำลอง',
-  vcritNote:'EN 1991-1-4 ยอมให้ไม่ต้องพิจารณาผลของกระแสวน เมื่อความเร็วนี้สูงกว่า 1.25 เท่าของความเร็วลมเฉลี่ยของที่ตั้งที่ระดับความสูงนี้ ระบบนี้ยังไม่ได้จำลองลมของที่ตั้ง',
+  vcritNote:'EN 1991-1-4 ยอมให้ไม่ต้องพิจารณาผลของกระแสวน เมื่อความเร็วนี้สูงกว่า 1.25 เท่าของความเร็วลมเฉลี่ยของที่ตั้งที่ระดับความสูงนี้ ระบบนี้ยังไม่ได้จำลองลมของที่ตั้ง และค่านี้สมมติว่าลมตั้งฉากกับหน้าอาคาร',
   sys:{'column-grid':'ระบบเสาและแกนกลาง แกนกลางรับแรงลม Khan พบว่าโครงข้อแข็งเริ่มไม่คุ้มตั้งแต่ราว 20 ชั้น ตึกสูงจึงเพิ่มเอาท์ริกเกอร์หรือท่อรอบนอก',outrigger:'เอาท์ริกเกอร์ยึดแกนกลางเข้ากับเสารอบนอก เป็นระบบของตึกที่สูงที่สุด เช่น ไทเป 101 และเซี่ยงไฮ้ทาวเวอร์',diagrid:'ไดอะกริดรอบนอก สร้างจริงราว 20–100 ชั้น'},
   diagridOut:' อาคารนี้อยู่นอกช่วงดังกล่าว',
   limits:'เป็นหลักคิดเบื้องต้นจากรูปทรงเท่านั้น ไม่รวมมวล ความแข็ง ลมและดินของที่ตั้ง และไม่ใช่การออกแบบโครงสร้าง',
@@ -113,7 +112,7 @@ export const STRUCT_TEXT={
   k:{lambda:'高宽比',period:'第一阶摆动周期（区间）',vcrit:'涡激锁定风速',core:'核心筒占总建筑面积',diagrid:'斜交网格角度',lifts:'电梯分区，每区 16 层'},
   periodV:'{a}–{b} 秒',coreV:'{p}% · 超高层平均 24%',vcritV:'{v} 米/秒{est}',est:' · St 为假定值',
   diagridV:'{a}° · 高效区间约 55–75°',liftsV:'{n}',skyLobby:' · 超过四个分区：需穿梭电梯和空中大堂，未建模',
-  vcritNote:'按 EN 1991-1-4，当此风速高于该高度处场地平均风速的 1.25 倍时，可不考虑涡激效应。场地风况未建模。',
+  vcritNote:'按 EN 1991-1-4，当此风速高于该高度处场地平均风速的 1.25 倍时，可不考虑涡激效应。场地风况未建模，此值假定风向垂直于立面。',
   sys:{'column-grid':'柱网加核心筒：由核心筒承担风荷载。Khan 发现框架约从 20 层起就不再经济，所以高楼会加伸臂桁架或外框筒。',outrigger:'伸臂桁架把核心筒和外围柱连成一体，是最高一批塔楼的体系，例如台北 101 和上海中心。',diagrid:'外围斜交网格：实际建成约 20–100 层。'},
   diagridOut:' 本塔楼在此范围之外。',
   limits:'只是从形体得出的经验估算，不含质量、刚度、场地风况和土质，也不是结构设计。',

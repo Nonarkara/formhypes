@@ -65,8 +65,8 @@ import {mountDrawingViewer} from './drawing-viewer.js?v=89fa2f4dac';
      EN 1991-1-1 Table 6.2: offices, category B1, q_k 2.5 kN/m²; RC 25 kN/m³.
    ASSUMPTIONS are marked ASSUMPTION where they are set. */
 import {profile,stack,area} from './model.js?v=67662478b8';
-import {leastWidth} from './structure.js?v=61ce37f11f';
-import {windRead} from './wind.js?v=b4244c91aa';
+import {leastWidth} from './structure.js?v=8cf0b45236';
+import {windRead} from './wind.js?v=188de29185';
 // The drafting vocabulary this drawing is made of. The release stamper pins
 // this against drafting.js; a hand-written token would rot the moment the
 // vocabulary changed, which is the whole reason the stamper exists.

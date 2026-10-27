@@ -299,8 +299,20 @@ body.is-console [hidden]{display:none!important}
  position:sticky;left:0;background:var(--paper);border-right:1px solid var(--line)}
 .console-dock .tablewrap tbody tr.win td.c-cand{background:#fdf3e0}
 .console-dock .tablewrap tbody tr:hover td.c-cand{background:var(--panel)}
+/* The action is the end of the row, and it is NOT pinned to the right edge.
+
+   A pin slides left by exactly the table's overflow, so it stands on the
+   column beside it. Measured on the phone in Chinese, the pinned button sat
+   on the height and on the corners — the last two drivers — and with the
+   candidate frozen at the other end, the money column went under the name
+   at the far end of the scroll. Two frozen ends hide a column at each end.
+
+   One frozen end hides nothing where the reader starts. The action is sixty
+   pixels further right, at the end of the row, which is where the decision
+   is made anyway: the name stays beside the button while the drivers are
+   read. */
 .console-dock .tablewrap th.c-apply,.console-dock .tablewrap td.c-apply{
- position:sticky;right:0;background:var(--paper);border-left:1px solid var(--line)}
+ background:var(--paper);border-left:1px solid var(--line)}
 .console-dock .tablewrap tbody tr.win td.c-apply{background:#fdf3e0}
 .console-dock .tablewrap tbody tr:hover td.c-apply{background:var(--panel)}
 /* Feng Shui table headers wrap rather than clip. */

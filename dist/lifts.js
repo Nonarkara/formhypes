@@ -220,6 +220,12 @@ export function liftPlan(s,o={},metrics,noCounterpart=false){
  const saturated=groups.some(g=>g.saturated);
  const awtUnavailable=groups.some(g=>g.awt===null);
  let awt=0;for(const g of locals)if(g.awt!==null&&(!shuttle||shuttle.awt!==null))awt+=g.pop*(g.awt+(g.bank==='high'&&shuttle?shuttle.awt:0));
+ // Two facts can hold at once: a group above the 80% car load the CIBSE
+ // approximation covers, and a group whose queue never clears. Saturation is
+ // the stronger statement — the wait is unbounded whatever the approximation
+ // says — so the number is Infinity and the row reads "saturated". The
+ // approximation's range is then beside the point, and the row does not say
+ // it. awtUnavailable stays true so the fact is not lost.
  awt=awtUnavailable?null:pop>0?awt/pop:0;if(saturated)awt=Infinity;
  const most=groups.reduce((m,g)=>g.cars>m.cars?g:m,groups[0]),big=most.cars>A.groupMax?most:null;
  const verdict=saturated?'sat':worst.interval>A.intervalMax?'int':lowHc.hcPct<rate-1e-9?'hc':big?'group':'pass';

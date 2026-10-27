@@ -18,7 +18,7 @@ import {mountDrawingViewer} from './drawing-viewer.js?v=89fa2f4dac';
      factor ψ_λ is taken as 1 (conservative) and the structural factor c_s·c_d
      as 1 (not computed).
    - Annex E, E.1.3.1 v_crit = b·n1/St, E.1.3.3 / Eq. E.4 Scruton number
-     Sc = 2·δ_s·m_i,e/(ρ·b²), E.1.2(3) vortex effects need not be examined when
+     Sc = 2·δ_s·m_i,e/(ρ·b²), E.1.2(2) vortex effects need not be examined when
      v_crit > 1.25·v_m. St from structure.js (square from Fig. E.1; other families
      are labelled assumptions).
    - Annex F, F.2 Eq. F.2 n1 = 46/h; Table F.1 mode exponent; Table F.2
@@ -29,7 +29,7 @@ import {mountDrawingViewer} from './drawing-viewer.js?v=89fa2f4dac';
      return peak acceleration about 10–15 milli-g residential, 20–25 milli-g
      office. Quoted, never computed here. */
 import {profile,stackHeight,families,inside,area} from './model.js?v=67662478b8';
-import {structureRead,strouhalOf,STRUCT_TEXT,STRUCTURE_BANDS} from './structure.js?v=61ce37f11f';
+import {structureRead,strouhalOf,STRUCT_TEXT,STRUCTURE_BANDS} from './structure.js?v=8cf0b45236';
 import {sheet,cut,beyond,leader as draftLeader,head,dim as draftDim,rule,txt as draftTxt,ground,flow,cl} from './drafting.js?v=5dc3f3c796';
 import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay} from './preferences.js?v=48652b12d9';
 let displayLang='en',displayKey='';
@@ -110,7 +110,7 @@ export function cfOf(family,dOverB=1,{normal=true,aspect=1}={}){
 export function defaultZeta(system){return (SYSTEM_DELTA[system]??0.10)/(2*Math.PI)}
 
 /* Vortex reading. r = v_m(H)/v_crit, which is also f_s/n1.
-   'clear'  : v_crit > 1.25·v_m (E.1.2(3)), r < 0.8
+   'clear'  : v_crit > 1.25·v_m (E.1.2(2)), r < 0.8
    'lockin' : r in [0.8, 1.25] — shedding at the tower's own frequency now
    'below'  : r > 1.25 — resonance happens at a lower, more frequent wind
    The band is named once, here, so the drawing and the rule cannot disagree
