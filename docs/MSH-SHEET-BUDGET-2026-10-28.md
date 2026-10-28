@@ -69,6 +69,8 @@ Measured on the built tree in all three languages (English, ไทย, 中文): 
 
 Four mutants, one for each way this round could have gone back: the title block restates the plan; the narrow window takes the general split; the number takes a row of its own; the notice outgrows the block. All four are killed.
 
+688 tests green; 103 mutation probes, none survived — 94 in the shipability harness, three in the release graph, six in the preferences.
+
 ## Evidence
 
 * `.scratch/shots/before/sheet-{390,600,700,1024,1440}.png` — the live sheet, before.

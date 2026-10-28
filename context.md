@@ -549,4 +549,4 @@ Measured after: the drawing's field at 700px went from 300px to 422px (+41%); at
 
 What was deliberately left alone, and why: the phone's contribution band stays on the sheet, because on a phone the results rail is hidden and moving it into the controls would cost the dock exactly what the sheet gained; the skyline note keeps its three lines, because the claim, the OpenStreetMap attribution and the caveat about surveyed heights are all earned; the control panel keeps its 237px, because it is sized to what it shows and its own content is a 2130px scroll; the sliders stay one to a row, because a halved track makes a floor count land on ±1.
 
-688 tests green; four new guards in `tests/sheet-budget.test.mjs` and four new mutants, all killed. Evidence, measurements and what is still open: `docs/MSH-SHEET-BUDGET-2026-10-28.md`.
+688 tests green; 103 mutation probes, none survived — 94 in the shipability harness, three in the release graph, six in the preferences — four new guards in `tests/sheet-budget.test.mjs` and four new mutants, all killed. Evidence, measurements and what is still open: `docs/MSH-SHEET-BUDGET-2026-10-28.md`.
