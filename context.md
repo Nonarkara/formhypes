@@ -536,3 +536,17 @@ An independent review of the ten numbered lab claims of `fc4219b`, checked again
 The deploy can be re-authorised by the next person: the working Cloudflare OAuth flow, PKCE with wrangler's own public client and a callback that waits long enough to use, is now in the repository with a test that runs the deployer and reads its exit code. The mutation harness times every mutant and names it, so an interrupted run is reported as an interrupted run rather than ending the suite with no verdict.
 
 684 tests green; 99 mutation probes, none survived. Evidence, measurements and what is still open: `docs/MSH-COMPARE-TABLE-REVIEW-2026-10-26.md`.
+
+## 2026-10-28 · The sheet's budget — the plan named once, and the narrow window that took less than the phone
+
+Continued from `c8f5f0b`. The complaint was six words and a crop of the console's drawing sheet on a phone: "Too many big texts to see anything." The crop carries the two things that exist only at ≤600px — the collapsed View controls button and the Annual contribution band — so the surface under complaint is the phone, and the first work was to measure it rather than to guess.
+
+The sheet is a dark field with the tower on it and paper around it. The paper is the band: the in-flow children of `.viewport`. The drawing is clipped to the field above that band, so field and band are the two numbers that matter, and the band is measured across the band's in-flow children — the same measurement the drawing makes before it clips its own ink.
+
+Three defects. The sheet named its plan twice: the caption above the drawing said "Cruciform / 8 outer corners / 48" and the title block said it again — "A-101 · CRUCIFORM / 8 OUTER CORNERS · 48L" — in a second register, on a second line, in the same words. Two statements of one fact is a second source of truth, and on a phone that line was 19px of paper the drawing could have had; the block now carries the sheet number alone, on the notice's row. The smaller screen gave the drawing more room than the bigger one: the phone's form task split the studio 1.45fr to .62fr, and a window between 601 and 900 left the same task on the general 1fr to .8fr, so a phone gave the tower 427px of field and a 700px window gave it 300 while the controls took 319; the narrow window now takes the phone's share, and a guard holds the two statements of that share equal so they cannot drift apart. The sheet's number was pushed onto a row of its own below 560px, so the block took two lines on a phone for one line of text.
+
+Measured after: the drawing's field at 700px went from 300px to 422px (+41%); at 390 from 427 to 447; at 1024 from 639 to 658; 1440 unchanged. The title block is one row at 390 and 700 in English, ไทย and 中文.
+
+What was deliberately left alone, and why: the phone's contribution band stays on the sheet, because on a phone the results rail is hidden and moving it into the controls would cost the dock exactly what the sheet gained; the skyline note keeps its three lines, because the claim, the OpenStreetMap attribution and the caveat about surveyed heights are all earned; the control panel keeps its 237px, because it is sized to what it shows and its own content is a 2130px scroll; the sliders stay one to a row, because a halved track makes a floor count land on ±1.
+
+688 tests green; four new guards in `tests/sheet-budget.test.mjs` and four new mutants, all killed. Evidence, measurements and what is still open: `docs/MSH-SHEET-BUDGET-2026-10-28.md`.

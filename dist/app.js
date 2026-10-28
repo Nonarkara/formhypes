@@ -401,7 +401,14 @@ function update(){
  }
  // Sheet identification, in the sense the U.S. National CAD Standard gives it:
  // the drawing names itself so it can be referred to unambiguously.
- $('tbRef').textContent='A-101 · '+tt('f.'+state.family).toUpperCase()+' · '+state.floors+'L';
+ //
+ // It names itself ONCE. The caption above the drawing already says which form
+ // this is — "Cruciform / 8 outer corners / 48" — and the title block repeated
+ // that sentence in a second register, on a second line, in the same words.
+ // Two statements of one fact is a second source of truth, and on a phone it
+ // cost a whole row of paper the drawing could have had. The caption names the
+ // plan; the title block numbers the sheet.
+ $('tbRef').textContent='A-101';
 
  const bm=baseline(state);
  const d=bm.contribution>0?(metrics.contribution/bm.contribution-1)*100:NaN;

@@ -229,7 +229,11 @@ input[type=range]::-moz-range-thumb{width:3px;height:18px;background:var(--accen
 body.is-console .titleblock .tb-sheet{display:none}
 @media(max-width:560px){.titleblock .b-cred,.titleblock .tb-sheet,.titleblock .tb-by{display:none}
  .titleblock{height:auto;flex-wrap:wrap;row-gap:3px;padding:5px 18px}
- .tb-ref{flex-basis:100%;margin-left:0;padding-left:0}}
+ /* The sheet number is six characters and it shares the notice's row. It used
+    to be the whole plan name — "A-101 · CRUCIFORM / 8 OUTER CORNERS · 48L" —
+    which the caption above the drawing already said, so the block took a
+    second line to repeat itself and the drawing lost that line of paper. */
+ .tb-ref{flex:none;padding-left:14px}}
 
 /* ── schedule · a column of figures, set tight ────────────────────────── */
 .primarymetric{border-bottom:2px solid var(--ink);padding:6px 0 10px;margin:0 0 10px}

@@ -166,6 +166,17 @@ body.is-console .form-atlas svg{height:22px;width:22px;margin:0}
  body.is-console .studio[data-rail="0"]>.results,body.is-console .studio[data-rail="1"]>.controls{display:none}
  body.is-console .controls #geometryControls{display:block}
  body.is-console .studio:not([data-task="form"]){grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(140px,.55fr) minmax(170px,1fr)}
+ /* The form task is the one workspace where the DRAWING is the work. The
+    others put the desk below the tower on purpose: a table, a section or a
+    luopan reads better wide than a massing does.
+
+    This task used to be left on the general split — 1fr to .8fr, so the tower
+    had 55% of the sheet — while the phone gave the same task 1.45fr to .62fr,
+    so the tower had 70%. The smaller screen gave the drawing more room than
+    the bigger one, which is backwards: measured at 700×900 the drawing had
+    289px of field and the controls had 319, and at 390 it had 370 and 237.
+    The phone's share is the right one, so the narrow window gets it too. */
+ body.is-console .studio[data-task="form"]{grid-template-rows:minmax(160px,1.45fr) minmax(130px,.62fr)}
  .console-dock{grid-column:1;grid-row:2;border-left:0;border-top:2px solid var(--ink);padding:10px}
  body.is-console .form-atlas{grid-template-columns:repeat(6,minmax(0,1fr))}
  .console-dock .wk-figwrap svg{min-width:0}

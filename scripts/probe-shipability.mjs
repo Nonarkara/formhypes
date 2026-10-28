@@ -104,7 +104,11 @@ const cases=[
  ['the gaps between the groups are not room','app.js','-used-hgap*count;','-used-hgap;','parameters take their own row'],
  ['the bar is never moved to its own row','app.js',"h.classList.toggle('bar-row',need>avail);","h.classList.toggle('bar-row',false);",'parameters take their own row'],
  ['the header is never asked','app.js','if(h)fitSiteBar(h);','','header is asked'],
- ['the bar has no rule for a row of its own','console.css','body.is-console header.bar-row .console-site{flex:1 0 100%;order:3;border-left-color:transparent;padding:4px 0 6px}','','placed by a constant width']
+ ['the bar has no rule for a row of its own','console.css','body.is-console header.bar-row .console-site{flex:1 0 100%;order:3;border-left-color:transparent;padding:4px 0 6px}','','placed by a constant width'],
+ ['the title block names the plan a second time','app.js',"$('tbRef').textContent='A-101';","$('tbRef').textContent='A-101 · '+tt('f.'+state.family).toUpperCase()+' · '+state.floors+'L';",'the sheet names its plan once'],
+ ['the narrow window takes less of the sheet than the phone','console.css','body.is-console .studio[data-task="form"]{grid-template-rows:minmax(160px,1.45fr) minmax(130px,.62fr)}','body.is-console .studio[data-task="form"]{grid-template-rows:minmax(160px,1fr) minmax(130px,.8fr)}','the narrow window gives the drawing the same share'],
+ ["the sheet's number takes a row of its own",'style.css','.tb-ref{flex:none;padding-left:14px}','.tb-ref{flex-basis:100%;margin-left:0;padding-left:0}',"the sheet's number shares the title block's row"],
+ ['the notice outgrows the title block','i18n.js',"'tb.notice':'Concept prototype — not for construction'","'tb.notice':'Concept prototype — not for construction, and not for anything else at all'","the title block is one line on a phone"]
 ];
 // The files the mutants are written into. Everything else is symlinked, so a
 // mutation cannot leak into the working tree.
@@ -113,7 +117,7 @@ const MUTABLE=['app.js','model.js','context.js','environment.js','environment-de
 const TESTS=['control-fit.test.mjs','shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
  'fire-units.test.mjs','services-method-audit.test.mjs','wind.test.mjs','structure.test.mjs','carbon.test.mjs','material-name.test.mjs','material-basis.test.mjs','glare-radiometry.test.mjs','drawing-viewer.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
  'crown.test.mjs','chrome-fit.test.mjs','site-display-boundary.test.mjs','plot-fit.test.mjs','view-controls.test.mjs','feng.test.mjs',
- 'method-sheet-annotations.test.mjs','deploy-credential.test.mjs'];
+ 'method-sheet-annotations.test.mjs','deploy-credential.test.mjs','sheet-budget.test.mjs'];
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));
  await symlink(resolve('node_modules'),join(dir,'node_modules'));
