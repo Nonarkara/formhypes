@@ -28,6 +28,7 @@ import {quantity,toDisplay,displayText,formatAmount,getPreferences} from '../dis
    hold the values, not the names. */
 
 import {test} from 'node:test';
+import {candidateFitFailures} from '../scripts/control-fit.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
@@ -141,4 +142,44 @@ test('the candidate label is never broken across lines', () => {
   const nowrap = [...rules.matchAll(/([^{}]*)\{([^}]*white-space:nowrap[^}]*)\}/g)]
     .filter(m => /\.c-cand/.test(m[1]));
   assert.equal(nowrap.length, 1, 'the candidate label may be broken across lines');
+});
+
+
+test('phone decision rows retain translated labels for every numeric driver', () => {
+  for (const lang of ['en','th','zh']) {
+    const html=buildTable(lang);
+    for (const key of ['contribution','delta','roof','corners','height','score']) {
+      const cell=html.match(new RegExp('<td class="c-'+key+' numeric"[^>]*>([\\s\\S]*?)</td>'))?.[1];
+      assert.ok(cell?.includes('class="candidate-label" aria-hidden="true"'), key+' lost its visible phone label');
+      assert.ok(cell.includes('s.col.'+key),key+' lost its translated column label');
+    }
+  }
+});
+
+test('phone candidate rows place identity and action above money and drivers', () => {
+  const rules=css.replace(/\/\*[\s\S]*?\*\//g,'');
+  const start=rules.indexOf('@container candidate-desk (max-width:600px){\n #searchResults');
+  assert.ok(start>=0,'phone candidate composition missing');
+  const phone=rules.slice(start);
+  for(const [key,row] of [['cand',1],['apply',1],['contribution',2],['delta',2],['roof',3],['corners',3],['height',3],['score',3]]) {
+    const body=phone.match(new RegExp('#searchResults tbody td\\.c-'+key+'\\{([^}]+)'))?.[1];
+    assert.ok(body?.includes('grid-row:'+row),key+' separated from its decision row');
+  }
+  assert.match(phone,/#searchResults tbody tr\{[^}]*display:grid/);
+  assert.match(phone,/#searchResults \.candidate-label\{display:block/);
+  assert.match(phone,/#searchResults tbody td\.c-apply button\{min-height:32px/);
+});
+
+
+test('candidate receipt gate rejects separated actions, clipped values and missing labels',()=>{
+ const states=[];
+ for(const lang of ['en','th','zh'])for(const width of [390,1024,1440]){
+  const cells=['cand','contribution','delta','roof','corners','height','apply'].map((key,i)=>({key,text:'value',label:'label',clipped:false,rect:{left:10+i*45,right:50+i*45,top:100,bottom:120,width:40}}));
+  states.push({lang,width,coarse:false,blended:false,height:844,clientWidth:width-36,scrollWidth:width-36,overflow:false,rows:Array.from({length:5},()=>({rect:{height:40,bottom:160},button:{left:320,right:360,width:40,height:32},cells}))});
+ }
+ assert.deepEqual(candidateFitFailures(states),[]);
+ for(const breakIt of [s=>{s.blended=true},s=>{s.scrollWidth+=100},s=>{s.rows[0].button.right=550},s=>{s.rows[0].cells[1].clipped=true},s=>{s.rows[0].cells[1].label=''},s=>{s.rows[0].cells.pop()},s=>{s.rows[0].rect.bottom=900},s=>{s.rows[0].cells[1].rect={...s.rows[0].cells[0].rect}}]){
+  const broken=structuredClone(states);breakIt(broken[0]);assert.ok(candidateFitFailures(broken).length,'invalid measured decision passed');
+ }
+ assert.ok(candidateFitFailures(states.slice(1)).length,'missing phone state passed');
 });

@@ -302,9 +302,8 @@ body.is-console [hidden]{display:none!important}
    character to a line, and "Eight-point" breaks at its hyphen. The column
    takes the width the label needs, or the label does not fit. */
 .console-dock .tablewrap td.c-cand{white-space:nowrap}
-/* Keep the candidate visible while reading the drivers, and Apply visible
-   at the decision edge. Compact cell padding reserves room for the two money
-   columns; scrolling exposes every driver between the frozen ends. */
+/* Preserve row identity while scrolling the wide table. Phone rows below
+   keep the action and money together without horizontal scrolling. */
 .console-dock .tablewrap th,.console-dock .tablewrap td{padding-left:4px;padding-right:4px}
 .console-dock .tablewrap th.c-cand,.console-dock .tablewrap td.c-cand{
  position:sticky;left:0;background:var(--paper);border-right:1px solid var(--line)}
@@ -334,3 +333,31 @@ body[data-tab="research"] header .actions{display:none}
 #facadeDesk svg{font-size:14px}
 
 @media(max-width:600px){body.is-console header>.settings-button{grid-column:3;grid-row:1;min-height:32px;padding:3px 4px;font-size:11px}}
+
+/* A phone candidate is one decision: identity/action, money/change, drivers.
+   Keep the table and its column headings for assistive technology. */
+#searchResults .candidate-label{display:none}
+.explore{container:candidate-desk / inline-size}
+@container candidate-desk (max-width:600px){
+ #searchResults .tablewrap{overflow:visible}
+ #searchResults table,#searchResults tbody{display:block;width:100%}
+ #searchResults thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ #searchResults tbody tr{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:4px;padding:8px 0;border-bottom:1px solid var(--line)}
+ #searchResults tbody td{min-width:0;padding:4px 0;border:0;white-space:normal;overflow-wrap:anywhere;text-align:left}
+ #searchResults tbody td.c-cand{grid-column:1 / 9;grid-row:1;position:static;align-self:center;font-weight:600;background:transparent;white-space:normal}
+ #searchResults tbody td.c-apply{grid-column:9 / 13;grid-row:1;justify-self:end;background:transparent}
+ #searchResults tbody td.c-contribution{grid-column:1 / 7;grid-row:2}
+ #searchResults tbody td.c-delta{grid-column:7 / 13;grid-row:2}
+ #searchResults tbody td.c-roof{grid-column:1 / 4;grid-row:3}
+ #searchResults tbody td.c-corners{grid-column:4 / 7;grid-row:3}
+ #searchResults tbody td.c-height{grid-column:7 / 10;grid-row:3}
+ #searchResults tbody td.c-score{grid-column:10 / 13;grid-row:3}
+ #searchResults .candidate-label{display:block;font:inherit;color:var(--muted);white-space:normal;margin-bottom:2px}
+ #searchResults tbody td.c-apply button{min-height:32px}
+}
+
+@media(max-width:600px){
+ /* Keep the four view modes together and the three display tools together. */
+ .viewtools.is-open{display:grid;grid-template-columns:repeat(4,max-content);gap:4px;width:max-content}
+ .viewtools.is-open button{justify-self:start}
+}

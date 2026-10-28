@@ -26,3 +26,10 @@ test('phone view tools are exposed on request and focus returns after selecting 
 test('desktop view actions do not move keyboard focus to the phone-only command',()=>{
  const ui=setup(false);ui.events.click({target:{closest:()=>({})}});assert.equal(ui.focused(),false);
 });
+
+
+test('expanded phone camera tools group four view modes and three display tools',()=>{
+ const css=readFileSync(new URL('../dist/console.css',import.meta.url),'utf8').replace(/\/\*[\s\S]*?\*\//g,'');
+ assert.match(css,/\.viewtools\.is-open\{display:grid;grid-template-columns:repeat\(4,max-content\);gap:4px;width:max-content/);
+ assert.match(css,/\.viewtools\.is-open button\{justify-self:start/);
+});

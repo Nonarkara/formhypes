@@ -19,7 +19,7 @@ import {execFileSync,spawnSync} from 'node:child_process';
 
 const gitPath = execFileSync('/usr/bin/which', ['git'], {encoding: 'utf8'}).trim();
 
-async function deployFixture(fn) {
+async function deployFixture(fn, ambientEnv = process.env) {
   const root = await mkdtemp(join(tmpdir(), 'shdt-deploy-test-'));
   const repo = join(root, 'repo');
   const bin = join(root, 'bin');
@@ -42,7 +42,11 @@ async function deployFixture(fn) {
   git('add', '.');
   git('commit', '-qm', 'Deploy fixture');
   const config = join(home, '.wrangler', 'config', 'default.toml');
-  const env = {...process.env, PATH: bin, HOME: home, XDG_CONFIG_HOME: join(root, 'xdg')};
+  const env = {...ambientEnv, PATH: bin, HOME: home, XDG_CONFIG_HOME: join(root, 'xdg')};
+  // Each case supplies its own credential. An operator's API token or global
+  // key must not silently authorise the absent/expired OAuth fixtures.
+  for (const key of ['CLOUDFLARE_API_TOKEN', 'CF_API_TOKEN', 'CLOUDFLARE_API_KEY',
+    'CF_API_KEY', 'CLOUDFLARE_EMAIL', 'CF_EMAIL']) delete env[key];
   try {
     return await fn({repo, bin, home, config, env, git});
   } finally {
@@ -54,6 +58,14 @@ const runDeploy = async ({repo, env, config}, text) => {
   if (text !== null) await writeFile(config, text);
   return spawnSync(process.execPath, ['scripts/deploy.mjs'], {cwd: repo, encoding: 'utf8', env});
 };
+
+test('ambient Cloudflare credential aliases cannot authorise the fixture', () => deployFixture(async f => {
+  const r = await runDeploy(f, '');
+  assert.equal(r.status, 4, 'ambient credentials bypassed the fixture credential gate');
+  assert.match(r.stderr, /no Cloudflare credential is present/i);
+}, {...process.env, CLOUDFLARE_API_TOKEN: 'fixture-token', CF_API_TOKEN: 'fixture-token',
+  CLOUDFLARE_API_KEY: 'fixture-key', CF_API_KEY: 'fixture-key',
+  CLOUDFLARE_EMAIL: 'fixture@example.invalid', CF_EMAIL: 'fixture@example.invalid'}));
 
 test('the deployer refuses without a credential and names the command that fixes it', () => deployFixture(async f => {
   const r = await runDeploy(f, '');

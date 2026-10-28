@@ -6,6 +6,9 @@ import {join,resolve} from 'node:path';
 import {runProbe} from './probe-process.mjs';
 const dir=await mkdtemp(join(tmpdir(),'shdt-contract-mutations-'));
 const cases=[
+ ['phone view tools leave a lone last control','console.css','grid-template-columns:repeat(4,max-content);gap:4px;width:max-content','grid-template-columns:repeat(6,max-content);gap:4px;width:max-content','expanded phone camera tools group'],
+ ['compact candidate composition disappears','console.css','@container candidate-desk (max-width:600px)','@container absent-desk (max-width:600px)','phone candidate rows place'],
+ ['compact numeric labels disappear','app.js','class="candidate-label" aria-hidden="true"','class="lost-label" aria-hidden="true"','phone decision rows retain'],
  ['wind choices stretch beyond their labels','wind.css','flex:0 1 auto;max-width:100%','flex:1 1 auto;max-width:100%','dense lab choices retain'],
  ['lifts choices stretch beyond their labels','lifts.css','flex:0 1 auto;max-width:100%','flex:1 1 auto;max-width:100%','dense lab choices retain'],
  ['fire choices stretch beyond their labels','fire.css','flex:0 1 auto;max-width:100%','flex:1 1 auto;max-width:100%','dense lab choices retain'],

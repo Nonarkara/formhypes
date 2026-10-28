@@ -1810,7 +1810,7 @@ function renderSearch(){
    ['rentable',Math.round(toDisplay(r.metrics.rentable,'m²')).toLocaleString(lang)],
    ['apply',`<button data-candidate="${i}" data-study-focus="ranked:${r.state.family}">${tt('s.col.apply')} ↗</button>`]];
   html+=`<tr class="${r===best?'win':''}">`
-   +cells.map(([c,v])=>`<td class="c-${c}${(c==='cand'||c==='apply')?'':' numeric'}"${c==='contribution'||c==='delta'?` title="${money(c==='contribution'?r.metrics.contribution:d)}" aria-label="${money(c==='contribution'?r.metrics.contribution:d)}"`:''}>${v}</td>`).join('')+'</tr>';
+   +cells.map(([c,v])=>`<td class="c-${c}${(c==='cand'||c==='apply')?'':' numeric'}"${c==='contribution'||c==='delta'?` title="${money(c==='contribution'?r.metrics.contribution:d)}" aria-label="${money(c==='contribution'?r.metrics.contribution:d)}"`:''}>${c==='cand'||c==='apply'?'':`<span class="candidate-label" aria-hidden="true">${COLS.find(([key])=>key===c)[1]}</span>`}${v}</td>`).join('')+'</tr>';
  });
  html+=`</tbody></table></div><p class="searchsummary">${plan.examined} ${tt('s.tested')} / ${alternatives.length} ${tt('s.feasible')} / ${plan.examined-alternatives.length} ${tt('s.rejected')}. ${tt('s.target')} ${quantity(plan.target,'m²',lang,0)}. ${tt('s.best')} “${ranking}”${plan.heightVariants>1?' · 2 '+tt('s.heightVariant'):''} · ${elapsed.toFixed(0)} ms</p>`;
  if(blended)html+=`<p class="note">${tt('s.normalizedRanking',{o:Math.round((1-regimes[state.regime].heightPull)*100),h:Math.round(regimes[state.regime].heightPull*100)})}</p>`;
