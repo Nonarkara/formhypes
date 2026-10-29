@@ -16,7 +16,7 @@
    or validate construction cost. */
 
 import{polyArea,polyPerimeter,minkowski,planLibrary,loftTable,lateralArea,loftVolume,
- pointInPolygon,distToBoundary,daylitFraction,daylightReachFor,cotSky,skyAngleDeg,isConvex}from'./geometry.js?v=eb7a621ab9';
+ pointInPolygon,pointInXY,distToBoundary,daylitFraction,daylightReachFor,cotSky,skyAngleDeg,isConvex}from'./geometry.js?v=5bc2ed10f4';
 
 import {solarDefaults,facadeExposure} from './solar.js?v=9279efc6dc';
 import {gardenOf,gardenIndices,crownOf,crownMetrics,crownPlates,CROWN_RATES} from './crowns.js?v=caf18dfca2';
@@ -27,7 +27,7 @@ export const families={box:'Rectilinear',chamfer:'Chamfered',cross:'Cruciform',o
 // Re-exported so the controller has one import edge into the model rather than
 // two into the model and the kernel. There is no cycle either way, but one edge
 // is one fewer thing for the release stamp to keep in step.
-export {isConvex,RUB_INNER_RATIO,RUB_INNER_RADIUS} from './geometry.js?v=eb7a621ab9';
+export {isConvex,RUB_INNER_RATIO,RUB_INNER_RADIUS} from './geometry.js?v=5bc2ed10f4';
 export const defaults={...solarDefaults,family:'cross',span:48,aspect:1,floors:48,height:4.1,taper:0.82,twist:0,core:14,common:12,rent:650,premium:30,occupancy:92,reserve:18,frontage:6,site:68,maxHeight:260,skin:'vertical',material:'float',crown:'flat',garden:'none',led:false,detail:'drained-cavity',system:'column-grid',program:'petronas',regime:'yield'};
 
 const PLANS={};
@@ -37,7 +37,12 @@ export function profile(s,t=0){
  const p=plan(s.family);
  const scale=1+(s.taper-1)*t,ang=(s.twist*t-(s.orientation||0))*Math.PI/180,c=Math.cos(ang),d=Math.sin(ang);
  const kx=s.span*Math.sqrt(s.aspect)*scale,ky=s.span/Math.sqrt(s.aspect)*scale;
- return p.map(([x,y])=>{const X=x*kx,Y=y*ky;return [X*c-Y*d,X*d+Y*c]});
+ // A plain loop, not a map: the tower's plan is rebuilt for every level of
+ // every candidate, and a map allocates a closure's worth of work per point.
+ // The arithmetic, and its order, are unchanged.
+ const n=p.length,out=new Array(n);
+ for(let i=0;i<n;i++){const q=p[i],X=q[0]*kx,Y=q[1]*ky;out[i]=[X*c-Y*d,X*d+Y*c]}
+ return out;
 }
 export const area=p=>polyArea(p);
 export const perimeter=p=>polyPerimeter(p);
@@ -50,10 +55,63 @@ const basePlan=s=>{
  const p=plan(s.family),kx=s.span*Math.sqrt(s.aspect),ky=s.span/Math.sqrt(s.aspect);
  return p.map(([x,y])=>[x*kx,y*ky]);
 };
-function intersects(a,b,c,d){const cross=(p,q,r)=>(q[0]-p[0])*(r[1]-p[1])-(q[1]-p[1])*(r[0]-p[0]);return cross(a,b,c)*cross(a,b,d)<0&&cross(c,d,a)*cross(c,d,b)<0}
+// Segment crossing, with the cross product hoisted out of the call. The
+// closure was allocated on every call, and the core test makes thousands of
+// them per evaluation. The arithmetic is the same expression in the same order.
+const cross=(p,q,r)=>(q[0]-p[0])*(r[1]-p[1])-(q[1]-p[1])*(r[0]-p[0]);
+const crossXY=(ax,ay,bx,by,cx,cy)=>(bx-ax)*(cy-ay)-(by-ay)*(cx-ax);
+function intersects(a,b,c,d){return cross(a,b,c)*cross(a,b,d)<0&&cross(c,d,a)*cross(c,d,b)<0}
+function segmentsCross(ax,ay,bx,by,cx,cy,dx,dy){
+ return crossXY(ax,ay,bx,by,cx,cy)*crossXY(ax,ay,bx,by,dx,dy)<0&&
+        crossXY(cx,cy,dx,dy,ax,ay)*crossXY(cx,cy,dx,dy,bx,by)<0;
+}
 function coreBoundaryHit(p,core){let c=core/2,r=[[-c,-c],[c,-c],[c,c],[-c,c]];return p.some((v,i)=>r.some((w,j)=>intersects(v,p[(i+1)%p.length],w,r[(j+1)%4])))}
 function coreHit(p,core){const c=core/2;return coreBoundaryHit(p,core)||p.some(([x,y])=>Math.abs(x)<c&&Math.abs(y)<c)||[[-c,-c],[c,-c],[c,c],[-c,c]].some(v=>inside(p,v))}
-export function cornerZones(p,s){let out=[];for(let i=0;i<p.length;i++){let v=p[i],prev=p[(i+p.length-1)%p.length],next=p[(i+1)%p.length],u=[prev[0]-v[0],prev[1]-v[1]],w=[next[0]-v[0],next[1]-v[1]],lu=Math.hypot(...u),lw=Math.hypot(...w);if(lu<2*s.frontage+.01||lw<2*s.frontage+.01)continue;u=u.map(x=>x/lu);w=w.map(x=>x/lw);const cross=u[0]*w[1]-u[1]*w[0],angle=Math.acos(Math.max(-1,Math.min(1,u[0]*w[0]+u[1]*w[1])));if(cross>=0||angle>145*Math.PI/180)continue;const l=s.frontage,z=[v,[v[0]+u[0]*l,v[1]+u[1]*l],[v[0]+(u[0]+w[0])*l,v[1]+(u[1]+w[1])*l],[v[0]+w[0]*l,v[1]+w[1]*l]];if(coreHit(z,s.core))continue;const centroid=z.reduce((a,v)=>[a[0]+v[0]/4,a[1]+v[1]/4],[0,0]);if(!inside(p,z[2])||!inside(p,centroid))continue;out.push(z)}return out}
+export function cornerZones(p,s){let out=[];for(let i=0;i<p.length;i++){let v=p[i],prev=p[(i+p.length-1)%p.length],next=p[(i+1)%p.length],u=[prev[0]-v[0],prev[1]-v[1]],w=[next[0]-v[0],next[1]-v[1]],lu=Math.hypot(u[0],u[1]),lw=Math.hypot(w[0],w[1]);if(lu<2*s.frontage+.01||lw<2*s.frontage+.01)continue;const ux=u[0]/lu,uy=u[1]/lu,wx=w[0]/lw,wy=w[1]/lw;const turn=ux*wy-uy*wx,angle=Math.acos(Math.max(-1,Math.min(1,ux*wx+uy*wy)));if(turn>=0||angle>145*Math.PI/180)continue;const l=s.frontage;const X=[v[0],v[0]+ux*l,v[0]+(ux+wx)*l,v[0]+wx*l],Y=[v[1],v[1]+uy*l,v[1]+(uy+wy)*l,v[1]+wy*l];if(coreHitsZone(X,Y,s.core))continue;let ccx=0,ccy=0;for(let q=0;q<4;q++){ccx+=X[q]/4;ccy+=Y[q]/4}if(!inside(p,[X[2],Y[2]])||!inside(p,[ccx,ccy]))continue;out.push([[X[0],Y[0]],[X[1],Y[1]],[X[2],Y[2]],[X[3],Y[3]]])}return out}
+
+/* The core test on a four-point zone, in coordinates.
+   A corner zone is a convex quadrilateral built from one vertex of the plan,
+   so its four points are known as plain numbers before any array is made. The
+   three questions are the same three the array version asked, in the same
+   order: does a zone edge cross a core edge, does a zone vertex sit inside the
+   core box, does a core corner sit inside the zone.
+
+   A zone that does not reach the core's square cannot answer yes to any of
+   the three — an edge cannot cross it, a vertex cannot be inside it, and a core
+   corner cannot be inside a zone that never reaches it — so the boxes are
+   compared first and the whole test is skipped. That is a conservative bound
+   and not an approximation: it only skips work that would have returned
+   false. */
+function coreHitsZone(X,Y,core){
+ const c=core/2;
+ let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
+ for(let i=0;i<4;i++){const x=X[i],y=Y[i];if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+ if(x1<-c||x0>c||y1<-c||y0>c)return false;
+ const KX=[-c,c,c,-c],KY=[-c,-c,c,c];
+ for(let i=0;i<4;i++){
+  const j=(i+1)%4;
+  for(let k=0;k<4;k++){
+   const m=(k+1)%4;
+   if(segmentsCross(X[i],Y[i],X[j],Y[j],KX[k],KY[k],KX[m],KY[m]))return true;
+  }
+ }
+ for(let i=0;i<4;i++)if(Math.abs(X[i])<c&&Math.abs(Y[i])<c)return true;
+ for(let k=0;k<4;k++)if(pointInXYXY(X,Y,KX[k],KY[k]))return true;
+ return false;
+}
+
+/** Point in polygon, for a polygon held as two coordinate arrays. */
+function pointInXYXY(X,Y,vx,vy){
+ const n=X.length;
+ let c=false;
+ let jx=X[n-1],jy=Y[n-1];
+ for(let i=0;i<n;i++){
+  const ax=X[i],ay=Y[i];
+  if((ay>vy)!==(jy>vy)&&vx<(jx-ax)*(vy-ay)/(jy-ay)+ax)c=!c;
+  jx=ax;jy=ay;
+ }
+ return c;
+}
 
 /* Solar exposure is a city/date geometric study, independent of rent.
  * Daily samples run 08:00–18:00 city civil time, every 15 minutes. Glass
@@ -376,7 +434,7 @@ function daylightDepth(p,s){
  return worst;
 }
 
-export function evaluate(s){
+export function evaluate(s,constraints){
  const st=stack(s);
  const height=st.reduce((sum,l)=>sum+l.h,0);
  const occupied=st.filter(l=>l.gfa);
@@ -387,7 +445,14 @@ export function evaluate(s){
  const taperK=s.taper-1, twistK=s.twist*Math.PI/180;
  const sAt=z=>1+taperK*(z/height), s0z=()=>taperK/height, th0z=()=>twistK/height;
 
- let gross=0,facade=0,cornerArea=0,corners=0,coreFits=true,envelopeFits=true,gardenArea=0;
+ // The brief's clauses, when the caller brings them. They are optional on
+ // purpose: without a brief this is the model as it always was, and with one
+ // the same geometry is additionally asked whether it fits the land and the
+ // allowance the land carries.
+ const allowance=constraints&&constraints.allowance>0?constraints.allowance:0;
+ const plotHalf=constraints&&constraints.plotHalf>0?constraints.plotHalf:0;
+
+ let gross=0,facade=0,cornerArea=0,corners=0,coreFits=true,envelopeFits=true,plotFits=true,gardenArea=0;
  const coreArea=s.core**2,c=s.core/2;
  let depthWorst=0,clearWorst=Infinity;
 
@@ -423,11 +488,16 @@ export function evaluate(s){
   const bad=coreBoundaryHit(p,s.core)||![[-c,-c],[c,-c],[c,c],[-c,c]].every(v=>inside(p,v));
   if(bad)coreFits=false;
   if(p.some(v=>Math.abs(v[0])>s.site/2+.00001||Math.abs(v[1])>s.site/2+.00001))envelopeFits=false;
+  // The land, as a separate subject from the envelope. A twist rotates the
+  // plan as it rises, so the widest reach of the tower is not always at its
+  // foot: every level is asked.
+  if(plotHalf>0&&p.some(v=>Math.abs(v[0])>plotHalf||Math.abs(v[1])>plotHalf))plotFits=false;
  }
  // the roof is geometry, not a rentable floor
  const roofP=profile(s,1);
  if(coreBoundaryHit(roofP,s.core)||![[-c,-c],[c,-c],[c,c],[-c,c]].every(v=>inside(roofP,v)))coreFits=false;
  if(roofP.some(v=>Math.abs(v[0])>s.site/2+.00001||Math.abs(v[1])>s.site/2+.00001))envelopeFits=false;
+ if(plotHalf>0&&roofP.some(v=>Math.abs(v[0])>plotHalf||Math.abs(v[1])>plotHalf))plotFits=false;
 
  // Daylight is reported, not priced, so it is integrated once on the base
  // plate rather than re-sampled on every level of every candidate in a search.
@@ -515,6 +585,15 @@ const facadeCost=facade*s.reserve*fac.envelope*reg.envelopeDiscipline*matFactor;
  if(!envelopeFits)reasons.push('site');
  if(heightTotal>s.maxHeight)reasons.push('height');
  if(rentable<=0)reasons.push('area');
+ // The brief's clauses, on the same list as the model's own. A reason here
+ // means the form cannot be built on that land under that allowance — it is
+ // not a statement about the law, and the desk says so wherever it is shown.
+ // The allowance is compared with a tolerance of one square metre: it is a
+ // product of two numbers the reader typed, and the area is a sum of many
+ // terms, so a candidate a fraction of a square metre over the line has not
+ // broken anything a reader would recognise.
+ if(allowance>0&&gross>allowance+1)reasons.push('far');
+ if(!plotFits)reasons.push('plot');
 
  return {
   gross,core,common,rentable,cornerArea,corners,facade,height,
@@ -600,9 +679,30 @@ export function searchPlan(s){
  return {target,floorSets,list,heightVariants:floorSets.length,examined:list.length};
 }
 
-/** Score one already-resized candidate. */
-export function scoreCandidate(candidate,objective='contribution'){
- const metrics=evaluate(candidate);
+/** Does the tower stay inside a square of this half-width?
+ *
+ *  A cheap bound decides most cases. A twist rotates the plan as it rises,
+ *  and rotation cannot push a vertex further from the centre than its own
+ *  radius, so a land wider than the base plan's radius times the taper cannot
+ *  be left by any level — and the levels never have to be walked. When the
+ *  bound does not decide it, every level is asked, because the widest reach of
+ *  a twisted tower is not always at its foot. */
+export function fitsSquare(s,half){
+ if(!(half>0))return true;
+ let R0=0;
+ for(const v of profile(s,0)){const r=Math.hypot(v[0],v[1]);if(r>R0)R0=r}
+ if(half>=R0*Math.max(1,s.taper))return true;
+ const st=stack(s),height=st.reduce((a,l)=>a+l.h,0);
+ const out=t=>profile(s,t).some(v=>Math.abs(v[0])>half||Math.abs(v[1])>half);
+ for(const l of st)if(out(l.z/height))return false;
+ return !out(1);
+}
+
+/** Score one already-resized candidate. The constraints are optional: without
+ *  them this is the model as it always was, and with them the same geometry is
+ *  additionally asked whether it fits the land and the allowance. */
+export function scoreCandidate(candidate,objective='contribution',constraints){
+ const metrics=evaluate(candidate,constraints);
  return {state:candidate,metrics,objective,score:regimeScore(metrics,candidate,objective)};
 }
 

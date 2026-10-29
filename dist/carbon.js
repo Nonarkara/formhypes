@@ -64,9 +64,9 @@ import {mountDrawingViewer} from './drawing-viewer.js?v=89fa2f4dac';
      ACI 318-19 Table 6.6.3.1.1(a): uncracked walls 0.70·Ig.
      EN 1991-1-1 Table 6.2: offices, category B1, q_k 2.5 kN/m²; RC 25 kN/m³.
    ASSUMPTIONS are marked ASSUMPTION where they are set. */
-import {profile,stack,area} from './model.js?v=67662478b8';
-import {leastWidth} from './structure.js?v=8cf0b45236';
-import {windRead} from './wind.js?v=188de29185';
+import {profile,stack,area} from './model.js?v=2d88cdbc91';
+import {leastWidth} from './structure.js?v=e15e7acc5d';
+import {windRead} from './wind.js?v=24a314d353';
 // The drafting vocabulary this drawing is made of. The release stamper pins
 // this against drafting.js; a hand-written token would rot the moment the
 // vocabulary changed, which is the whole reason the stamper exists.

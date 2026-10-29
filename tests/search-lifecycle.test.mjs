@@ -12,18 +12,23 @@ const search=app.slice(app.indexOf('let searchToken=0'),app.indexOf('function ap
 const finish=app.slice(app.indexOf('function finishSearch'),app.indexOf('// Split from the run'));
 const changed=app.slice(app.indexOf('function changed()'),app.indexOf('/* ── update'));
 function harness(){
- const queue=[],published=[],shared=[];let clock=0,calls=0,plans=0,updates=0;
+ const queue=[],published=[],shared=[],land=[];let clock=0,calls=0,plans=0,updates=0;
  const el=()=>({replaceChildren(){},append(){}}),host=el(),obj={value:'contribution'};
  const ctx={obj,state:{regime:'yield'},searchRun:null,alternatives:[],
   $:id=>id==='objective'?obj:host,document:{createElement:el},tt:k=>k,ruleMark:el,
   performance:{now:()=>clock},setTimeout:f=>queue.push(f),
   history:{replaceState:(_a,_b,url)=>shared.push(url)},location:{hash:'#studio'},
+  // The land's own clauses. The controller reads them from the Brief desk's
+  // inputs and turns them into the two numbers the model can refuse a tower
+  // on: the allowance the land carries and the width of the land itself.
+  getBriefStudy:()=>({inputs:{plot:9000,far:8,cap:260,gfa:120000}}),
+  briefConstraints:(b)=>({allowance:b.plot*b.far,plotHalf:Math.sqrt(b.plot)/2,cap:b.cap}),
   searchPlan:()=>{plans++;return {examined:8,list:Array.from({length:8},(_,id)=>({id}))}},
-  scoreCandidate:(s,o)=>{calls++;clock+=5;return {state:s,metrics:{valid:true},score:o}},
+  scoreCandidate:(s,o,k)=>{calls++;clock+=5;land.push(k);return {state:s,metrics:{valid:true},score:o}},
   rerank:(results,objective)=>results.map(r=>({...r,score:objective})),
   renderSearch:()=>published.push(ctx.searchRun.objective),update:()=>updates++};
  runInNewContext(search+finish+changed+handler+'\nthis.start=runSearch;this.change=changed;',ctx);
- return {ctx,obj,queue,published,shared,host,counts:()=>({calls,plans,updates}),flush(){while(queue.length)queue.shift()()}};
+ return {ctx,obj,queue,published,shared,host,land,counts:()=>({calls,plans,updates}),flush(){while(queue.length)queue.shift()()}};
 }
 test('an objective changed during the first sliced search is the one published',()=>{
  const h=harness();h.ctx.start();
@@ -41,6 +46,13 @@ test('completed runs reuse the original candidates after Apply and objective cha
  assert.deepEqual(h.counts(),{calls:8,plans:1,updates:0});
  assert.ok(h.ctx.alternatives.every(r=>r.score==='facade'),'completed results kept the old scores');
  assert.equal(run.objective,'facade');assert.deepEqual(h.published,['contribution','facade']);
+});
+test('every candidate is scored against the land\u2019s clauses, captured once at the start of the run',()=>{
+ const h=harness();h.ctx.start();h.flush();
+ assert.ok(h.land.length>=8,'the run scored no candidates');
+ for(const k of h.land){assert.ok(k,'a candidate was scored without the land\u2019s clauses');assert.equal(k.allowance,72000)}
+ // One capture for the whole run: the same clauses for every candidate.
+ assert.equal(new Set(h.land.map(k=>k.allowance)).size,1);
 });
 test('design edits cancel pending work without constructing a candidate plan',()=>{
  const h=harness();h.ctx.start();h.ctx.change();h.flush();

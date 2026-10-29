@@ -1,17 +1,18 @@
 import {alternativesCsv} from './display-exports.js?v=4d76b0bc55';
 import {formatMoney,formatAmount,quantity,unitLabel,toDisplay,fromDisplay,displayText,displaySVG,displayContext,getPreferences,getRateBook} from './preferences.js?v=48652b12d9';
 import {mountSettings} from './settings.js?v=be17f4acee';
-import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=b11d0d46dd';
-import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=77c2ddd678';
-import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=7a6d03fccf';
-import {renderAssembly} from './assembly.js?v=c4749e3083';
-import {renderStructure} from './structure.js?v=8cf0b45236';
-import {mountConsole} from './console.js?v=c0bfac9f60';
+import {DECISION_I18N,renderDecision,cleanStudyName,cleanStudyNote,parseStudyPackage} from './decisions.js?v=8afc465c89';
+import {ENV_I18N,renderEnvironment} from './environment-desk.js?v=07fe712091';
+import {getEnvironmentStudy,restoreEnvironmentStudy,validateEnvironment,visibleWall} from './environment.js?v=0b5971ef04';
+import {renderAssembly} from './assembly.js?v=172e700ddc';
+import {renderStructure} from './structure.js?v=e15e7acc5d';
+import {mountConsole} from './console.js?v=265a652c59';
 import {modulorPath} from './modulor.js?v=3431f62913';
 // FormHypes — controller
-import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert}from'./model.js?v=67662478b8';
-import{familyResponse,lattice}from'./explore.js?v=5153c1362b';
-import{t,langs,langMeta,translator}from'./i18n.js?v=30b639f8d3';
+import{defaults,families,profile,area,perimeter,cornerZones,evaluate,objectives,searchPlan,scoreCandidate,rank,rerank,baseline,meshOBJ,stack,levelPrograms,facadeFamilies,systems,regimes,distinctiveness,columnDensity,isConvex,RUB_INNER_RATIO,glazingSchedule,stackHeight,objectiveInert,fitsSquare}from'./model.js?v=2d88cdbc91';
+import{familyResponse,lattice}from'./explore.js?v=c902341942';
+import{briefConstraints}from'./solve.js?v=22a377dbcc';
+import{t,langs,langMeta,translator}from'./i18n.js?v=1c67987a57';
 import{SECTIONS,MOVED,REGIME_ORDER,PREMIUM_LABELS,RESEARCH_T}from'./research.js?v=ff3c45bc79';
 
 import {MATERIALS,MATERIAL_KEYS,materialOf,surfacePattern,materialAssumptions} from './materials.js?v=732faea440';
@@ -25,22 +26,22 @@ import {coreOf,coreSVG,CORE_SRC,motionOff} from './core.js?v=4280077da8';
 import {coreScene} from './core3d.js?v=702aed5396';
 import {renderLocation,getLocationStudy} from './location.js?v=d7f98850a2';
 import {renderPlay,getFengStudy as getFengPlayStudy} from './play.js?v=578d890470';
-import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=9c6e6dc40a';
+import {renderReader,entryTab,resolveRegimeQuery} from './research-reader.js?v=4907ec5acc';
 
 // The three desks added in 2026 after Chapter 6.2. Each is a self-contained
 // module that injects its own prefixed CSS, so nothing here owns their styling.
-import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=579be89f62';
-import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=c4f63f582c';
-import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=4112c7b289';
-import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=4180544332';
+import {BRIEF_I18N, renderBrief,getBriefStudy,setBriefInputs,resetBrief,restoreBriefInputs} from './brief.js?v=2eb861cb18';
+import {WALK_I18N, renderWalk,getWalkStudy} from './walk.js?v=5f7275b36c';
+import {FENG_I18N, renderFeng,getFengStudy} from './feng.js?v=cf0f947c97';
+import {CONTEXT_I18N, SITE_I18N, renderContext, renderSite} from './context.js?v=07c1bf5750';
 
 import {cities,solarDefaults,solarPosition,validSolar} from './solar.js?v=9279efc6dc';
 import {SCHEMA as schema,GROUPS as groups} from './schema.js?v=fd56569c48';
 import {splitOf,splitSVG,AREA_SPLIT,KEYS} from './areasplit.js?v=7506bcd419';
-import {quantityCsv, howMeasured} from './quantity.js?v=843f6319c2';
+import {quantityCsv, howMeasured} from './quantity.js?v=e5da608471';
 import {MANUAL} from './manual-text.js?v=e72529eba9';
-import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=dad40eb986';
-import {WORKSPACES} from './console.js?v=c0bfac9f60';
+import {manualSections,controlRows,controlGroups,runSelfCheck} from './manual.js?v=1a1c37fac9';
+import {WORKSPACES} from './console.js?v=265a652c59';
 const $=id=>document.getElementById(id);
 let lang='en',tt=translator('en'),consoleUI,settingsUI;
 const money=v=>formatMoney(v,lang);
@@ -294,9 +295,42 @@ function changed(){
  update();
 }
 
+/* ── the land ──────────────────────────────────────────────────────────────
+   The brief's own clauses, read from the Brief desk's inputs.
+   The studio's metrics never take them: a form's earnings do not change
+   because of the land, and a number that moved with the brief would be a
+   number about the brief. The land is asked its own two questions — does the
+   plot carry this much area, and does the tower stand on it — and it answers
+   them in its own line. */
+function landConstraints(){
+ const inputs=(getBriefStudy(state).inputs)||{};
+ return briefConstraints({plot:inputs.plot,far:inputs.far,cap:inputs.cap,target:inputs.gfa},state);
+}
+/** The land's verdict on the tower as it stands. Empty when the land has
+ *  nothing to say, which is most of the time. */
+function landVerdict(){
+ const K=landConstraints();
+ if(!(K.allowance>0)&&!(K.plotHalf>0))return null;
+ const bits=[];
+ if(K.allowance>0&&metrics.gross>K.allowance+1)bits.push(tt('m.land.over',{n:Math.round(metrics.gross-K.allowance).toLocaleString(lang)}));
+ if(!fitsSquare(state,K.plotHalf))bits.push(tt('m.land.out'));
+ if(!bits.length)return null;
+ return tt('m.chk.land')+' \u00b7 '+bits.join(' \u00b7 ');
+}
+
+/** Paint the land's line. Also the Brief desk's callback, because the land is
+ *  the brief's own plot and ratio: editing them must move this line without a
+ *  tower edit to prompt it. */
+function renderLandCheck(){
+ const landText=landVerdict();
+ $('landCheck').hidden=!landText;
+ $('landCheck').className=landText?'invalid':'valid';
+ $('landCheck').textContent=landText||'';
+}
+
 /* ── update ───────────────────────────────────────────────────────────── */
 const DESKS=[['brief',BRIEF_I18N,renderBrief],['fengshui',FENG_I18N,renderFeng],['walk',WALK_I18N,renderWalk],['context',CONTEXT_I18N,renderContext],['site',SITE_I18N,renderSite],['environment',ENV_I18N,renderEnvironment]];
-function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textContent=dict[lang].title;if($(id+'Panel').open)render({lang,state,changed:applyDeskPatch,onInputs:()=>{consoleUI?.render();drawTower()}})}}
+function renderDesks(){for(const [id,dict,render]of DESKS){$(id+'Title').textContent=dict[lang].title;if($(id+'Panel').open)render({lang,state,changed:applyDeskPatch,onInputs:()=>{consoleUI?.render();drawTower();renderLandCheck()}})}}
 for(const [id]of DESKS)$(id+'Panel').addEventListener('toggle',()=>{if($(id+'Panel').open)renderDesks()});
 function applyDeskPatch(patch){
  for(const [key,value]of Object.entries(patch)){
@@ -421,6 +455,11 @@ function update(){
  // The Brief desk measures area against the FAR allowance. Both name their
  // subject, so agreement between them is never mistaken for a single verdict.
  $('feasibility').textContent=tt('m.chk.form')+' · '+(metrics.valid?tt('m.feasible'):metrics.reasons.map(r=>tt('m.reason.'+r)).join(' · '));
+ // The land's answer, on its own line, and only when it has one. Two checks,
+ // two subjects: the form against the studio's own limits, the land against
+ // the brief's plot and allowance. A line that appears only when something is
+ // wrong is a line that earns its space.
+ renderLandCheck();
 
  document.querySelectorAll('[data-i18n]').forEach(n=>{const key=n.dataset.i18n;if(key==='c.USD')n.textContent=getPreferences().currency;else if(key==='v.units')n.textContent=unitLabel('m');else if(key==='c.rent')n.textContent=tt(key).replace(/m²|ตร\.ม\.|平方米/g,unitLabel('m²'));else if(n.tagName==='DT'||n.tagName==='LABEL')n.textContent=displayText(tt(key),lang)});
  renderPremiums();
@@ -1726,6 +1765,10 @@ function runSearch(){
  searchRun=null;alternatives=[];
  const started=performance.now();
  const plan=searchPlan(state);
+ // The land's clauses are captured once, at the start of the run. A brief that
+ // moves while the search is running would otherwise change the answer half
+ // way through it.
+ const land=landConstraints();
  const results=[];let i=0;
  const progress=document.createElement('div');progress.className='empty';
  $('searchResults').replaceChildren(progress);
@@ -1734,7 +1777,7 @@ function runSearch(){
  const slice=()=>{
   if(token!==searchToken)return;
   const sliceStart=performance.now();
-  do{results.push(scoreCandidate(plan.list[i++],objective))}
+  do{results.push(scoreCandidate(plan.list[i++],objective,land))}
   while(i<plan.list.length&&performance.now()-sliceStart<SLICE_MS);
   const done=i/plan.list.length;
   progress.replaceChildren();
@@ -1756,7 +1799,16 @@ function applyCandidate(candidate){
 function finishSearch(results,plan,objective,elapsed){
  searchActive=false;
  alternatives=rerank(results,objective);
- searchRun={plan,objective,elapsed,results};
+ // What the land refused, and why. Counted against the first clause each
+ // candidate failed, so the numbers add up to the number refused.
+ const land={far:0,plot:0,form:0};
+ for(const r of results){
+  if(r.metrics.valid)continue;
+  if(r.metrics.reasons.includes('far'))land.far++;
+  else if(r.metrics.reasons.includes('plot'))land.plot++;
+  else land.form++;
+ }
+ searchRun={plan,objective,elapsed,results,land};
  shareSearch(objective);
  renderSearch();
 }
@@ -1770,7 +1822,10 @@ function renderSearch(){
  const blended=regimes[state.regime].heightPull>0&&regimes[state.regime].heightPull<1;
  const seen=new Set();
  const rows=alternatives.filter(r=>{if(seen.has(r.state.family))return false;seen.add(r.state.family);return true}).slice(0,5);
- if(!rows.length){$('searchResults').innerHTML=`<div class="empty"><p>${tt('s.none')}</p></div>`;toast(tt('s.none'));return}
+ const landRefused=(searchRun.land?searchRun.land.far+searchRun.land.plot:0);
+ if(!rows.length){
+  const empty=landRefused>0?tt('s.noneLand'):tt('s.none');
+  $('searchResults').innerHTML=`<div class="empty"><p>${empty}</p></div>`;toast(empty);return}
  const best=rows[0];
  // The columns are ordered by what the reader decides on. The name and the
  // two money columns sit together at the left, because those are what a
@@ -1814,6 +1869,12 @@ function renderSearch(){
  });
  html+=`</tbody></table></div><p class="searchsummary">${plan.examined} ${tt('s.tested')} / ${alternatives.length} ${tt('s.feasible')} / ${plan.examined-alternatives.length} ${tt('s.rejected')}. ${tt('s.target')} ${quantity(plan.target,'m²',lang,0)}. ${tt('s.best')} “${ranking}”${plan.heightVariants>1?' · 2 '+tt('s.heightVariant'):''} · ${elapsed.toFixed(0)} ms</p>`;
  if(blended)html+=`<p class="note">${tt('s.normalizedRanking',{o:Math.round((1-regimes[state.regime].heightPull)*100),h:Math.round(regimes[state.regime].heightPull*100)})}</p>`;
+ if(landRefused>0){
+  const bits=[];
+  if(searchRun.land.far)bits.push(`${searchRun.land.far} ${tt('m.reason.far')}`);
+  if(searchRun.land.plot)bits.push(`${searchRun.land.plot} ${tt('m.reason.plot')}`);
+  html+=`<p class="note">${tt('s.landRefused',{n:String(landRefused),reasons:bits.join(' · ')})}</p>`;
+ }
  $('searchResults').innerHTML=html;
  document.querySelectorAll('[data-candidate]').forEach(b=>b.onclick=()=>applyCandidate(rows[Number(b.dataset.candidate)]));
  drawStudy();restoreStudyFocus(focus);

@@ -253,6 +253,13 @@ body.is-console .titleblock .tb-sheet{display:none}
 #feasibility{font-size:11px;padding:6px 0 6px 10px;border-left:2px solid var(--ink);margin:10px 0}
 #feasibility.valid{border-left-color:#6b8f5e}
 #feasibility.invalid{border-left-color:var(--accent);background:#fdf3e0}
+/* The land's line. It carries the same weight as the form's line and the same
+   left rule, because it is the same kind of sentence: a check with a named
+   subject. It is hidden when the land has nothing to say, so a reader who sees
+   it knows something is wrong. */
+#landCheck{font-size:11px;padding:6px 0 6px 10px;border-left:2px solid var(--ink);margin:10px 0}
+#landCheck.valid{border-left-color:#6b8f5e}
+#landCheck.invalid{border-left-color:var(--accent);background:#fdf3e0}
 
 #premiumPanel{border-top:1px solid var(--line);padding-top:9px;margin:4px 0 12px}
 /* The schedule is on demand. A rail that prints twenty-two figures before the

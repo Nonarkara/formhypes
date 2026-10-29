@@ -1,9 +1,9 @@
 let displayLang='en';
 import {displayText,displaySVG,toDisplay,unitLabel,getPreferences} from './preferences.js?v=48652b12d9';
 // A comparison preserves the person’s reference; it does not choose a winner.
-import {evaluate,massingRings,defaults} from './model.js?v=67662478b8';
-import {normalizeBriefInputs} from './brief.js?v=579be89f62';
-import {validateEnvironment} from './environment.js?v=7a6d03fccf';
+import {evaluate,massingRings,defaults} from './model.js?v=2d88cdbc91';
+import {normalizeBriefInputs} from './brief.js?v=2eb861cb18';
+import {validateEnvironment} from './environment.js?v=0b5971ef04';
 export const cleanStudyName=value=>typeof value==='string'?value.replace(/\s+/g,' ').trim().slice(0,80):'';
 export const cleanStudyNote=value=>typeof value==='string'?value.trim().slice(0,1200):'';
 export function parseStudyPackage(text,validState){

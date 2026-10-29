@@ -6,6 +6,13 @@ import {join,resolve} from 'node:path';
 import {runProbe} from './probe-process.mjs';
 const dir=await mkdtemp(join(tmpdir(),'shdt-contract-mutations-'));
 const cases=[
+ ['the land\u2019s allowance is ignored','model.js',"if(allowance>0&&gross>allowance+1)reasons.push('far');","if(false)reasons.push('far');",'a tower over the land'],
+ ['the land\u2019s footprint is ignored','model.js',"if(!plotFits)reasons.push('plot');","if(false)reasons.push('plot');",'a tower that stands outside the land'],
+ ['the studio\u2019s land verdict vanishes','app.js',"if(K.allowance>0&&metrics.gross>K.allowance+1)","if(false)",'the land names the allowance'],
+ ['the run ignores the land\u2019s clauses','app.js',"scoreCandidate(plan.list[i++],objective,land)","scoreCandidate(plan.list[i++],objective)",'every candidate is scored against the land'],
+ ['a brief larger than the land is solved for the target','solve.js',"const capped=K.allowance>0&&ask>K.allowance;","const capped=false;",'a brief larger than the land'],
+ ['the solver offers a form the land refuses','solve.js',"if(!r.valid)continue;","if(false)continue;",'every answered form is feasible'],
+ ['a plan family answers twice','solve.js',"if(!held||r.score>held.score)best.set(r.state.family,r);","best.set(r.state.family,r);",'one row per plan family'],
  ['phone view tools leave a lone last control','console.css','grid-template-columns:repeat(4,max-content);gap:4px;width:max-content','grid-template-columns:repeat(6,max-content);gap:4px;width:max-content','expanded phone camera tools group'],
  ['compact candidate composition disappears','console.css','@container candidate-desk (max-width:600px)','@container absent-desk (max-width:600px)','phone candidate rows place'],
  ['compact numeric labels disappear','app.js','class="candidate-label" aria-hidden="true"','class="lost-label" aria-hidden="true"','phone decision rows retain'],
@@ -115,12 +122,12 @@ const cases=[
 ];
 // The files the mutants are written into. Everything else is symlinked, so a
 // mutation cannot leak into the working tree.
-const MUTABLE=['app.js','model.js','context.js','environment.js','environment-desk.js','decisions.js',
+const MUTABLE=['app.js','model.js','solve.js','brief.js','context.js','environment.js','environment-desk.js','decisions.js',
  'wind.css','lifts.css','fire.css','carbon.css','console.css','style.css','desks.css','i18n.js','quantity.js','site.js','crowns.js','feng.js','materials.js','glare.js','drawing-viewer.js','fire.js','lifts.js','water.js','wind.js','structure.js','carbon.js','drafting.js'];
 const TESTS=['control-fit.test.mjs','shipability.test.mjs','environment.test.mjs','decisions.test.mjs',
  'fire-units.test.mjs','services-method-audit.test.mjs','wind.test.mjs','structure.test.mjs','carbon.test.mjs','material-name.test.mjs','material-basis.test.mjs','glare-radiometry.test.mjs','drawing-viewer.test.mjs','explore-table.test.mjs','release-graph.test.mjs','site-plot.test.mjs',
  'crown.test.mjs','chrome-fit.test.mjs','site-display-boundary.test.mjs','plot-fit.test.mjs','view-controls.test.mjs','feng.test.mjs',
- 'method-sheet-annotations.test.mjs','deploy-credential.test.mjs','sheet-budget.test.mjs'];
+ 'method-sheet-annotations.test.mjs','deploy-credential.test.mjs','sheet-budget.test.mjs','solve.test.mjs','land-verdict.test.mjs','search-lifecycle.test.mjs'];
 try{
  await mkdir(join(dir,'dist'));await mkdir(join(dir,'tests'));
  await symlink(resolve('node_modules'),join(dir,'node_modules'));

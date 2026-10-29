@@ -15,10 +15,10 @@
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="720">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="style.css?v=0e8171ff40">
+<link rel="stylesheet" href="style.css?v=8036b007c3">
 <link rel="stylesheet" href="settings.css?v=80a5587e69">
 <link rel="stylesheet" href="console.css?v=313a713178">
-<link rel="stylesheet" href="desks.css?v=f79b44362c">
+<link rel="stylesheet" href="desks.css?v=b47bb96089">
 <link rel="stylesheet" href="wind.css?v=bd79000ee3">
 <link rel="stylesheet" href="water.css?v=02731d05a9">
 <link rel="stylesheet" href="glare.css?v=6eb06b1876">
@@ -162,7 +162,7 @@
            skyline came from. In flow with the rest of the sheet footer, so it
            cannot collide with the rows around it. It CAN still be drawn on: the
            canvas is absolutely positioned across the whole sheet, so the drawing
-           is clipped to the field above this band in app.js?v=b403e6f159 Being in flow was
+           is clipped to the field above this band in app.js?v=8972fbd418 Being in flow was
            never sufficient on its own, and a comment claiming it was hid that
            for as long as it stood — orbit the model and the tower went behind
            the credit line. As an absolutely positioned plate it printed across
@@ -195,6 +195,12 @@
       </div>
 
       <div id="feasibility" role="status"></div>
+
+      <!-- The land answers its own question, on its own line, and only when it
+           has something to say. Two checks, two subjects: the form against the
+           studio's own limits, and the land against the brief's plot and
+           allowance. -->
+      <div id="landCheck" role="status" hidden></div>
 
       <!-- Drawings first. The figures an architect reads off a sheet come before
            the schedule; the schedule is on demand, one group at a time. -->
@@ -404,5 +410,5 @@
 <dialog id="knowledgeDialog"><button class="close" data-i18n="d.close">×</button><h2 data-i18n="k.button">Architectural knowledge</h2><div id="knowledgeContent" role="status"></div><p class="knowledgeDownloads"><a href="knowledge/designon-knowledge.json?v=38eb5f372c" download data-i18n="k.download">Download</a><a href="knowledge/DESIGNON-LICENSE.txt?v=1950c131d0" data-i18n="k.license">License</a></p></dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="app.js?v=b403e6f159"></script>
+<script type="module" src="app.js?v=8972fbd418"></script>
 </body></html>

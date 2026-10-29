@@ -33,7 +33,7 @@ import {mountDrawingViewer} from './drawing-viewer.js?v=89fa2f4dac';
    than the stacks carry, the difference stands on the roof, and the figure
    shows it standing there. */
 
-import {stack,profile,area,evaluate} from './model.js?v=67662478b8';
+import {stack,profile,area,evaluate} from './model.js?v=2d88cdbc91';
 import {liftDesign,servicesDesign,CORE_SRC} from './core.js?v=4280077da8';
 import {sheet,cut,leader as draftLeader,dim as draftDim,rule,txt as draftTxt,ground} from './drafting.js?v=5dc3f3c796';
 import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=48652b12d9';

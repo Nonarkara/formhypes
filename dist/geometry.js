@@ -150,6 +150,13 @@ export function loftTable(p){
  * Integrated over arc length u and height z by midpoint rule (Simpson weights do not
  * apply to midpoint nodes, and the integrand is linear-dominant inside a level).
  */
+/* The inner loop is the studio's hottest code: it runs once per level per
+   candidate, and a candidate search runs it a few hundred times. It used to
+   build a two-element array for every sample — the garbage collector was a
+   tenth of the profile — and to read the edge's four numbers out of the edge
+   object on every sample too. Both are gone, and the arithmetic is the same
+   expression in the same order, so the number that comes out is the number that
+   came out before. tests/model-identity.test.mjs holds the proof. */
 export function lateralArea(tab,z0,z1,s,s0,th,th0,NZ=8,NU=12){
   if(z1<=z0)return 0;
   const dz=(z1-z0)/NZ;
@@ -160,14 +167,16 @@ export function lateralArea(tab,z0,z1,s,s0,th,th0,NZ=8,NU=12){
     const sz=s(zm),s0z=s0(zm),t0z=th0(zm);
     let inner=0;
     for(const e of tab.edges){
+      const ex=e.d[0],ey=e.d[1],ax=e.A[0],ay=e.A[1],el=e.L;
+      const step=el/NU;
       let seg=0;
       for(let j=0;j<NU;j++){
         const f=(j+.5)/NU;
-        const q=[e.A[0]+e.d[0]*e.L*f,e.A[1]+e.d[1]*e.L*f];
-        const lever=q[0]*e.d[0]+q[1]*e.d[1];      // q′×Jq = q·q′
-        const crossq=cross2(e.d,q);              // q′×q
+        const qx=ax+ex*el*f,qy=ay+ey*el*f;
+        const lever=qx*ex+qy*ey;               // q′×Jq = q·q′
+        const crossq=ex*qy-ey*qx;              // q′×q
         const I=Math.sqrt(sz*sz+(sz*s0z*crossq+sz*sz*t0z*lever)**2);
-        seg+=I*(e.L/NU);
+        seg+=I*step;
       }
       inner+=seg;
     }
@@ -358,6 +367,33 @@ export function distToBoundary(p,v){
   return best;
 }
 
+/** The same measurement, squared, and without the square root.
+ *
+ *  The daylight quadrature asks one question of every sample: is this point
+ *  within the sky reach? That question is about a comparison, and a comparison
+ *  does not need the distance itself — it needs the distance against the reach
+ *  squared. Math.hypot was called eight thousand times per evaluation to
+ *  produce a number nobody read, and hypot is deliberately slower than sqrt
+ *  because it is careful about overflow. This returns the squared distance to
+ *  the boundary; the reach is squared by the caller and the two are compared.
+ *
+ *  The sample count is a quadrature estimate and says so wherever it is shown,
+ *  so a difference of one part in 10^16 in a distance is not a change in the
+ *  answer. tests/model-identity.test.mjs still compares the two paths over a
+ *  wide sample of plates and reaches and requires them to agree. */
+function distSqToBoundary(p,vx,vy){
+  let best=Infinity;
+  for(let i=0;i<p.length;i++){
+    const a=p[i],b=p[(i+1)%p.length];
+    const abx=b[0]-a[0],aby=b[1]-a[1],L2=abx*abx+aby*aby;
+    const t=L2<1e-18?0:Math.max(0,Math.min(1,((vx-a[0])*abx+(vy-a[1])*aby)/L2));
+    const dx=vx-(a[0]+abx*t),dy=vy-(a[1]+aby*t);
+    const q=dx*dx+dy*dy;
+    if(q<best)best=q;
+  }
+  return best;
+}
+
 /**
  * The fraction of the plate that can still see the sky.
  *
@@ -373,21 +409,28 @@ export function daylitFraction(p,reach,N=28){
   for(const [x,y] of p){xs[0]=Math.min(xs[0],x);xs[1]=Math.max(xs[1],x);ys[0]=Math.min(ys[0],y);ys[1]=Math.max(ys[1],y)}
   const w=xs[1]-xs[0],h=ys[1]-ys[0];
   if(w<1e-12||h<1e-12)return 0;
+  const reach2=reach*reach;
   let inside=0,lit=0;
   for(let i=0;i<N;i++)for(let j=0;j<N;j++){
-    const v=[xs[0]+w*(i+.5)/N, ys[0]+h*(j+.5)/N];
-    if(!pointInPolygon(p,v))continue;
+    const vx=xs[0]+w*(i+.5)/N, vy=ys[0]+h*(j+.5)/N;
+    if(!pointInXY(p,vx,vy))continue;
     inside++;
-    if(distToBoundary(p,v)<=reach)lit++;
+    if(distSqToBoundary(p,vx,vy)<=reach2)lit++;
   }
   return inside?lit/inside:0;
 }
 
-export function pointInPolygon(p,v){
+export function pointInPolygon(p,v){return pointInXY(p,v[0],v[1])}
+
+/** The same test, with the point's coordinates already in hand. The public
+ *  form takes a pair because that is how callers hold a point; the loops that
+ *  test thousands of points have the numbers already and should not rebuild a
+ *  pair for each one. */
+export function pointInXY(p,vx,vy){
   let c=false;
   for(let i=0,j=p.length-1;i<p.length;j=i++){
     const a=p[i],b=p[j];
-    if((a[1]>v[1])!==(b[1]>v[1])&&v[0]<(b[0]-a[0])*(v[1]-a[1])/(b[1]-a[1])+a[0])c=!c;
+    if((a[1]>vy)!==(b[1]>vy)&&vx<(b[0]-a[0])*(vy-a[1])/(b[1]-a[1])+a[0])c=!c;
   }
   return c;
 }

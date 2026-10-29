@@ -1,18 +1,18 @@
 import {toDisplay,fromDisplay,unitLabel,displayText} from './preferences.js?v=48652b12d9';
 // A contained Studio shell. Existing desks, ids and event listeners are moved,
 // not recreated; their calculations and drawings remain the working product.
-import {profile,stack,grossOf} from './model.js?v=67662478b8';
-import {renderCarbonLab} from './carbon.js?v=d90e397524';
-import {renderLiftsLab} from './lifts.js?v=a839f5889c';
-import {renderFireLab} from './fire.js?v=2fe91fc6df';
-import {renderWindLab} from './wind.js?v=188de29185';
-import {renderWaterLab} from './water.js?v=7fe945a8bd';
-import {renderGlareLab} from './glare.js?v=e488300d4d';
-import {renderFacade} from './facade.js?v=a6f7de2b5e';
+import {profile,stack,grossOf} from './model.js?v=2d88cdbc91';
+import {renderCarbonLab} from './carbon.js?v=97a71f473a';
+import {renderLiftsLab} from './lifts.js?v=8f9831107e';
+import {renderFireLab} from './fire.js?v=a5d9fbf8cc';
+import {renderWindLab} from './wind.js?v=24a314d353';
+import {renderWaterLab} from './water.js?v=051ae18764';
+import {renderGlareLab} from './glare.js?v=43c42ba01b';
+import {renderFacade} from './facade.js?v=524ad1c0ce';
 export const CONSOLE_TEXT={
- en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Lifts','Evacuation','Wind','Water','Glare','Carbon','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close',briefTabs:['Land & brief','Schemes & corners','Thesis controls']},
- th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',capacityShort:'พื้นที่ / ที่ให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','ลิฟต์','อพยพหนีไฟ','อุโมงค์ลม','ระบบน้ำ','แสงสะท้อน','คาร์บอน','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด',briefTabs:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมจากวิทยานิพนธ์']},
- zh:{capacity:'模型总面积 / 面积额度',capacityShort:'面积 / 额度',crosses:'建筑超出假设地块边界',land:'用地 · m²',far:'容积率',city:'城市',assumption:'假设正方形地块 · 容积率为情景输入',work:[ '形体','任务书','核心筒','电梯','疏散','风洞','给排水','反光','碳排放','构造','幕墙','场地','风水','视角','探索','存档' ],rail:['设计','表现'],site:['地基与文化','邻里与日照','落位','环境'],tools:'工作区',open:'参数',close:'关闭',briefTabs:['用地与任务书','方案与转角','论文参数']}
+ en:{capacity:'Model gross / area allowance',capacityShort:'Area / allowance',crosses:'Building crosses the assumed plot boundary',land:'Land · m²',far:'FAR',city:'City',assumption:'Illustrative square plot · FAR assumption',work:[ 'Form','Brief','Core','Lifts','Evacuation','Wind','Water','Glare','Carbon','Assembly','Façade','Place','Feng Shui','Walk-in','Explore','Studies' ],rail:['Design','Performance'],site:['Ground & culture','Neighbours & sun','Stand here','Effects'],tools:'Workspaces',open:'Parameters',close:'Close'},
+ th:{capacity:'พื้นที่โมเดล / พื้นที่ที่สมมติให้สร้างได้',capacityShort:'พื้นที่ / ที่ให้สร้างได้',crosses:'อาคารเลยขอบที่ดินสมมติ',land:'ที่ดิน · ตร.ม.',far:'อัตราส่วนพื้นที่',city:'เมือง',assumption:'ที่ดินสี่เหลี่ยมสมมติ · อัตราส่วนพื้นที่เป็นสมมติฐาน',work:[ 'รูปทรง','โจทย์','แกนกลาง','ลิฟต์','อพยพหนีไฟ','อุโมงค์ลม','ระบบน้ำ','แสงสะท้อน','คาร์บอน','การประกอบ','เปลือก','ที่ตั้ง','ฮวงจุ้ย','มุมมอง','สำรวจ','แบบที่เก็บ' ],rail:['ออกแบบ','ผลคำนวณ'],site:['ดินและวัฒนธรรม','เพื่อนบ้านและแดด','ตั้งตรงนี้','สิ่งแวดล้อม'],tools:'พื้นที่ทำงาน',open:'พารามิเตอร์',close:'ปิด'},
+ zh:{capacity:'模型总面积 / 面积额度',capacityShort:'面积 / 额度',crosses:'建筑超出假设地块边界',land:'用地 · m²',far:'容积率',city:'城市',assumption:'假设正方形地块 · 容积率为情景输入',work:[ '形体','任务书','核心筒','电梯','疏散','风洞','给排水','反光','碳排放','构造','幕墙','场地','风水','视角','探索','存档' ],rail:['设计','表现'],site:['地基与文化','邻里与日照','落位','环境'],tools:'工作区',open:'参数',close:'关闭'}
 };
 export function siteLedger(state,inputs){
  const st=stack(state),height=st.at(-1).z+st.at(-1).h,half=Math.sqrt(inputs.plot)/2;

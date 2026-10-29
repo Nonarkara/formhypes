@@ -69,7 +69,7 @@ const MEDIA = ['research/artifacts/ags-anchorage-2436.png','research/media/offic
   'research/artifacts/chen-fig40.png', 'research/artifacts/chen-fig49.png',
   'research/protocol-en.txt','research/protocol-th.txt','research/protocol-zh.txt'];
 const DESKS=['structure.js','facade.js','brief.js','walk.js','context.js','explore.js','feng.js','wind.js','water.js','glare.js','lifts.js','fire.js','carbon.js'];
-const IN_APP = ['./preferences.js','./settings.js','./display-exports.js','./assembly.js','./structure.js','./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./core3d.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./feng.js','./context.js','./explore.js','./site.js','./ground.data.js','./reach.js','./drafting.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './research.js', './quantity.js', 'knowledge/designon-knowledge.json'];
+const IN_APP = ['./preferences.js','./settings.js','./display-exports.js','./assembly.js','./structure.js','./decisions.js','./environment.js','./environment-desk.js','./areasplit.js','./schema.js','./manual-text.js','./manual.js','./crowns.js','./core.js','./core3d.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js','./console.js','./modulor.js','./research-reader.js','./brief.js','./walk.js','./feng.js','./context.js','./explore.js','./site.js','./ground.data.js','./reach.js','./drafting.js', './reader.js', './play.js', './location.js', './solar.js', './model.js', './geometry.js', './i18n.js', './solve.js', './research.js', './quantity.js', 'knowledge/designon-knowledge.json'];
 const IN_HTML = ['drawing-viewer.css','settings.css','console.css','desks.css','wind.css','water.css','glare.css','lifts.css','fire.css','carbon.css','assembly.css','style.css', 'app.js', 'knowledge/designon-knowledge.json', 'knowledge/DESIGNON-LICENSE.txt'];
 
 for(const lang of ['en','th','zh'])await write(`research/protocol-${lang}.txt`,researchProtocol(lang));
@@ -109,10 +109,15 @@ const det = stamp(await read('details.js'), ['./preferences.js','./drafting.js']
 await write('details.js', det);ids['details.js']=sha(det);
 const model = stamp(await read('model.js'), ['./geometry.js','./schema.js','./solar.js','./crowns.js','./materials.js','./details.js','./cityscape.js','./cityscape.data.js'], ids);
 await write('model.js', model);ids['model.js']=sha(model);
+// The solver reads the model and the schema, and it is stamped before the desks
+// that import it — the same ordering rule as the model itself. A hand-written
+// stamp on solve.js would rot the moment the model moved.
+const solve = stamp(await read('solve.js'), ['./model.js','./schema.js'], ids);
+await write('solve.js', solve);ids['solve.js']=sha(solve);
 const manual = stamp(await read('manual.js'), ['./schema.js','./manual-text.js','./model.js'], ids);
 await write('manual.js', manual);ids['manual.js']=sha(manual);
 
-for(const f of DESKS){const src=stamp(await read(f), ['./preferences.js','./structure.js','./wind.js','./core.js','./drafting.js','./drawing-viewer.js','./modulor.js','./model.js','./solar.js','./geometry.js','./lens.js','./site.js','./ground.data.js','./cityscape.data.js','./cityscape.js','./i18n.js','./schema.js',...MEDIA], ids);await write(f,src);ids[f]=sha(src)}
+for(const f of DESKS){const src=stamp(await read(f), ['./preferences.js','./structure.js','./wind.js','./core.js','./drafting.js','./drawing-viewer.js','./modulor.js','./model.js','./solar.js','./geometry.js','./lens.js','./site.js','./ground.data.js','./cityscape.data.js','./cityscape.js','./i18n.js','./schema.js','./solve.js',...MEDIA], ids);await write(f,src);ids[f]=sha(src)}
 
 for(const f of ['environment.js','environment-desk.js','decisions.js']){const src=stamp(await read(f),['./preferences.js','./model.js','./brief.js','./cityscape.js','./solar.js','./context.js','./environment.js'],ids);await write(f,src);ids[f]=sha(src)}
 

@@ -32,7 +32,7 @@ import {mountDrawingViewer} from './drawing-viewer.js?v=89fa2f4dac';
 
    Everything above the DOM section is pure and DOM-free so it can be tested. */
 import {liftDesign,CORE_METHOD,liftSpeed} from './core.js?v=4280077da8';
-import {stack,evaluate} from './model.js?v=67662478b8';
+import {stack,evaluate} from './model.js?v=2d88cdbc91';
 import {sheet,cut,beyond,leader as draftLeader,head,dim as draftDim,rule,txt as draftTxt,ground,flow} from './drafting.js?v=5dc3f3c796';
 import {displayText,displayContext,getPreferences,getRateBook,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=48652b12d9';
 let displayLang='en',displayKey='';

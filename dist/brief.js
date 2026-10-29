@@ -1,5 +1,5 @@
 let displayLang='en';
-import {displayText,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=48652b12d9';
+import {displayText,toDisplay,fromDisplay,unitLabel,formatAmount} from './preferences.js?v=48652b12d9';
 // FormHypes — front-of-house brief desk
 // The conversation that happens before any geometry exists: what the client
 // asked for, what the plot will carry, and what has to be given up.
@@ -9,7 +9,9 @@ import {displayText,toDisplay,fromDisplay,unitLabel} from './preferences.js?v=48
 // hold a parameter Chen specifies, this panel says so on screen rather than
 // approximating it quietly.
 
-import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=67662478b8';
+import {families, profile, cornerZones, stackHeight,grossOf} from './model.js?v=2d88cdbc91';
+import {briefConstraints,solvePlan,solveScore,refusedTally,REASONS} from './solve.js?v=22a377dbcc';
+import {t as I18N} from './i18n.js?v=1c67987a57';
 
 export const BRIEF_I18N={
 en:{
@@ -223,6 +225,10 @@ const TYPE_STATUS={branch:'ty.approx',setback:'ty.approx',faceted:'ty.none',skin
 
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=displayText(String(text),displayLang);if(cls)n.className=cls;return n};
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+/** Fill the named holes in a translated string. The desk's own dictionary is
+ *  read per language and never passed through the global translator, so the
+ *  substitution is done here where the values are known. */
+const fill=(s,params)=>String(s??'').replace(/\{(\w+)\}/g,(_,k)=>params&&params[k]!==undefined?String(params[k]):'{'+k+'}');
 
 /** Three schemes, three genuinely different pieces of arithmetic — not three
  *  labels on one result. The podium genuinely splits the brief, which is the
@@ -267,6 +273,63 @@ function massingSVG(state){
 }
 
 let briefTab=0;
+
+/* ── the solve ──────────────────────────────────────────────────────────────
+   The brief read as a constraint set, and the forms that satisfy it.
+
+   The run lives at module scope so that a redraw for any other reason does
+   not restart it, and it is dropped when the brief or the studio's settings
+   move under it. The search is sliced exactly as the candidate search is: a
+   frozen page is worse than a slow one, and the progress line is the reader's
+   proof that it is working. */
+let solveRun=null,solveToken=0;
+
+const briefAsConstraint=()=>({plot:desk.plot,far:desk.far,cap:desk.cap,target:desk.gfa});
+
+/** What the solve depends on. The plan, the storey count and the span of the
+ *  current tower are deliberately not in it: the solve sizes its own plans, and
+ *  applying one of them changes those three without making the answer wrong. */
+function solveSignature(state){
+ return JSON.stringify([desk.plot,desk.far,desk.cap,desk.gfa,state.taper,state.twist,state.height,
+  state.core,state.frontage,state.common,state.rent,state.premium,state.occupancy,state.site,
+  state.maxHeight,state.skin,state.material,state.system,state.program,state.crown,state.garden,
+  state.detail,state.regime,state.led]);
+}
+
+/** One row per plan family: the best storey count that family can reach. */
+function assembleSolve(run,state){
+ const best=new Map();
+ for(const r of run.results){
+  if(!r.valid)continue;
+  const held=best.get(r.state.family);
+  if(!held||r.score>held.score)best.set(r.state.family,r);
+ }
+ const rows=[...best.values()].sort((a,b)=>b.score-a.score);
+ const refused=refusedTally(run.results);
+ return {rows,refused,refusedCount:Object.values(refused).reduce((a,b)=>a+b,0),
+  reference:best.get(state.family)||null};
+}
+
+function startSolve(state,again){
+ const token=++solveToken;
+ const plan=solvePlan(state,briefAsConstraint());
+ const run={token,plan,results:[],i:0,started:performance.now(),done:false,node:null,sig:solveSignature(state)};
+ solveRun=run;
+ const slice=()=>{
+  if(token!==solveToken||solveRun!==run)return;
+  const t0=performance.now();
+  do{run.results.push(solveScore(run.plan.list[run.i++],run.plan.K))}
+  while(run.i<run.plan.list.length&&performance.now()-t0<8);
+  if(run.i<run.plan.list.length){paintSolve(run);setTimeout(slice,0);return}
+  run.done=true;again();
+ };
+ slice();
+}
+function paintSolve(run){
+ if(!run.node)return;
+ run.node.textContent=run.i+' / '+run.plan.list.length+' '+displayText(String(I18N[displayLang]&&I18N[displayLang]['s.tested']||'tested'),displayLang);
+}
+
 export function renderBrief({lang,state,changed,onInputs}){
  displayLang=lang;
  const c=BRIEF_I18N[lang]||BRIEF_I18N.en;
@@ -471,11 +534,65 @@ export function renderBrief({lang,state,changed,onInputs}){
   const tr=el('tr');tr.append(cell,act);t7.b.append(tr);
  }
  s7.append(t7.t);
+ /* 9 · the solve — the brief read as a constraint set */
+ const s8=section(c['sec.solve']);
+ s8.append(el('p',c['solve.lede'],'br-note'));
+ const K=briefConstraints(briefAsConstraint(),state);
+ const allowance=K.allowance,ask=K.target;
+ if(allowance>0&&ask>allowance)verdict(s8,fill(c['solve.capped'],{0:num(ask),1:num(allowance),2:num(desk.far,1)}),true);
+ // A solve computed for a brief or a studio that has since moved is not an
+ // answer to the question now in front of the reader.
+ if(solveRun&&solveRun.sig!==solveSignature(state)){solveToken++;solveRun=null}
+ const run=solveRun;
+ if(!run){
+  const b=el('button',c['solve.run']);b.type='button';b.id='br-solve';
+  b.onclick=()=>startSolve(state,again);
+  s8.append(b);
+ }else if(!run.done){
+  const box=el('div',undefined,'br-solve-run'),line=el('p');
+  box.append(line);s8.append(box);run.node=line;paintSolve(run);
+ }else{
+  const {rows,refused,refusedCount,reference}=assembleSolve(run,state);
+  if(!rows.length){
+   s8.append(el('p',c['solve.none'],'br-note'));
+  }else{
+   // Three columns, not eight. Every row delivers the same area by design, so
+   // gross is stated once in the note below rather than repeated down a column,
+   // and storeys, height and rentable area are the plan's own facts: they sit
+   // under its name, where a phone can hold them. What the reader compares
+   // across rows is the money, so the money keeps its own column.
+   const t8=table(['solve.col.plan','solve.col.contribution']);
+   t8.t.classList.add('br-solve-table');
+   t8.t.querySelector('thead tr').append(el('th'));
+   for(const r of rows){
+    const d=r.score-(reference?reference.score:0);
+    const tr=el('tr');
+    const name=el('th');name.scope='row';
+    name.append(el('strong',c['fam.'+r.state.family]||r.state.family));
+    if(r.state.family===state.family)name.append(el('span',c['solve.yours'],'br-tag'));
+    name.append(el('span',`${r.state.floors} ${c['solve.col.storeys']} · ${num(r.metrics.heightTotal,0)} ${c['u.m']} · ${num(r.metrics.rentable)} ${c['u.m2']}`,'br-sub'));
+    const money=el('td');
+    money.append(el('span',formatAmount(r.metrics.contribution,lang)),el('span',(d>=0?'+':'')+formatAmount(d,lang),'br-sub'));
+    const act=el('td'),jb=el('button',c['solve.col.apply']);jb.type='button';
+    jb.onclick=()=>changed({family:r.state.family,floors:r.state.floors,span:r.state.span});
+    act.append(jb);tr.append(name,money,act);
+    t8.b.append(tr);
+   }
+   s8.append(t8.t);
+   // Why the others were refused, counted against the first clause each failed.
+   const parts=REASONS.filter(x=>refused[x]).map(x=>`${refused[x]} ${(I18N[lang]&&I18N[lang]['m.reason.'+x])||x}`);
+   s8.append(el('p',fill(c['solve.refused'],{0:String(refusedCount),1:parts.join(' · ')||'—'}),'br-note'));
+   s8.append(el('p',c['solve.deltaNote'],'br-note'));
+  }
+ }
+ s8.append(el('p',c['solve.space'],'br-note'));
+ s8.append(el('p',c['solve.notLaw'],'br-note'));
+
  const tabs=el('nav',undefined,'brief-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label',c.title);
- const sections=[[s1,s2,s3],[s4,s5],[s6,s7]],names={en:['Land & brief','Schemes & corners','Thesis controls'],th:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมวิทยานิพนธ์'],zh:['用地与任务书','方案与转角','论文参数']}[lang];
+ const sections=[[s1,s2,s3],[s4,s5],[s6,s7],[s8]],names={en:['Land & brief','Schemes & corners','Thesis controls','Solve'],th:['ที่ดินและโจทย์','ทางเลือกและมุม','ตัวควบคุมวิทยานิพนธ์','แก้โจทย์'],zh:['用地与任务书','方案与转角','论文参数','解算']}[lang];
  const select=i=>{briefTab=i;[...tabs.children].forEach((b,j)=>{b.setAttribute('aria-selected',String(i===j));b.tabIndex=i===j?0:-1});sections.forEach((group,j)=>group.forEach(s=>s.hidden=i!==j))};
- names.forEach((name,i)=>{const b=el('button',name);b.type='button';b.setAttribute('role','tab');b.onclick=()=>select(i);b.onkeydown=e=>{let n;if(e.key==='ArrowRight')n=(i+1)%3;if(e.key==='ArrowLeft')n=(i+2)%3;if(n!==undefined){e.preventDefault();select(n);tabs.children[n].focus()}};tabs.append(b)});
- root.append(tabs,s1,s2,s3,s4,s5,s6,s7,el('p',c['as.end'],'br-disclaimer'));select(briefTab);
+ names.forEach((name,i)=>{const b=el('button',name);b.type='button';b.setAttribute('role','tab');b.onclick=()=>select(i);b.onkeydown=e=>{let n;if(e.key==='ArrowRight')n=(i+1)%4;if(e.key==='ArrowLeft')n=(i+3)%4;if(n!==undefined){e.preventDefault();select(n);tabs.children[n].focus()}};tabs.append(b)});
+ root.append(tabs,s1,s2,s3,s4,s5,s6,s7,s8,el('p',c['as.end'],'br-disclaimer'));select(briefTab);
  host.append(root);
 
  if(focused)document.getElementById(focused)?.focus({preventScroll:true});
@@ -515,3 +632,49 @@ export function normalizeBriefInputs(snapshot){
 export function restoreBriefInputs(snapshot){
  const next=normalizeBriefInputs(snapshot);if(!next)return false;Object.assign(desk,next);return true;
 }
+
+/* ── the solve: the brief read as a constraint set ────────────────────────
+   Written per language, as everything in this desk is. The claim is the
+   point: a solve that says what it searched and what it refused is worth
+   reading in the reader's own language, and a refusal carried across in
+   English would be a refusal the reader has to translate before they can
+   argue with it. */
+Object.assign(BRIEF_I18N.en,{
+ 'sec.solve':'9 · Solve the brief',
+ 'solve.lede':'The brief read as a constraint set: the land, the allowance it carries, the height cap, and the area asked for. The solver looks for the forms that satisfy every clause, and names the clause that stopped the ones it could not.',
+ 'solve.capped':'Your brief asks for {0} m². This plot allows {1} m² at floor area ratio {2}. The solve below is for the allowance — the most this land can carry.',
+ 'solve.run':'Find the forms that meet this brief',
+ 'solve.none':'No plan family meets this brief as it stands. The refusals below say which clause stopped each one.',
+ 'solve.refused':'{0} candidates were refused. The first clause each failed: {1}.',
+ 'solve.yours':'your current plan',
+ 'solve.deltaNote':'Every row delivers the same area, so the contribution column is the value of the form and not of its size. Under each plan: storeys, height, and rentable area. The contribution is annual; the delta is against your own plan at this same brief.',
+ 'solve.space':'The space searched: eleven plan families, every storey count the height cap allows, and the roof scale and twist as you have them. A bounded search, not an optimiser — and it names the candidates it refused.',
+ 'solve.notLaw':'The plot and the floor area ratio are the brief’s own assumptions. Nothing on this tab is a code compliance check.',
+ 'solve.col.plan':'Plan','solve.col.storeys':'storeys','solve.col.contribution':'Contribution · Δ','solve.col.apply':'Use'
+});
+Object.assign(BRIEF_I18N.th,{
+ 'sec.solve':'9 · แก้โจทย์ให้ได้',
+ 'solve.lede':'อ่านโจทย์เป็นชุดเงื่อนไข ที่ดิน โควตาที่ดินรับได้ เพดานความสูง และพื้นที่ที่ขอ โปรแก้จะหารูปทรงที่ผ่านทุกข้อ และบอกว่าข้อไหนหยุดรูปทรงที่หาไม่ได้',
+ 'solve.capped':'โจทย์ของคุณขอ {0} ตร.ม. แปลงที่ดินนี้รับได้ {1} ตร.ม. ที่อัตราส่วนพื้นที่ {2} การแก้ข้างล่างจึงใช้ปริมาณที่แปลงนี้รับได้ คือมากที่สุดที่ที่ดินผืนนี้รับไหว',
+ 'solve.run':'หารูปทรงที่ผ่านโจทย์นี้',
+ 'solve.none':'ยังไม่มีผังใดที่ผ่านโจทย์นี้ ดูเหตุผลที่ปฏิเสธด้านล่างว่าข้อไหนหยุดแต่ละรูป',
+ 'solve.refused':'มี {0} ตัวเลือกที่ถูกปฏิเสธ ข้อแรกที่แต่ละตัวไม่ผ่านคือ {1}',
+ 'solve.yours':'ผังที่ใช้อยู่ตอนนี้',
+ 'solve.deltaNote':'ทุกแถวส่งมอบพื้นที่เท่ากัน คอลัมน์รายได้จึงเป็นค่าของรูปทรง ไม่ใช่ของขนาด ใต้ชื่อผังคือจำนวนชั้น ความสูง และพื้นที่ให้เช่า รายได้เป็นรายปี ผลต่างวัดจากผังของคุณที่โจทย์เดียวกัน',
+ 'solve.space':'ขอบเขตที่ค้นหา ผังสิบเอ็ดแบบ ทุกจำนวนชั้นที่เพดานความสูงยอมให้ และค่าการหดตัวกับการบิดที่คุณตั้งไว้ เป็นการค้นในขอบเขตที่ประกาศไว้ ไม่ใช่การหาค่าที่ดีที่สุด และจะบอกว่าตัวเลือกใดถูกปฏิเสธ',
+ 'solve.notLaw':'แปลงที่ดินและอัตราส่วนพื้นที่เป็นสมมติฐานของโจทย์ ไม่มีอะไรในแท็บนี้เป็นการตรวจกฎหมาย',
+ 'solve.col.plan':'ผัง','solve.col.storeys':'ชั้น','solve.col.contribution':'รายได้ · ผลต่าง','solve.col.apply':'ใช้'
+});
+Object.assign(BRIEF_I18N.zh,{
+ 'sec.solve':'9 · 解算任务书',
+ 'solve.lede':'把任务书读作一组约束：用地、用地可承载的额度、高度上限以及所求面积。求解器寻找满足每一条的形式，并说明它无法满足的那些被哪一条挡住。',
+ 'solve.capped':'你的任务书要求 {0} 平方米。此用地按容积率 {2} 可承载 {1} 平方米。下面的解算针对该额度——用地所能承担的上限。',
+ 'solve.run':'找出满足本任务书的形式',
+ 'solve.none':'目前没有任何平面能满足这份任务书。下方拒绝原因说明每种形式被哪一条挡住。',
+ 'solve.refused':'有 {0} 个候选被拒。每个最先不满足的条件是 {1}。',
+ 'solve.yours':'你当前的平面',
+ 'solve.deltaNote':'每一行交付的面积相同，因此收益列反映的是形式本身，而非体量。每个平面名称下依次为层数、高度和可租面积；贡献为年度值，差值以你自己的平面在同一任务书下的结果为基准。',
+ 'solve.space':'搜索范围：十一种平面、高度上限允许的每一个楼层数，以及你当前的收分与扭转。这是限定范围的搜索，不是最优化求解，并且会说明哪些候选被拒绝。',
+ 'solve.notLaw':'用地与容积率是任务书自身的假设。此标签页不构成任何法规合规检查。',
+ 'solve.col.plan':'平面','solve.col.storeys':'层','solve.col.contribution':'贡献 · 差值','solve.col.apply':'采用'
+});
